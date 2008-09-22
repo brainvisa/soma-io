@@ -1,0 +1,4 @@
+#-----------------------------------------------------------------------------
+class SomaIOComponent( GenericMakerComponent ):
+  _name = 'soma-io'
+
