@@ -2,3 +2,9 @@
 class SomaIOComponent( GenericMakerComponent ):
   _name = 'soma-io'
 
+  def shareDir( self ):
+    return os.path.join( 'share', 'soma-' + self.version() )
+
+  def docDir( self ):
+    return os.path.join( 'share', 'doc', 'soma-' + self.version() )
+
