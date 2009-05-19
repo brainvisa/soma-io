@@ -1,0 +1,14 @@
+set( _project "@PROJECT_NAME@" )
+string( TOUPPER "@PROJECT_NAME@" _uproject )
+
+set( ${_project}_VERSION_MAJOR @soma-io_VERSION_MAJOR@ )
+set( ${_project}_VERSION_MINOR @soma-io_VERSION_MINOR@ )
+set( ${_project}_VERSION_PATCH @soma-io_VERSION_PATCH@ )
+set( ${_project}_VERSION @soma-io_VERSION@ )
+
+find_package( Doxygen )
+
+get_filename_component( ${_uproject}_BINARY_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH )
+get_filename_component( ${_uproject}_BINARY_DIR "${${_uproject}_BINARY_DIR}" PATH )
+
+set( ${_uproject}_FOUND true )

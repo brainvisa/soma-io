@@ -1,13 +1,17 @@
-PROJECT(SOMAIO)
+cmake_minimum_required( VERSION 2.6 )
 
-cmake_minimum_required(VERSION 2.4)
+find_package( brainvisa-cmake REQUIRED )
 
-IF(COMMAND cmake_policy)
-  cmake_policy(VERSION 2.4)
-  cmake_policy(SET CMP0002 NEW)
-  cmake_policy(SET CMP0003 NEW)
-#  cmake_policy(SET CMP0005 OLD)
-ENDIF(COMMAND cmake_policy)
+BRAINVISA_PROJECT()
 
-ADD_SUBDIRECTORY(src)
+find_package( Doxygen )
 
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+
+add_subdirectory( src )
+
+set( SOMA-IO_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}" )
+set( SOMA-IO_BINARY_DIR "${CMAKE_BINARY_DIR}" )
+
+BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
