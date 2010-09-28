@@ -49,8 +49,14 @@ GisFormatReader::GisFormatReader( const std::string &file_name ) : header_not_re
 }
 
 
-void GisFormatReader::voxels( void *, int offset_x, int offset_y, int offset_z, int offset_t )
+void GisFormatReader::copy_voxels_to_memory( void *, int offset_x, int offset_y, int offset_z, int offset_t )
 {
+}
+
+
+void *GisFormatReader::mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t )
+{
+  return NULL;
 }
 
 

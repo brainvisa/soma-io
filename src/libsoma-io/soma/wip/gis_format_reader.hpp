@@ -79,7 +79,8 @@ public:
     return vtype;
   }
   
-  void voxels( void *, int offset_x, int offset_y, int offset_z, int offset_t );
+  void copy_voxels_to_memory( void *, int offset_x, int offset_y, int offset_z, int offset_t );
+  void *mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t );
   
   // Voxel size
   // Image size
