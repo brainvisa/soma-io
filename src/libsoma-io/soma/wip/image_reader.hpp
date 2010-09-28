@@ -56,7 +56,8 @@ public:
   
   // Image data
   virtual DataType voxel_type() = 0;
-  virtual void voxels( void *, int offset_x, int offset_y, int offset_z, int offset_t ) = 0;
+  virtual void copy_voxels_to_memory( void *, int offset_x, int offset_y, int offset_z, int offset_t ) = 0;
+  virtual void *mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t ) = 0;
   
   // Voxel size
   virtual double voxel_size_x() = 0;
@@ -80,10 +81,15 @@ public:
   
   // Image data
   inline DataType voxel_type() { return format.voxel_type(); }
-  inline void voxels( void *pointer, int offset_x, int offset_y, int offset_z, int offset_t )
+  inline void copy_voxels_to_memory( void *pointer, int offset_x, int offset_y, int offset_z, int offset_t )
   {
-    return format.voxels( pointer, offset_x, offset_y, offset_z, offset_t );
+    return format.copy_voxels_to_memory( pointer, offset_x, offset_y, offset_z, offset_t );
   }
+  inline void *mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t )
+  {
+    return format.copy_voxels_to_memory( offset_x, offset_y, offset_z, offset_t );
+  }
+  
   
   // Voxel size
   inline double voxel_size_x() { return format.voxel_size_x(); }

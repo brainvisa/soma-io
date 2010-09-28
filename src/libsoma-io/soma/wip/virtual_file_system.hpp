@@ -133,7 +133,7 @@ public:
   virtual std::string get_relative_path( const FileRef &parent ) const = 0;
   virtual FileRef resolve_relative_path( const std::string & ) const = 0;
   virtual bool is_native() const = 0;
-  virtual bool has_uri_scheme( cosnt string &uri_scheme ) const = 0;
+  virtual bool has_uri_scheme( const string &uri_scheme ) const = 0;
   virtual std::string get_uri_scheme() const = 0;
   virtual FileInputStreamRef read( CancellableRef cancellable ) const = 0;
   virtual FileOutputStream append_to( GFileCreateFlags flags,
