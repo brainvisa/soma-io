@@ -36,17 +36,15 @@
 #ifndef SOMA_IMAGE_READER
 #define SOMA_IMAGE_READER
 
+#include <soma/wip/file_formats.hpp>
+
+
 namespace soma {
 
 
 class ImageReader
 {
 public:
-
-  typedef enum
-  {
-    U8, S8, U16, S16, U32, S32, RGB, RGBA
-  } DataType;
   
   // Image size
   virtual int image_size_x() = 0;
@@ -64,42 +62,6 @@ public:
   virtual double voxel_size_y() = 0;
   virtual double voxel_size_z() = 0;
   virtual double voxel_size_t() = 0;
-};
-
-
-
-template < class FormatReader >
-class ImageReaderOf : ImageReader
-{
-public:
-  inline ImageReaderOf( FormatReader &format_reader ) : format( format_reader ) {}
-  
-  inline int image_size_x() { return format.image_size_x(); }
-  inline int image_size_y() { return format.image_size_y(); }
-  inline int image_size_z() { return format.image_size_z(); }
-  inline int image_size_t() { return format.image_size_t(); }
-  
-  // Image data
-  inline DataType voxel_type() { return format.voxel_type(); }
-  inline void copy_voxels_to_memory( void *pointer, int offset_x, int offset_y, int offset_z, int offset_t )
-  {
-    return format.copy_voxels_to_memory( pointer, offset_x, offset_y, offset_z, offset_t );
-  }
-  inline void *mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t )
-  {
-    return format.copy_voxels_to_memory( offset_x, offset_y, offset_z, offset_t );
-  }
-  
-  
-  // Voxel size
-  inline double voxel_size_x() { return format.voxel_size_x(); }
-  inline double voxel_size_y() { return format.voxel_size_y(); }
-  inline double voxel_size_z() { return format.voxel_size_z(); }
-  inline double voxel_size_t() { return format.voxel_size_t(); }
-
-private:
-
-  FormatReader &format;
 };
 
 

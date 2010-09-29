@@ -31,46 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+// File formats management. To be discussed.
 
-// Reader for GIS image format
-
-#ifndef SOMA_GIS_FORMAT
-#define SOMA_GIS_FORMAT
-
-
-#include <soma/wip/gis_format_reader.hpp>
-
+#ifndef SOMA_FILE_FORMATS
+#define SOMA_FILE_FORMATS
 
 namespace soma {
 
 
-GisFormatReader::GisFormatReader( const std::string &file_name ) : header_not_read( true )
+typedef enum
 {
-}
+  U8, S8, U16, S16, U32, S32, U64, S64, RGB, RGBA, COMPLEX_FLOAT, COMPLEX_DOUBLE, NUMBER_OF_DATATYPES
+} DataType;
 
-
-void GisFormatReader::copy_voxels_to_memory( void *, int offset_x, int offset_y, int offset_z, int offset_t )
-{
-}
-
-
-void *GisFormatReader::mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t )
-{
-  return NULL;
-}
-
-
-void GisFormatReader::read_header()
-{
-  if ( header_not_read )
-  {
-    header_not_read = false;
-  }
-}
-
-
-template class ImageReaderOf< GisFormatReader >;
+const char *data_type_name[ NUMBER_OF_DATATYPES ];
 
 } // namespace soma
 
-#endif // ifndef SOMA_GIS_FORMAT
+#endif // ifndef SOMA_FILE_FORMATS

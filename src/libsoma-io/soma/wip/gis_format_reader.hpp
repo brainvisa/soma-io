@@ -45,7 +45,7 @@
 namespace soma {
 
 
-class GisFormatReader
+class GisFormatReader : public ImageReader
 {
 public:
   GisFormatReader( const std::string &file_name );
@@ -115,8 +115,6 @@ private:
   double vx, vy, vz, vt;
 };
 
-
-extern template class ImageReaderOf< GisFormatReader >;
 
 } // namespace soma
 

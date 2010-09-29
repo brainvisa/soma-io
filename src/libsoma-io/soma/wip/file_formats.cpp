@@ -31,46 +31,16 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+// Memory independent image reader. To be discussed.
 
-// Reader for GIS image format
-
-#ifndef SOMA_GIS_FORMAT
-#define SOMA_GIS_FORMAT
-
-
-#include <soma/wip/gis_format_reader.hpp>
-
+#include <soma/wip/file_formats.hpp>
 
 namespace soma {
 
-
-GisFormatReader::GisFormatReader( const std::string &file_name ) : header_not_read( true )
-{
-}
-
-
-void GisFormatReader::copy_voxels_to_memory( void *, int offset_x, int offset_y, int offset_z, int offset_t )
-{
-}
-
-
-void *GisFormatReader::mmap_voxels_to_memory( int offset_x, int offset_y, int offset_z, int offset_t )
-{
-  return NULL;
-}
-
-
-void GisFormatReader::read_header()
-{
-  if ( header_not_read )
-  {
-    header_not_read = false;
-  }
-}
-
-
-template class ImageReaderOf< GisFormatReader >;
+const char *data_type_name[ NUMBER_OF_DATATYPES ] = {
+  "u8", "s8", "u16", "s16", "u32", "s32", "u64", "s64", "float", "double", "cfloat", "cdouble"
+};
 
 } // namespace soma
 
-#endif // ifndef SOMA_GIS_FORMAT
+#endif // ifndef SOMA_FILE_FORMATS
