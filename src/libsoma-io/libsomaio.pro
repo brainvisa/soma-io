@@ -10,6 +10,7 @@ HEADERS = \
   soma/rcobject.hpp \
   soma/wip/image_reader.hpp \
   soma/wip/gis_format_reader.hpp \
+  soma/wip/file_formats.hpp \
 
 
 
