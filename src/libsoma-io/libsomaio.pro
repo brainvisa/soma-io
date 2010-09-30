@@ -7,15 +7,12 @@ INCBDIR=
 darwin:LIBS += -framework CoreServices
 
 HEADERS = \
-  soma/rcobject.hpp \
-  soma/wip/image_reader.hpp \
-  soma/wip/gis_format_reader.hpp \
-  soma/wip/file_formats.hpp \
+  soma/rcobject.hpp
 
 
 
 SOURCES = \
-  rcobject.cpp \
-  soma/wip/gis_format_reader.cpp \
+  rcobject.cpp
+
 
 
