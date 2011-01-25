@@ -25,6 +25,14 @@ BRAINVISA_INSTALL( TARGETS somaio
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
+# nothing to document for the moment
+# IF ( DOXYGEN_FOUND )
+#   set( _doxygenInput "${_headers}" )
+#   set( DOXYFILE_PREDEFINED "${SOMA-IO_DEFINITIONS}")
+#   BRAINVISA_GENERATE_DOXYGEN_DOC( _doxygenInput  
+#                                   INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/soma"
+#                                   COMPONENT soma-io )
+# ENDIF ( DOXYGEN_FOUND )
 
 #+++ WIP
 # Adds formats-specific values to built-in plugin features info
