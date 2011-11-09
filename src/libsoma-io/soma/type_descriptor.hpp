@@ -13,6 +13,7 @@ enum TypeCode
   CFloat, CDouble,
   RGB, RGBA,
   Vector,
+  Image, 
   NumberOfTypes
 };
 
