@@ -1,7 +1,12 @@
 set( _headers
+     soma/type_descriptor.hpp
+     soma/io_request.hpp 
      soma/object_stream.hpp
-     soma/image_stream.hpp )
+     soma/image_stream.hpp
+)
 set( _sources
+     soma/type_descriptor.cpp
+     soma/io_request.cpp 
      soma/object_stream.cpp
      soma/image_stream.cpp )
 

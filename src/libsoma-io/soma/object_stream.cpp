@@ -6,4 +6,8 @@ ObjectStream::~ObjectStream()
 {
 }
 
+StructureStream::~StructureStream()
+{
+}
+
 } // namespace soma
