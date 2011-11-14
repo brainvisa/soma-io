@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <soma/object_stream.hpp>
+#include <vector>
 
 namespace soma {
 
