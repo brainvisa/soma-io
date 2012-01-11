@@ -3,7 +3,9 @@
 import sys, os, hashlib
 from tempfile import mkdtemp
 from subprocess import check_call
+from subprocess import call
 import dicom
+from soma import aims
 
 #from PyQt4.QtGui import QApplication, QWidget
 #from PyQt4.uic import loadUi
@@ -20,8 +22,9 @@ class DicomConverter( object ):
     'Position': lambda x: [ float(i) for i in x.split() ],
   }
   
-  def __init__( self ):
+  def __init__( self, converterName='mcverter_x64' ):
     self._dicom_sources = set()
+    self.converterName=converterName
   
   
   def add_dicom_sources( self, *sources ):
@@ -30,43 +33,114 @@ class DicomConverter( object ):
   
   
   def get_conversion_info( self ):
-    d = mkdtemp()
-    check_call( [ 'mcverter', '-o', d, '-f', 'meta', '-a', '-d' ] + list( self._dicom_sources ) )
-    for f in os.listdir( d ):
-      file = open( os.path.join( d, f ) )
-      n,e = os.path.splitext( f )
-      header = { 'OutputFile': n + '.nii' }
-      for line in file:
-        l = line.split( '=' )
-        if len( l ) == 2:
-          k = l[0].strip()
-          v = l[1].strip()
-          f = self._meta_to_header.get( k )
-          if f is None:
-            header[ k ] = v
+    if(self.converterName.find('mcverter') >=0):
+      d = mkdtemp()
+      check_call( [ self.converterName, '-o', d, '-f', 'meta', '-a', '-d' ] + list( self._dicom_sources ) )
+      for f in os.listdir( d ):
+        file = open( os.path.join( d, f ) )
+        n,e = os.path.splitext( f )
+        header = { 'OutputFile': n + '.nii' }
+        for line in file:
+          l = line.split( '=' )
+          if len( l ) == 2:
+            k = l[0].strip()
+            v = l[1].strip()
+            f = self._meta_to_header.get( k )
+            if f is None:
+              header[ k ] = v
+            else:
+              header[ k ] = f( v )
           else:
-            header[ k ] = f( v )
-        else:
-          break
-      files = [ line.strip() ]
-      for line in file:
-        files.append( line.strip() )
-      header[ 'InputFiles' ] = files
-      yield header
+            break
+        files = [ line.strip() ]
+        for line in file:
+          files.append( line.strip() )
+        header[ 'InputFiles' ] = files
+        yield header
+    elif(self.converterName.find('dcm2nii')>=0):
+      print "self._dicom_sources",self._dicom_sources
+      for d in self._dicom_sources:
+        header = { 'InputDir' : [d]}
+        files=[]
+        for f in os.listdir(d):          
+          files.append(d+'/'+f)
+        header[ 'InputFiles' ] = files
+        yield header
 
 
-  def convert_to_nifti( self, conversion_info, output_directory ):
-    check_call( [ 'mcverter', '-o', output_directory, '-f', 'nifti', '--nii', '-d' ] + conversion_info[ 'InputFiles' ] )
-    dcm = dicom.read_file( conversion_info[ 'InputFiles' ][ 0 ] )
+  def convert_to_nifti( self, conversion_info, output_directory, rescale=True ):
+    if(self.converterName.find('mcverter') >=0):
+      print "convert_to_nifti using ",self.converterName 
+      # -r, --rescale         Apply rescale slope and intercept to data
+      rescaleOption=''
+      if(rescale):
+        print " use option apply rescale slope and intercept"
+        rescaleOption='-r'
+      print "----------"
+      check_call( [ self.converterName, '-o', output_directory, '-f', 'nifti', '--nii', '-d',rescaleOption ] + conversion_info[ 'InputFiles' ] )
+      print "----------"
+      niiFileName=os.listdir(output_directory)[0]
+      print " niiFileName : ",niiFileName
+      
+    elif(self.converterName.find('dcm2nii')>=0):
+      print "convert_to_nifti using ",self.converterName 
+      print "----------"
+      check_call([self.converterName, '-o', output_directory, '-f', 'y', '-g', 'n' ] + conversion_info[ 'InputDir' ])
+      print "----------"
+      niiFileName=os.listdir(output_directory)[0]
+      print "niiFileName",output_directory+'/'+niiFileName
+      
+    else:
+      print " ERROR in convert_to_nifti unkown converter ",self.converterName 
+    
+    firstSlice=conversion_info[ 'InputFiles' ][ 0 ]
+    print "firstSlice",firstSlice
+    dcm = dicom.read_file( firstSlice )
     try:
       uuid = hashlib.md5( dcm.FrameofReferenceUID ).hexdigest()
     except AttributeError:
       uuid = None
-    if uuid:
-      minf = os.path.join( output_directory, conversion_info[ 'OutputFile' ] + '.minf' )
+    try:       
+      Rescale_Intercept                   = dcm[0x0028,0x1052].value
+    except KeyError as ke:
+      print "\nWARNING this attribute "+str(ke)+" can not be found in dicom header : "
+      print "Rescale_Intercept                   0x0028, 0x1052 --> will be 0"
+      Rescale_Intercept                   = 0
+    try:
+      Rescale_Slope                       = dcm[0x0028,0x1053].value
+      Rescale_Slope                       = 1
+    except KeyError as ke:
+      print "\nWARNING this attribute "+str(ke)+" can not be found in dicom header : "     
+      print "Rescale_Slope                       0x0028, 0x1053 --> will be 1"
+    try:
+       Activity_concentration_scale_factor = dcm[0x7053,0x1009].value
+    except KeyError as ke:
+      print "\nWARNING this attribute "+str(ke)+" can not be found in dicom header : "           
+      print "Activity_concentration_scale_factor 0x7053, 0x1009 --> will be 1\n"
+      Activity_concentration_scale_factor = 1
+                
+    minf = os.path.join( output_directory+'/'+niiFileName+ '.minf' )
+
+    finder = aims.Finder()
+    fileName=firstSlice
+    if type( fileName ) is unicode:
+      # convert to str
+      import codecs
+      fileName = codecs.getencoder( 'utf8' )( fileName )[0]
+    # Finder is not thread-safe (yet)
+    #mainThreadActions().call( finder.check, fileName ):
+    attributes={}
+    if finder.check(fileName ):
+      attributes = eval( str(finder.header() ), locals())      
+        
+    if uuid:      
       uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
       out = open( minf, 'w' )
-      print >> out, "attributes = { 'referentials': [", repr( uuid ), "] }"
+      dicAttributes={ 'referentials': "["+repr( uuid )+"]",'Rescale_Intercept': Rescale_Intercept,'Rescale_Slope': Rescale_Slope,'Activity_concentration_scale_factor': Activity_concentration_scale_factor}
+      dicAttributes.update(attributes)
+      print >> out, "attributes = ",dicAttributes
+      
+    return niiFileName
 
 
 class DicomConverterGui( object ):
@@ -87,7 +161,7 @@ if __name__ == '__main__':
   converter.add_dicom_sources( *sys.argv[ 2: ] )
   for info in converter.get_conversion_info():
     pprint( info )
-    converter.convert_to_nifti( info, sys.argv[1] )
+    converter.convert_to_nifti( info, sys.argv[1], sys.argv[2]  )
     print '-' * 100
 
   #qApp = QApplication( sys.argv )
