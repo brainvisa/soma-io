@@ -1,0 +1,97 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+import sys, os, hashlib
+from tempfile import mkdtemp
+from subprocess import check_call
+import dicom
+
+#from PyQt4.QtGui import QApplication, QWidget
+#from PyQt4.uic import loadUi
+
+class DicomConverter( object ):
+  _meta_to_header = {
+    'CenterOfRotation': lambda x: [ float(i) for i in x.split() ],
+    'DimSize': lambda x: [ int(i) for i in x.split() ],
+    'ElementNumberOfChannels': int,
+    'ElementSpacing': lambda x: [ float(i) for i in x.split() ],
+    'HeaderSize': int,
+    'NDims': int,
+    'Orientation': lambda x: [ float(i) for i in x.split() ],
+    'Position': lambda x: [ float(i) for i in x.split() ],
+  }
+  
+  def __init__( self ):
+    self._dicom_sources = set()
+  
+  
+  def add_dicom_sources( self, *sources ):
+    for source in sources:
+      self._dicom_sources.add( source )
+  
+  
+  def get_conversion_info( self ):
+    d = mkdtemp()
+    check_call( [ 'mcverter', '-o', d, '-f', 'meta', '-a', '-d' ] + list( self._dicom_sources ) )
+    for f in os.listdir( d ):
+      file = open( os.path.join( d, f ) )
+      n,e = os.path.splitext( f )
+      header = { 'OutputFile': n + '.nii' }
+      for line in file:
+        l = line.split( '=' )
+        if len( l ) == 2:
+          k = l[0].strip()
+          v = l[1].strip()
+          f = self._meta_to_header.get( k )
+          if f is None:
+            header[ k ] = v
+          else:
+            header[ k ] = f( v )
+        else:
+          break
+      files = [ line.strip() ]
+      for line in file:
+        files.append( line.strip() )
+      header[ 'InputFiles' ] = files
+      yield header
+
+
+  def convert_to_nifti( self, conversion_info, output_directory ):
+    check_call( [ 'mcverter', '-o', output_directory, '-f', 'nifti', '--nii', '-d' ] + conversion_info[ 'InputFiles' ] )
+    dcm = dicom.read_file( conversion_info[ 'InputFiles' ][ 0 ] )
+    try:
+      uuid = hashlib.md5( dcm.FrameofReferenceUID ).hexdigest()
+    except AttributeError:
+      uuid = None
+    if uuid:
+      minf = os.path.join( output_directory, conversion_info[ 'OutputFile' ] + '.minf' )
+      uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
+      out = open( minf, 'w' )
+      print >> out, "attributes = { 'referentials': [", repr( uuid ), "] }"
+
+
+class DicomConverterGui( object ):
+  def __init__( self, ui=None ):
+    if ui is None:
+      d,f = os.path.split( __file__ )
+      f, e = os.path.splitext( f )
+      ui = os.path.join( d, f + '.ui' )
+
+    self.window = loadUi( ui )
+    self.window.show()
+
+
+if __name__ == '__main__':
+  from pprint import pprint
+  
+  converter = DicomConverter()
+  converter.add_dicom_sources( *sys.argv[ 2: ] )
+  for info in converter.get_conversion_info():
+    pprint( info )
+    converter.convert_to_nifti( info, sys.argv[1] )
+    print '-' * 100
+
+  #qApp = QApplication( sys.argv )
+
+  #gui = DicomConverterGui()
+
+  #qApp.exec_()
