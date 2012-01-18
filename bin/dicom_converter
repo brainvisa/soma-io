@@ -100,7 +100,7 @@ Convert input DICOM files into NIfTI files
         for t in sorted( filesbytime.keys() ):
             tmpdir = mkdtemp()
             tmpdirs.append( tmpdir )
-            check_call( [ 'mcverter', '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
+            check_call( [ 'mcverter_x64', '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
 
         try:
             outfile =  os.path.join( args.output, \
