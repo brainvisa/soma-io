@@ -64,6 +64,7 @@ def get_mcverter():
 def convert_to_nifti( serie ):
     modality = ""
     uuid = None
+    series_instance_uid = None
     filesbytime = {}
     indexesbytime = {}
     rescaleparamsbytime = {}
@@ -79,6 +80,12 @@ def convert_to_nifti( serie ):
         if modality == "":
             try:
                 modality = ds.Modality
+            except:
+                pass
+
+        if series_instance_uid == None:
+            try:
+                series_instance_uid = ds.SeriesInstanceUID
             except:
                 pass
 
@@ -197,7 +204,9 @@ def convert_to_nifti( serie ):
     uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
     header = aims.read(outfile).header()
     fd = open( minf, 'w' )
-    newattributes = { 'referentials': [ uuid ], 'modality': modality }
+    newattributes = { 'referentials': [ uuid ], \
+                      'modality': modality, \
+                      'series_instance_uid': series_instance_uid }
     header.update( newattributes )
     print >> fd, "attributes = ", header
     fd.close()
