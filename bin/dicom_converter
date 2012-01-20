@@ -61,6 +61,43 @@ def get_mcverter():
         
     return ''
 
+def get_start_and_duration_times( serie ):
+    stdt = {}
+    for f in serie:
+        ds = dicom.read_file( f )
+        try:
+            if ds.Modality != 'PT':
+                return None
+            
+            acq_time = ds.AcquisitionTime
+            if not stdt.has_key( acq_time ):
+                stdt.update( { acq_time : ds.ActualFrameDuration } )
+        except:
+            pass
+    
+    if len( stdt ) == 0:
+        return None
+    
+    def conv_acqtime_to_msec( acq_time ):
+        if len( acq_time ) < 6:
+            return None
+        msec = int( acq_time[:2] ) * 3600 + \
+               int( acq_time[2:4] )*60 + \
+               int( acq_time[4:6] )
+        msec *= 1000
+        if len( acq_time ) > 6:
+            msec += int( acq_time[7:] ) / 1000
+        return msec
+    
+    first_time = conv_acqtime_to_msec( min(stdt) )
+    start_times = []
+    duration_times = []
+    for s, d in sorted( stdt.iteritems() ):
+        start_times.append( conv_acqtime_to_msec( s ) - first_time )
+        duration_times.append( int( d ) )
+
+    return { 'start_time' : start_times, 'duration_time' : duration_times }
+
 def convert_to_nifti( serie ):
     modality = ""
     uuid = None
@@ -69,7 +106,7 @@ def convert_to_nifti( serie ):
     indexesbytime = {}
     rescaleparamsbytime = {}
     tempfiles = []
-    
+
     # Sort 4D DICOM files by time
     for f in serie:
         tempfile = mkstemp()[1]
@@ -207,6 +244,12 @@ def convert_to_nifti( serie ):
     newattributes = { 'referentials': [ uuid ], \
                       'modality': modality, \
                       'series_instance_uid': series_instance_uid }
+    
+    if modality == 'PT':
+        stdt = get_start_and_duration_times( serie )
+        if stdt != None:
+            newattributes.update( stdt )
+    
     header.update( newattributes )
     print >> fd, "attributes = ", header
     fd.close()
