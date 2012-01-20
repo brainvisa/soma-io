@@ -241,8 +241,7 @@ def convert_to_nifti( serie ):
     uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
     header = aims.read(outfile).header()
     fd = open( minf, 'w' )
-    newattributes = { 'referentials': [ uuid ], \
-                      'modality': modality, \
+    newattributes = { 'modality': modality, \
                       'series_instance_uid': series_instance_uid }
     
     if modality == 'PT':
