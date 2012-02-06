@@ -13,7 +13,8 @@ enum TypeCode
   CFloat, CDouble,
   RGB, RGBA,
   Vector,
-  Image, 
+  Struct,
+  Binary, 
   NumberOfTypes
 };
 
@@ -35,6 +36,7 @@ private:
   TypeDescriptor *_subtype;
   
 };
+
 
 
 } // namespace soma

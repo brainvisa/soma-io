@@ -3,6 +3,7 @@ set( _headers
      soma/io_request.hpp 
      soma/object_stream.hpp
      soma/image_stream.hpp
+     soma/memory_layout.hpp
 )
 set( _sources
      soma/type_descriptor.cpp

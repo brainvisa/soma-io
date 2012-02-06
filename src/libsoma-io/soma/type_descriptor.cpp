@@ -13,7 +13,8 @@ const std::string type_names[] =
   "CFloat", "CDouble",
   "RGB", "RGBA",
   "Vector",
-  "Image",
+  "Struct",
+  "Binary",
 };
 
 
