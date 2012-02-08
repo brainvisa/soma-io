@@ -2,6 +2,7 @@
 #define SOMA_MEMORY_LAYOUT
 
 #include <vector>
+#include <stddef.h>
 
 namespace soma {
 
