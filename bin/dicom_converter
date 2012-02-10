@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, shutil, hashlib
+import os, shutil, hashlib, string
 import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
@@ -64,6 +64,11 @@ def get_start_and_duration_times( serie ):
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
 def convert_to_nifti( serie ):
+    
+    def make_valid_filename( filename ):
+        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
+        return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
+    
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -157,10 +162,11 @@ def convert_to_nifti( serie ):
 
     try:
         outfile = os.path.join( args.output, \
-                                     ds.PatientsName + '-' + ds.SeriesDate + '-' + \
-                                     modality + '-' + \
-                                     ds.SeriesDescription.replace( ' ', '_' ) + '-' + \
-                                     ds.InstitutionName.replace( ' ', '_' ) + '.nii' )
+                                     make_valid_filename( \
+                                        ds.PatientsName + '-' + ds.SeriesDate + '-' + \
+                                        modality + '-' + \
+                                        ds.SeriesDescription + '-' + \
+                                        ds.InstitutionName + '.nii' ) )
     except:
         outfile = None
 
