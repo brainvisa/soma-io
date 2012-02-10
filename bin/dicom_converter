@@ -6,42 +6,7 @@ from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
 import dicom
 import numpy as np
-from soma import argparse
-from soma import aims
-
-class DicomAggregator( object ):
-    def __init__( self ):
-        self._dicom_sources = set()
-
-    def add_dicom_sources( self, sources ):
-        for source in sources:
-            self._dicom_sources.add( source )
-
-    def aggregate( self ):
-        self._aggregate_sources = {}
-        serie_sop_uids = {}
-        for source in self._dicom_sources:
-            filelist = []
-            if os.path.isdir( source ):
-                for root, dirs, files in os.walk( source ):
-                    for name in files:
-                        filelist.append( os.path.join( root, name ) )
-            else:
-                filelist = [ source ]
-            for f in filelist:
-                try:
-                    ds = dicom.read_file( f )
-                except:
-                    continue
-                serie_uid = ds.SeriesInstanceUID
-                if not self._aggregate_sources.has_key( serie_uid ):
-                    self._aggregate_sources[ serie_uid ] = []
-                    serie_sop_uids[ serie_uid ] = []
-
-                sop_uid = ds.SOPInstanceUID
-                if not sop_uid in serie_sop_uids[ serie_uid ]:
-                    serie_sop_uids[ serie_uid ].append( sop_uid )
-                    self._aggregate_sources[ serie_uid ].append( f )
+from soma import argparse, aims, dicomaggregator
 
 def get_mcverter():
     mcverter_exist_dic = { 'mcverter' : False, 'mcverter_x64' : False }
@@ -238,12 +203,17 @@ def convert_to_nifti( serie ):
 
     # Add "referentials" to the minf file
     minf = os.path.join( outfile + '.minf' )
-    uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
+    if uuid != None:
+        uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
     header = aims.read(outfile).header()
     fd = open( minf, 'w' )
-    newattributes = { 'referentials': [ uuid ], \
-                      'modality': modality, \
-                      'series_instance_uid': series_instance_uid }
+    if uuid != None:
+        newattributes = { 'referentials': [ uuid ], \
+                          'modality': modality, \
+                          'series_instance_uid': series_instance_uid }
+    else:
+        newattributes = { 'modality': modality, \
+                          'series_instance_uid': series_instance_uid }
     
     if modality == 'PT':
         stdt = get_start_and_duration_times( serie )
@@ -276,7 +246,7 @@ Convert input DICOM files into NIfTI files
         parser.parse_args( [ '-h' ] )
 
     # Aggregate input files
-    aggregator = DicomAggregator()
+    aggregator = dicomaggregator.DicomAggregator()
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
 
