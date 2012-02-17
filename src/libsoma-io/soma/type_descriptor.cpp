@@ -28,6 +28,15 @@ TypeDescriptor::~TypeDescriptor()
   if ( _subtype ) delete _subtype;
 }
 
+TypeDescriptor &TypeDescriptor::operator =( const TypeDescriptor &other )
+{
+  _type_code = other._type_code;
+  if ( other._subtype )
+    _subtype = new TypeDescriptor( *other._subtype );
+  else
+    _subtype = NULL;
+}
+
 
 string TypeDescriptor::name() const
 {

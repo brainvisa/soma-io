@@ -47,6 +47,32 @@ protected:
 class ImageOStream : public FieldOStream
 {
 public:
+
+  inline void set_voxel_size( double size1 )
+  {
+    std::vector< double > voxel_size;
+    voxel_size.push_back( size1 );
+    set_double_vector( ImageFields::voxel_size, voxel_size );
+  }
+  
+  
+  inline void set_voxel_size( double size1, double size2 )
+  {
+    std::vector< double > voxel_size;
+    voxel_size.push_back( size1 );
+    voxel_size.push_back( size2 );
+    set_double_vector( ImageFields::voxel_size, voxel_size );
+  }
+  
+  
+  inline void set_voxel_size( double size1, double size2, double size3 )
+  {
+    std::vector< double > voxel_size;
+    voxel_size.push_back( size1 );
+    voxel_size.push_back( size2 );
+    voxel_size.push_back( size3 );
+    set_double_vector( ImageFields::voxel_size, voxel_size );
+  }
 };
 
 
