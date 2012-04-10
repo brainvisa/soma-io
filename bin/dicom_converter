@@ -184,13 +184,15 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
           check_call( [ 'AimsTCat',
                       '-o',  outfile,
                       '-i' ] + convfilesByTime.values() )
-          outfilesByTime.update({-1:outfile})        
+          outfilesByTime.update({-1:[outfile]})        
         else:
           tIdx = 0 
+          print "outfile",outfile
           for t in sorted(convfilesByTime.keys()):
             f = convfilesByTime[t]                    
             outf = outfile+'_t'+str(tIdx)+'.nii'
-            outfilesByTime.update({t:outf})
+            print "outf",outf
+            outfilesByTime.update({t:[outf]})
             shutil.move(f, outf ) 
             tIdx = tIdx+1       
           
@@ -210,8 +212,11 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         os.remove( f )
 
     # Apply pixel value rescale parameters
+    print "outfilesByTime",outfilesByTime
     for fileTime, outfiles in outfilesByTime.items():
+      print "outfiles", outfiles
       for outfile in outfiles:
+        print "outfile",outfile
         aims_file = aims.read( outfile )
         aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
         aims_float_file = aims_conv( aims_file )
