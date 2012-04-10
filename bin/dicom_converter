@@ -63,7 +63,7 @@ def get_start_and_duration_times( serie ):
 
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
-def convert_to_nifti( serie ):
+def convert_to_nifti( serie, mergeDynSeries = True ):
     
     def make_valid_filename( filename ):
         valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
@@ -146,7 +146,7 @@ def convert_to_nifti( serie ):
         
         filesbytime[ time ].append( tempfile )
 
-    tmpdirs = []
+    tmpdirsByTime = {}
     mcverter_options = [ '-f', 'nifti', '--nii' ]
 
     # Convert each file group
@@ -157,7 +157,7 @@ def convert_to_nifti( serie ):
         rescaleparamsbytime[ t ] = list(np.take( rescaleparamsbytime[ t ], sorted_indexes ))
 
         tmpdir = mkdtemp()
-        tmpdirs.append( tmpdir )
+        tmpdirsByTime.update({t: tmpdir })
         check_call( [ get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
 
     try:
@@ -171,64 +171,89 @@ def convert_to_nifti( serie ):
         outfile = None
 
     # Merge the 4D series (if necessary) and move the convert files to the output directory
+    outfilesByTime={}
     if len( filesbytime ) > 1:
-        convfiles = []
-        for d in tmpdirs:
-            convfiles.append( os.path.join( d, os.listdir( d )[0] ) )
+        convfilesByTime = {}
+        for t, d in tmpdirsByTime.items():
+            convfilesByTime.update({t: os.path.join( d, os.listdir( d )[0] ) })        
+        
         if outfile == None:
-            outfile = os.path.join( args.output, os.path.basename( convfiles[0] ) )
+          outfile = os.path.join( args.output, os.path.basename( convfilesByTime[0] ) )          
 
-        check_call( [ 'AimsTCat',
+        if(mergeDynSeries):
+          check_call( [ 'AimsTCat',
                       '-o',  outfile,
-                      '-i' ] + convfiles )
+                      '-i' ] + convfilesByTime.values() )
+          outfilesByTime.update({-1:outfile})        
+        else:
+          tIdx = 0 
+          for t in sorted(convfilesByTime.keys()):
+            f = convfilesByTime[t]                    
+            outf = outfile+'_t'+str(tIdx)+'.nii'
+            outfilesByTime.update({t:outf})
+            shutil.move(f, outf ) 
+            tIdx = tIdx+1       
+          
     else:
+        outfiles = []
         for f in os.listdir(tmpdir):
             if outfile == None:
                 outfile = os.path.join( args.output, f )
             shutil.move(os.path.join(tmpdir, f), outfile )
+            outfiles.append(outfile)
+        outfilesByTime.update({-1 : outfiles})
 
     # Clean temporary directories and files
-    for d in tmpdirs:
+    for d in tmpdirsByTime.values():
         shutil.rmtree( d )
     for f in tempfiles:
         os.remove( f )
 
     # Apply pixel value rescale parameters
-    aims_file = aims.read( outfile )
-    aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
-    aims_float_file = aims_conv( aims_file )
-    data_arr = np.array( aims_float_file, copy=False )
-    timecpt = 0
-    for t in sorted( filesbytime.keys() ):
-        for i in range( len( rescaleparamsbytime[t] ) ):
-            data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
-            data_arr[:,:,i,timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
-            data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
-        timecpt += 1
-    aims.write( aims_float_file, outfile )
-
-    # Add "referentials" to the minf file
-    minf = os.path.join( outfile + '.minf' )
-    if uuid != None:
-        uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
-    header = aims.read(outfile).header()
-    fd = open( minf, 'w' )
-    if uuid != None:
-        newattributes = { 'referentials': [ uuid ], \
-                          'modality': modality, \
-                          'series_instance_uid': series_instance_uid }
-    else:
-        newattributes = { 'modality': modality, \
-                          'series_instance_uid': series_instance_uid }
-    
-    if modality == 'PT':
-        stdt = get_start_and_duration_times( serie )
-        if stdt != None:
-            newattributes.update( stdt )
-    
-    header.update( newattributes )
-    print >> fd, "attributes = ", header
-    fd.close()
+    for fileTime, outfile in outfilesByTime.items():
+      aims_file = aims.read( outfile )
+      aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
+      aims_float_file = aims_conv( aims_file )
+      data_arr = np.array( aims_float_file, copy=False )
+      
+      if(mergeDynSeries):
+        timecpt = 0
+        for t in sorted( filesbytime.keys() ):
+            for i in range( len( rescaleparamsbytime[t] ) ):
+                data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
+                data_arr[:,:,i,timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
+                data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
+            timecpt += 1
+      else:
+        for i in range( len( rescaleparamsbytime[fileTime] ) ):
+          data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
+          data_arr[:,:,i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
+          data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
+          
+      aims.write( aims_float_file, outfile )
+  
+      # Add "referentials" to the minf file
+      minf = os.path.join( outfile + '.minf' )
+      if uuid != None:
+          uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
+      header = aims.read(outfile).header()
+      fd = open( minf, 'w' )
+      if uuid != None:
+          newattributes = { 'referentials': [ uuid ], \
+                            'modality': modality, \
+                            'series_instance_uid': series_instance_uid }
+      else:
+          newattributes = { 'modality': modality, \
+                            'series_instance_uid': series_instance_uid }
+      
+      if modality == 'PT':
+          stdt = get_start_and_duration_times( serie )
+          if stdt != None:
+              newattributes.update( stdt )
+      
+      header.update( newattributes )
+      print >> fd, "attributes = ", header
+      fd.close()
 
 
 if __name__ == '__main__':
@@ -244,6 +269,8 @@ Convert input DICOM files into NIfTI files
 
     parser.add_argument( '-i', '--input',  nargs='+', help='input DICOM files/directories')
     parser.add_argument( '-o', '--output', help='output directory' )
+    parser.add_argument( '-s', '--split4DSeries', help='do NOT merge the 4D series', action="store_false", dest="merge4DSeries")
+    parser.add_argument( '-m', '--merge4DSeries', help='Merge the 4D series [default]', action="store_true", dest="merge4DSeries", default = True)
 
     args = parser.parse_args()
 
@@ -258,4 +285,4 @@ Convert input DICOM files into NIfTI files
 
     # Browse aggregated DICOM series
     for serie in aggregator._aggregate_sources.values():
-        convert_to_nifti( serie )
+      convert_to_nifti( serie, args.merge4DSeries )
