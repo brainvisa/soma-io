@@ -8,7 +8,7 @@ class DicomAggregator( object ):
 
     def add_dicom_sources( self, sources ):
         for source in sources:
-            if os.path.exists(source):#os.path.isdir( source ):
+            if os.path.isdir( source ):
                 for root, dirs, files in os.walk( source ):
                     for name in files:
                         self._dicom_sources.append( os.path.join( root, name ) )
