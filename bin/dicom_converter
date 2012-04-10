@@ -210,50 +210,51 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         os.remove( f )
 
     # Apply pixel value rescale parameters
-    for fileTime, outfile in outfilesByTime.items():
-      aims_file = aims.read( outfile )
-      aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
-      aims_float_file = aims_conv( aims_file )
-      data_arr = np.array( aims_float_file, copy=False )
-      
-      if(mergeDynSeries):
-        timecpt = 0
-        for t in sorted( filesbytime.keys() ):
-            for i in range( len( rescaleparamsbytime[t] ) ):
-                data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
-                data_arr[:,:,i,timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
-                data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
-            timecpt += 1
-      else:
-        for i in range( len( rescaleparamsbytime[fileTime] ) ):
-          data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
-          data_arr[:,:,i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
-          data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
-          
-      aims.write( aims_float_file, outfile )
-  
-      # Add "referentials" to the minf file
-      minf = os.path.join( outfile + '.minf' )
-      if uuid != None:
-          uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
-      header = aims.read(outfile).header()
-      fd = open( minf, 'w' )
-      if uuid != None:
-          newattributes = { 'referentials': [ uuid ], \
-                            'modality': modality, \
-                            'series_instance_uid': series_instance_uid }
-      else:
-          newattributes = { 'modality': modality, \
-                            'series_instance_uid': series_instance_uid }
-      
-      if modality == 'PT':
-          stdt = get_start_and_duration_times( serie )
-          if stdt != None:
-              newattributes.update( stdt )
-      
-      header.update( newattributes )
-      print >> fd, "attributes = ", header
-      fd.close()
+    for fileTime, outfiles in outfilesByTime.items():
+      for outfile in outfiles:
+        aims_file = aims.read( outfile )
+        aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
+        aims_float_file = aims_conv( aims_file )
+        data_arr = np.array( aims_float_file, copy=False )
+        
+        if(mergeDynSeries):
+          timecpt = 0
+          for t in sorted( filesbytime.keys() ):
+              for i in range( len( rescaleparamsbytime[t] ) ):
+                  data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
+                  data_arr[:,:,i,timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
+                  data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
+              timecpt += 1
+        else:
+          for i in range( len( rescaleparamsbytime[fileTime] ) ):
+            data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
+            data_arr[:,:,i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
+            data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
+            
+        aims.write( aims_float_file, outfile )
+    
+        # Add "referentials" to the minf file
+        minf = os.path.join( outfile + '.minf' )
+        if uuid != None:
+            uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
+        header = aims.read(outfile).header()
+        fd = open( minf, 'w' )
+        if uuid != None:
+            newattributes = { 'referentials': [ uuid ], \
+                              'modality': modality, \
+                              'series_instance_uid': series_instance_uid }
+        else:
+            newattributes = { 'modality': modality, \
+                              'series_instance_uid': series_instance_uid }
+        
+        if modality == 'PT':
+            stdt = get_start_and_duration_times( serie )
+            if stdt != None:
+                newattributes.update( stdt )
+        
+        header.update( newattributes )
+        print >> fd, "attributes = ", header
+        fd.close()
 
 
 if __name__ == '__main__':
