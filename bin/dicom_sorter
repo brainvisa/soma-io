@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os, shutil, string
+import dicom
+from soma import argparse, dicomaggregator
+
+def createTree( serie ):
+    def makeValidValue( value ):
+        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
+        return ''.join( c for c in value.replace( ' ', '_' ) if c in valid_chars )
+    
+    if len( serie ) == 0:
+        return
+    
+    first = serie[ 0 ]
+    try:
+        # Get DICOM information to build file tree
+        ds = dicom.read_file( first )
+        patientName = makeValidValue( ds.PatientsName )
+        modality = makeValidValue( ds.Modality )
+        seriesDescription = makeValidValue( ds.SeriesDescription )
+        seriesInstanceUid = makeValidValue( ds.SeriesInstanceUID )
+    except:
+        return
+    
+    try:
+        # Create patient directory
+        os.mkdir( os.path.join( args.output, \
+                                patientName ) )
+    except:
+        pass
+    
+    try:
+        # Create serie directory
+        serieDir = os.path.join( args.output, \
+                                 patientName, \
+                                 modality + "_" + seriesDescription + "_" + seriesInstanceUid )
+        os.mkdir( serieDir )
+        
+        # Copy DICOM files into serie directory
+        for f in serie:
+            shutil.copy( f, serieDir )
+    except:
+        pass
+    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser( description =
+'''
+Sort input DICOM files according to the following tree: <PatientsName>/<Modality>_<SeriesDescription>_<SeriesInstanceUID>
+''' )
+
+    parser.add_argument( '-i', '--input',  nargs='+', help='input DICOM files/directories')
+    parser.add_argument( '-o', '--output', help='output directory' )
+
+    args = parser.parse_args()
+
+    if args.input is None or \
+       args.output is None:
+        parser.parse_args( [ '-h' ] )
+
+    try:
+        # Create output directory
+        os.mkdir( args.output )
+    except:
+        pass
+
+    # Aggregate input files
+    aggregator = dicomaggregator.DicomAggregator()
+    aggregator.add_dicom_sources( args.input )
+    aggregator.aggregate()
+
+    # Browse aggregated DICOM series
+    for serie in aggregator._aggregate_sources.values():
+        createTree( serie )
