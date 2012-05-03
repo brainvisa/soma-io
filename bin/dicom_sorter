@@ -24,17 +24,30 @@ def createTree( serie ):
         return
     
     try:
+        patientDirName = os.path.join( args.output, \
+                                       patientName )
+        inc = 1
+        if os.path.exists( patientDirName ) and \
+           patientDirName not in sessionPatientDirNames:
+            inc = 2
+            while os.path.exists( patientDirName + "_" + str( inc ) ) and \
+                  patientDirName + "_" + str( inc ) not in sessionPatientDirNames:
+                inc += 1
+        
         # Create patient directory
-        os.mkdir( os.path.join( args.output, \
-                                patientName ) )
+        if inc > 1:
+            patientDirName += "_" + str( inc )
+        sessionPatientDirNames.append( patientDirName )
+        os.mkdir( patientDirName )
     except:
         pass
     
     try:
         # Create serie directory
-        serieDir = os.path.join( args.output, \
-                                 patientName, \
-                                 modality + "_" + seriesDescription + "_" + seriesInstanceUid )
+        serieDir = os.path.join( patientDirName, \
+                                 modality + "_" + seriesDescription )
+        if args.unique:
+            serieDir += "_" + seriesInstanceUid
         os.mkdir( serieDir )
         
         # Copy DICOM files into serie directory
@@ -51,6 +64,7 @@ Sort input DICOM files according to the following tree: <PatientsName>/<Modality
 
     parser.add_argument( '-i', '--input',  nargs='+', help='input DICOM files/directories')
     parser.add_argument( '-o', '--output', help='output directory' )
+    parser.add_argument( '-u', '--unique', help='create unique directory name', action="store_true" )
 
     args = parser.parse_args()
 
@@ -68,6 +82,8 @@ Sort input DICOM files according to the following tree: <PatientsName>/<Modality
     aggregator = dicomaggregator.DicomAggregator()
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
+
+    sessionPatientDirNames = []
 
     # Browse aggregated DICOM series
     for serie in aggregator._aggregate_sources.values():
