@@ -52,7 +52,13 @@ def createTree( serie ):
         
         # Copy DICOM files into serie directory
         for f in serie:
-            shutil.copy( f, serieDir )
+            baseDestFile = os.path.join( serieDir, os.path.basename( f ) )
+            destFile = baseDestFile
+            num = 2
+            while os.path.exists( destFile ):
+                destFile = baseDestFile + "_" + str( num )
+                num += 1
+            shutil.copy( f, destFile )
     except:
         pass
     
