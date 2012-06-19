@@ -1,4 +1,4 @@
-brainvisa_add_executable( write_an_image "write_an_image.cpp" )
+brainvisa_add_executable( write_an_image "write_an_image.cpp" HELP_GENERATE FALSE)
 target_link_libraries( write_an_image somaio )
 
 find_package( aims-free )
