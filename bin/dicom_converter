@@ -129,9 +129,9 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         except:
             pass
         
-        rescaleparamsbytime[ time ].append( { 'RescaleSlope' : slope, \
-                                              'RescaleIntercept' : inter, \
-                                              'ScaleFactor' : scale_factor } )
+        rescaleparamsbytime[ time ].append( { 'RescaleSlope' : float( slope ), \
+                                              'RescaleIntercept' : float( inter ), \
+                                              'ScaleFactor' : float( scale_factor ) } )
         
         # Reset rescale parameters to be sure there will be
         # no rescale done by the NIfTI converter
