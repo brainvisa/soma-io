@@ -10,7 +10,7 @@ from soma import argparse, aims, dicomaggregator
 
 def get_mcverter():
     mcverter_exist_dic = { 'mcverter' : False, 'mcverter_x64' : False }
-    
+
     for dir in os.environ.get( "PATH", "" ).split( os.pathsep ):
         for mcverter in mcverter_exist_dic.keys():
             if not mcverter_exist_dic[ mcverter ] and \
@@ -23,7 +23,7 @@ def get_mcverter():
         return 'mcverter_x64'
     elif mcverter_exist_dic[ 'mcverter' ]:
         return 'mcverter'
-        
+
     return ''
 
 def get_start_and_duration_times( serie ):
@@ -33,16 +33,16 @@ def get_start_and_duration_times( serie ):
         try:
             if ds.Modality != 'PT':
                 return None
-            
+
             acq_time = ds.AcquisitionTime
             if not stdt.has_key( acq_time ):
                 stdt.update( { acq_time : ds.ActualFrameDuration } )
         except:
             pass
-    
+
     if len( stdt ) == 0:
         return None
-    
+
     def conv_acqtime_to_msec( acq_time ):
         if len( acq_time ) < 6:
             return None
@@ -53,7 +53,7 @@ def get_start_and_duration_times( serie ):
         if len( acq_time ) > 6:
             msec += int( acq_time[7:] ) / 1000
         return msec
-    
+
     first_time = conv_acqtime_to_msec( min(stdt) )
     start_times = []
     duration_times = []
@@ -64,11 +64,11 @@ def get_start_and_duration_times( serie ):
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
 def convert_to_nifti( serie, mergeDynSeries = True ):
-    
+
     def make_valid_filename( filename ):
         valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
         return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
-    
+
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -99,7 +99,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         if uuid == None and "FrameofReferenceUID" in ds:
             uuid = hashlib.md5( ds.FrameofReferenceUID ).hexdigest()
         time = -1
-        
+
         # Check if the current file must be sorted by time
         if "FrameReferenceTime" in ds:
             try:
@@ -115,7 +115,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             rescaleparamsbytime[ time ] = []
 
         indexesbytime[ time ].append( ds.InstanceNumber )
-        
+
         slope = 1
         inter = 0
         scale_factor = 1
@@ -128,11 +128,11 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
                 scale_factor = ds[ 0x7053,0x1009 ].value
         except:
             pass
-        
+
         rescaleparamsbytime[ time ].append( { 'RescaleSlope' : float( slope ), \
                                               'RescaleIntercept' : float( inter ), \
                                               'ScaleFactor' : float( scale_factor ) } )
-        
+
         # Reset rescale parameters to be sure there will be
         # no rescale done by the NIfTI converter
         try:
@@ -141,9 +141,9 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             ds[ 0x7053,0x1009 ].value = 1
         except:
             pass
-        
+
         ds.save_as( tempfile )
-        
+
         filesbytime[ time ].append( tempfile )
 
     tmpdirsByTime = {}
@@ -175,27 +175,27 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
     if len( filesbytime ) > 1:
         convfilesByTime = {}
         for t, d in tmpdirsByTime.items():
-            convfilesByTime.update({t: os.path.join( d, os.listdir( d )[0] ) })        
-        
+            convfilesByTime.update({t: os.path.join( d, os.listdir( d )[0] ) })
+
         if outfile == None:
-          outfile = os.path.join( args.output, os.path.basename( convfilesByTime[0] ) )          
+          outfile = os.path.join( args.output, os.path.basename( convfilesByTime[0] ) )
 
         if(mergeDynSeries):
           check_call( [ 'AimsTCat',
                       '-o',  outfile,
                       '-i' ] + convfilesByTime.values() )
-          outfilesByTime.update({-1:[outfile]})        
+          outfilesByTime.update({-1:[outfile]})
         else:
-          tIdx = 0 
+          tIdx = 0
           print "outfile",outfile
           for t in sorted(convfilesByTime.keys()):
-            f = convfilesByTime[t]                    
+            f = convfilesByTime[t]
             outf = outfile+'_t'+str(tIdx)+'.nii'
             print "outf",outf
             outfilesByTime.update({t:[outf]})
-            shutil.move(f, outf ) 
-            tIdx = tIdx+1       
-          
+            shutil.move(f, outf )
+            tIdx = tIdx+1
+
     else:
         outfiles = []
         for f in os.listdir(tmpdir):
@@ -221,7 +221,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
         aims_float_file = aims_conv( aims_file )
         data_arr = np.array( aims_float_file, copy=False )
-        
+
         if(mergeDynSeries):
           timecpt = 0
           for t in sorted( filesbytime.keys() ):
@@ -235,9 +235,9 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
             data_arr[:,:,i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
             data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
-            
+
         aims.write( aims_float_file, outfile )
-    
+
         # Add "referentials" to the minf file
         minf = os.path.join( outfile + '.minf' )
         if uuid != None:
@@ -251,23 +251,97 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         else:
             newattributes = { 'modality': modality, \
                               'series_instance_uid': series_instance_uid }
-        
+
         if modality == 'PT':
             stdt = get_start_and_duration_times( serie )
             if stdt != None:
                 newattributes.update( stdt )
-        
+
         header.update( newattributes )
         print >> fd, "attributes = ", header
         fd.close()
 
+def convert_to_nifti_MR( serie ):
+
+  def make_valid_filename( filename ):
+        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
+        return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
+
+  ds = dicom.read_file( serie[ 0 ] )
+
+  dcm2niiOptions = [ '-b', 'dcm2nii_DV.ini' ]
+  tmpdir = mkdtemp()
+  check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
+              [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
+
+  try:
+    outfile = os.path.join( args.output, \
+                                make_valid_filename( \
+                                  ds.PatientsName + '-' + ds.SeriesDate + '-' + \
+                                  ds.Modality + '-' + \
+                                  ds.SeriesDescription + '-' + \
+                                  ds.InstitutionName ) )
+  except:
+    outfile = None
+
+  outfiles = []
+
+  # rename and copy nifti files
+  # NB : keep extension in case of bvec/bval (DTI images)
+  for f in os.listdir(tmpdir):
+
+      extension = '.' + f.split( '.' )[ -1 ]
+      if outfile == None:
+
+        outfile = os.path.join( args.output, f )
+
+      if os.path.exists( outfile + extension ):
+
+        outfile = outfile + '_1'
+
+      shutil.move(os.path.join(tmpdir, f), outfile + extension )
+      if extension == '.nii':
+
+        outfiles.append(outfile)
+
+  # disapply rescaleSlope for Philips data
+  if ds.Manufacturer == 'Philips Medical Systems':
+
+    rescaleSlope = 1.
+    rescaleIntercept = 0
+    try:
+      rescaleSlope = ds.RescaleSlope
+      rescaleIntercept = ds.RescaleIntercept
+    except:
+      try:
+        rescaleSlope = \
+                 ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1053].value
+        rescaleIntercept = \
+                 ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1052].value
+      except:
+        pass
+
+    for outfile in outfiles:
+
+      niftiFileImage = aims.read( outfile )
+      niftiFileArray = np.array( niftiFileImage, copy=False )
+      niftiFileArray = ( niftiFileArray - rescaleIntercept ) / rescaleSlope
+      niftiFileArray = np.round( niftiFileArray )
+      niftiFileArray = np.int16( niftiFileArray )
+      niftiFileArray = np.array( niftiFileArray, order='F' )
+      newNiftiFileImage = aims.Volume( niftiFileArray )
+      initialVoxelSize = niftiFileImage.header()[ 'voxel_size' ]
+      newNiftiFileImage.header()[ 'voxel_size' ] = initialVoxelSize
+      aims.write( newNiftiFileImage, outfile )
+
+  shutil.rmtree( tmpdir )
 
 if __name__ == '__main__':
-    
+
     if not get_mcverter():
         print 'mcverter was not found on your system. It is mandatory to convert your DICOM files.'
         exit(0)
-    
+
     parser = argparse.ArgumentParser( description =
 '''
 Convert input DICOM files into NIfTI files
@@ -291,4 +365,18 @@ Convert input DICOM files into NIfTI files
 
     # Browse aggregated DICOM series
     for serie in aggregator._aggregate_sources.values():
-      convert_to_nifti( serie, args.merge4DSeries )
+
+      ds = dicom.read_file( serie[ 0 ] )
+      try:
+        modality = ds.Modality
+      except:
+        modality = ""
+
+      # Choose method according to modality
+      if modality == 'MR':
+
+        convert_to_nifti_MR( serie )
+
+      else:
+
+        convert_to_nifti( serie, args.merge4DSeries )
