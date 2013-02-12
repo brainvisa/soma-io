@@ -26,6 +26,10 @@ def get_mcverter():
 
     return ''
 
+def make_valid_filename( filename ):
+    valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
+    return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
+
 def get_start_and_duration_times( serie ):
     stdt = {}
     for f in serie:
@@ -64,11 +68,6 @@ def get_start_and_duration_times( serie ):
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
 def convert_to_nifti( serie, mergeDynSeries = True ):
-
-    def make_valid_filename( filename ):
-        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
-        return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
-
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -262,11 +261,6 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         fd.close()
 
 def convert_to_nifti_MR( serie ):
-
-  def make_valid_filename( filename ):
-        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
-        return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
-
   ds = dicom.read_file( serie[ 0 ] )
 
   dcm2niiOptions = [ '-b', 'dcm2nii_DV.ini' ]
@@ -336,6 +330,19 @@ def convert_to_nifti_MR( serie ):
 
   shutil.rmtree( tmpdir )
 
+def convert_to_nifti_NM( serie ):
+    ds = dicom.read_file( serie[0] )
+    try:
+        outfile = os.path.join( args.output, \
+                                make_valid_filename( \
+                                  ds.PatientsName + '-' + \
+                                  ds.Modality + '-' + \
+                                  ds.SeriesDescription ) + ".nii" )
+    except:
+        outfile = None
+
+    check_call( [ 'AimsFileConvert', '-i', serie[0], '-o', outfile ] )
+
 if __name__ == '__main__':
 
     if not get_mcverter():
@@ -374,9 +381,8 @@ Convert input DICOM files into NIfTI files
 
       # Choose method according to modality
       if modality == 'MR':
-
-        convert_to_nifti_MR( serie )
-
+          convert_to_nifti_MR( serie )
+      elif modality == "NM" and len( serie ) == 1:
+          convert_to_nifti_NM( serie )  
       else:
-
-        convert_to_nifti( serie, args.merge4DSeries )
+          convert_to_nifti( serie, args.merge4DSeries )
