@@ -342,6 +342,14 @@ def convert_to_nifti_NM( serie ):
         outfile = None
 
     check_call( [ 'AimsFileConvert', '-i', serie[0], '-o', outfile ] )
+    
+    try:
+        if ds[0x0008,0x0070].value == "SIEMENS NM" and \
+           ds[0x0008,0x1090].value == "Encore2":
+            check_call( [ 'AimsFlip', '-i', outfile, '-o', outfile, '-m', 'ZZ' ] )
+    except:
+        pass
+
 
 if __name__ == '__main__':
 
