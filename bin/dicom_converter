@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, shutil, hashlib, string
+import os, shutil, hashlib, string, glob
 import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
 import dicom
 import numpy as np
+import soma
+from soma.path import split_path
 from soma import argparse, aims, dicomaggregator
 
 def get_mcverter():
@@ -29,6 +31,14 @@ def get_mcverter():
 def make_valid_filename( filename ):
     valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
     return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
+
+def findSharedFile( filename ):
+    for dir in sorted( glob.glob( os.path.join( *( 
+                split_path( soma.__file__ )[:-3] + [ 'share', 'soma-*' ]) ) ) ):
+        if os.path.exists( dir ):
+            filepath = os.path.join( dir, filename )
+            if os.path.exists( filepath ):
+                return filepath
 
 def get_start_and_duration_times( serie ):
     stdt = {}
@@ -263,7 +273,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 def convert_to_nifti_MR( serie ):
   ds = dicom.read_file( serie[ 0 ] )
 
-  dcm2niiOptions = [ '-b', 'dcm2nii_DV.ini' ]
+  dcm2niiOptions = [ '-b', findSharedFile( 'dcm2nii_DV.ini' ) ]
   tmpdir = mkdtemp()
   check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
               [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
