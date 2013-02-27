@@ -21,6 +21,14 @@ BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVI
 BRAINVISA_DEPENDENCY( RUN DEPENDS python RUN ">= ${PYTHON_SHORT_VERSION}" )
 BRAINVISA_DEPENDENCY( DEV DEPENDS python DEV ">= 2.5;<< 3.0" )
 
+# used for brainvisa-share/config.h
+BRAINVISA_FIND_PACKAGE( brainvisa-share QUIET )
+if( BRAINVISA-SHARE_FOUND )
+  include( "${BRAINVISA-SHARE_USE_FILE}" )
+else()
+  message( "WARNING: project brainvisa-share has not been found. Some programs that require access to shared directories may fail to run." )
+endif()
+
 BRAINVISA_COPY_PYTHON_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/python"
 				 ${PROJECT_NAME} )
 BRAINVISA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/bin"

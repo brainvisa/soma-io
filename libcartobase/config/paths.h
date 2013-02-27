@@ -73,6 +73,8 @@ namespace carto
         - globalShared()
     */
     const std::list<std::string> & resourceSearchPath();
+    void addResourceSearchPath( const std::string & path,
+                                bool atbeginning=false );
     /** Find a file in the shared resources directories, or in a personal
         directory.
         Files are looked in the search paths given by resourceSearchPath().

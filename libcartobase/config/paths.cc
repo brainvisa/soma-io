@@ -295,9 +295,21 @@ const string & Paths::shfjShared()
 }
 
 
+namespace
+{
+
+  list<string> & _resourceSearchPath()
+  {
+    static list<string> searchpath;
+    return searchpath;
+  }
+
+}
+
+
 const list<string> & Paths::resourceSearchPath()
 {
-  static list<string> searchpath;
+  list<string> & searchpath = _resourceSearchPath();
   if( searchpath.empty() )
   {
     char s = FileUtil::separator();
@@ -306,6 +318,17 @@ const list<string> & Paths::resourceSearchPath()
     searchpath.push_back( Paths::globalShared() );
   }
   return searchpath;
+}
+
+
+void Paths::addResourceSearchPath( const string & path, bool atbeginning )
+{
+  resourceSearchPath(); // init list if needed
+  list<string> & searchpath = _resourceSearchPath();
+  if( atbeginning )
+    searchpath.insert( searchpath.begin(), path );
+  else
+    searchpath.push_back( path );
 }
 
 
