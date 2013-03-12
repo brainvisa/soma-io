@@ -496,6 +496,8 @@ void MinfXMLReader::read( DataSource &ds )
     xmlParserInputBufferCreateIO( readDataSourceCallback, 
                                   closeDataSourceCallback, 
                                   &ds, XML_CHAR_ENCODING_UTF8 );
+  // "save" the random seed
+  int rseed = rand();
   reader = xmlNewTextReader( buf, ds.url().c_str() );
 
   if( reader != NULL ) {
@@ -594,11 +596,15 @@ void MinfXMLReader::read( DataSource &ds )
       }
       xmlFreeTextReader( reader );
       xmlFreeParserInputBuffer( buf );
+      // "restore" the random seed
+      srand( rseed );
     }
     catch( format_error & e )
     {
       xmlFreeTextReader( reader );
       xmlFreeParserInputBuffer( buf );
+      // "restore" the random seed
+      srand( rseed );
       ostringstream s;
       s << e.what() << " at position " << ds.at();
       throw format_error( s.str(), ds.url() );
@@ -606,10 +612,14 @@ void MinfXMLReader::read( DataSource &ds )
     catch( ... ) {
       xmlFreeTextReader( reader );
       xmlFreeParserInputBuffer( buf );
+      // "restore" the random seed
+      srand( rseed );
       throw;
     }
   } else {
     xmlFreeParserInputBuffer( buf );
+    // "restore" the random seed
+    srand( rseed );
     throw open_error( "unable to open", ds.url() );
   }
 }
