@@ -36,6 +36,7 @@
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/config/verbose.h>
 #include <cartobase/io/minfXML2.h>
+#include <cartobase/thread/mutex.h>
 #include <iostream>
 #ifndef CARTO_NO_DLOPEN
 #ifdef _WIN32
@@ -277,8 +278,15 @@ namespace
 }
 
 
+namespace
+{
+  Mutex _pluginMutex( Mutex::Recursive );
+}
+
+
 void PluginLoader::load( int verbose, bool forcereload )
 {
+  _pluginMutex.lock();
 /*  if( !forcereload && pluginLoaderStatic().loaded )
     return;*/
   if( !pluginLoaderStatic().loaded )
@@ -295,6 +303,7 @@ void PluginLoader::load( int verbose, bool forcereload )
       loadPluginFile( ip->filename, ip->version, verbose );
       ip->loaded = true;
     }
+  _pluginMutex.unlock();
 }
 
 
