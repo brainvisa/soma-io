@@ -51,7 +51,7 @@ class DicomAggregator( object ):
     def aggregate( self ):
         self._aggregate_sources = {}
         serie_sop_uids = {}
-        positions_and_orientations = []
+#        positions_and_orientations = []
         for f in self._dicom_sources:
             try:
                 ds = dicom.read_file( f )
@@ -62,18 +62,17 @@ class DicomAggregator( object ):
                 self._aggregate_sources[ serie_uid ] = []
                 serie_sop_uids[ serie_uid ] = []
 
-            try:
-                position_and_orientation = ( ds.ImagePositionPatient,
-                                             ds.ImageOrientationPatient )
-            except:
-                position_and_orientation = None
+#            try:
+#                position_and_orientation = ( ds.ImagePositionPatient,
+#                                             ds.ImageOrientationPatient )
+#            except:
+#                position_and_orientation = None
             
             sop_uid = ds.SOPInstanceUID
-            if not sop_uid in serie_sop_uids[ serie_uid ] and \
-               not position_and_orientation in positions_and_orientations:
+            if not sop_uid in serie_sop_uids[ serie_uid ]:# and \
+               #not position_and_orientation in positions_and_orientations:
                 serie_sop_uids[ serie_uid ].append( sop_uid )
                 self._aggregate_sources[ serie_uid ].append( f )
                 
-                if position_and_orientation is not None:
-                    positions_and_orientations.append( position_and_orientation )
-
+#                if position_and_orientation is not None:
+#                    positions_and_orientations.append( position_and_orientation )
