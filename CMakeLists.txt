@@ -60,7 +60,7 @@ include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 set( SOMA-IO_LIBRARIES cartobase "${LIBXML2_LIBRARIES}" )
 
 
-add_subdirectory( libcartobase )
-# add_subdirectory( libsoma-io )
+add_subdirectory( src/libcartobase )
+add_subdirectory( src/tests )
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()

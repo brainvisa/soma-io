@@ -33,7 +33,8 @@ def make_valid_filename( filename ):
     return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
 
 def findSharedFile( filename ):
-    for dir in sorted( glob.glob( os.path.join( *( 
+
+    for dir in sorted( glob.glob( os.path.join( *(
                 split_path( soma.__file__ )[:-3] + [ 'share', 'soma-*' ]) ) ) ):
         if os.path.exists( dir ):
             filepath = os.path.join( dir, filename )
@@ -271,9 +272,14 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         fd.close()
 
 def convert_to_nifti_MR( serie ):
+
+  uuid = None
+  series_instance_uid = None
+
   ds = dicom.read_file( serie[ 0 ] )
 
   dcm2niiOptions = [ '-b', findSharedFile( 'dcm2nii_DV.ini' ) ]
+
   tmpdir = mkdtemp()
   check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
               [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
@@ -294,19 +300,19 @@ def convert_to_nifti_MR( serie ):
   # NB : keep extension in case of bvec/bval (DTI images)
   for f in os.listdir(tmpdir):
 
-      extension = '.' + f.split( '.' )[ -1 ]
-      if outfile == None:
+    extension = '.' + f.split( '.' )[ -1 ]
+    if outfile == None:
 
-        outfile = os.path.join( args.output, f )
+      outfile = os.path.join( args.output, f )
 
-      if os.path.exists( outfile + extension ):
+    if os.path.exists( outfile + extension ):
 
-        outfile = outfile + '_1'
+      outfile = outfile + '_1'
 
-      shutil.move(os.path.join(tmpdir, f), outfile + extension )
-      if extension == '.nii':
+    shutil.move(os.path.join(tmpdir, f), outfile + extension )
+    if extension == '.nii':
 
-        outfiles.append(outfile)
+      outfiles.append(outfile)
 
   # disapply rescaleSlope for Philips data
   if ds.Manufacturer == 'Philips Medical Systems':
@@ -319,9 +325,9 @@ def convert_to_nifti_MR( serie ):
     except:
       try:
         rescaleSlope = \
-                 ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1053].value
+                ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1053].value
         rescaleIntercept = \
-                 ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1052].value
+                ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1052].value
       except:
         pass
 
@@ -340,6 +346,28 @@ def convert_to_nifti_MR( serie ):
 
   shutil.rmtree( tmpdir )
 
+  # add seriesInstanceUID and referentials to .minf
+  if series_instance_uid == None:
+    try:
+      series_instance_uid = ds.SeriesInstanceUID
+    except:
+      pass
+
+  if uuid == None and "FrameofReferenceUID" in ds:
+    uuid = hashlib.md5( ds.FrameofReferenceUID ).hexdigest()
+
+  minf = os.path.join( outfile + '.nii.minf' )
+  header = aims.read(outfile).header()
+  fd = open( minf, 'w' )
+  if uuid != None:
+
+      newattributes = { 'referentials': [ uuid ], \
+                        'series_instance_uid': series_instance_uid }
+
+  header.update( newattributes )
+  print >> fd, "attributes = ", header
+  fd.close()
+
 def convert_to_nifti_NM( serie ):
     ds = dicom.read_file( serie[0] )
     try:
@@ -352,7 +380,7 @@ def convert_to_nifti_NM( serie ):
         outfile = None
 
     check_call( [ 'AimsFileConvert', '-i', serie[0], '-o', outfile ] )
-    
+
     try:
         if ds[0x0008,0x0070].value == "SIEMENS NM" and \
            ds[0x0008,0x1090].value == "Encore2":
@@ -401,6 +429,6 @@ Convert input DICOM files into NIfTI files
       if modality == 'MR':
           convert_to_nifti_MR( serie )
       elif modality == "NM" and len( serie ) == 1:
-          convert_to_nifti_NM( serie )  
+          convert_to_nifti_NM( serie )
       else:
           convert_to_nifti( serie, args.merge4DSeries )

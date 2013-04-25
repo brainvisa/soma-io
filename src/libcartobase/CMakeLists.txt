@@ -153,7 +153,6 @@ set( _cartobase_0_sources
   allocator/mappingro.cc 
   allocator/mappingrw.cc 
   allocator/meminfo.cc 
-#  config/info.cc 
   config/paths.cc 
   config/verbose.cc 
   config/version.cc 
