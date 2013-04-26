@@ -12,6 +12,10 @@
 *** DONE svn add
 ** partial-io/src/tests
 
+* Tests
+** DONE somaCapabilities_test
+** DONE someDSList_test
+
 * libsoma-io
 ** datasource
 *** datasource
@@ -21,7 +25,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** bufferdatasource
 **** DONE move
@@ -30,7 +35,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** chaindatasource
 **** DONE move
@@ -39,7 +45,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** cstreamdatasource
 **** DONE move
@@ -48,7 +55,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** fddatasource
 **** DONE move
@@ -57,7 +65,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeList
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** filedatasource
 **** DONE move
@@ -67,7 +76,8 @@
 **** DONE carto::
 **** TODO CARTO_FILE_AS_FD
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** filteringdatasource
 **** DONE move
@@ -76,7 +86,8 @@
 **** DONE namespace
 **** DONE carto::
 **** TODO CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** streamdatasource
 **** DONE move
@@ -85,7 +96,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** TODO test
 **** TODO svn add
 *** datasourcelist
 **** DONE move
@@ -94,9 +106,10 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** DONE test
 **** TODO dataSource() accessors launch dumb exception
-**** TODO svn add
+**** DONE svn add
 ** datasourceinfo
 *** datasourcecapabilities
 **** DONE move
@@ -105,7 +118,8 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
+**** DONE compile
+**** DONE test
 **** DONE svn add
 *** datasourceinfo
 **** DONE move
@@ -114,8 +128,9 @@
 **** DONE namespace
 **** DONE carto::
 **** DONE CMakeLists
-**** TODO compile/test
-**** TODO svn add
+**** DONE compile
+**** TODO test
+**** DONE svn add
 *** datasourceinfoloader
 **** DONE move
 **** DONE ifndef
@@ -123,5 +138,6 @@
 **** DONE namespace
 **** DONE carto::
 **** TODO CMakeList
-**** TODO compile/test
+**** TODO compile
+**** TODO test
 **** TODO svn add

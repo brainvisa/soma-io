@@ -109,8 +109,7 @@ namespace soma
       /// returns number of unique keywords existing
       int   getNbTypes() const;
       bool  exists( const std::string & ) const;
-      /// MULTIMAP equivalent to !exists( type )
-      /// MAPOFVEC true if keyword doesn't exist or corresponding vector is empty
+      /// MAP_OF_VEC true if keyword doesn't exist or corresponding vector is empty
       bool  isEmpty( const std::string & ) const;
       int   getSize( const std::string & ) const;
 
