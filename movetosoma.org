@@ -1,0 +1,127 @@
+* #ifndef SOMAIO_FOLDER_FILENAME_H
+* #include <soma-io/folder/filename.h>
+* use namespace soma
+
+* CMakeLists
+** partial-io
+*** DONE modif
+** partial-io/src/libcartobase
+** partial-io/src/libsoma-io
+*** DONE adapt to soma-io
+*** TODO see if more config needed
+*** DONE svn add
+** partial-io/src/tests
+
+* libsoma-io
+** datasource
+*** datasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** bufferdatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** chaindatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** cstreamdatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** fddatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeList
+**** TODO compile/test
+**** TODO svn add
+*** filedatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CARTO_FILE_AS_FD
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** filteringdatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** streamdatasource
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** datasourcelist
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO dataSource() accessors launch dumb exception
+**** TODO svn add
+** datasourceinfo
+*** datasourcecapabilities
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** DONE svn add
+*** datasourceinfo
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** TODO compile/test
+**** TODO svn add
+*** datasourceinfoloader
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeList
+**** TODO compile/test
+**** TODO svn add
