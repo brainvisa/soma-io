@@ -9,6 +9,9 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/config.h"
                    COMPONENT ${PROJECT_NAME}-dev )
 
 set( _headers
+  #checker/formatchecker.h
+  #checker/pythonformatchecker.h
+  #checker/xmlformatchecker.h
   datasource/bufferdatasource.h
   datasource/chaindatasource.h
   datasource/cstreamdatasource.h
@@ -21,11 +24,35 @@ set( _headers
   datasourceinfo/datasourcecapabilities.h
   datasourceinfo/datasourceinfo.h
   #datasourceinfo/datasourceinfoloader.h
+  #image/imagereader.h
+  #imagereader_d.h
+  #imagwriter.h
+  io/formatdictionary.h
+  io/formatdictionary_d.h
+  #io/reader.h
+  #io/reader_d.h
+  #io/readeralgorithm.h
+  #io/writer.h
+  #io/writer_d.h
+  #other/asciidatasourcetraits.h
+  #other/creator.h
+  #other/headertranslator.h
+  #other/minfXML2.h
+  #reader/formatreader.h
+  #reader/formatreader_d.h
+  #reader/itemreader.h
+  #reader/pythonformatreader.h
+  #reader/xmlformatreader.h
+  #writer/formatwriter.h
+  #writer/itrmwriter.h
+  #writer/pythonformatwriter.h
 )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 
 set( _somaio_0_sources
+  #checker/pythonformatchecker.cc
+  #checker/xmlformatchecker.cc
   config/version.cc
   datasource/bufferdatasource.cc
   datasource/chaindatasource.cc
@@ -39,6 +66,15 @@ set( _somaio_0_sources
   datasourceinfo/datasourcecapabilities.cc
   datasourceinfo/datasourceinfo.cc
   #datasourceinfo/datasourceinfoloader.cc
+  io/formatdictionary.cc
+  #io/reader_object.cc
+  #io/readeralgorithm.cc
+  #io/writer.cc
+  #other/asciidatasourcetraits.cc
+  #other/minfXML2.cc
+  #reader/pythonformatreader.cc
+  #reader/xmlformatreader.cc
+  #writer/pythonformatwriter.cc
 )
 
 # set( _somaio_1_sources

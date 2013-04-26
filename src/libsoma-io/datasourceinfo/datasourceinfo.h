@@ -43,33 +43,28 @@
 namespace soma
 {
   
-  /**
-   * Object assembling a header, a list of capabilities and a list of DataSource
-   *
-   * It is returned by the DataSourceInfoLoader and the FormatChecker.
-   *
-   * \warning We allow large access to the members (It is used among other by 
-   * plugin implementation of FormatChecker or FormatReader, be careful if you 
-   * should write one for yourself)
-   *
-   * \remarks Maybe restrict access to the members ? see \todo.
-   */
+  /// \brief Object assembling a header, a list of capabilities and a list of 
+  /// DataSource
+  ///
+  /// It is returned by the DataSourceInfoLoader and the FormatChecker.
+  ///
+  /// \warning We allow large access to the members (It is used among other by 
+  /// plugin implementation of FormatChecker or FormatReader, be careful if you 
+  /// should write one for yourself)
   class DataSourceInfo
   {
     public:
-      /**
-       * Constructor from a header
-       */
+      /// Constructor from a header [+ capabilities + dslist]
       DataSourceInfo( const carto::Object & header = carto::Object(), 
                       const DataSourceCapabilities & 
                         cap = DataSourceCapabilities(),
                       const DataSourceList & 
                         dsl = DataSourceList());
-      /* TODO
-       * constructor from a header
-       * constructor from a datasource + dim
-       * constructor from a buffer
-       */
+      /// Constructor from a datasource + dimensions (to build a header)
+      // TODO
+      /// Constructor from a buffer
+      // TODO
+      /// Constructor by copy
       DataSourceInfo( const DataSourceInfo & );
       virtual ~DataSourceInfo();
       
