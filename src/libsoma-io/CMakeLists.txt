@@ -47,23 +47,23 @@ set( _somaio_0_sources
 # set( _somaio_sources
 # )
 
-add_library( soma-io_0 SHARED ${_somaio_0_sources} )
-add_dependencies( soma-io_0 ${headersTarget} )
-set_property( TARGET soma-io_0 PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( soma-io_0 ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
+add_library( soma-io SHARED ${_somaio_0_sources} )
+add_dependencies( soma-io ${headersTarget} )
+set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
+target_link_libraries( soma-io ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
 if( WIN32 AND CMAKE_CROSSCOMPILING )
-  target_link_libraries( soma-io_0 ws2_32 ole32 )
+  target_link_libraries( soma-io ws2_32 ole32 )
 endif( WIN32 AND CMAKE_CROSSCOMPILING )
 if( WIN32 )
-  target_link_libraries( soma-io_0 wsock32 )
+  target_link_libraries( soma-io wsock32 )
 endif( WIN32 )
 if(UNIX)
-  target_link_libraries( soma-io_0 "m" "pthread" )
+  target_link_libraries( soma-io "m" "pthread" )
 endif(UNIX)
 if(APPLE)
-  target_link_libraries( soma-io_0 "-framework CoreServices" )
+  target_link_libraries( soma-io "-framework CoreServices" )
 endif(APPLE)
-BRAINVISA_INSTALL( TARGETS soma-io_0
+BRAINVISA_INSTALL( TARGETS soma-io
               DESTINATION lib
               COMPONENT ${PROJECT_NAME} )
 

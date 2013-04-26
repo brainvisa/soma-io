@@ -13,6 +13,8 @@ BRAINVISA_ADD_EXECUTABLE(cartoThreadedRcptr_test cartoThreadedRcptr_test/threade
 BRAINVISA_ADD_EXECUTABLE(cartoUuid_test          cartoUuid_test/uuid_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(cartoWeakptr_test       cartoWeakptr_test/weakptr_test.cc HELP_GENERATE FALSE)
 
+BRAINVISA_ADD_EXECUTABLE(somaCapabilities_test   somaCapabilities_test/capabilities_test.cc HELP_GENERATE FALSE)
+
 
 TARGET_LINK_LIBRARIES(cartoAlgorithm_test     cartobase)
 TARGET_LINK_LIBRARIES(cartoConversion_test    cartobase)
@@ -27,3 +29,6 @@ TARGET_LINK_LIBRARIES(cartoSharedptr_test     cartobase)
 TARGET_LINK_LIBRARIES(cartoThreadedRcptr_test cartobase)
 TARGET_LINK_LIBRARIES(cartoUuid_test          cartobase)
 TARGET_LINK_LIBRARIES(cartoWeakptr_test       cartobase)
+
+TARGET_LINK_LIBRARIES(somaCapabilities_test   cartobase)
+TARGET_LINK_LIBRARIES(somaCapabilities_test   soma-io)
