@@ -43,7 +43,11 @@ namespace soma
   {
   public:
     // why pass DSIloader ?
-    virtual DataSourceInfo check( DataSourceInfo & dsi, 
+    // I choose to pass the dsi by value because we start to work on it
+    // before knowing if the format is good, so the "extern" dsi should only
+    // be modified if the format is recognized.
+    
+    virtual DataSourceInfo check( DataSourceInfo dsi, 
                                   DataSourceInfoLoader & f ) const = 0;
     virtual ~FormatChecker() {}
   };

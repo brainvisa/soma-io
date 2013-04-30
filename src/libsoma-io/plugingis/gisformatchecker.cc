@@ -360,7 +360,7 @@ GisFormatChecker::~GisFormatChecker()
 {
 }
 
-DataSourceInfo GisFormatChecker::check( DataSourceInfo & dsi, 
+DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi, 
                                         DataSourceInfoLoader & ) const
 {
   bool doread = dsi.header().isNone() ;

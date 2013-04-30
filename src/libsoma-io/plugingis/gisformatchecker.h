@@ -52,7 +52,7 @@ namespace soma
   class GisFormatChecker : public FormatChecker
   {
     public:
-      virtual DataSourceInfo check( DataSourceInfo & dsi, 
+      virtual DataSourceInfo check( DataSourceInfo dsi, 
                                     DataSourceInfoLoader & f ) const;
       virtual ~GisFormatChecker();
       
