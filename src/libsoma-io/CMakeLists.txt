@@ -38,15 +38,19 @@ set( _headers
   #io/readeralgorithm.h
   #io/writer.h
   #io/writer_d.h
-  #other/asciidatasourcetraits.h
-  other/creator.h
-  #other/headertranslator.h
-  #other/minfXML2.h
+  plugingis/gisformatchecker.h
+  #plugingis//gisimagereader.h
+  #plugingis/gisimagereader_d.h
+  #plugingis/gisimagewriter.h
   reader/formatreader.h
   reader/formatreader_d.h
-  #reader/itemreader.h
+  reader/itemreader.h
   #reader/pythonformatreader.h
   #reader/xmlformatreader.h
+  utilities/asciidatasourcetraits.h
+  utilities/creator.h
+  #utilities/headertranslator.h
+  #utilities/minfXML2.h
   writer/formatwriter.h
   #writer/itemwriter.h
   #writer/pythonformatwriter.h
@@ -54,7 +58,7 @@ set( _headers
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 
-set( _somaio_0_sources
+set( _somaio_sources
   allocator/allocator.cc
   allocator/mappingcopy.cc
   allocator/mappingro.cc
@@ -79,20 +83,15 @@ set( _somaio_0_sources
   #io/reader_object.cc
   #io/readeralgorithm.cc
   #io/writer.cc
-  #other/asciidatasourcetraits.cc
-  #other/minfXML2.cc
+  plugingis/gisformatchecker.cc
   #reader/pythonformatreader.cc
   #reader/xmlformatreader.cc
+  utilities/asciidatasourcetraits.cc
+  #utilities/minfXML2.cc
   #writer/pythonformatwriter.cc
 )
 
-# set( _somaio_1_sources
-# )
-# 
-# set( _somaio_sources
-# )
-
-add_library( soma-io SHARED ${_somaio_0_sources} )
+add_library( soma-io SHARED ${_somaio_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( soma-io ${SOMA_CARTOBASE_LIB} ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
@@ -109,32 +108,9 @@ if(APPLE)
   target_link_libraries( soma-io "-framework CoreServices" )
 endif(APPLE)
 BRAINVISA_INSTALL( TARGETS soma-io
-              DESTINATION lib
-              COMPONENT ${PROJECT_NAME} )
+                   DESTINATION lib
+                   COMPONENT ${PROJECT_NAME} )
 
-
-# add_library( soma-io_1 SHARED ${_somaio_1_sources} )
-# set_property( TARGET soma-io_1 PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-# target_link_libraries( soma-io_1 "somaio_0" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
-# if(UNIX)
-#   target_link_libraries( soma-io_1 "pthread" )
-# endif(UNIX)
-# BRAINVISA_INSTALL( TARGETS soma-io_1
-#               DESTINATION lib
-#               COMPONENT ${PROJECT_NAME} )
-# 
-#               
-# add_library( soma-io SHARED ${_somaio_sources} )
-# set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-# target_link_libraries( soma-io "somaio_1" "somaio_0" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
-# if(UNIX)
-#   target_link_libraries( soma-io "pthread" )
-# endif(UNIX)
-# BRAINVISA_INSTALL( TARGETS soma-io
-#               DESTINATION lib
-#               COMPONENT ${PROJECT_NAME} )
-
-              
 IF ( DOXYGEN_FOUND )
   SET(component_name "soma-io")
   set( DOXYFILE_PREDEFINED "${AIMS_DEFINITIONS}")

@@ -106,47 +106,71 @@ bool DataSourceCapabilities::canSeekVolume() const
 
 void DataSourceCapabilities::setInit( const bool & boo )
 {
-  _capabilities = _capabilities | 1;
+  if( boo )
+    _capabilities = _capabilities | 1;
+  else
+    _capabilities = _capabilities & !1;
 }
 
 void DataSourceCapabilities::setMemoryMapping( const bool & boo )
 {
-  _capabilities = _capabilities | 2;
+  if( boo )
+    _capabilities = _capabilities | 2;
+  else
+    _capabilities = _capabilities & !2;
   setInit();
 }
 
 void DataSourceCapabilities::setThreadSafe( const bool & boo )
 {
-  _capabilities = _capabilities | 4;
+  if( boo )
+    _capabilities = _capabilities | 4;
+  else
+    _capabilities = _capabilities & !4;
   setInit();
 }
 
 void DataSourceCapabilities::setOrdered( const bool & boo )
 {
-  _capabilities = _capabilities | 8;
+  if( boo )
+    _capabilities = _capabilities | 8;
+  else
+    _capabilities = _capabilities & !8;
   setInit();
 }
 
 void DataSourceCapabilities::setSeekVoxel( const bool & boo )
 {
-  _capabilities = _capabilities | 16;
+  if( boo )
+    _capabilities = _capabilities | 16;
+  else
+    _capabilities = _capabilities | !16;
   setInit();
 }
 
 void DataSourceCapabilities::setSeekLine( const bool & boo )
 {
-  _capabilities = _capabilities | 32;
+  if( boo )
+    _capabilities = _capabilities | 32;
+  else
+    _capabilities = _capabilities & !32;
   setInit();
 }
 
 void DataSourceCapabilities::setSeekSlice( const bool & boo )
 {
-  _capabilities = _capabilities | 64;
+  if( boo )
+    _capabilities = _capabilities | 64;
+  else
+    _capabilities = _capabilities & !64;
   setInit();
 }
 
 void DataSourceCapabilities::setSeekVolume( const bool & boo )
 {
-  _capabilities = _capabilities | 128;
+  if( boo )
+    _capabilities = _capabilities | 128;
+  else
+    _capabilities = _capabilities & !128;
   setInit();
 }

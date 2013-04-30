@@ -89,7 +89,7 @@ namespace soma
       /// \remarks Should it be let there ?
       //static carto::Object readMinf( DataSource & ds, 
       //                               carto::Object base = carto::none() );
-      //static carto::SyntaxSet & minfSyntax();
+      static carto::SyntaxSet & minfSyntax();
       
     protected:
       struct Private;

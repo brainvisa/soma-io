@@ -31,9 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/io/asciidatasourcetraits.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/utilities/asciidatasourcetraits.h>
+//--- system -------------------------------------------------------------------
 #include <stdio.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 

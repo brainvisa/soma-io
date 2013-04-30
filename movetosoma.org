@@ -14,7 +14,12 @@
 
 * Tests
 ** DONE somaCapabilities_test
-** DONE someDSList_test
+** DONE somaDSList_test
+** DONE somaGisFormatCheck
+*** done if reads gis fil
+*** todo if reads another format (check if loanches exception)
+*** todo if header already computed
+*** todo with readMinf
 
 * libsoma-io
 ** config
@@ -251,12 +256,12 @@
 **** DONE svn add
 *** itemreader
 **** DONE move
-**** TODO ifndef
-**** TODO includes
-**** TODO namepsace
-**** TODO carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 *** pythonformatreader
@@ -310,15 +315,15 @@
 **** TODO compile
 **** TODO test
 **** DONE svn add
-** other
+** utilities
 *** asciidatasourcetraits
 **** DONE move
-**** TODO ifndef
-**** TODO includes
-**** TODO namepsace
-**** TODO carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 *** creator
@@ -406,3 +411,18 @@
 **** DONE compile
 **** TODO test
 **** TODO svn add
+** plugingis
+*** gisformatchecker
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile : without readminf
+**** DONE test
+**** DONE svn add
+*** gisimagereader
+**** DONE move
+*** gisimagewriter
+**** DONE move

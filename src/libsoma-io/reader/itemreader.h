@@ -31,15 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_ITEMREADER_H
-#define CARTOBASE_IO_ITEMREADER_H
-
+#ifndef SOMAIO_READER_ITEMREADER_H
+#define SOMAIO_READER_ITEMREADER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
-#include <cartobase/datasource/datasource.h>
-#include <cartobase/io/asciidatasourcetraits.h>
+//--- system -------------------------------------------------------------------
 #include <algorithm>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
 
   /**	Low-level "small item" reader, used by higher-level file readers. 
@@ -52,8 +55,8 @@ namespace carto
 	reading-mode specific ItemReader:
 
 	\code
-	#include <cartobase/io/defaultitemreader.h>
-	using namespace carto;
+	#include <soma-io/reader/defaultitemreader.h>
+	using namespace soma;
 	// Let's read a vector of signed 16 bits elements
 	short				shortarray[ 100 ];
 	DefaultItemReader<short>	ir1;
@@ -87,20 +90,17 @@ namespace carto
     virtual ItemReader<T>* reader( bool binary = true, 
                                    bool bswap = false ) const = 0;
 
-    /** Reading on an arbitrary DataSource
-        \param ds source of data (file, buffer, socket...)
-        \param pitem buffer to fill with read values
-        \param n number of elements to read
-        \return number of elements actually read
-     */
+    /// Reading on an arbitrary DataSource
+    ///  \param ds source of data (file, buffer, socket...)
+    ///  \param pitem buffer to fill with read values
+    ///  \param n number of elements to read
+    ///  \return number of elements actually read
     virtual long read( DataSource & ds, T* pitem, size_t n = 1 ) const = 0;
   };
 
-
-  /**	Default low-levels readers.
-	They are a default implementation of the readers for most common types,
-	and can be specialized for other types if needed.
-  */
+  ///	Default low-levels readers.
+	/// They are a default implementation of the readers for most common types,
+	/// and can be specialized for other types if needed.
   template <typename T>
   class DefaultItemReader : public ItemReader<T>
   {

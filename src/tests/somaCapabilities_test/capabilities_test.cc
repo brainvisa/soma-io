@@ -40,7 +40,8 @@ using namespace carto;
 int main()
 {
   DataSourceCapabilities dc;
-  ASSERT( !dc.allowsMemoryMapping() &&
+  ASSERT( !dc.isInit() &&
+          !dc.allowsMemoryMapping() &&
           !dc.isThreadSafe() &&
           !dc.isOrdered() &&
           !dc.canSeekVoxel() &&
@@ -49,7 +50,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setMemoryMapping( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           !dc.isThreadSafe() &&
           !dc.isOrdered() &&
           !dc.canSeekVoxel() &&
@@ -58,7 +60,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setThreadSafe( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           !dc.isOrdered() &&
           !dc.canSeekVoxel() &&
@@ -67,7 +70,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setOrdered( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           dc.isOrdered() &&
           !dc.canSeekVoxel() &&
@@ -76,7 +80,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setSeekVoxel( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           dc.isOrdered() &&
           dc.canSeekVoxel() &&
@@ -85,7 +90,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setSeekLine( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           dc.isOrdered() &&
           dc.canSeekVoxel() &&
@@ -94,7 +100,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setSeekSlice( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           dc.isOrdered() &&
           dc.canSeekVoxel() &&
@@ -103,7 +110,8 @@ int main()
           !dc.canSeekVolume() 
         );
   dc.setSeekVolume( true );
-  ASSERT( dc.allowsMemoryMapping() &&
+  ASSERT( dc.isInit() &&
+          dc.allowsMemoryMapping() &&
           dc.isThreadSafe() &&
           dc.isOrdered() &&
           dc.canSeekVoxel() &&

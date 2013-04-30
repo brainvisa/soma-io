@@ -31,20 +31,23 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_ASCIIDATASOURCETRAITS_H
-#define CARTOBASE_IO_ASCIIDATASOURCETRAITS_H
-
-#include <cartobase/datasource/datasource.h>
+#ifndef SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
+#define SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/type/types.h>
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/type/string_conversion.h>
 #include <cartobase/type/limits.h>
+//--- system -------------------------------------------------------------------
 #include <cstring>
 #include <iostream>
 #include <limits>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
 
   template<typename T>

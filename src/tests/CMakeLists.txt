@@ -15,6 +15,7 @@ BRAINVISA_ADD_EXECUTABLE(cartoWeakptr_test       cartoWeakptr_test/weakptr_test.
 
 BRAINVISA_ADD_EXECUTABLE(somaCapabilities_test   somaCapabilities_test/capabilities_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(somaDSList_test         somaDSList_test/dslist_test.cc HELP_GENERATE FALSE)
+BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
 
 message("librairies soma : ${SOMA-IO_LIBRARIES}")
 TARGET_LINK_LIBRARIES(cartoAlgorithm_test     cartobase)
@@ -33,3 +34,4 @@ TARGET_LINK_LIBRARIES(cartoWeakptr_test       cartobase)
 
 TARGET_LINK_LIBRARIES(somaCapabilities_test   ${SOMA-IO_LIBRARIES})
 TARGET_LINK_LIBRARIES(somaDSList_test         ${SOMA-IO_LIBRARIES})
+TARGET_LINK_LIBRARIES(somaGisFormatCheck_test ${SOMA-IO_LIBRARIES})

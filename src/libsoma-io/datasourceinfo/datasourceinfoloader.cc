@@ -312,123 +312,123 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo & dsi  )
 //    R E A D I N G   M I N F
 //==============================================================================
 
-// SyntaxSet & DataSourceInfoLoader::minfSyntax()
-// {
-//   static SyntaxSet  pheader_syntax;
-//   if( pheader_syntax.empty() ) {
-//     // we don't absolutely need a syntax, but some pieces of code may 
-//     // expect it
-//     Syntax	&sx = pheader_syntax[ "__generic__" /*"PythonHeader"*/ ];
-// 
-//     sx[ "_borderWidth" ] = Semantic( "int", false, true );
-//     sx[ "sizeX"        ] = Semantic( "int", false, true );
-//     sx[ "sizeY"        ] = Semantic( "int", false, true );
-//     sx[ "sizeZ"        ] = Semantic( "int", false, true );
-//     sx[ "sizeT"        ] = Semantic( "int", false, true );
-// 
-//     sx[ "data_type" ] = Semantic( "string" );
-//     sx[ "object_type" ] = Semantic( "string" );
-//     sx[ "disk_data_type" ] = Semantic( "string", false, true );
-//     sx[ "possible_data_type" ] = Semantic( "string_vector" );
-//     sx[ "ascii" ] = Semantic( "int", false, true );
-//     sx[ "byte_swapping" ] = Semantic( "int", false, true );
-//     sx[ "spm_normalized" ] = Semantic( "bool" );
-//     sx[ "origin" ] = Semantic( "float_vector" );
-//     sx[ "spm_origin" ] = Semantic( "float_vector" );
-//     //sx[ "origin" ] = Semantic( DataTypeCode<vector<float> >::name() );
-//     sx[ "transfer_syntax" ] = Semantic( "string" );
-//     sx[ "manufacturer" ] = Semantic( "string" );
-//     sx[ "modality" ] = Semantic( "string" );
-//     sx[ "patient_id" ] = Semantic( "string" );
-//     sx[ "study_id" ] = Semantic( "string" );
-//     sx[ "series_number" ] = Semantic( "int" );
-//     sx[ "volume_dimension" ] = Semantic( "int_vector" );
-//     sx[ "voxel_size" ] = Semantic( "float_vector" );
-//     sx[ "filter_param" ] = Semantic( "float_vector" );
-//     sx[ "bits_allocated" ] = Semantic( "int" );
-//     sx[ "time_resolution" ] = Semantic( "float" );
-//     sx[ "te" ] = Semantic( "float" );
-//     sx[ "tr" ] = Semantic( "float" );
-//     sx[ "flip_angle" ] = Semantic( "float" );
-//     sx[ "slice_thickness" ] = Semantic( "float" );
-//     sx[ "inter_slices" ] = Semantic( "float" );
-//     sx[ "isotope_halflife" ] = Semantic( "float" );
-//     sx[ "category" ] = Semantic( "string" );
-//     sx[ "b_value" ] = Semantic( "float" );
-//     sx[ "scale_factor" ] = Semantic( "float" );
-//     sx[ "scale_offset" ] = Semantic( "float" );
-//     sx[ "nb_t_pos" ] = Semantic( "int" );
-//     sx[ "process_code" ] = Semantic( "int" );
-//     sx[ "filter_code" ] = Semantic( "int" );
-//     sx[ "polygon_dimension" ] = Semantic( "int" );
-//     sx[ "vertex_number" ] = Semantic( "int" );
-//     sx[ "start_time" ] = Semantic( "int_vector" );
-//     sx[ "duration_time" ] = Semantic( "int_vector" );
-//     sx[ "isotope" ] = Semantic( "string" );
-//     sx[ "image_unit" ] = Semantic( "string" );
-//     sx[ "radiopharmaceutical" ] = Semantic( "string" );
-//     sx[ "process_list" ] = Semantic( "string" );
-//     sx[ "zero_start_time" ] = Semantic( "S32" );
-//     sx[ "original_filename" ] = Semantic( "string" );
-//     sx[ "filter_type" ] = Semantic( "string" );
-//     sx[ "scale_factor_applied" ] = Semantic( "bool", false, true );
-//     sx[ "vox_units" ] = Semantic( "string" );
-//     sx[ "cal_units" ] = Semantic( "string" );
-//     sx[ "db_name" ] = Semantic( "string" );
-//     sx[ "aux_file" ] = Semantic( "string" );
-//     sx[ "generated" ] = Semantic( "string" );
-//     sx[ "scannum" ] = Semantic( "string" );
-//     sx[ "exp_date" ] = Semantic( "string" );
-//     sx[ "exp_time" ] = Semantic( "string" );
-//     sx[ "SPM_data_type" ] = Semantic( "string", false, true );
-//     sx[ "orient" ] = Semantic( "int" );
-//     sx[ "views" ] = Semantic( "int" );
-//     sx[ "start_field" ] = Semantic( "int" );
-//     sx[ "field_skip" ] = Semantic( "int" );
-//     sx[ "omax" ] = Semantic( "int" );
-//     sx[ "omin" ] = Semantic( "int" );
-//     sx[ "smax" ] = Semantic( "int" );
-//     sx[ "smin" ] = Semantic( "int" );
-//     sx[ "minimum" ] = Semantic( "int" );
-//     sx[ "maximum" ] = Semantic( "int" );
-//     sx[ "history" ] = Semantic( "string_vector" );
-//     sx[ "ecat_file_type" ] = Semantic( "string" );
-//     sx[ "ecat_system_type" ] = Semantic( "short" );
-//     sx[ "ecat_file_type" ] = Semantic( "short" );
-//     sx[ "ecat_start_scan_time" ] = Semantic( "unsigned int" );
-//     sx[ "ecat_acquisition_type" ] = Semantic( "" );
-//     sx[ "ecat_acquisition_mode" ] = Semantic( "short" );
-//     sx[ "ecat_original_file_name" ] = Semantic( "string" );
-//     sx[ "ecat_radiopharmaceutical" ] = Semantic( "string" );
-//     sx[ "ecat_plane_separation" ] = Semantic( "float" );
-//     sx[ "ecat_bin_size" ] = Semantic( "float" );
-//     sx[ "ecat_corrections_applied" ] = Semantic( "short" );
-//     sx[ "ecat_prompts" ] = Semantic( "int_vector" );
-//     sx[ "ecat_delayed" ] = Semantic( "int_vector" );
-//     sx[ "ecat_multiples" ] = Semantic( "int_vector" );
-//     sx[ "ecat_prompts" ] = Semantic( "int_vector" );
-//     sx[ "ecat_net_trues" ] = Semantic( "int_vector" );
-//     sx[ "ecat_tot_avg_uncor" ] = Semantic( "float_vector" );
-//     sx[ "ecat_tot_avg_cor" ] = Semantic( "float_vector" );
-//     sx[ "ecat_total_coin_rate" ] = Semantic( "int_vector" );
-//     sx[ "ecat_loss_correction_fctr" ] = Semantic( "float_vector" );
-//     sx[ "ecat_uncor_singles" ] = Semantic( "float_vector" );
-//     sx[ "ecat_start_time" ] = Semantic( "int_vector" );
-//     sx[ "ecat_duration_time" ] = Semantic( "int_vector" );
-//     sx[ "ecat_x_resolution" ] = Semantic( "float" );
-//     sx[ "storage_to_memory" ] = Semantic( "float_vector" );
-//     sx[ "referentials" ] = Semantic( "string_vector" );
-// 
-//     sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
-// 
-//     pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
-//     pheader_syntax[ "float_vector" ][ "" ] = Semantic( "float" );
-//   }
-// 
-//   return pheader_syntax;
-// }
-// 
-// 
+SyntaxSet & DataSourceInfoLoader::minfSyntax()
+{
+  static SyntaxSet  pheader_syntax;
+  if( pheader_syntax.empty() ) {
+    // we don't absolutely need a syntax, but some pieces of code may 
+    // expect it
+    Syntax	&sx = pheader_syntax[ "__generic__" /*"PythonHeader"*/ ];
+
+    sx[ "_borderWidth" ] = Semantic( "int", false, true );
+    sx[ "sizeX"        ] = Semantic( "int", false, true );
+    sx[ "sizeY"        ] = Semantic( "int", false, true );
+    sx[ "sizeZ"        ] = Semantic( "int", false, true );
+    sx[ "sizeT"        ] = Semantic( "int", false, true );
+
+    sx[ "data_type" ] = Semantic( "string" );
+    sx[ "object_type" ] = Semantic( "string" );
+    sx[ "disk_data_type" ] = Semantic( "string", false, true );
+    sx[ "possible_data_type" ] = Semantic( "string_vector" );
+    sx[ "ascii" ] = Semantic( "int", false, true );
+    sx[ "byte_swapping" ] = Semantic( "int", false, true );
+    sx[ "spm_normalized" ] = Semantic( "bool" );
+    sx[ "origin" ] = Semantic( "float_vector" );
+    sx[ "spm_origin" ] = Semantic( "float_vector" );
+    //sx[ "origin" ] = Semantic( DataTypeCode<vector<float> >::name() );
+    sx[ "transfer_syntax" ] = Semantic( "string" );
+    sx[ "manufacturer" ] = Semantic( "string" );
+    sx[ "modality" ] = Semantic( "string" );
+    sx[ "patient_id" ] = Semantic( "string" );
+    sx[ "study_id" ] = Semantic( "string" );
+    sx[ "series_number" ] = Semantic( "int" );
+    sx[ "volume_dimension" ] = Semantic( "int_vector" );
+    sx[ "voxel_size" ] = Semantic( "float_vector" );
+    sx[ "filter_param" ] = Semantic( "float_vector" );
+    sx[ "bits_allocated" ] = Semantic( "int" );
+    sx[ "time_resolution" ] = Semantic( "float" );
+    sx[ "te" ] = Semantic( "float" );
+    sx[ "tr" ] = Semantic( "float" );
+    sx[ "flip_angle" ] = Semantic( "float" );
+    sx[ "slice_thickness" ] = Semantic( "float" );
+    sx[ "inter_slices" ] = Semantic( "float" );
+    sx[ "isotope_halflife" ] = Semantic( "float" );
+    sx[ "category" ] = Semantic( "string" );
+    sx[ "b_value" ] = Semantic( "float" );
+    sx[ "scale_factor" ] = Semantic( "float" );
+    sx[ "scale_offset" ] = Semantic( "float" );
+    sx[ "nb_t_pos" ] = Semantic( "int" );
+    sx[ "process_code" ] = Semantic( "int" );
+    sx[ "filter_code" ] = Semantic( "int" );
+    sx[ "polygon_dimension" ] = Semantic( "int" );
+    sx[ "vertex_number" ] = Semantic( "int" );
+    sx[ "start_time" ] = Semantic( "int_vector" );
+    sx[ "duration_time" ] = Semantic( "int_vector" );
+    sx[ "isotope" ] = Semantic( "string" );
+    sx[ "image_unit" ] = Semantic( "string" );
+    sx[ "radiopharmaceutical" ] = Semantic( "string" );
+    sx[ "process_list" ] = Semantic( "string" );
+    sx[ "zero_start_time" ] = Semantic( "S32" );
+    sx[ "original_filename" ] = Semantic( "string" );
+    sx[ "filter_type" ] = Semantic( "string" );
+    sx[ "scale_factor_applied" ] = Semantic( "bool", false, true );
+    sx[ "vox_units" ] = Semantic( "string" );
+    sx[ "cal_units" ] = Semantic( "string" );
+    sx[ "db_name" ] = Semantic( "string" );
+    sx[ "aux_file" ] = Semantic( "string" );
+    sx[ "generated" ] = Semantic( "string" );
+    sx[ "scannum" ] = Semantic( "string" );
+    sx[ "exp_date" ] = Semantic( "string" );
+    sx[ "exp_time" ] = Semantic( "string" );
+    sx[ "SPM_data_type" ] = Semantic( "string", false, true );
+    sx[ "orient" ] = Semantic( "int" );
+    sx[ "views" ] = Semantic( "int" );
+    sx[ "start_field" ] = Semantic( "int" );
+    sx[ "field_skip" ] = Semantic( "int" );
+    sx[ "omax" ] = Semantic( "int" );
+    sx[ "omin" ] = Semantic( "int" );
+    sx[ "smax" ] = Semantic( "int" );
+    sx[ "smin" ] = Semantic( "int" );
+    sx[ "minimum" ] = Semantic( "int" );
+    sx[ "maximum" ] = Semantic( "int" );
+    sx[ "history" ] = Semantic( "string_vector" );
+    sx[ "ecat_file_type" ] = Semantic( "string" );
+    sx[ "ecat_system_type" ] = Semantic( "short" );
+    sx[ "ecat_file_type" ] = Semantic( "short" );
+    sx[ "ecat_start_scan_time" ] = Semantic( "unsigned int" );
+    sx[ "ecat_acquisition_type" ] = Semantic( "" );
+    sx[ "ecat_acquisition_mode" ] = Semantic( "short" );
+    sx[ "ecat_original_file_name" ] = Semantic( "string" );
+    sx[ "ecat_radiopharmaceutical" ] = Semantic( "string" );
+    sx[ "ecat_plane_separation" ] = Semantic( "float" );
+    sx[ "ecat_bin_size" ] = Semantic( "float" );
+    sx[ "ecat_corrections_applied" ] = Semantic( "short" );
+    sx[ "ecat_prompts" ] = Semantic( "int_vector" );
+    sx[ "ecat_delayed" ] = Semantic( "int_vector" );
+    sx[ "ecat_multiples" ] = Semantic( "int_vector" );
+    sx[ "ecat_prompts" ] = Semantic( "int_vector" );
+    sx[ "ecat_net_trues" ] = Semantic( "int_vector" );
+    sx[ "ecat_tot_avg_uncor" ] = Semantic( "float_vector" );
+    sx[ "ecat_tot_avg_cor" ] = Semantic( "float_vector" );
+    sx[ "ecat_total_coin_rate" ] = Semantic( "int_vector" );
+    sx[ "ecat_loss_correction_fctr" ] = Semantic( "float_vector" );
+    sx[ "ecat_uncor_singles" ] = Semantic( "float_vector" );
+    sx[ "ecat_start_time" ] = Semantic( "int_vector" );
+    sx[ "ecat_duration_time" ] = Semantic( "int_vector" );
+    sx[ "ecat_x_resolution" ] = Semantic( "float" );
+    sx[ "storage_to_memory" ] = Semantic( "float_vector" );
+    sx[ "referentials" ] = Semantic( "string_vector" );
+
+    sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
+
+    pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
+    pheader_syntax[ "float_vector" ][ "" ] = Semantic( "float" );
+  }
+
+  return pheader_syntax;
+}
+
+
 // Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
 // {
 //   Object  minf;
