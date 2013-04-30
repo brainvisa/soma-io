@@ -96,7 +96,7 @@ bool DataSourceList::operator != ( const DataSourceList & other ) const
   return !( *this == other );
 }
 
-set<string> DataSourceList::getTypes() const
+set<string> DataSourceList::types() const
 {
   set<string> s;
   for( mapDSL::const_iterator it = _dslist.begin(); it != _dslist.end(); ++it ) {
@@ -105,12 +105,12 @@ set<string> DataSourceList::getTypes() const
   return s;
 }
 
-bool DataSourceList::isEmpty() const 
+bool DataSourceList::empty() const 
 {
   return _dslist.empty();
 }
 
-int DataSourceList::getNbTypes() const
+int DataSourceList::nbTypes() const
 {
   return _dslist.size();
 }
@@ -120,7 +120,7 @@ bool DataSourceList::exists( const string & type ) const
   return _dslist.count( type ) != 0;
 }
 
-bool DataSourceList::isEmpty( const string & type ) const
+bool DataSourceList::empty( const string & type ) const
 {
   if( exists( type ) ) {
     return _dslist.find( type )->second.empty();
@@ -129,7 +129,7 @@ bool DataSourceList::isEmpty( const string & type ) const
   }
 }
 
-int DataSourceList::getSize( const string & type ) const
+int DataSourceList::size( const string & type ) const
 {
   if( !exists( type ) )
     return 0;

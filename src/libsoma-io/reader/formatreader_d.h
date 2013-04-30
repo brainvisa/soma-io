@@ -31,20 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_FORMATREADER_D_H
-#define CARTOBASE_IO_FORMATREADER_D_H
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/io/formatreader.h>
-#include <cartobase/io/creator.h>             // used by setup() and create()
-#include <cartobase/object/object.h>          // header, options
-#include <cartobase/smart/rcptr.h>            // reference counting pointer
+#ifndef SOMAIO_READER_FORMATREADER_D_H
+#define SOMAIO_READER_FORMATREADER_D_H
 //--- soma io ------------------------------------------------------------------
-#include <somaio/datasource/datasource.h>     // for templating rc_ptr
+#include <soma-io/reader/formatreader.h>                    // class declaration
+#include <soma-io/datasource/datasource.h>              // for templating rc_ptr
+#include <soma-io/other/creator.h>               // used by setup() and create()
+#include <soma-io/allocator/allocator.h>                   // AllocatorContext
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>                          // header, options
+#include <cartobase/smart/rcptr.h>                 // reference counting pointer
 //--- system -------------------------------------------------------------------
 #include <memory>
 //------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
   //============================================================================
   //   C O N S T R U C T O R S
@@ -58,11 +59,13 @@ namespace carto
   //   N E W   M E T H O D S
   //============================================================================
   //--- setupAndRead -----------------------------------------------------------
-  void Formatreader::setupAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
+  template<typename T>
+  void FormatReader<T>::setupAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
   {
   }
   //--- createAndRead ----------------------------------------------------------
-  T* FormatReader::createAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
+  template<typename T>
+  T* FormatReader<T>::createAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
   {
   }
   //--- read -------------------------------------------------------------------
@@ -74,27 +77,28 @@ namespace carto
   //   O L D   M E T H O D S
   //============================================================================
   template<typename T>
-  void FormatReader<T>::setupAndRead( T & obj, Object header, 
-                                      rc_ptr<DataSource> ds, 
+  void FormatReader<T>::setupAndRead( T & obj, carto::Object header, 
+                                      carto::rc_ptr<DataSource> ds, 
                                       const AllocatorContext & context, 
-                                      Object options )
+                                      carto::Object options )
   {
-    rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
-    AllocatorContext	ac = getAllocatorContext( header, decoder, context, 
-                                                  options );
+    carto::rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
+    AllocatorContext	ac = getAllocatorContext( header, decoder, 
+                                                      context, options );
     setup( obj, header, ac, options );
     read( obj, header, ac, options );
   }
 
 
   template<typename T>
-  T* FormatReader<T>::createAndRead( Object header, rc_ptr<DataSource> ds, 
+  T* FormatReader<T>::createAndRead( carto::Object header, 
+                                     carto::rc_ptr<DataSource> ds, 
                                      const AllocatorContext & context, 
-                                     Object options )
+                                     carto::Object options )
   {
-    rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
-    AllocatorContext	ac = getAllocatorContext( header, decoder, context, 
-                                                  options );
+    carto::rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
+    AllocatorContext	ac = getAllocatorContext( header, decoder, 
+                                                      context, options );
     std::auto_ptr<T>	objp( create( header, ac, options ) );
     T			*obj = objp.get();
     read( *obj, header, ac, options );
@@ -104,9 +108,10 @@ namespace carto
 
 
   template<typename T>
-  rc_ptr<DataSource> 
-  FormatReader<T>::getDataSource( Object, rc_ptr<DataSource> source, 
-                                  Object )
+  carto::rc_ptr<DataSource> 
+  FormatReader<T>::getDataSource( carto::Object, 
+                                  carto::rc_ptr<DataSource> source, 
+                                  carto::Object )
   {
     return source;
   }
@@ -114,9 +119,10 @@ namespace carto
 
   template<typename T>
   AllocatorContext 
-  FormatReader<T>::getAllocatorContext( Object, rc_ptr<DataSource> decoder, 
+  FormatReader<T>::getAllocatorContext( carto::Object, 
+                                        carto::rc_ptr<DataSource> decoder, 
                                         const AllocatorContext & basecontext, 
-                                        Object )
+                                        carto::Object )
   {
     AllocatorContext	alloc( basecontext );
     alloc.setDataSource( decoder );
@@ -126,17 +132,18 @@ namespace carto
 
 
   template<typename T>
-  T* FormatReader<T>::create( Object header, const AllocatorContext & context, 
-                              Object options )
+  T* FormatReader<T>::create( carto::Object header, 
+                              const AllocatorContext & context, 
+                              carto::Object options )
   {
     return Creator<T>::create( header, context, options );
   }
 
 
   template<typename T>
-  void FormatReader<T>::setup( T & obj, Object header, 
+  void FormatReader<T>::setup( T & obj, carto::Object header, 
                                const AllocatorContext & context, 
-                               Object options )
+                               carto::Object options )
   {
     Creator<T>::setup( obj, header, context, options );
   }
@@ -147,8 +154,9 @@ namespace carto
    */
   /*
   template<typename T>
-  void FormatReader<T>::read( T &, Object, const AllocatorContext & context, 
-                              Object )
+  void FormatReader<T>::read( T &, carto::Object, 
+                              const AllocatorContext & context, 
+                              carto::Object )
   {
     throw invalid_format_error( "format reader not implemented yet...", 
                                 context.dataSource() ? 

@@ -9,7 +9,11 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/config.h"
                    COMPONENT ${PROJECT_NAME}-dev )
 
 set( _headers
-  #checker/formatchecker.h
+  allocator/allocator.h
+  allocator/mappingcopy.h
+  allocator/mappingro.h
+  allocator/mappingrw.h
+  checker/formatchecker.h
   #checker/pythonformatchecker.h
   #checker/xmlformatchecker.h
   datasource/bufferdatasource.h
@@ -23,10 +27,10 @@ set( _headers
   datasource/streamdatasource.h
   datasourceinfo/datasourcecapabilities.h
   datasourceinfo/datasourceinfo.h
-  #datasourceinfo/datasourceinfoloader.h
+  datasourceinfo/datasourceinfoloader.h
   #image/imagereader.h
-  #imagereader_d.h
-  #imagwriter.h
+  #image/imagereader_d.h
+  #image/imagwriter.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   #io/reader.h
@@ -35,22 +39,27 @@ set( _headers
   #io/writer.h
   #io/writer_d.h
   #other/asciidatasourcetraits.h
-  #other/creator.h
+  other/creator.h
   #other/headertranslator.h
   #other/minfXML2.h
-  #reader/formatreader.h
-  #reader/formatreader_d.h
+  reader/formatreader.h
+  reader/formatreader_d.h
   #reader/itemreader.h
   #reader/pythonformatreader.h
   #reader/xmlformatreader.h
-  #writer/formatwriter.h
-  #writer/itrmwriter.h
+  writer/formatwriter.h
+  #writer/itemwriter.h
   #writer/pythonformatwriter.h
 )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 
 set( _somaio_0_sources
+  allocator/allocator.cc
+  allocator/mappingcopy.cc
+  allocator/mappingro.cc
+  allocator/mappingrw.cc
+  allocator/meminfo.cc
   #checker/pythonformatchecker.cc
   #checker/xmlformatchecker.cc
   config/version.cc
@@ -65,7 +74,7 @@ set( _somaio_0_sources
   datasource/streamdatasource.cc
   datasourceinfo/datasourcecapabilities.cc
   datasourceinfo/datasourceinfo.cc
-  #datasourceinfo/datasourceinfoloader.cc
+  datasourceinfo/datasourceinfoloader.cc
   io/formatdictionary.cc
   #io/reader_object.cc
   #io/readeralgorithm.cc
@@ -86,7 +95,7 @@ set( _somaio_0_sources
 add_library( soma-io SHARED ${_somaio_0_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( soma-io ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
+target_link_libraries( soma-io ${SOMA_CARTOBASE_LIB} ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
 if( WIN32 AND CMAKE_CROSSCOMPILING )
   target_link_libraries( soma-io ws2_32 ole32 )
 endif( WIN32 AND CMAKE_CROSSCOMPILING )

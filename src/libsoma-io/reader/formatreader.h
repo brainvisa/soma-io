@@ -31,16 +31,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_FORMATREADER_H
-#define CARTOBASE_IO_FORMATREADER_H
+#ifndef SOMAIO_READER_FORMATREADER_H
+#define SOMAIO_READER_FORMATREADER_H
 
-namespace carto
-{
+namespace carto {
   template<typename T> class rc_ptr;
+  class Object;
+}
+
+namespace soma
+{
   class DataSource;
   class DataSourceInfo;
   class AllocatorContext;
-  class Object;
   
   /**
    * Low-level object IO reader specialized for a specific format
@@ -83,24 +86,28 @@ namespace carto
 
     //--- Old methods. Keep for compability ? ----------------------------------
     /// Full reading procedure, for an already existing object
-    virtual void setupAndRead( T & obj, Object header, rc_ptr<DataSource> dsl, 
+    virtual void setupAndRead( T & obj, carto::Object header, 
+                               carto::rc_ptr<DataSource> dsl, 
                                const AllocatorContext & context, 
-                               Object options );
+                               carto::Object options );
     /** 
      * \brief Factory mode: creates an object and reads it.
      * The returned object belongs to the calling layer and may be deleted by 
      * the standard \c delete
      */
-    virtual T* createAndRead( Object header, rc_ptr<DataSource> ds, 
+    virtual T* createAndRead( carto::Object header, 
+                              carto::rc_ptr<DataSource> ds, 
                               const AllocatorContext & context, 
-                              Object options );
+                              carto::Object options );
 
-    virtual rc_ptr<DataSource> getDataSource( Object header, 
-                                              rc_ptr<DataSource> source, 
-                                              Object options );
+    virtual carto::rc_ptr<DataSource> 
+    getDataSource( carto::Object header, 
+                   carto::rc_ptr<DataSource> source, 
+                   carto::Object options );
     
-    virtual void read( T & obj, Object header, 
-                       const AllocatorContext & context, Object options ) = 0;
+    virtual void read( T & obj, carto::Object header, 
+                       const AllocatorContext & context, 
+                       carto::Object options ) = 0;
     //--- Still used methods ---------------------------------------------------
     /** 
      * setup an allocation context bound to the decoder DataSource.
@@ -109,25 +116,28 @@ namespace carto
      */
     // still used ?
     virtual AllocatorContext 
-    getAllocatorContext( Object header, rc_ptr<DataSource> decoder, 
+    getAllocatorContext( carto::Object header, 
+                         carto::rc_ptr<DataSource> decoder, 
                          const AllocatorContext & basecontext, 
-                         Object options );
+                         carto::Object options );
     /**
      * create the object to be read, bind the allocation context.
      * Either create() or setup() will be called, depending if we are 
      * working on an existing object or have to allocate a new one.
      * The default implementations just calls Creator<T>::create().
      */
-    virtual T* create( Object header, const AllocatorContext & context, 
-                       Object options );
+    virtual T* create( carto::Object header, 
+                       const AllocatorContext & context, 
+                       carto::Object options );
     /**
      * setup an existing object (for resizing or reallocation for instance).
      * Either create() or setup() will be called, depending if we are 
      * working on an existing object or have to allocate a new one.
      * The default implementations just calls Creator<T>::create().
      */
-    virtual void setup( T & obj, Object header, 
-                        const AllocatorContext & context, Object options );
+    virtual void setup( T & obj, carto::Object header, 
+                        const AllocatorContext & context, 
+                        carto::Object options );
     
     //--- New Methods ----------------------------------------------------------
     // How do we manage the AllocatorContext ?
@@ -144,7 +154,7 @@ namespace carto
      *                list and capabilities.
      * \param options may specify a sub-object for partial reading
      */
-    virtual void read( T & obj, DataSourceInfo & dsi, Object options );
+    virtual void read( T & obj, DataSourceInfo & dsi, carto::Object options );
   };
 
 }

@@ -31,14 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_CREATOR_H
-#define CARTOBASE_IO_CREATOR_H
-
+#ifndef SOMAIO_OTHER_CREATOR_H
+#define SOMAIO_OTHER_CREATOR_H
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
+//------------------------------------------------------------------------------
 
-namespace carto
-{
+namespace carto {
   class AllocatorContext;
+}
+
+namespace soma
+{
 
   /** Object creation / resize or other setup factory
 
@@ -57,20 +61,23 @@ namespace carto
     /** Create a new object according to the given header. 
         The default implementation just returns a new T.
     */
-    static T* create( Object header, const AllocatorContext & context, 
-                      Object options );
+    static T* create( carto::Object header, 
+                      const carto::AllocatorContext & context, 
+                      carto::Object options );
     /** Setup (modify) an existing object according to the given header
         (maybe resize it etc.).
         The default implementation does nothing.
     */
-    static void setup( T & obj, Object header, 
-                       const AllocatorContext & context, Object options );
+    static void setup( T & obj, carto::Object header, 
+                       const carto::AllocatorContext & context, 
+                       carto::Object options );
   };
 
 
   template <typename T>
   inline
-  T* Creator<T>::create( Object, const AllocatorContext &, Object )
+  T* Creator<T>::create( carto::Object, const carto::AllocatorContext &, 
+                         carto::Object )
   {
     return new T;
   }
@@ -78,7 +85,8 @@ namespace carto
 
   template <typename T>
   inline
-  void Creator<T>::setup( T &, Object, const AllocatorContext &, Object )
+  void Creator<T>::setup( T &, carto::Object, const carto::AllocatorContext &, 
+                          carto::Object )
   {
   }
 

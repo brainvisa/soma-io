@@ -34,12 +34,12 @@
 //--- soma io ------------------------------------------------------------------
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>    // class declaration
 #include <soma-io/datasourceinfo/datasourceinfo.h>          // returned by check
-#include <soma-io/io/formatchecker.h>                                 // check()
+#include <soma-io/checker/formatchecker.h>                            // check()
 //#include <somaio/datasource/datasource.h>                 // used by reference
+#include <soma-io/io/reader.h>                // readMinf: reader<GenericObject>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>                   // launch exceptions
 #include <cartobase/exception/file.h>                       // launch exceptions
-#include <cartobase/io/reader.h>              // readMinf: reader<GenericObject>
 #include <cartobase/object/property.h>                        // header, options
 #include <cartobase/plugin/plugin.h>                            // loads plugins
 #include <cartobase/stream/fileutil.h>                // used to find extensions
@@ -177,12 +177,19 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
 //------------------------------------------------------------------------------
 
-DataSourceInfo DataSourceInfoLoader::check( DataSource & ds, 
-                                            carto::Object base  )
+DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo & dsi  )
 {
   #ifdef CARTO_IO_DEBUG
     cout << "DataSourceInfo::check()\n";
   #endif
+  
+  // If dsi already complete : returns it //////////////////////////////////////
+  if( !dsi.header().isNone() 
+      && dsi.capabilities().isInit() 
+      && dsi.list().nbTypes() > 1 )
+    return dsi;
+  
+  // Init //////////////////////////////////////////////////////////////////////
   static bool plugs = false;
   if( !plugs ) {
     plugs = true;
@@ -192,19 +199,19 @@ DataSourceInfo DataSourceInfoLoader::check( DataSource & ds,
   d->state = Unchecked;
   d->errorcode = -1;
   d->errormsg = "";
-
-  //  find filename extension if it's a file
-  string  ext;
+  
+  // find filename extension if it's a file ////////////////////////////////////
+  string  ext, url = dsi.list().dataSource( "default", 0 )->url() ;
   int     excp = 0;
   #ifdef CARTO_IO_DEBUG
-    cout << "filename: " << ds.url() << endl;
+    cout << "filename: " << url << endl;
   #endif
-  ext = FileUtil::extension( ds.url() );
+  ext = FileUtil::extension( url );
   #ifdef CARTO_IO_DEBUG
     cout << "ext : " << ext << endl;
   #endif
 
-  //  Check compatible formats
+  // Check compatible formats //////////////////////////////////////////////////
   set<string>            tried;
   FormatChecker          *reader;
   set<string>::iterator  notyet = tried.end();
@@ -212,7 +219,8 @@ DataSourceInfo DataSourceInfoLoader::check( DataSource & ds,
 
   pair_cit_S               iext = ps.extensions.equal_range( ext );
   multi_S::const_iterator  ie, ee = iext.second;
-  carto::offset_t          dspos = ds.at();
+  DataSource*              pds = dsi.list().dataSource( "default", 0 ).get();
+  soma::offset_t           dspos = pds->at();
 
   //// Pass 1 : try every matching format until one works //////////////////////
   for( ie=iext.first; ie!=ee; ++ie )
@@ -224,20 +232,20 @@ DataSourceInfo DataSourceInfoLoader::check( DataSource & ds,
       if( reader ) {
         try {
           d->state = Ok;
-          return reader->check( ds, *this, base ); // base header added
+          return reader->check( dsi, *this );
 	      } catch( exception & e ) {
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
-          ds.at( dspos );
+          pds->at( dspos );
 	      }
         tried.insert( ie->second );
       }
     }
 
+  //// Pass 2 : not found or none works: try readers with no extension /////////
   #ifdef CARTO_IO_DEBUG
     cout << "not found yet... pass2...\n";
   #endif
-  //// Pass 2 : not found or none works: try readers with no extension /////////
   if( !ext.empty() ) {
     iext = ps.extensions.equal_range( "" );
 
@@ -250,21 +258,21 @@ DataSourceInfo DataSourceInfoLoader::check( DataSource & ds,
         if( reader ) {
           try {
             d->state = Ok;
-            return reader->check( ds, *this, base ); // base header added
+            return reader->check( dsi, *this );
           } catch( exception & e ) {
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
-            ds.at( dspos );
+            pds->at( dspos );
           }
           tried.insert( ie->second );
 	      }
       }
   }
 
+  //// Pass 3 : still not found ? well, try EVERY format this time... //////////
   #ifdef CARTO_IO_DEBUG
     cout << "not found yet... pass3...\n";
   #endif
-  //// Pass 3 : still not found ? well, try EVERY format this time... //////////
   iext.first = ps.extensions.begin();
   iext.second = ps.extensions.end();
 
@@ -277,193 +285,193 @@ DataSourceInfo DataSourceInfoLoader::check( DataSource & ds,
         #endif
         try {
           d->state = Ok;
-          return reader->check( ds, *this, base ); // base header added
+          return reader->check( dsi, *this );
 	      } catch( exception & e ) {
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
-          ds.at( dspos );
+          pds->at( dspos );
 	      }
         tried.insert( ie->second );
       }
     }
 
+  //// End : still not succeeded, it's hopeless... /////////////////////////////
   #ifdef CARTO_IO_DEBUG
     cout << "not found at all, giving up\n";
   #endif
-  //// End : still not succeeded, it's hopeless... /////////////////////////////
   d->state = Error;
   if( d->errorcode < 0 ) {
     d->errorcode = 0;
-    d->errormsg = ds.url() + " : could not identify format";
+    d->errormsg = url + " : could not identify format";
   }
-  //launchException();
-  return none();
+  
+  launchException();
 }
 
 //==============================================================================
 //    R E A D I N G   M I N F
 //==============================================================================
 
-SyntaxSet & DataSourceInfoLoader::minfSyntax()
-{
-  static SyntaxSet  pheader_syntax;
-  if( pheader_syntax.empty() ) {
-    // we don't absolutely need a syntax, but some pieces of code may 
-    // expect it
-    Syntax	&sx = pheader_syntax[ "__generic__" /*"PythonHeader"*/ ];
-
-    sx[ "_borderWidth" ] = Semantic( "int", false, true );
-    sx[ "sizeX"        ] = Semantic( "int", false, true );
-    sx[ "sizeY"        ] = Semantic( "int", false, true );
-    sx[ "sizeZ"        ] = Semantic( "int", false, true );
-    sx[ "sizeT"        ] = Semantic( "int", false, true );
-
-    sx[ "data_type" ] = Semantic( "string" );
-    sx[ "object_type" ] = Semantic( "string" );
-    sx[ "disk_data_type" ] = Semantic( "string", false, true );
-    sx[ "possible_data_type" ] = Semantic( "string_vector" );
-    sx[ "ascii" ] = Semantic( "int", false, true );
-    sx[ "byte_swapping" ] = Semantic( "int", false, true );
-    sx[ "spm_normalized" ] = Semantic( "bool" );
-    sx[ "origin" ] = Semantic( "float_vector" );
-    sx[ "spm_origin" ] = Semantic( "float_vector" );
-    //sx[ "origin" ] = Semantic( DataTypeCode<vector<float> >::name() );
-    sx[ "transfer_syntax" ] = Semantic( "string" );
-    sx[ "manufacturer" ] = Semantic( "string" );
-    sx[ "modality" ] = Semantic( "string" );
-    sx[ "patient_id" ] = Semantic( "string" );
-    sx[ "study_id" ] = Semantic( "string" );
-    sx[ "series_number" ] = Semantic( "int" );
-    sx[ "volume_dimension" ] = Semantic( "int_vector" );
-    sx[ "voxel_size" ] = Semantic( "float_vector" );
-    sx[ "filter_param" ] = Semantic( "float_vector" );
-    sx[ "bits_allocated" ] = Semantic( "int" );
-    sx[ "time_resolution" ] = Semantic( "float" );
-    sx[ "te" ] = Semantic( "float" );
-    sx[ "tr" ] = Semantic( "float" );
-    sx[ "flip_angle" ] = Semantic( "float" );
-    sx[ "slice_thickness" ] = Semantic( "float" );
-    sx[ "inter_slices" ] = Semantic( "float" );
-    sx[ "isotope_halflife" ] = Semantic( "float" );
-    sx[ "category" ] = Semantic( "string" );
-    sx[ "b_value" ] = Semantic( "float" );
-    sx[ "scale_factor" ] = Semantic( "float" );
-    sx[ "scale_offset" ] = Semantic( "float" );
-    sx[ "nb_t_pos" ] = Semantic( "int" );
-    sx[ "process_code" ] = Semantic( "int" );
-    sx[ "filter_code" ] = Semantic( "int" );
-    sx[ "polygon_dimension" ] = Semantic( "int" );
-    sx[ "vertex_number" ] = Semantic( "int" );
-    sx[ "start_time" ] = Semantic( "int_vector" );
-    sx[ "duration_time" ] = Semantic( "int_vector" );
-    sx[ "isotope" ] = Semantic( "string" );
-    sx[ "image_unit" ] = Semantic( "string" );
-    sx[ "radiopharmaceutical" ] = Semantic( "string" );
-    sx[ "process_list" ] = Semantic( "string" );
-    sx[ "zero_start_time" ] = Semantic( "S32" );
-    sx[ "original_filename" ] = Semantic( "string" );
-    sx[ "filter_type" ] = Semantic( "string" );
-    sx[ "scale_factor_applied" ] = Semantic( "bool", false, true );
-    sx[ "vox_units" ] = Semantic( "string" );
-    sx[ "cal_units" ] = Semantic( "string" );
-    sx[ "db_name" ] = Semantic( "string" );
-    sx[ "aux_file" ] = Semantic( "string" );
-    sx[ "generated" ] = Semantic( "string" );
-    sx[ "scannum" ] = Semantic( "string" );
-    sx[ "exp_date" ] = Semantic( "string" );
-    sx[ "exp_time" ] = Semantic( "string" );
-    sx[ "SPM_data_type" ] = Semantic( "string", false, true );
-    sx[ "orient" ] = Semantic( "int" );
-    sx[ "views" ] = Semantic( "int" );
-    sx[ "start_field" ] = Semantic( "int" );
-    sx[ "field_skip" ] = Semantic( "int" );
-    sx[ "omax" ] = Semantic( "int" );
-    sx[ "omin" ] = Semantic( "int" );
-    sx[ "smax" ] = Semantic( "int" );
-    sx[ "smin" ] = Semantic( "int" );
-    sx[ "minimum" ] = Semantic( "int" );
-    sx[ "maximum" ] = Semantic( "int" );
-    sx[ "history" ] = Semantic( "string_vector" );
-    sx[ "ecat_file_type" ] = Semantic( "string" );
-    sx[ "ecat_system_type" ] = Semantic( "short" );
-    sx[ "ecat_file_type" ] = Semantic( "short" );
-    sx[ "ecat_start_scan_time" ] = Semantic( "unsigned int" );
-    sx[ "ecat_acquisition_type" ] = Semantic( "" );
-    sx[ "ecat_acquisition_mode" ] = Semantic( "short" );
-    sx[ "ecat_original_file_name" ] = Semantic( "string" );
-    sx[ "ecat_radiopharmaceutical" ] = Semantic( "string" );
-    sx[ "ecat_plane_separation" ] = Semantic( "float" );
-    sx[ "ecat_bin_size" ] = Semantic( "float" );
-    sx[ "ecat_corrections_applied" ] = Semantic( "short" );
-    sx[ "ecat_prompts" ] = Semantic( "int_vector" );
-    sx[ "ecat_delayed" ] = Semantic( "int_vector" );
-    sx[ "ecat_multiples" ] = Semantic( "int_vector" );
-    sx[ "ecat_prompts" ] = Semantic( "int_vector" );
-    sx[ "ecat_net_trues" ] = Semantic( "int_vector" );
-    sx[ "ecat_tot_avg_uncor" ] = Semantic( "float_vector" );
-    sx[ "ecat_tot_avg_cor" ] = Semantic( "float_vector" );
-    sx[ "ecat_total_coin_rate" ] = Semantic( "int_vector" );
-    sx[ "ecat_loss_correction_fctr" ] = Semantic( "float_vector" );
-    sx[ "ecat_uncor_singles" ] = Semantic( "float_vector" );
-    sx[ "ecat_start_time" ] = Semantic( "int_vector" );
-    sx[ "ecat_duration_time" ] = Semantic( "int_vector" );
-    sx[ "ecat_x_resolution" ] = Semantic( "float" );
-    sx[ "storage_to_memory" ] = Semantic( "float_vector" );
-    sx[ "referentials" ] = Semantic( "string_vector" );
-
-    sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
-
-    pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
-    pheader_syntax[ "float_vector" ][ "" ] = Semantic( "float" );
-  }
-
-  return pheader_syntax;
-}
-
-
-Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
-{
-  Object  minf;
-  if( base.get() )
-    minf = base;
-  else
-    minf = Object::value( PropertySet() );
-
-  string  filename = ds.url();
-  if( filename.empty() )
-    return minf;
-  if( FileUtil::extension( filename ) != "minf" )
-    filename += ".minf";
-
-  Object  opts = Object::value( PropertySet() );
-  opts->setProperty( "syntaxset", minfSyntax() );
-
-  try {
-    Reader<GenericObject>	rg( filename );
-    rg.setOptions( opts );
-    bool hasbs = minf->hasProperty( "byte_swapping" );
-    int bs = 0;
-    if( hasbs )
-      hasbs = minf->getProperty( "byte_swapping", bs );
-    rg.read( *minf );
-    // remove some forbidden properties
-    if( minf->hasProperty( "object_type" ) )
-      minf->removeProperty( "object_type" );
-    if( minf->hasProperty( "data_type" ) )
-      minf->removeProperty( "data_type" );
-    if( minf->hasProperty( "item_type" ) )
-      minf->removeProperty( "item_type" );
-    if( hasbs )
-      minf->setProperty( "byte_swapping", bs );
-    else if( minf->hasProperty( "byte_swapping" ) )
-      minf->removeProperty( "byte_swapping" );
-    return minf;
-  } catch( exception & e ){
-  } catch( ... ) {
-    cerr << "Unknown exception" << endl;
-  }
-
-  return minf;
-}
-
+// SyntaxSet & DataSourceInfoLoader::minfSyntax()
+// {
+//   static SyntaxSet  pheader_syntax;
+//   if( pheader_syntax.empty() ) {
+//     // we don't absolutely need a syntax, but some pieces of code may 
+//     // expect it
+//     Syntax	&sx = pheader_syntax[ "__generic__" /*"PythonHeader"*/ ];
+// 
+//     sx[ "_borderWidth" ] = Semantic( "int", false, true );
+//     sx[ "sizeX"        ] = Semantic( "int", false, true );
+//     sx[ "sizeY"        ] = Semantic( "int", false, true );
+//     sx[ "sizeZ"        ] = Semantic( "int", false, true );
+//     sx[ "sizeT"        ] = Semantic( "int", false, true );
+// 
+//     sx[ "data_type" ] = Semantic( "string" );
+//     sx[ "object_type" ] = Semantic( "string" );
+//     sx[ "disk_data_type" ] = Semantic( "string", false, true );
+//     sx[ "possible_data_type" ] = Semantic( "string_vector" );
+//     sx[ "ascii" ] = Semantic( "int", false, true );
+//     sx[ "byte_swapping" ] = Semantic( "int", false, true );
+//     sx[ "spm_normalized" ] = Semantic( "bool" );
+//     sx[ "origin" ] = Semantic( "float_vector" );
+//     sx[ "spm_origin" ] = Semantic( "float_vector" );
+//     //sx[ "origin" ] = Semantic( DataTypeCode<vector<float> >::name() );
+//     sx[ "transfer_syntax" ] = Semantic( "string" );
+//     sx[ "manufacturer" ] = Semantic( "string" );
+//     sx[ "modality" ] = Semantic( "string" );
+//     sx[ "patient_id" ] = Semantic( "string" );
+//     sx[ "study_id" ] = Semantic( "string" );
+//     sx[ "series_number" ] = Semantic( "int" );
+//     sx[ "volume_dimension" ] = Semantic( "int_vector" );
+//     sx[ "voxel_size" ] = Semantic( "float_vector" );
+//     sx[ "filter_param" ] = Semantic( "float_vector" );
+//     sx[ "bits_allocated" ] = Semantic( "int" );
+//     sx[ "time_resolution" ] = Semantic( "float" );
+//     sx[ "te" ] = Semantic( "float" );
+//     sx[ "tr" ] = Semantic( "float" );
+//     sx[ "flip_angle" ] = Semantic( "float" );
+//     sx[ "slice_thickness" ] = Semantic( "float" );
+//     sx[ "inter_slices" ] = Semantic( "float" );
+//     sx[ "isotope_halflife" ] = Semantic( "float" );
+//     sx[ "category" ] = Semantic( "string" );
+//     sx[ "b_value" ] = Semantic( "float" );
+//     sx[ "scale_factor" ] = Semantic( "float" );
+//     sx[ "scale_offset" ] = Semantic( "float" );
+//     sx[ "nb_t_pos" ] = Semantic( "int" );
+//     sx[ "process_code" ] = Semantic( "int" );
+//     sx[ "filter_code" ] = Semantic( "int" );
+//     sx[ "polygon_dimension" ] = Semantic( "int" );
+//     sx[ "vertex_number" ] = Semantic( "int" );
+//     sx[ "start_time" ] = Semantic( "int_vector" );
+//     sx[ "duration_time" ] = Semantic( "int_vector" );
+//     sx[ "isotope" ] = Semantic( "string" );
+//     sx[ "image_unit" ] = Semantic( "string" );
+//     sx[ "radiopharmaceutical" ] = Semantic( "string" );
+//     sx[ "process_list" ] = Semantic( "string" );
+//     sx[ "zero_start_time" ] = Semantic( "S32" );
+//     sx[ "original_filename" ] = Semantic( "string" );
+//     sx[ "filter_type" ] = Semantic( "string" );
+//     sx[ "scale_factor_applied" ] = Semantic( "bool", false, true );
+//     sx[ "vox_units" ] = Semantic( "string" );
+//     sx[ "cal_units" ] = Semantic( "string" );
+//     sx[ "db_name" ] = Semantic( "string" );
+//     sx[ "aux_file" ] = Semantic( "string" );
+//     sx[ "generated" ] = Semantic( "string" );
+//     sx[ "scannum" ] = Semantic( "string" );
+//     sx[ "exp_date" ] = Semantic( "string" );
+//     sx[ "exp_time" ] = Semantic( "string" );
+//     sx[ "SPM_data_type" ] = Semantic( "string", false, true );
+//     sx[ "orient" ] = Semantic( "int" );
+//     sx[ "views" ] = Semantic( "int" );
+//     sx[ "start_field" ] = Semantic( "int" );
+//     sx[ "field_skip" ] = Semantic( "int" );
+//     sx[ "omax" ] = Semantic( "int" );
+//     sx[ "omin" ] = Semantic( "int" );
+//     sx[ "smax" ] = Semantic( "int" );
+//     sx[ "smin" ] = Semantic( "int" );
+//     sx[ "minimum" ] = Semantic( "int" );
+//     sx[ "maximum" ] = Semantic( "int" );
+//     sx[ "history" ] = Semantic( "string_vector" );
+//     sx[ "ecat_file_type" ] = Semantic( "string" );
+//     sx[ "ecat_system_type" ] = Semantic( "short" );
+//     sx[ "ecat_file_type" ] = Semantic( "short" );
+//     sx[ "ecat_start_scan_time" ] = Semantic( "unsigned int" );
+//     sx[ "ecat_acquisition_type" ] = Semantic( "" );
+//     sx[ "ecat_acquisition_mode" ] = Semantic( "short" );
+//     sx[ "ecat_original_file_name" ] = Semantic( "string" );
+//     sx[ "ecat_radiopharmaceutical" ] = Semantic( "string" );
+//     sx[ "ecat_plane_separation" ] = Semantic( "float" );
+//     sx[ "ecat_bin_size" ] = Semantic( "float" );
+//     sx[ "ecat_corrections_applied" ] = Semantic( "short" );
+//     sx[ "ecat_prompts" ] = Semantic( "int_vector" );
+//     sx[ "ecat_delayed" ] = Semantic( "int_vector" );
+//     sx[ "ecat_multiples" ] = Semantic( "int_vector" );
+//     sx[ "ecat_prompts" ] = Semantic( "int_vector" );
+//     sx[ "ecat_net_trues" ] = Semantic( "int_vector" );
+//     sx[ "ecat_tot_avg_uncor" ] = Semantic( "float_vector" );
+//     sx[ "ecat_tot_avg_cor" ] = Semantic( "float_vector" );
+//     sx[ "ecat_total_coin_rate" ] = Semantic( "int_vector" );
+//     sx[ "ecat_loss_correction_fctr" ] = Semantic( "float_vector" );
+//     sx[ "ecat_uncor_singles" ] = Semantic( "float_vector" );
+//     sx[ "ecat_start_time" ] = Semantic( "int_vector" );
+//     sx[ "ecat_duration_time" ] = Semantic( "int_vector" );
+//     sx[ "ecat_x_resolution" ] = Semantic( "float" );
+//     sx[ "storage_to_memory" ] = Semantic( "float_vector" );
+//     sx[ "referentials" ] = Semantic( "string_vector" );
+// 
+//     sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
+// 
+//     pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
+//     pheader_syntax[ "float_vector" ][ "" ] = Semantic( "float" );
+//   }
+// 
+//   return pheader_syntax;
+// }
+// 
+// 
+// Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
+// {
+//   Object  minf;
+//   if( base.get() )
+//     minf = base;
+//   else
+//     minf = Object::value( PropertySet() );
+// 
+//   string  filename = ds.url();
+//   if( filename.empty() )
+//     return minf;
+//   if( FileUtil::extension( filename ) != "minf" )
+//     filename += ".minf";
+// 
+//   Object  opts = Object::value( PropertySet() );
+//   opts->setProperty( "syntaxset", minfSyntax() );
+// 
+//   try {
+//     Reader<GenericObject>	rg( filename );
+//     rg.setOptions( opts );
+//     bool hasbs = minf->hasProperty( "byte_swapping" );
+//     int bs = 0;
+//     if( hasbs )
+//       hasbs = minf->getProperty( "byte_swapping", bs );
+//     rg.read( *minf );
+//     // remove some forbidden properties
+//     if( minf->hasProperty( "object_type" ) )
+//       minf->removeProperty( "object_type" );
+//     if( minf->hasProperty( "data_type" ) )
+//       minf->removeProperty( "data_type" );
+//     if( minf->hasProperty( "item_type" ) )
+//       minf->removeProperty( "item_type" );
+//     if( hasbs )
+//       minf->setProperty( "byte_swapping", bs );
+//     else if( minf->hasProperty( "byte_swapping" ) )
+//       minf->removeProperty( "byte_swapping" );
+//     return minf;
+//   } catch( exception & e ){
+//   } catch( ... ) {
+//     cerr << "Unknown exception" << endl;
+//   }
+// 
+//   return minf;
+// }
+// 
 

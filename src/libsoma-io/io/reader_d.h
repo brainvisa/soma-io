@@ -31,24 +31,24 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_READER_D_H
-#define CARTOBASE_IO_READER_D_H
+#ifndef SOMAIO_IO_READER_D_H
+#define SOMAIO_IO_READER_D_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasourceinfo/datasourceinfo.h>        // read(): format info
+#include <soma-io/datasourceinfo/datasourceinfoloader.h> // read(): format check
+#include <soma-io/datasource/datasourcelist.h>                         // member
+#include <soma-io/datasource/datasource.h>          // useful for none() pointer
+#include <soma-io/datasource/filedatasource.h>            // used by constructor
+#include <soma-io/datasource/streamdatasource.h>          // used by constructor
+#include <soma-io/io/formatdictionary.h>               // used by read() method
+#include <soma-io/io/reader.h>                              // class declaration
+#include <soma-io/reader/formatreader.h>                // used by read() method
+#include <soma-io/allocator/allocator.h>               // allocator management
 //--- cartobase ----------------------------------------------------------------
-#include <cartobase/allocator/allocator.h>               // allocator management
 #include <cartobase/exception/ioexcept.h>                    // launch exception
-#include <cartobase/io/formatdictionary.h>              // used by read() method
-#include <cartobase/io/reader.h>                            // class declaration
-#include <cartobase/io/formatreader.h>                  // used by read() method
 #include <cartobase/object/object.h>                         // header & options
 #include <cartobase/object/property.h>                       // header & options
 #include <cartobase/stream/fileutil.h>                 // finding file extension
-//--- soma io ------------------------------------------------------------------
-#include <somaio/datasourceinfo/datasourceinfo.h>         // read(): format info
-#include <somaio/datasourceinfo/datasourceinfoloader.h>  // read(): format check
-#include <somaio/datasource/datasourcelist.h>                          // member
-#include <somaio/datasource/datasource.h>           // useful for none() pointer
-#include <somaio/datasource/filedatasource.h>             // used by constructor
-#include <somaio/datasource/streamdatasource.h>           // used by constructor
 //--- system -------------------------------------------------------------------
 #include <set>
 #include <map>
@@ -57,7 +57,7 @@
 #endif
 //------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
   //============================================================================
   //   C O N S T R U C T O R S
@@ -66,18 +66,18 @@ namespace carto
   {
   }
 
-  template<class T> Reader<T>::Reader( rc_ptr<DataSource> ds )
+  template<class T> Reader<T>::Reader( carto::rc_ptr<DataSource> ds )
     : _datasourcelist( ds )
   {
   }
 
   template<class T> Reader<T>::Reader( const std::string& filename )
-    : _datasourcelist( new FileDataSource( filename ) )
+  : _datasourcelist( carto::rc_ptr<DataSource>( new FileDataSource( filename ) ) )
   {
   }
 
   template<class T> Reader<T>::Reader( std::istream & stream )
-    : _datasourcelist( new IStreamDataSource( stream ) )
+  : _datasourcelist( carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) ) )
   {
   }
 
@@ -104,19 +104,19 @@ namespace carto
   //   O P T I O N S
   //============================================================================
   template<class T>
-  void Reader<T>::setOptions( Object options )
+  void Reader<T>::setOptions( carto::Object options )
   {
     _options = options;
   }
 
   template<class T>
-  Object Reader<T>::options() const
+  carto::Object Reader<T>::options() const
   {
     return _options;
   }
 
   template<class T>
-  Object & Reader<T>::options()
+  carto::Object & Reader<T>::options()
   {
     return _options;
   }
@@ -125,7 +125,7 @@ namespace carto
   //   D A T A S O U R C E
   //============================================================================
   template<class T>
-  void Reader<T>::attach( rc_ptr<DataSource> ds )
+  void Reader<T>::attach( carto::rc_ptr<DataSource> ds )
   {
     if ( !_datasourcelist.isEmpty( "default" ) ) {
       _datasourcelist( "default", 0 ) = ds;
@@ -138,11 +138,11 @@ namespace carto
   void Reader<T>::attach( const std::string & filename, offset_t offset )
   {
     if ( !_datasourcelist.isEmpty( "default" ) ) {
-      _datasourcelist( "default", 0 ) = rc_ptr<DataSource>
+      _datasourcelist( "default", 0 ) = carto::rc_ptr<DataSource>
                                      ( new FileDataSource( filename, offset ) );
     } else {
-      _datasourcelist.addDataSource( "default", 
-                 rc_ptr<DataSource>( new FileDataSource( filename, offset ) ) );
+      _datasourcelist.addDataSource( "default", carto::rc_ptr<DataSource>
+                                   ( new FileDataSource( filename, offset ) ) );
     }
   }
 
@@ -150,16 +150,16 @@ namespace carto
   void Reader<T>::attach( std::istream & stream )
   {
     if ( !_datasourcelist.isEmpty( "default" ) ) {
-      _datasourcelist( "default", 0 ) = rc_ptr<DataSource>
+      _datasourcelist( "default", 0 ) = carto::rc_ptr<DataSource>
                                       ( new IStreamDataSource( stream ) );
     } else {
-      _datasourcelist.addDataSource( "default", 
-                          rc_ptr<DataSource>( new IStreamDataSource( stream ) );
+      _datasourcelist.addDataSource( "default", carto::rc_ptr<DataSource>
+                                      ( new IStreamDataSource( stream ) ) );
     }
   }
 
   template<class T>
-  const rc_ptr<DataSource> Reader<T>::dataSource() const
+  const carto::rc_ptr<DataSource> Reader<T>::dataSource() const
   {
     if ( !_datasourcelist.isEmpty( "default" ) ) {
       return _datasourcelist( "default", 0 );
@@ -169,7 +169,7 @@ namespace carto
   }
 
   template<class T>
-  rc_ptr<DataSource> Reader<T>::dataSource()
+  carto::rc_ptr<DataSource> Reader<T>::dataSource()
   {
     if ( !_datasourcelist.isEmpty() ) {
       return _datasourcelist( "default", 0 );
@@ -205,7 +205,7 @@ namespace carto
   //----------------------------------------------------------------------------
   
   template<class T>
-  bool Reader<T>::read( T & obj, Object header )
+  bool Reader<T>::read( T & obj, carto::Object header )
   {
     #ifdef CARTO_DEBUG_IO
       std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
@@ -214,7 +214,7 @@ namespace carto
     if( !dataSource() )
       throw std::runtime_error( "Reader with no source of data" );
     if( !_options.get() )
-      _options = Object::value( PropertySet() );
+      _options = carto::Object::value( carto::PropertySet() );
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
@@ -232,7 +232,7 @@ namespace carto
       header->getProperty( "file_type" ); // old style
     
     //// Reading data //////////////////////////////////////////////////////////
-    std::string              filename  = _datasourcelist( "default", 0 )->url();
+    std::string   filename  = _datasourcelist.dataSource( "default", 0 )->url();
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
@@ -260,14 +260,14 @@ namespace carto
           #ifdef CARTO_DEBUG_IO
             std::cout << "1. failed\n";
           #endif
-          io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
+          carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
 	      tried.insert( format );
         triedf.insert( reader );
       }
     }
 
-    std::string	ext = FileUtil::extension( filename );
+    std::string	ext = carto::FileUtil::extension( filename );
 
     const multi_S	& extensions = FormatDictionary<T>::readExtensions();
 
@@ -293,7 +293,7 @@ namespace carto
             #ifdef CARTO_DEBUG_IO
               std::cout << "2. failed\n";
             #endif
-            io_error::keepExceptionPriority( e, excp, exct, excm );
+            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           #ifdef CARTO_DEBUG_IO
             std::cout << "2. unsuccessfully tried " << ie->second 
@@ -327,7 +327,7 @@ namespace carto
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. failed\n";
               #endif
-              io_error::keepExceptionPriority( e, excp, exct, excm );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
             triedf.insert( reader );
@@ -358,7 +358,7 @@ namespace carto
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. failed\n";
             #endif
-            io_error::keepExceptionPriority( e, excp, exct, excm );
+            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );
           triedf.insert( reader );
@@ -367,21 +367,21 @@ namespace carto
     }
 
     //// End : still not succeeded, it's hopeless... ///////////////////////////
-    io_error::launchExcept( exct, excm, filename + " : no matching format" );
+    carto::io_error::launchExcept( exct, excm, filename + " : no matching format" );
     return false;
   }
 
   template<class T>
-  T* Reader<T>::read( Object header )
+  T* Reader<T>::read( carto::Object header )
   {
     #ifdef CARTO_DEBUG_IO
       std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
     #endif
 
-    if( !_datasource )
+    if( dataSource() )
       throw std::runtime_error( "Reader with no source of data" );
     if( !_options.get() )
-      _options = Object::value( PropertySet() );
+      _options = carto::Object::value( carto::PropertySet() );
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
@@ -436,18 +436,18 @@ namespace carto
           #ifdef CARTO_DEBUG_IO
             std::cout << "1. failed\n";
           #endif
-          io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
+          carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
         tried.insert( format );
         triedf.insert( reader );
       }
     }
 
-    std::string	ext = FileUtil::extension( filename );
+    std::string	ext = carto::FileUtil::extension( filename );
 
     const multi_S &  extensions = FormatDictionary<T>::readExtensions();
 
-    pair_sit_S               iext = extensions.equal_range( ext );
+    pair_cit_S               iext = extensions.equal_range( ext );
     multi_S::const_iterator  ie, ee = iext.second;
 
     //// Pass 2 : try every matching format until one works ////////////////////
@@ -471,7 +471,7 @@ namespace carto
             #ifdef CARTO_DEBUG_IO
               std::cout << "2. failed\n";
             #endif
-            io_error::keepExceptionPriority( e, excp, exct, excm );
+            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           #ifdef CARTO_DEBUG_IO
             std::cout << "2. unsuccessfully tried " << ie->second 
@@ -495,7 +495,7 @@ namespace carto
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. try reader " << ie->second << std::endl;
               #endif
-              obj = reader->createAndRead( header, _datasource, 
+              obj = reader->createAndRead( header, _datasourcelist, 
                                            _alloccontext, _options );
               if( obj ) {
                 #ifdef CARTO_DEBUG_IO
@@ -507,7 +507,7 @@ namespace carto
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. failed\n";
               #endif
-              io_error::keepExceptionPriority( e, excp, exct, excm );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
             triedf.insert( reader );
@@ -528,7 +528,7 @@ namespace carto
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. try reader " << ie->second << std::endl;
             #endif
-            obj = reader->createAndRead( header, _datasource, 
+            obj = reader->createAndRead( header, _datasourcelist, 
                                          _alloccontext, _options );
             if( obj ) {
               #ifdef CARTO_DEBUG_IO
@@ -540,7 +540,7 @@ namespace carto
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. failed\n";
             #endif
-            io_error::keepExceptionPriority( e, excp, exct, excm );
+            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );
           triedf.insert( reader );
@@ -549,7 +549,7 @@ namespace carto
     }
 
     //// End : still not succeeded, it's hopeless... ///////////////////////////
-    io_error::launchExcept( exct, excm, filename + " : no matching format" );
+    carto::io_error::launchExcept( exct, excm, filename + " : no matching format" );
     return 0;
   }
 

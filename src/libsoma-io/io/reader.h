@@ -31,17 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_READER_H
-#define CARTOBASE_IO_READER_H
-//--- members -----------------------------------------------------------------
-#include <somaio/datasource/datasourcelist.h>
-#include <cartobase/allocator/allocator.h>
+#ifndef SOMAIO_IO_READER_H
+#define SOMAIO_IO_READER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasourcelist.h>
+#include <soma-io/allocator/allocator.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 //--- system -------------------------------------------------------------------
 #include <string>
 //------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
   
   /**
@@ -75,7 +76,7 @@ namespace carto
     //--- constructors ---------------------------------------------------------
     Reader();
     Reader( const std::string & filename );
-    Reader( rc_ptr<DataSource> ds );
+    Reader( carto::rc_ptr<DataSource> ds );
     Reader( std::istream & stream );
     virtual ~Reader();
     
@@ -85,7 +86,7 @@ namespace carto
      * if \c format is specified, this format is tried first, so you can use it
      * as a hint if you already know it (from the DataSourceInfoLoader check ).
      */
-    virtual bool read( T & obj, Object header = none() );
+    virtual bool read( T & obj, carto::Object header = carto::none() );
     /**
      * \brief Creates and reads an object. 
      * This function differs from the read( T&, ... ) function in the way 
@@ -95,21 +96,21 @@ namespace carto
      * The default is just to create a T and call the read( T&, ... ) function, 
      * but some specialized low-level readers may behave differently.
      */
-    virtual T* read( Object header = none() );
+    virtual T* read( carto::Object header = carto::none() );
     
     //--- allocator ------------------------------------------------------------
     void setAllocatorContext( const AllocatorContext & ac );
     const AllocatorContext & allocatorContext() const;
     
     //--- options --------------------------------------------------------------
-    void setOptions( Object options );
-    Object   options() const;
-    Object & options();
+    void setOptions( carto::Object options );
+    carto::Object   options() const;
+    carto::Object & options();
     
     //--- datasource -> manipulates "default" datasource -----------------------
-    const rc_ptr<DataSource> dataSource() const;
-          rc_ptr<DataSource> dataSource();
-    void attach( rc_ptr<DataSource> ds );
+    const carto::rc_ptr<DataSource> dataSource() const;
+          carto::rc_ptr<DataSource> dataSource();
+    void attach( carto::rc_ptr<DataSource> ds );
     void attach( const std::string & filename, offset_t offset = 0 );
     void attach( std::istream & stream );
     
@@ -127,9 +128,9 @@ namespace carto
           DataSourceList & dataSourceList()       { return _datasourcelist; }
 
   protected:
-    DataSourceList    _datasourcelist;
-    AllocatorContext  _alloccontext;
-    Object            _options;
+    DataSourceList           _datasourcelist;
+    AllocatorContext         _alloccontext;
+    carto::Object            _options;
   };
 }
 
@@ -137,8 +138,8 @@ namespace carto
 //   S T R E A M   O P E R A T O R
 //==============================================================================
 template <class T>
-inline carto::Reader<T> &
-operator >> ( carto::Reader<T> & reader, T & thing )
+inline soma::Reader<T> &
+operator >> ( soma::Reader<T> & reader, T & thing )
 {
   reader.read( thing );
   return reader;

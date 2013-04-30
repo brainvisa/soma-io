@@ -60,76 +60,93 @@ DataSourceCapabilities::~DataSourceCapabilities()
 //   A C C E S S O R S
 //==============================================================================
 
-bool DataSourceCapabilities::allowsMemoryMapping() const
+bool DataSourceCapabilities::isInit() const
 {
   return _capabilities & 1;
 }
 
-bool DataSourceCapabilities::isThreadSafe() const
+bool DataSourceCapabilities::allowsMemoryMapping() const
 {
   return _capabilities & 2;
 }
 
-bool DataSourceCapabilities::isOrdered() const
+bool DataSourceCapabilities::isThreadSafe() const
 {
   return _capabilities & 4;
 }
 
-bool DataSourceCapabilities::canSeekVoxel() const
+bool DataSourceCapabilities::isOrdered() const
 {
   return _capabilities & 8;
 }
 
-bool DataSourceCapabilities::canSeekLine() const
+bool DataSourceCapabilities::canSeekVoxel() const
 {
   return _capabilities & 16;
 }
 
-bool DataSourceCapabilities::canSeekSlice() const
+bool DataSourceCapabilities::canSeekLine() const
 {
   return _capabilities & 32;
 }
 
-bool DataSourceCapabilities::canSeekVolume() const
+bool DataSourceCapabilities::canSeekSlice() const
 {
   return _capabilities & 64;
+}
+
+bool DataSourceCapabilities::canSeekVolume() const
+{
+  return _capabilities & 128;
 }
 
 //==============================================================================
 //   M U T A T O R S
 //==============================================================================
 
-void DataSourceCapabilities::setMemoryMapping( const bool & val )
+void DataSourceCapabilities::setInit( const bool & boo )
 {
   _capabilities = _capabilities | 1;
 }
 
-void DataSourceCapabilities::setThreadSafe( const bool & val )
+void DataSourceCapabilities::setMemoryMapping( const bool & boo )
 {
   _capabilities = _capabilities | 2;
+  setInit();
 }
 
-void DataSourceCapabilities::setOrdered( const bool & val )
+void DataSourceCapabilities::setThreadSafe( const bool & boo )
 {
   _capabilities = _capabilities | 4;
+  setInit();
 }
 
-void DataSourceCapabilities::setSeekVoxel( const bool & val )
+void DataSourceCapabilities::setOrdered( const bool & boo )
 {
   _capabilities = _capabilities | 8;
+  setInit();
 }
 
-void DataSourceCapabilities::setSeekLine( const bool & val )
+void DataSourceCapabilities::setSeekVoxel( const bool & boo )
 {
   _capabilities = _capabilities | 16;
+  setInit();
 }
 
-void DataSourceCapabilities::setSeekSlice( const bool & val )
+void DataSourceCapabilities::setSeekLine( const bool & boo )
 {
   _capabilities = _capabilities | 32;
+  setInit();
 }
 
-void DataSourceCapabilities::setSeekVolume( const bool & val )
+void DataSourceCapabilities::setSeekSlice( const bool & boo )
 {
   _capabilities = _capabilities | 64;
+  setInit();
+}
+
+void DataSourceCapabilities::setSeekVolume( const bool & boo )
+{
+  _capabilities = _capabilities | 128;
+  setInit();
 }

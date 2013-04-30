@@ -47,9 +47,7 @@ namespace soma
   class DataSource;
   class DataSourceInfo;
   
-  /**
-   * \todo doc
-   */
+  /// \todo doc
   class DataSourceInfoLoader
   {
     public:
@@ -57,52 +55,41 @@ namespace soma
       DataSourceInfoLoader();
       ~DataSourceInfoLoader();
       
-      /**
-       * Registers a FormatChecker into the dictionary
-       * \param fmtid       Identification of the format. ex: "GIS"
-       * \param format      Specialized FormatChecker
-       * \param extensions  Extensions readable by the FormatChecker
-       */
+      /// \brief Registers a FormatChecker into the dictionary
+      /// \param fmtid       Identification of the format. ex: "GIS"
+      /// \param format      Specialized FormatChecker
+      /// \param extensions  Extensions readable by the FormatChecker
       static void registerFormat( const std::string & fmtid, 
                                   FormatChecker* format, 
                                   const std::vector<std::string> & 
                                     extensions );
-      /**
-       * Returns the corresponding FormatChecker
-       * \param format  Identification of the format. ex: "GIS"
-       */
+      /// \brief Returns the corresponding FormatChecker
+      /// \param format  Identification of the format. ex: "GIS"
       static FormatChecker* formatInfo( const std::string & format );
       
-      /**
-       * Finds the right format checker
-       * \param ds source (passed from the reader) It is a DataSource and not
-       * a DataSourceList because it is the source used at Reader creation.
-       * \remarks We could also pass a DataSourceList with "default" pointing 
-       * to the unique DataSource, but is it useful ?
-       * \param header One can pass a header as argument if it had previously
-       * been computed (useful for partial io). In this case, check(...) won't 
-       * read the header, but only construct DataSourceList and Capabilities.
-       * \return a DataSourceInfo object containing a header, a list of 
-       * DataSource and a list of capabilities.
-       * \see DataSourceInfo DataSourceList DataSourceCapabilities
-       */
-      DataSourceInfo check( DataSource & ds, carto::Object base = carto::none() );
+      /// \brief Finds the right format checker
+      /// \param dsi DataSourceInfo containing header, DSlist and capabilities.
+      /// It allows us to have none, some or all information already computed.
+      /// It is for the DSIloader to deal with the *all* case, and for the
+      /// FormatCheckers to deal with *some* and *none* cases.
+      /// \return a DataSourceInfo object containing a header, a list of 
+      /// DataSource and a list of capabilities.
+      /// \see DataSourceInfo DataSourceList DataSourceCapabilities
+      DataSourceInfo check( DataSourceInfo & dsi );
       State state() const;
       
       std::string errorMessage() const;
       void launchException();
       
-      /**
-       * Called inter alia by format-specific FormatChecker to complete
-       * header informations
-       * \param ds DataSource to minf file
-       * \param base If given, the function keeps information from the base
-       * header and adds that from the minf file.
-       * \remarks Should it be let there ?
-       */
-      static carto::Object readMinf( DataSource & ds, 
-                                     carto::Object base = carto::none() );
-      static carto::SyntaxSet & minfSyntax();
+      /// \brief Called inter alia by format-specific FormatChecker to complete
+      /// header informations
+      /// \param ds DataSource to minf file
+      /// \param base If given, the function keeps information from the base
+      /// header and adds that from the minf file.
+      /// \remarks Should it be let there ?
+      //static carto::Object readMinf( DataSource & ds, 
+      //                               carto::Object base = carto::none() );
+      //static carto::SyntaxSet & minfSyntax();
       
     protected:
       struct Private;

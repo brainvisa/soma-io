@@ -38,6 +38,7 @@
 #include <soma-io/datasource/datasourcelist.h>                         // member
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                                   // member
+#include <cartobase/smart/rcptr.h>                                     // member
 //------------------------------------------------------------------------------
 
 namespace soma
@@ -55,15 +56,16 @@ namespace soma
   {
     public:
       /// Constructor from a header [+ capabilities + dslist]
-      DataSourceInfo( const carto::Object & header = carto::Object(), 
+      DataSourceInfo( const carto::Object & header = carto::none(), 
                       const DataSourceCapabilities & 
                         cap = DataSourceCapabilities(),
                       const DataSourceList & 
                         dsl = DataSourceList());
-      /// Constructor from a datasource + dimensions (to build a header)
-      // TODO
+      /// Constructor from a datasource [+ dimensions (to build a header)]
+      //DataSourceInfo( const DataSource & ds, 
+      //                const std::vector<int> & dim = std::vector<int>( 4, 0 ) );
       /// Constructor from a buffer
-      // TODO
+      //DataSourceInfo( char* buffer );
       /// Constructor by copy
       DataSourceInfo( const DataSourceInfo & );
       virtual ~DataSourceInfo();
@@ -73,11 +75,11 @@ namespace soma
        * do we allow users to modify the objects ? I'd say yes, so references
        */
       const carto::Object & header() const { return _header; }
-            carto::Object & header() { return _header; }
+            carto::Object & header()       { return _header; }
       const DataSourceCapabilities & capabilities() const { return _capabilities; }
-            DataSourceCapabilities & capabilities() { return _capabilities; }
-      const DataSourceList & dataSourceList() const { return _datasourcelist; }
-            DataSourceList & dataSourceList() { return _datasourcelist; }
+            DataSourceCapabilities & capabilities()       { return _capabilities; }
+      const DataSourceList & list() const { return _datasourcelist; }
+            DataSourceList & list()       { return _datasourcelist; }
       
     protected:
       carto::Object           _header;

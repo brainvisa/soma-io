@@ -17,6 +17,11 @@
 ** DONE someDSList_test
 
 * libsoma-io
+** config
+*** config
+**** DONE created
+*** version
+**** DONE created
 ** datasource
 *** datasource
 **** DONE move
@@ -27,7 +32,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** bufferdatasource
 **** DONE move
 **** DONE ifndef
@@ -37,7 +42,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** chaindatasource
 **** DONE move
 **** DONE ifndef
@@ -47,7 +52,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** cstreamdatasource
 **** DONE move
 **** DONE ifndef
@@ -57,7 +62,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** fddatasource
 **** DONE move
 **** DONE ifndef
@@ -67,7 +72,7 @@
 **** DONE CMakeList
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** filedatasource
 **** DONE move
 **** DONE ifndef
@@ -78,17 +83,17 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** filteringdatasource
 **** DONE move
 **** DONE ifndef
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeLists
+**** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** streamdatasource
 **** DONE move
 **** DONE ifndef
@@ -98,7 +103,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 *** datasourcelist
 **** DONE move
 **** DONE ifndef
@@ -131,13 +136,273 @@
 **** DONE compile
 **** TODO test
 **** DONE svn add
+**** TODO constructor: ds + dimensions
+**** TODO constructor: buffer
 *** datasourceinfoloader
 **** DONE move
 **** DONE ifndef
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeList
+**** DONE CMakeList except.cc
+**** DONE compile   except.cc
+**** TODO test
+**** DONE svn add
+** checker
+*** formatchecker
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** pythonformatchecker
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeLists
 **** TODO compile
+**** TODO test
+**** DONE svn add
+**** TODO build dsl & capabilities
+*** xmlformatchecker
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+**** TODO build dsl & capabilities
+** image
+*** imagereader
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** imagewriter
+**** DONE move
+**** DONE svn add
+**** TODO empty for now
+** io
+*** formatdictionary
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO what is the interest of including cart/types to _d.h ?
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** reader
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namespace
+**** DONE carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** readeralgorithm
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** writer
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+** reader
+*** formatreader
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** itemreader
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** pythonformatreader
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** xmlformatreader
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+** writer
+*** formatwriter
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** itemwriter
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** pythonformatwriter
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+** other
+*** asciidatasourcetraits
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** creator
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** headertranslator
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+*** minfXML2
+**** DONE move
+**** TODO ifndef
+**** TODO includes
+**** TODO namepsace
+**** TODO carto::
+**** TODO CMakeLists
+**** TODO compile
+**** TODO test
+**** DONE svn add
+** allocator
+*** allocator
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** TODO svn add
+**** TODO what about including cartobase_config ?
+*** mappingcopy
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** TODO svn add
+**** TODO what about including cartobase_config and path ?
+*** mappingro
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** TODO svn add
+**** TODO what about including cartobase_config and path ?
+*** mappingrw
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** TODO svn add
+**** TODO what about including cartobase_config ?
+*** meminfo
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** TODO svn add

@@ -34,13 +34,8 @@
 #ifndef SOMAIO_CHECKER_FORMATCHECKER_H
 #define SOMAIO_CHECKER_FORMATCHECKER_H
 
-namespace carto {
-  class Object;
-}
-
 namespace soma
 {
-  class DataSourceList;
   class DataSourceInfoLoader;
   class DataSourceInfo;
 
@@ -48,9 +43,8 @@ namespace soma
   {
   public:
     // why pass DSIloader ?
-    virtual DataSourceInfo check( DataSourceList & dsl, 
-                                  DataSourceInfoLoader & f,
-                                  carto::Object base ) const = 0;
+    virtual DataSourceInfo check( DataSourceInfo & dsi, 
+                                  DataSourceInfoLoader & f ) const = 0;
     virtual ~FormatChecker() {}
   };
 

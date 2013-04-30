@@ -36,19 +36,17 @@
 
 namespace soma
 {
-  /**
-   * Reading/Writing Capabilities of a FormatReader
-   * 
-   * This object is constructed by the FormatChecker after reading the header.
-   * It allows one to give informations about the possible ways to read a volume
-   * ( partial reading ... ).
-   *
-   * \remarks Since capabilities may be file-dependant (and not just format-
-   * dependant, think of compressed data), they need being stored in the
-   * class. However, the current implementation uses \em hard booleans, which
-   * make the object pretty heavy (7 bytes). Maybe is there a better way to do 
-   * this ?
-   */
+  /// Reading/Writing Capabilities of a FormatReader
+  ///
+  /// This object is constructed by the FormatChecker after reading the header.
+  /// It allows one to give informations about the possible ways to read a 
+  /// volume ( partial reading ... ).
+  ///
+  /// \remarks Since capabilities may be file-dependant (and not just format-
+  /// dependant, think of compressed data), they need being stored in the
+  /// class. The current implementation uses an integer of chosen size so 
+  /// that each capability is written on one bit. If more capabilities must be
+  /// added, increase the number of bytes of the integer.
   class DataSourceCapabilities
   {
     public:
@@ -56,6 +54,9 @@ namespace soma
       DataSourceCapabilities( const DataSourceCapabilities & );
       virtual ~DataSourceCapabilities();
       
+      //========================================================================
+      //   A C C E S S O R S
+      //========================================================================
       bool  allowsMemoryMapping() const;
       bool  isThreadSafe()        const;
       bool  isOrdered()           const;
@@ -64,26 +65,43 @@ namespace soma
       bool  canSeekSlice()  const;
       bool  canSeekVolume() const;
       
-      void  setMemoryMapping  ( const bool & );
-      void  setThreadSafe     ( const bool & );
-      void  setOrdered        ( const bool & );
-      void  setSeekVoxel      ( const bool & );
-      void  setSeekLine       ( const bool & );
-      void  setSeekSlice      ( const bool & );
-      void  setSeekVolume     ( const bool & );
+      //========================================================================
+      //   M U T A T O R S
+      //========================================================================
+      void  setMemoryMapping  ( const bool & boo = true );
+      void  setThreadSafe     ( const bool & boo = true );
+      void  setOrdered        ( const bool & boo = true );
+      void  setSeekVoxel      ( const bool & boo = true );
+      void  setSeekLine       ( const bool & boo = true );
+      void  setSeekSlice      ( const bool & boo = true );
+      void  setSeekVolume     ( const bool & boo = true );
+      
+      //========================================================================
+      //   I N I T I A L I Z E D
+      //========================================================================
+      /// Did we initialize the capabilities ? default : false
+      /// Since a DataSourceInfo can be either fully initialized because of a
+      /// previous call to DataSourceInfoLoader or be only partially initialized
+      /// because we just know the header, it is important to know if the
+      /// value of this object matters or not.
+      /// each time one of the mutators is called, setInit( true ) is also 
+      /// called.
+      bool  isInit() const;
+      void  setInit( const bool & boo = true );
+      /// Sets the whole capabilities to its default value (including
+      /// isInit() to false )
+      void  reset();
       
     protected:
-      /**
-       * From LSB to MSB :
-       *  - allows_memory_mapping
-       *  - is_thread_safe
-       *  - is_ordered
-       *  - seek_voxel
-       *  - seek_line
-       *  - seek_slice
-       *  - seek_volume
-       *  - *unused*
-       */
+      /// From LSB to MSB :
+      ///  - capabilities_are_init
+      ///  - allows_memory_mapping
+      ///  - is_thread_safe
+      ///  - is_ordered
+      ///  - seek_voxel
+      ///  - seek_line
+      ///  - seek_slice
+      ///  - seek_volume
       unsigned char _capabilities;  // default: [00000000]
   };
   

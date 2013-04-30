@@ -31,15 +31,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_FORMATWRITER_H
-#define CARTOBASE_IO_FORMATWRITER_H
-
+#ifndef SOMAIO_WRITER_FORMATWRITER_H
+#define SOMAIO_WRITER_FORMATWRITER_H
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace carto {
+  class Object;
+}
+
+namespace soma
 {
   class DataSource;
-  class Object;
 
   /** Low-level object IO writer specialized for a specific format
   */
@@ -48,8 +52,8 @@ namespace carto
   {
   public:
     virtual ~FormatWriter() {}
-    virtual bool write( rc_ptr<DataSource> ds, const T & obj, 
-                        Object options ) = 0;
+    virtual bool write( carto::rc_ptr<DataSource> ds, const T & obj, 
+                        carto::Object options ) = 0;
   };
 
 }
