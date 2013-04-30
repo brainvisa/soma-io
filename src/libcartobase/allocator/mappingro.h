@@ -31,20 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_ALLOCATOR_MAPPINGRO_H
-#define SOMAIO_ALLOCATOR_MAPPINGRO_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/allocator/allocator.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_ALLOCATOR_MAPPINGRO_H
+#define CARTOBASE_ALLOCATOR_MAPPINGRO_H
+
 #include <cartobase/config/cartobase_config.h>
-//--- system -------------------------------------------------------------------
+#include <cartobase/allocator/allocator.h>
 #include <map>
 #ifdef _WIN32
-  #include <windows.h>
-#endif
-//------------------------------------------------------------------------------
+#include <windows.h>
+#endif	// _WIN32
 
-namespace soma
+namespace carto
 {
 
   class MappingROAllocator : public LowLevelAllocator

@@ -31,22 +31,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_ALLOCATOR_MAPPINGCOPY_H
-#define SOMAIO_ALLOCATOR_MAPPINGCOPY_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/allocator/allocator.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_ALLOCATOR_MAPPINGCOPY_H
+#define CARTOBASE_ALLOCATOR_MAPPINGCOPY_H
+
 #include <cartobase/config/cartobase_config.h>
-//--- system -------------------------------------------------------------------
+#include <cartobase/allocator/allocator.h>
 #include <string>
 #include <map>
 #ifdef _WIN32
-  #include <windows.h>
+#include <windows.h>
 #endif
-//------------------------------------------------------------------------------
 
 
-namespace soma
+namespace carto
 {
 
   class MappingCopyAllocator : public LowLevelAllocator
@@ -71,7 +68,7 @@ namespace soma
     mutable std::map<char*, HANDLE>		_mapDesc;
 #else
     mutable std::map<char*, std::string>	_mapname;
-    mutable std::map<char*, int>		      _mapDesc;
+    mutable std::map<char*, int>		_mapDesc;
 #endif
 
   };

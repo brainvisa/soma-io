@@ -31,19 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_ALLOCATOR_ALLOCATOR_H
-#define SOMAIO_ALLOCATOR_ALLOCATOR_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/datasource/datasource.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_ALLOCATOR_ALLOCATOR_H
+#define CARTOBASE_ALLOCATOR_ALLOCATOR_H
+
 #include <cartobase/config/cartobase_config.h>
+#include <cartobase/datasource/datasource.h>
 #include <cartobase/smart/rcptr.h>
-//--- system -------------------------------------------------------------------
 #include <memory>
 #include <string>
-//------------------------------------------------------------------------------
 
-namespace soma
+
+namespace carto
 {
 
   /** Abstract base class for actual allocators types
@@ -210,7 +208,7 @@ namespace soma
                           offset_t & swap );
 
     static AllocatorContext allocator( MappingMode mode, 
-                                       carto::rc_ptr<DataSource> ds );
+                                       rc_ptr<DataSource> ds );
 
     static const LowLevelAllocator & lowLevelAllocator( MappingMode m );
   };
@@ -246,7 +244,7 @@ namespace soma
 
     AllocatorContext( DataAccess mode 
 		      = AllocatorStrategy::InternalModif, 
-                      carto::rc_ptr<DataSource> datasource = DataSource::none(), 
+                      rc_ptr<DataSource> datasource = DataSource::none(), 
                       bool isDiskformatOK = false, 
                       float usefactor = 1 );
     AllocatorContext( DataAccess mode, 
@@ -268,9 +266,9 @@ namespace soma
     { return _access; }
     void setAccessMode( DataAccess mode );
     /// AllocatorContext becomes owner of \c datasource
-    void setDataSource( carto::rc_ptr<DataSource> datasource );
-    const carto::rc_ptr<DataSource> dataSource() const { return _datasource; }
-    carto::rc_ptr<DataSource> dataSource() { return _datasource; }
+    void setDataSource( rc_ptr<DataSource> datasource );
+    const rc_ptr<DataSource> dataSource() const { return _datasource; }
+    rc_ptr<DataSource> dataSource() { return _datasource; }
     bool isAllocated() const { return _allocated; }
     float useFactor() const;
     void setUseFactor( float x );
@@ -279,7 +277,7 @@ namespace soma
 
   private:
     mutable const LowLevelAllocator	*_alloc;
-    mutable carto::rc_ptr<DataSource>          _datasource;
+    mutable rc_ptr<DataSource>          _datasource;
     DataAccess				_access;
     bool				_diskcompat;
     float				_usefact;
