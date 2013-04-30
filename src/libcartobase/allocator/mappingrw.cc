@@ -31,20 +31,24 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-
-#include <cartobase/allocator/mappingrw.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/allocator/mappingrw.h>                    // class declaration
+#include <soma-io/datasource/filedatasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/assert.h>
-#include <cartobase/datasource/filedatasource.h>
+//--- system -------------------------------------------------------------------
 #include <iostream>
 #include <errno.h>
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <fcntl.h>
+  #include <sys/types.h>                                                  // sys
+  #include <sys/stat.h>                                                   // sys
+  #include <sys/mman.h>                                                   // sys
+  #include <unistd.h>
+  #include <fcntl.h>
 #endif
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 
@@ -73,11 +77,11 @@ char* MappingRWAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
   if( fds )
     offset = fds->initialOffset();
 
-  map< std::string, map<carto::offset_t, char*> >::iterator 
+  map< std::string, map<soma::offset_t, char*> >::iterator 
     it2 = _mapName2Ptr.find( name );
   if( it2 != _mapName2Ptr.end() )
     {
-      map<carto::offset_t, char*>::iterator 
+      map<soma::offset_t, char*>::iterator 
         it3 = it2->second.find( offset );
       if( it3 != it2->second.end() )
         {
@@ -172,7 +176,7 @@ char* ptr, size_t n, size_t sz
       map<char*, _FileId>::iterator it = _mapPtr2Name.find( ptr );
       ASSERT( it != _mapPtr2Name.end() );
       string name = it->second.first;
-      carto::offset_t off = it->second.second;
+      soma::offset_t off = it->second.second;
 
       if ( name.length() )
 	{
@@ -193,7 +197,7 @@ char* ptr, size_t n, size_t sz
 
 #endif	// _WIN32
 
-              map<string, map<carto::offset_t, char*> >::iterator 
+              map<string, map<soma::offset_t, char*> >::iterator 
                 ip = _mapName2Ptr.find( name );
               ip->second.erase( off );
               if( ip->second.empty() )
@@ -218,7 +222,7 @@ const MappingRWAllocator & MappingRWAllocator::singleton()
 }
 
 
-std::ostream& carto::operator << ( ostream& os, 
+std::ostream& soma::operator << ( ostream& os, 
                                    const MappingRWAllocator & thing )
 {
   os << "{ MAP_RW, this=" << &thing << ", ";

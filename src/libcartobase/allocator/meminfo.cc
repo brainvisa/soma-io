@@ -31,42 +31,45 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/allocator/allocator.h>
+//--- system -------------------------------------------------------------------
 #include <cstdlib>
-#include <cartobase/allocator/allocator.h>
 #include <iostream>
 #include <cstdlib>
 #ifdef linux
-#include <cstring>
-#include <fstream>
+  #include <cstring>
+  #include <fstream>
 #endif
 #ifdef __sun
-// on Solaris, swapctl is incompatible with large files
-#undef _FILE_OFFSET_BITS
-#undef _LARGEFILE_SOURCE
-#undef _LARGE_FILES
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/swap.h>
+  // on Solaris, swapctl is incompatible with large files
+  #undef _FILE_OFFSET_BITS
+  #undef _LARGEFILE_SOURCE
+  #undef _LARGE_FILES
+  #include <unistd.h>
+  #include <sys/stat.h>
+  #include <sys/swap.h>
 #endif
 #ifdef __sgi
-#include <sys/stat.h>
-#include <sys/swap.h>
+  #include <sys/stat.h>
+  #include <sys/swap.h>
 #endif
 #ifdef _WIN32
-#ifdef _WIN32_WINNT
-#undef _WIN32_WINNT
+  #ifdef _WIN32_WINNT
+    #undef _WIN32_WINNT
+  #endif
+  #define _WIN32_WINNT 0x0500
+  #include <windows.h>
 #endif
-#define _WIN32_WINNT 0x0500
-#include <windows.h>
-#endif
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 
-
-void AllocatorStrategy::memSizes( carto::offset_t & ram, 
-                                  carto::offset_t & freeram, 
-                                  carto::offset_t & swap )
+void AllocatorStrategy::memSizes( soma::offset_t & ram, 
+                                  soma::offset_t & freeram, 
+                                  soma::offset_t & swap )
 {
   ram = 0;
   freeram = 0;

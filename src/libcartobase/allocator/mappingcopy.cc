@@ -31,29 +31,30 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/allocator/mappingcopy.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/allocator/mappingcopy.h>                // class declaration
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/assert.h>
 #include <cartobase/stream/sstream.h>
+#include <cartobase/config/paths.h>
+//--- system -------------------------------------------------------------------
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <errno.h>
-
 #ifndef _WIN32
-
-#undef _XOPEN_SOURCE
-#include <sys/mman.h>
-#include <unistd.h>
-
+  #undef _XOPEN_SOURCE
+  #include <sys/mman.h>                                                   // sys
+  #include <unistd.h>
 #endif
-
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <sys/types.h>                                                    // sys
+#include <sys/stat.h>                                                     // sys
 #define _XOPEN_SOURCE
 #include <fcntl.h>
 #include <stdio.h>
-#include <cartobase/config/paths.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 
@@ -138,14 +139,14 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 		}
 	    }
 	  close( fildest );
-	  /* Ici on ne peut faire un throw car il est trappé comme une erreur 
+	  /* Ici on ne peut faire un throw car il est trappï¿½ comme une erreur 
              de format. */
 	  cerr << "truncate failed on  " << fileName << " !" << endl;
 	  return 0; // this error is not managed by caller... !!
 	}
       else 
 	{
-	  /* Ici on ne peut faire un throw car il est trappé comme une erreur 
+	  /* Ici on ne peut faire un throw car il est trappï¿½ comme une erreur 
              de format. */
 	  cerr << "unable to open " << fileName << " !" << endl;    
 	}
@@ -206,7 +207,7 @@ const MappingCopyAllocator & MappingCopyAllocator::singleton()
 }
 
 
-std::ostream& carto::operator << ( ostream& os, 
+std::ostream& soma::operator << ( ostream& os, 
 				  const MappingCopyAllocator & thing )
 {
   os << "{ MAP_COPY, this=" << &thing << ", ";

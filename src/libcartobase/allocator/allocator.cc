@@ -31,17 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/allocator/allocator.h>
-#include <cartobase/allocator/mappingro.h>
-#include <cartobase/allocator/mappingrw.h>
-#include <cartobase/allocator/mappingcopy.h>
+//--- soma-io ------------------------------------------------------------------ 
+#include <soma-io/allocator/allocator.h>
+#include <soma-io/allocator/mappingro.h>
+#include <soma-io/allocator/mappingrw.h>
+#include <soma-io/allocator/mappingcopy.h>
+#include <soma-io/datasource/filedatasource.h>
+#include <soma-io/datasource/bufferdatasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/stream/fileutil.h>
-#include <cartobase/datasource/filedatasource.h>
-#include <cartobase/datasource/bufferdatasource.h>
+//--- system -------------------------------------------------------------------
 #include <iostream>
 #include <cstdlib>
+//------------------------------------------------------------------------------
 
-
+using namespace soma;
 using namespace carto;
 using namespace std;
 
@@ -274,10 +278,10 @@ std::ostream& operator << ( std::ostream& os, const NullAllocator& thing )
 namespace
 {
 
-  void _memmapThresholds( carto::offset_t & ro, carto::offset_t & rw, 
-                          carto::offset_t & cp, float usefactor = 1 )
+  void _memmapThresholds( soma::offset_t & ro, soma::offset_t & rw, 
+                          soma::offset_t & cp, float usefactor = 1 )
   {
-    carto::offset_t	ram, freeram, swap;
+    soma::offset_t	ram, freeram, swap;
     AllocatorStrategy::memSizes( ram, freeram, swap );
     if( freeram == 0 )
       freeram = 0x10000000;	// 256 Mb
@@ -285,15 +289,15 @@ namespace
       swap = 0x40000000;	// 1Gb
     /*cout << "freeram: " << freeram << ", ram: " << ram << ", swap: " << swap 
       << endl;*/
-    ro = (carto::offset_t ) ( freeram * 0.5 * usefactor );
+    ro = (soma::offset_t ) ( freeram * 0.5 * usefactor );
     if( ro > swap * 0.8 )
-      ro = (carto::offset_t ) ( swap * 0.8 );
-    cp = (carto::offset_t ) ( freeram * 0.9 );
+      ro = (soma::offset_t ) ( swap * 0.8 );
+    cp = (soma::offset_t ) ( freeram * 0.9 );
     if( cp > swap * 0.8 )
-      cp = (carto::offset_t ) ( swap * 0.8 );
-    rw = (carto::offset_t ) ( freeram * 0.5 * usefactor );
+      cp = (soma::offset_t ) ( swap * 0.8 );
+    rw = (soma::offset_t ) ( freeram * 0.5 * usefactor );
     if( rw > swap * 0.8 )
-      rw = (carto::offset_t ) ( swap * 0.8 );
+      rw = (soma::offset_t ) ( swap * 0.8 );
   }
 
 }
@@ -324,7 +328,7 @@ bool AllocatorStrategy::isMMapCompatible( const AttributedObject & hdr )
 
 AllocatorStrategy::MappingMode 
 AllocatorStrategy::mappingMode( DataAccess mode, 
-                                carto::offset_t buflen, 
+                                soma::offset_t buflen, 
                                 const DataSource* datasource, 
                                 bool isDiskformatOK, 
                                 float usefactor )
@@ -333,7 +337,7 @@ AllocatorStrategy::mappingMode( DataAccess mode,
       && dynamic_cast<const BufferDataSource *>( datasource ) )
     return Unallocated;
 
-  carto::offset_t	ro, rw, cp;
+  soma::offset_t	ro, rw, cp;
   _memmapThresholds( ro, rw, cp, usefactor );
   /* cout << "mmap thresholds: ro: " << ro << ", rw: " << rw << ", cp: " << cp 
      << endl;*/
