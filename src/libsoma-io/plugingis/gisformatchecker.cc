@@ -43,8 +43,12 @@
 #include <cartobase/object/object.h>                                   // header
 #include <cartobase/object/property.h>                                 // header
 #include <cartobase/stream/fileutil.h>               // to manipulate file names
+#include <cartobase/config/verbose.h>                 // to write debug messages
 //--- system -------------------------------------------------------------------
 #include <stdio.h>
+#include <iostream>
+//-- debug ---------------------------------------------------------------------
+//#define CARTO_IO_DEBUG
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -366,12 +370,23 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   bool doread = dsi.header().isNone() ;
   bool dolist = dsi.list().nbTypes() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
+  //--- test header format -----------------------------------------------------
+  if( !doread )
+    if( !dsi.header()->hasProperty( "format" ) 
+        || dsi.header()->getProperty( "format" )->getString() != "GIS" )
+      throw wrong_format_error( "Not a GIS header", 
+                                dsi.list().dataSource( "default", 0 )->url() );
+  
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
+    if( debugMessageLevel > 0 )
+      cout << "Building list..." << endl;
     _buildDSList( dsi.list() );
   }
   //--- build header -----------------------------------------------------------
   if( doread ) {
+    if( debugMessageLevel > 0 )
+      cout << "Reading header..." << endl;
     DataSource* hds = dsi.list().dataSource( "dim", 0 ).get();
     dsi.header() = _buildHeader( hds );
     
@@ -382,6 +397,8 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   }
   //--- write capabilities -----------------------------------------------------
   if( docapa ) {
+    if( debugMessageLevel > 0 )
+      cout << "Writing capabilities..." << endl;
     dsi.capabilities().setMemoryMapping( false ); /* TODO */
     dsi.capabilities().setThreadSafe( false ); /* TODO */
     dsi.capabilities().setOrdered( true );

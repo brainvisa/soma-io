@@ -56,6 +56,11 @@ DataSourceCapabilities::~DataSourceCapabilities()
 {
 }
 
+void DataSourceCapabilities::reset()
+{
+  _capabilities = 0;
+}
+
 //==============================================================================
 //   A C C E S S O R S
 //==============================================================================

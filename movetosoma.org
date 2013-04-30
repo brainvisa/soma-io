@@ -18,8 +18,8 @@
 ** DONE somaGisFormatCheck
 *** done if reads gis fil
 *** todo if reads another format (check if loanches exception)
-*** todo if header already computed
-*** todo with readMinf
+*** done if header already computed
+*** done with readMinf
 
 * libsoma-io
 ** config

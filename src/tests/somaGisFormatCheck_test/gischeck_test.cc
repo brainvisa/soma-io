@@ -49,69 +49,91 @@ using namespace std;
 
 int main( int argc, const char** argv )
 {
-  string fname;
-  CartoApplication  app( argc, argv, "Test for GIS format checking" );
-  app.addOption( fname, "-i", "input filename to be read\n" );
-  app.alias( "-v", "--verbose" );
-  app.initialize();
-  
-  DataSourceInfo dsi, newdsi;
-  GisFormatChecker gfc;
-  DataSourceInfoLoader dsil;
-  dsi.list().addDataSource( "default", 
-                            rc_ptr<DataSource>( new FileDataSource( fname ) ) 
-                          );
-  newdsi = gfc.check( dsi, dsil );
-  
-  //--- Write Header -----------------------------------------------------------
-  cout << "//---------------------------------------------------------" << endl;
-  cout << "//   H E A D E R                                           " << endl;
-  cout << "//---------------------------------------------------------" << endl;
-  if( newdsi.header()->hasProperty( "sizeX" ) )
-    cout << "sizeX: \t" << newdsi.header()->getProperty( "sizeX" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "sizeY" ) )
-    cout << "sizeY: \t" << newdsi.header()->getProperty( "sizeY" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "sizeZ" ) )
-    cout << "sizeZ: \t" << newdsi.header()->getProperty( "sizeZ" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "sizeT" ) )
-    cout << "sizeT: \t" << newdsi.header()->getProperty( "sizeT" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "format" ) )
-    cout << "format: \t" << newdsi.header()->getProperty( "format" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "voxel_size" ) )
-    cout << "voxel_size: \t( " << newdsi.header()->getProperty( "voxel_size" )->getArrayItem(0)->getScalar() << ", "
-                               << newdsi.header()->getProperty( "voxel_size" )->getArrayItem(1)->getScalar() << ", "
-                               << newdsi.header()->getProperty( "voxel_size" )->getArrayItem(2)->getScalar() << " )"
-                               << endl;
-  if( newdsi.header()->hasProperty( "object_type" ) )
-    cout << "object_type: \t" << newdsi.header()->getProperty( "object_type" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "ascii" ) )
-    cout << "ascii: \t" << newdsi.header()->getProperty( "ascii" )->getString() << endl;
-  if( newdsi.header()->hasProperty( "byte_swapping" ) )
-    cout << "byte_swapping: \t" << newdsi.header()->getProperty( "byte_swapping" )->getString() << endl;
-  //--- Write Capabilities -----------------------------------------------------
-  cout << "//---------------------------------------------------------" << endl;
-  cout << "//   C A P A B I L I T I E S                               " << endl;
-  cout << "//---------------------------------------------------------" << endl;
-  cout << "isInit: \t"              << dsi.capabilities().isInit()              << endl;
-  cout << "allowsMemoryMapping: \t" << dsi.capabilities().allowsMemoryMapping() << endl;
-  cout << "isThreadSafe: \t"        << dsi.capabilities().isThreadSafe()        << endl;
-  cout << "isOrdered: \t"           << dsi.capabilities().isOrdered()           << endl;
-  cout << "canSeekVoxel: \t"        << dsi.capabilities().canSeekVoxel()        << endl;
-  cout << "canSeekLine: \t"         << dsi.capabilities().canSeekLine()         << endl;
-  cout << "canSeekSlice: \t"        << dsi.capabilities().canSeekSlice()        << endl;
-  cout << "canSeekVolume: \t"       << dsi.capabilities().canSeekVolume()       << endl;
-  //--- Write DSList -----------------------------------------------------------
-  cout << "//---------------------------------------------------------" << endl;
-  cout << "//   D A T A   S O U R C E   L I S T                       " << endl;
-  cout << "//---------------------------------------------------------" << endl;
-  set<string> types = newdsi.list().types();
-  set<string>::iterator it = types.begin();
-  for( it; it != types.end(); ++it ) {
-    int size = newdsi.list().size( *it );
-    int i;
-    for ( i = 0; i< size; ++i ) {
-      cout << "DS " << *it << " : \t" << newdsi.list().dataSource( *it, i )->url() << endl;
+  try {
+    string  fname;
+    int     test = 1;
+    CartoApplication  app( argc, argv, "Test for GIS format checking" );
+    app.addOption( fname, "-i", "input filename to be read\n" );
+    app.addOption( test, "-t", "test to perform. 1) normal reading. "
+                              "2) two pass reading with complete dsi. "
+                              "3) two pass reading with juste header\n", true );
+    app.alias( "-v", "--verbose" );
+    app.initialize();
+    
+    DataSourceInfo dsi;
+    GisFormatChecker gfc;
+    DataSourceInfoLoader dsil;
+    dsi.list().addDataSource( "default", 
+                              rc_ptr<DataSource>( new FileDataSource( fname ) ) 
+                            );
+    dsi = gfc.check( dsi, dsil );
+    
+    if( test == 2) {
+      dsi = gfc.check( dsi, dsil );
+    } else if( test == 3 ) {
+      dsi.list().reset();
+      dsi.list().addDataSource( "default", 
+                                rc_ptr<DataSource>( new FileDataSource( fname ) ) 
+                              );
+      dsi.capabilities().reset();
+      dsi = gfc.check( dsi, dsil );
     }
+    
+    //--- Write Header -----------------------------------------------------------
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "//   H E A D E R                                           " << endl;
+    cout << "//---------------------------------------------------------" << endl;
+    if( dsi.header()->hasProperty( "sizeX" ) )
+      cout << "sizeX: \t" << dsi.header()->getProperty( "sizeX" )->getString() << endl;
+    if( dsi.header()->hasProperty( "sizeY" ) )
+      cout << "sizeY: \t" << dsi.header()->getProperty( "sizeY" )->getString() << endl;
+    if( dsi.header()->hasProperty( "sizeZ" ) )
+      cout << "sizeZ: \t" << dsi.header()->getProperty( "sizeZ" )->getString() << endl;
+    if( dsi.header()->hasProperty( "sizeT" ) )
+      cout << "sizeT: \t" << dsi.header()->getProperty( "sizeT" )->getString() << endl;
+    if( dsi.header()->hasProperty( "format" ) )
+      cout << "format: \t" << dsi.header()->getProperty( "format" )->getString() << endl;
+    if( dsi.header()->hasProperty( "voxel_size" ) )
+      cout << "voxel_size: \t( " << dsi.header()->getProperty( "voxel_size" )->getArrayItem(0)->getScalar() << ", "
+                                << dsi.header()->getProperty( "voxel_size" )->getArrayItem(1)->getScalar() << ", "
+                                << dsi.header()->getProperty( "voxel_size" )->getArrayItem(2)->getScalar() << " )"
+                                << endl;
+    if( dsi.header()->hasProperty( "object_type" ) )
+      cout << "object_type: \t" << dsi.header()->getProperty( "object_type" )->getString() << endl;
+    if( dsi.header()->hasProperty( "ascii" ) )
+      cout << "ascii: \t" << dsi.header()->getProperty( "ascii" )->getString() << endl;
+    if( dsi.header()->hasProperty( "byte_swapping" ) )
+      cout << "byte_swapping: \t" << dsi.header()->getProperty( "byte_swapping" )->getString() << endl;
+    //--- Write Capabilities -----------------------------------------------------
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "//   C A P A B I L I T I E S                               " << endl;
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "isInit: \t"              << dsi.capabilities().isInit()              << endl;
+    cout << "allowsMemoryMapping: \t" << dsi.capabilities().allowsMemoryMapping() << endl;
+    cout << "isThreadSafe: \t"        << dsi.capabilities().isThreadSafe()        << endl;
+    cout << "isOrdered: \t"           << dsi.capabilities().isOrdered()           << endl;
+    cout << "canSeekVoxel: \t"        << dsi.capabilities().canSeekVoxel()        << endl;
+    cout << "canSeekLine: \t"         << dsi.capabilities().canSeekLine()         << endl;
+    cout << "canSeekSlice: \t"        << dsi.capabilities().canSeekSlice()        << endl;
+    cout << "canSeekVolume: \t"       << dsi.capabilities().canSeekVolume()       << endl;
+    //--- Write DSList -----------------------------------------------------------
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "//   D A T A   S O U R C E   L I S T                       " << endl;
+    cout << "//---------------------------------------------------------" << endl;
+    set<string> types = dsi.list().types();
+    set<string>::iterator it = types.begin();
+    for( it; it != types.end(); ++it ) {
+      int size = dsi.list().size( *it );
+      int i;
+      for ( i = 0; i< size; ++i ) {
+        cout << "DS " << *it << " : \t" << dsi.list().dataSource( *it, i )->url() << endl;
+      }
+    }
+  } catch( user_interruption & ) {
+  } catch( exception & e ) {
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
   }
+  return EXIT_SUCCESS;
   
 }
