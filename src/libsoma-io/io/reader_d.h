@@ -52,6 +52,7 @@
 //--- system -------------------------------------------------------------------
 #include <set>
 #include <map>
+#define CARTO_DEBUG_IO
 #ifdef CARTO_DEBUG_IO
   #include <iostream>
 #endif
@@ -217,7 +218,7 @@ namespace soma
   bool Reader<T>::read( T & obj, carto::Object header )
   {
     #ifdef CARTO_DEBUG_IO
-      std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
+      std::cout << "Reader<" << carto::DataTypeCode<T>::name() << ">\n";
     #endif
     
     if( !header.isNone() )
@@ -242,6 +243,10 @@ namespace soma
     if( !_options->getProperty( "format", format )  // user options first
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
+    
+    #ifdef CARTO_DEBUG_IO
+      std::cout << "format: " << format << std::endl;
+    #endif
     
     //// Reading data //////////////////////////////////////////////////////////
     std::string   filename  = _datasourceinfo->list()
@@ -385,7 +390,7 @@ namespace soma
   T* Reader<T>::read( carto::Object header )
   {
     #ifdef CARTO_DEBUG_IO
-      std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
+      std::cout << "Reader<" << carto::DataTypeCode<T>::name() << ">\n";
     #endif
     
     if( !header.isNone() )

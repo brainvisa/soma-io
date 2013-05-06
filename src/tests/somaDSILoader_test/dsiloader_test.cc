@@ -87,6 +87,9 @@ int main( int argc, const char** argv )
       cout << "ascii: \t" << dsi.header()->getProperty( "ascii" )->getString() << endl;
     if( dsi.header()->hasProperty( "byte_swapping" ) )
       cout << "byte_swapping: \t" << dsi.header()->getProperty( "byte_swapping" )->getString() << endl;
+    // tert minf
+    if (dsi.header()->hasProperty( "patient_id" ) )
+      cout << "patient_id: \t" << dsi.header()->getProperty( "patient_id" )->getString() << endl;
     //--- Write Capabilities -----------------------------------------------------
     cout << "//---------------------------------------------------------" << endl;
     cout << "//   C A P A B I L I T I E S                               " << endl;

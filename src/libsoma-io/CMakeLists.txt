@@ -15,7 +15,7 @@ set( _headers
   allocator/mappingrw.h
   checker/formatchecker.h
   checker/pythonformatchecker.h
-  #checker/xmlformatchecker.h
+  checker/xmlformatchecker.h
   datasource/bufferdatasource.h
   datasource/chaindatasource.h
   datasource/cstreamdatasource.h
@@ -49,11 +49,11 @@ set( _headers
   reader/pythonformatreader.h
   reader/pythonreader.h
   reader/pythonreader_d.h
-  #reader/xmlformatreader.h
+  reader/xmlformatreader.h
   utilities/asciidatasourcetraits.h
   utilities/creator.h
   #utilities/headertranslator.h
-  #utilities/minfXML2.h
+  utilities/minfXML2.h
   writer/formatwriter.h
   #writer/itemwriter.h
   #writer/pythonformatwriter.h
@@ -68,7 +68,7 @@ set( _somaio_sources
   allocator/mappingrw.cc
   allocator/meminfo.cc
   checker/pythonformatchecker.cc
-  #checker/xmlformatchecker.cc
+  checker/xmlformatchecker.cc
   config/version.cc
   datasource/bufferdatasource.cc
   datasource/chaindatasource.cc
@@ -90,9 +90,9 @@ set( _somaio_sources
   reader/areader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc
-  #reader/xmlformatreader.cc
+  reader/xmlformatreader.cc
   utilities/asciidatasourcetraits.cc
-  #utilities/minfXML2.cc
+  utilities/minfXML2.cc
   #writer/pythonformatwriter.cc
 )
 

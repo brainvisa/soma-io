@@ -87,8 +87,8 @@ namespace soma
       /// \param base If given, the function keeps information from the base
       /// header and adds that from the minf file.
       /// \remarks Should it be let there ?
-      //static carto::Object readMinf( DataSource & ds, 
-      //                               carto::Object base = carto::none() );
+      static carto::Object readMinf( DataSource & ds, 
+                                     carto::Object base = carto::none() );
       static carto::SyntaxSet & minfSyntax();
       
     protected:

@@ -49,7 +49,7 @@
 #include <map>
 #include <set>
 //-- debug ---------------------------------------------------------------------
-//#define CARTO_IO_DEBUG
+#define CARTO_IO_DEBUG
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -429,49 +429,49 @@ SyntaxSet & DataSourceInfoLoader::minfSyntax()
 }
 
 
-// Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
-// {
-//   Object  minf;
-//   if( base.get() )
-//     minf = base;
-//   else
-//     minf = Object::value( PropertySet() );
-// 
-//   string  filename = ds.url();
-//   if( filename.empty() )
-//     return minf;
-//   if( FileUtil::extension( filename ) != "minf" )
-//     filename += ".minf";
-// 
-//   Object  opts = Object::value( PropertySet() );
-//   opts->setProperty( "syntaxset", minfSyntax() );
-// 
-//   try {
-//     Reader<GenericObject>	rg( filename );
-//     rg.setOptions( opts );
-//     bool hasbs = minf->hasProperty( "byte_swapping" );
-//     int bs = 0;
-//     if( hasbs )
-//       hasbs = minf->getProperty( "byte_swapping", bs );
-//     rg.read( *minf );
-//     // remove some forbidden properties
-//     if( minf->hasProperty( "object_type" ) )
-//       minf->removeProperty( "object_type" );
-//     if( minf->hasProperty( "data_type" ) )
-//       minf->removeProperty( "data_type" );
-//     if( minf->hasProperty( "item_type" ) )
-//       minf->removeProperty( "item_type" );
-//     if( hasbs )
-//       minf->setProperty( "byte_swapping", bs );
-//     else if( minf->hasProperty( "byte_swapping" ) )
-//       minf->removeProperty( "byte_swapping" );
-//     return minf;
-//   } catch( exception & e ){
-//   } catch( ... ) {
-//     cerr << "Unknown exception" << endl;
-//   }
-// 
-//   return minf;
-// }
-// 
+Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
+{
+  Object  minf;
+  if( base.get() )
+    minf = base;
+  else
+    minf = Object::value( PropertySet() );
+
+  string  filename = ds.url();
+  if( filename.empty() )
+    return minf;
+  if( FileUtil::extension( filename ) != "minf" )
+    filename += ".minf";
+
+  Object  opts = Object::value( PropertySet() );
+  opts->setProperty( "syntaxset", minfSyntax() );
+
+  try {
+    Reader<GenericObject>	rg( filename );
+    rg.setOptions( opts );
+    bool hasbs = minf->hasProperty( "byte_swapping" );
+    int bs = 0;
+    if( hasbs )
+      hasbs = minf->getProperty( "byte_swapping", bs );
+    rg.read( *minf );
+    // remove some forbidden properties
+    if( minf->hasProperty( "object_type" ) )
+      minf->removeProperty( "object_type" );
+    if( minf->hasProperty( "data_type" ) )
+      minf->removeProperty( "data_type" );
+    if( minf->hasProperty( "item_type" ) )
+      minf->removeProperty( "item_type" );
+    if( hasbs )
+      minf->setProperty( "byte_swapping", bs );
+    else if( minf->hasProperty( "byte_swapping" ) )
+      minf->removeProperty( "byte_swapping" );
+    return minf;
+  } catch( exception & e ){
+  } catch( ... ) {
+    cerr << "Unknown exception" << endl;
+  }
+
+  return minf;
+}
+
 

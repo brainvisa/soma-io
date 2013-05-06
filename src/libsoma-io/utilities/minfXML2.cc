@@ -31,17 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/io/minfXML2.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/utilities/minfXML2.h>
+//#include <soma-io/writer/pythonwriter.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>
-#include <libxml/xmlreader.h>
 #include <cartobase/object/property.h>
-#include <cartobase/object/pythonwriter.h>
 #include <cartobase/object/object_factory.h>
+//--- system -------------------------------------------------------------------
+#include <libxml/xmlreader.h>
+//------------------------------------------------------------------------------
 
 
 using namespace std;
 
-namespace carto {
+namespace soma {
 
 
 //-----------------------------------------------------------------------------
@@ -69,7 +73,8 @@ const std::string identifierAttribute( "identifier" );
 
 
 //-----------------------------------------------------------------------------
-Object readDictionaryMinfXML( const std::string &fileName, rc_ptr<SyntaxSet> syntax )
+carto::Object readDictionaryMinfXML( const std::string &fileName, 
+                                     carto::rc_ptr<carto::SyntaxSet> syntax )
 {
   FileDataSource ds( fileName );
   ds.open( DataSource::Read );
@@ -77,15 +82,18 @@ Object readDictionaryMinfXML( const std::string &fileName, rc_ptr<SyntaxSet> syn
 }
 
 
-Object readDictionaryMinfXML( DataSource &ds, rc_ptr<SyntaxSet> syntax )
+carto::Object readDictionaryMinfXML( DataSource &ds, 
+                                     carto::rc_ptr<carto::SyntaxSet> syntax )
 {
-  Object dictionary( Object::value( PropertySet() ) );
+  carto::Object dictionary( carto::Object::value( carto::PropertySet() ) );
   readDictionaryMinfXML( ds, dictionary, syntax );
   return dictionary;
 }
 
 
-void readDictionaryMinfXML( const std::string &fileName, Object &dictionary, rc_ptr<SyntaxSet> syntax )
+void readDictionaryMinfXML( const std::string &fileName, 
+                            carto::Object &dictionary, 
+                            carto::rc_ptr<carto::SyntaxSet> syntax )
 {
   FileDataSource ds( fileName );
   ds.open( DataSource::Read );
@@ -93,10 +101,11 @@ void readDictionaryMinfXML( const std::string &fileName, Object &dictionary, rc_
 }
 
 
-void readDictionaryMinfXML( DataSource &ds, Object &dictionary, rc_ptr<SyntaxSet> syntax )
+void readDictionaryMinfXML( DataSource &ds, carto::Object &dictionary, 
+                            carto::rc_ptr<carto::SyntaxSet> syntax )
 {
   MinfTreeExpander treeExpander;
-  treeExpander.push( rc_ptr<MinfNodeExpander>( new SingleDictionaryExpander( dictionary, syntax ) ) );
+  treeExpander.push( carto::rc_ptr<MinfNodeExpander>( new SingleDictionaryExpander( dictionary, syntax ) ) );
   MinfXMLReader reader( treeExpander, syntax );
   reader.read( ds );
 }
@@ -182,27 +191,28 @@ MinfTreeExpander::~MinfTreeExpander()
 {}
 
 
-void MinfTreeExpander::push( rc_ptr< MinfNodeExpander > expander )
+void MinfTreeExpander::push( carto::rc_ptr< MinfNodeExpander > expander )
 {
   _stack.push_back( expander );
 }
 
 
-rc_ptr< MinfNodeExpander > MinfTreeExpander::pop()
+carto::rc_ptr< MinfNodeExpander > MinfTreeExpander::pop()
 {
-  rc_ptr< MinfNodeExpander > result = _stack.back();
+  carto::rc_ptr< MinfNodeExpander > result = _stack.back();
   _stack.pop_back();
   return result;
 }
 
 
-void MinfTreeExpander::addReference( const std::string &identifier, Object value )
+void MinfTreeExpander::addReference( const std::string &identifier, 
+                                     carto::Object value )
 {
   _references[ identifier ] = value;
 }
 
 
-Object MinfTreeExpander::getReferencedObject( const std::string &identifier )
+carto::Object MinfTreeExpander::getReferencedObject( const std::string &identifier )
 {
   return _references[ identifier ];
 }
@@ -210,12 +220,12 @@ Object MinfTreeExpander::getReferencedObject( const std::string &identifier )
 
 string MinfTreeExpander::startStructure( const std::string &nodeType,
   const std::string &identifier,
-  Object attributes,
+  carto::Object attributes,
   const string &parentSyntax, 
   const string & name )
 {
   if( _stack.empty() )
-    throw parse_error( "XML parsing error", identifier, name, 0 );
+    throw carto::parse_error( "XML parsing error", identifier, name, 0 );
   return _stack.back()->startStructure( *this, nodeType, identifier, attributes, parentSyntax, name );
 }
 
@@ -226,7 +236,7 @@ void MinfTreeExpander::endStructure( const std::string &nodeType )
 }
 
 
-void MinfTreeExpander::atom( Object o, const std::string &identifier  )
+void MinfTreeExpander::atom( carto::Object o, const std::string &identifier  )
 {
   _stack.back()->atom( *this, o, identifier );
 }
@@ -239,14 +249,14 @@ void MinfTreeExpander::reference( const std::string &identifier )
 
 
 //-----------------------------------------------------------------------------
-DefaultMinfNodeExpander::DefaultMinfNodeExpander( rc_ptr< ObjectListener > ol, 
-                                                  rc_ptr<SyntaxSet> syntax ) :
+DefaultMinfNodeExpander::DefaultMinfNodeExpander( carto::rc_ptr< ObjectListener > ol, 
+                                                  carto::rc_ptr<carto::SyntaxSet> syntax ) :
   _objectListener( ol ),
   _syntax( syntax )
 {}
 
 
-DefaultMinfNodeExpander::DefaultMinfNodeExpander( rc_ptr<SyntaxSet> syntax ) :
+DefaultMinfNodeExpander::DefaultMinfNodeExpander( carto::rc_ptr<carto::SyntaxSet> syntax ) :
   _syntax( syntax )
 {}
 
@@ -258,21 +268,21 @@ DefaultMinfNodeExpander::~DefaultMinfNodeExpander()
 string DefaultMinfNodeExpander::startStructure( MinfTreeExpander &expander,
                                                 const std::string &nodeType,
                                                 const std::string &,
-                                                Object /*attributes*/,
+                                                carto::Object /*attributes*/,
                                                 const string &parentSyntax, 
                                                 const string &name )
 {
-  Object targetObject;
+  carto::Object targetObject;
   string structureType;
   if ( !_syntax.isNull() ) {
-    SyntaxSet::const_iterator it( _syntax->find( parentSyntax ) );
+    carto::SyntaxSet::const_iterator it( _syntax->find( parentSyntax ) );
     if ( it != _syntax->end() ) {
-      Syntax::const_iterator it2 = it->second.find( name );
+      carto::Syntax::const_iterator it2 = it->second.find( name );
       if ( it2 != it->second.end() ) {
-        targetObject = ObjectFactory::createObject( it2->second.type );
+        targetObject = carto::ObjectFactory::createObject( it2->second.type );
         structureType = it2->second.type;
         if ( ! targetObject.isNull() ) {
-          SyntaxedInterface *si( targetObject->getInterface<SyntaxedInterface>() );
+          carto::SyntaxedInterface *si( targetObject->getInterface<carto::SyntaxedInterface>() );
           if ( si ) {
             structureType = si->getSyntax();
           }
@@ -282,7 +292,7 @@ string DefaultMinfNodeExpander::startStructure( MinfTreeExpander &expander,
   }
 
   if ( nodeType == listTag ) {
-    rc_ptr< ObjectListener > listBuilder;
+    carto::rc_ptr< ObjectListener > listBuilder;
     if ( targetObject.isNull() ) {
       structureType = "__generic__";
       listBuilder.reset( new ListBuilder( _objectListener ) );
@@ -290,13 +300,13 @@ string DefaultMinfNodeExpander::startStructure( MinfTreeExpander &expander,
       listBuilder.reset( new ListBuilder( targetObject, _objectListener ) );
     }
     expander.push(
-      rc_ptr<MinfNodeExpander>(
+      carto::rc_ptr<MinfNodeExpander>(
         new DefaultMinfNodeExpander( 
-          rc_ptr< ObjectListener >( listBuilder )
+          carto::rc_ptr< ObjectListener >( listBuilder )
     ) ) );
   }
   else if ( nodeType == dictionaryTag ) {
-    rc_ptr< ObjectListener > dictBuilder;
+    carto::rc_ptr< ObjectListener > dictBuilder;
     if ( targetObject.isNull() ) {
       structureType = "__generic__";
       dictBuilder.reset( new DictionaryBuilder( _objectListener ) );
@@ -304,35 +314,38 @@ string DefaultMinfNodeExpander::startStructure( MinfTreeExpander &expander,
       dictBuilder.reset( new DictionaryBuilder( targetObject, _objectListener ) );
     }
     expander.push(
-      rc_ptr<MinfNodeExpander>(
+      carto::rc_ptr<MinfNodeExpander>(
         new DefaultMinfNodeExpander( 
-          rc_ptr< ObjectListener >( dictBuilder )
+          carto::rc_ptr< ObjectListener >( dictBuilder )
     ) ) );
   }
   else if ( nodeType == factoryTag ) {
     expander.push(
-      rc_ptr<MinfNodeExpander>(
+      carto::rc_ptr<MinfNodeExpander>(
         new DefaultMinfNodeExpander( 
-          rc_ptr< ObjectListener >( new ListBuilder( _objectListener ) )
+          carto::rc_ptr< ObjectListener >( new ListBuilder( _objectListener ) )
     ) ) );
   }
   else
   {
-    throw format_error( string( "unrecognized XML tag" ) + nodeType, "" );
+    throw carto::format_error( string( "unrecognized XML tag" ) + nodeType, "" );
   }
 
   return structureType;
 }
 
 
-void DefaultMinfNodeExpander::endStructure( MinfTreeExpander &expander, const std::string & )
+void DefaultMinfNodeExpander::endStructure( MinfTreeExpander &expander, 
+                                            const std::string & )
 {
   if ( ! _objectListener.isNull() ) _objectListener->noMoreObject();
   expander.pop();
 }
 
 
-void DefaultMinfNodeExpander::atom( MinfTreeExpander &expander, Object o, const std::string &identifier  )
+void DefaultMinfNodeExpander::atom( MinfTreeExpander &expander, 
+                                    carto::Object o, 
+                                    const std::string &identifier  )
 {
   if ( ! identifier.empty() ) {
     expander.addReference( identifier, o );
@@ -341,15 +354,16 @@ void DefaultMinfNodeExpander::atom( MinfTreeExpander &expander, Object o, const 
 }
 
 
-void DefaultMinfNodeExpander::reference( MinfTreeExpander &expander, const std::string &identifier )
+void DefaultMinfNodeExpander::reference( MinfTreeExpander &expander, 
+                                         const std::string &identifier )
 {
   if ( ! _objectListener.isNull() ) _objectListener->nextObject( expander.getReferencedObject( identifier ) );
 }
 
 
 //-----------------------------------------------------------------------------
-SingleDictionaryExpander::SingleDictionaryExpander( Object dictionary, 
-                                                    rc_ptr<SyntaxSet> syntax ) : 
+SingleDictionaryExpander::SingleDictionaryExpander( carto::Object dictionary, 
+                                                    carto::rc_ptr<carto::SyntaxSet> syntax ) : 
   DefaultMinfNodeExpander( syntax ),
   _dictionary( dictionary )
 {}
@@ -362,15 +376,15 @@ SingleDictionaryExpander::~SingleDictionaryExpander()
 string SingleDictionaryExpander::startStructure( MinfTreeExpander &expander,
                                                  const std::string &nodeType,
                                                  const std::string &,
-                                                 Object,
+                                                 carto::Object,
                                                  const string &, 
                                                  const string & )
 {
   if ( nodeType == dictionaryTag ) {
     expander.push(
-      rc_ptr<MinfNodeExpander>(
+      carto::rc_ptr<MinfNodeExpander>(
         new DefaultMinfNodeExpander( 
-          rc_ptr< ObjectListener >( new DictionaryBuilder( _dictionary ) ),
+          carto::rc_ptr< ObjectListener >( new DictionaryBuilder( _dictionary ) ),
           _syntax
     ) ) );
   }
@@ -382,22 +396,22 @@ string SingleDictionaryExpander::startStructure( MinfTreeExpander &expander,
 //-----------------------------------------------------------------------------
 ListBuilder::ListBuilder()
 {
-  result = Object::value( vector< Object >() );
+  result = carto::Object::value( vector< carto::Object >() );
 }
 
 
-ListBuilder::ListBuilder( Object r ) : result( r )
+ListBuilder::ListBuilder( carto::Object r ) : result( r )
 {
 }
 
 
-ListBuilder::ListBuilder( rc_ptr< ObjectListener > ol ) : _objectListener( ol )
+ListBuilder::ListBuilder( carto::rc_ptr< ObjectListener > ol ) : _objectListener( ol )
 {
-  result = Object::value( vector< Object >() );
+  result = carto::Object::value( vector< carto::Object >() );
 }
 
 
-ListBuilder::ListBuilder( Object r, rc_ptr< ObjectListener > ol ) :
+ListBuilder::ListBuilder( carto::Object r, carto::rc_ptr< ObjectListener > ol ) :
   result( r ),
   _objectListener( ol )
 {
@@ -408,7 +422,7 @@ ListBuilder::~ListBuilder()
 {}
 
 
-void ListBuilder::nextObject( const Object &o )
+void ListBuilder::nextObject( const carto::Object &o )
 {
   result->insertArrayItem( result->size(), o );
 }
@@ -423,22 +437,22 @@ void ListBuilder::noMoreObject()
 //-----------------------------------------------------------------------------
 DictionaryBuilder::DictionaryBuilder()
 {
-  result = Object::value( PropertySet() );
+  result = carto::Object::value( carto::PropertySet() );
 }
 
 
-DictionaryBuilder::DictionaryBuilder( Object r ) : result( r )
+DictionaryBuilder::DictionaryBuilder( carto::Object r ) : result( r )
 {
 }
 
 
-DictionaryBuilder::DictionaryBuilder( rc_ptr< ObjectListener > ol ) : _objectListener( ol )
+DictionaryBuilder::DictionaryBuilder( carto::rc_ptr< ObjectListener > ol ) : _objectListener( ol )
 {
-  result = Object::value( PropertySet() );
+  result = carto::Object::value( carto::PropertySet() );
 }
 
 
-DictionaryBuilder::DictionaryBuilder( Object r, rc_ptr< ObjectListener > ol ) :
+DictionaryBuilder::DictionaryBuilder( carto::Object r, carto::rc_ptr< ObjectListener > ol ) :
   result( r ),
   _objectListener( ol )
 {
@@ -449,7 +463,7 @@ DictionaryBuilder::~DictionaryBuilder()
 {}
 
 
-void DictionaryBuilder::nextObject( const Object &o )
+void DictionaryBuilder::nextObject( const carto::Object &o )
 {
   if ( _key.isNull() ) {
     _key = o;
@@ -468,7 +482,7 @@ void DictionaryBuilder::noMoreObject()
 
 
 //-----------------------------------------------------------------------------
-MinfXMLReader::MinfXMLReader( MinfTreeExpander &expander, rc_ptr<SyntaxSet> syntax ) :
+MinfXMLReader::MinfXMLReader( MinfTreeExpander &expander, carto::rc_ptr<carto::SyntaxSet> syntax ) :
   _expander( expander ),
   _syntax( syntax )
 {}
@@ -486,7 +500,7 @@ void MinfXMLReader::read( DataSource &ds )
 {
   if ( ! ds.isOpen() ) {
     ds.open( DataSource::Read );
-    if ( ! ds.isOpen() ) throw open_error( "cannot open", ds.url() );
+    if ( ! ds.isOpen() ) throw carto::open_error( "cannot open", ds.url() );
   }
 
   xmlTextReaderPtr reader;
@@ -511,7 +525,7 @@ void MinfXMLReader::read( DataSource &ds )
         int type = xmlTextReaderNodeType( reader );
         if ( type == XML_READER_TYPE_ELEMENT ) {
           string elementName( reinterpret_cast<const char *>( xmlTextReaderConstName( reader ) ) );
-          Object attributes = Object::value( PropertySet() );
+          carto::Object attributes = carto::Object::value( carto::PropertySet() );
           string identifier;
           string name;
           while( xmlTextReaderMoveToNextAttribute( reader ) ) {
@@ -527,47 +541,47 @@ void MinfXMLReader::read( DataSource &ds )
           }
 
           if ( name.empty() ) {
-            if ( forceObjectNaming ) _expander.atom( Object(), string() );
+            if ( forceObjectNaming ) _expander.atom( carto::Object(), string() );
           } else {
-            _expander.atom( Object::value( name ), string() );
+            _expander.atom( carto::Object::value( name ), string() );
           }
 
-          Object targetObject;
+          carto::Object targetObject;
           string structureType;
           if ( !_syntax.isNull() ) {
-            SyntaxSet::const_iterator it( _syntax->find( parentSyntax ) );
+            carto::SyntaxSet::const_iterator it( _syntax->find( parentSyntax ) );
             if ( it != _syntax->end() ) {
-              Syntax::const_iterator it2 = it->second.find( name );
+              carto::Syntax::const_iterator it2 = it->second.find( name );
               if ( it2 != it->second.end() ) {
-                targetObject = ObjectFactory::createObject( it2->second.type );
+                targetObject = carto::ObjectFactory::createObject( it2->second.type );
               }
             }
           }
 
 
           if ( elementName == stringTag ) {
-            _expander.atom( Object::value( readTextContent( reader ) ), identifier );
+            _expander.atom( carto::Object::value( readTextContent( reader ) ), identifier );
 
           } else if ( elementName == numberTag ) {
             double value;
-            stringTo( readTextContent( reader ), value );
+            carto::stringTo( readTextContent( reader ), value );
             if( targetObject.isNull() ) {
-              targetObject = Object::value( value );
+              targetObject = carto::Object::value( value );
             } else {
               targetObject->setScalar( value );
             }
             _expander.atom( targetObject, identifier );
 
           } else if ( elementName == noneTag ) {
-            _expander.atom( Object(), identifier );
+            _expander.atom( carto::Object(), identifier );
             if ( ignoreElement( reader, elementName ) ) continue;
 
           } else if ( elementName == trueTag ) {
-            _expander.atom( Object::value( true ), identifier );
+            _expander.atom( carto::Object::value( true ), identifier );
             if ( ignoreElement( reader, elementName ) ) continue;
 
           } else if ( elementName == falseTag ) {
-            _expander.atom( Object::value( false ), identifier );
+            _expander.atom( carto::Object::value( false ), identifier );
             if ( ignoreElement( reader, elementName ) ) continue;
 
           } else if ( elementName == referenceTag ) {
@@ -599,7 +613,7 @@ void MinfXMLReader::read( DataSource &ds )
       // "restore" the random seed
       srand( rseed );
     }
-    catch( format_error & e )
+    catch( carto::format_error & e )
     {
       xmlFreeTextReader( reader );
       xmlFreeParserInputBuffer( buf );
@@ -607,7 +621,7 @@ void MinfXMLReader::read( DataSource &ds )
       srand( rseed );
       ostringstream s;
       s << e.what() << " at position " << ds.at();
-      throw format_error( s.str(), ds.url() );
+      throw carto::format_error( s.str(), ds.url() );
     }
     catch( ... ) {
       xmlFreeTextReader( reader );
@@ -620,7 +634,7 @@ void MinfXMLReader::read( DataSource &ds )
     xmlFreeParserInputBuffer( buf );
     // "restore" the random seed
     srand( rseed );
-    throw open_error( "unable to open", ds.url() );
+    throw carto::open_error( "unable to open", ds.url() );
   }
 }
 
@@ -635,13 +649,13 @@ void MinfXMLReader::read( DataSource &ds )
 // void TestMinfTreeExpander::startStructure( MinfTreeExpander &,
 //   const std::string &nodeType,
 //   const std::string &,
-//   Object attributes )
+//   carto::Object attributes )
 // {
 //   string indent;
 //   for( int i = _level; i > 0; indent += "  ", --i );
 //   cout << indent << "<" << nodeType;
 //   if ( attributes->size() ) {
-//     for( Object it = attributes->objectIterator(); it->isValid(); it->next() ) {
+//     for( carto::Object it = attributes->objectIterator(); it->isValid(); it->next() ) {
 //       cout << " " << it->key() << "=\"" << it->currentValue()->getString() << "\"";
 //     }
 //   }
@@ -656,7 +670,7 @@ void MinfXMLReader::read( DataSource &ds )
 //   for( int i = _level; i > 0; indent += "  ", --i );
 //   cout << indent << "</" << nodeType << ">" << endl;
 // }
-// void TestMinfTreeExpander::atom( MinfTreeExpander &, Object o, const std::string &  )
+// void TestMinfTreeExpander::atom( MinfTreeExpander &, carto::Object o, const std::string &  )
 // {
 //   string indent;
 //   for( int i = _level; i > 0; indent += "  ", --i );
@@ -687,4 +701,4 @@ void init_libXML()
 }
 
 
-} // namespace carto
+} // namespace soma

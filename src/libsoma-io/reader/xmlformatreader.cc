@@ -31,13 +31,20 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/io/xmlformatreader.h>
-#include <cartobase/io/minfXML2.h>
-#include <cartobase/io/formatdictionary.h>
-#include <cartobase/allocator/allocator.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/reader/xmlformatreader.h>
+#include <soma-io/utilities/minfXML2.h>
+#include <soma-io/io/formatdictionary.h>
+#include <soma-io/allocator/allocator.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
+
+//==============================================================================
+//   U T I L I T I E S
+//==============================================================================
 
 namespace
 {
@@ -55,6 +62,69 @@ namespace
     return rc_ptr<SyntaxSet>();
   }
 }
+
+//==============================================================================
+//   I N I T
+//==============================================================================
+
+namespace
+{
+
+  bool initxmlformat()
+  {
+    XMLFormatReader *r = new XMLFormatReader;
+    vector<string>  exts;
+    exts.push_back( "minf" );
+    exts.push_back( "xml" );
+    FormatDictionary<GenericObject>::registerFormat( "XML", r, exts );
+    return true;
+  }
+
+  bool dummy = initxmlformat();
+
+}
+
+
+//==============================================================================
+//   N E W   M E T H O D S
+//==============================================================================
+
+GenericObject* XMLFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
+                                               const AllocatorContext & context, 
+                                               Object options )
+{
+  rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
+  rc_ptr<SyntaxSet> syntax = getSyntax( options );
+  Object o = readDictionaryMinfXML( *ds, syntax );
+  GenericObject *go = o.get();
+  o.release();
+  return go;
+}
+
+
+void XMLFormatReader::read( GenericObject & obj, rc_ptr<DataSourceInfo> dsi, 
+                            const AllocatorContext & context, Object options )
+{
+  rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
+  // cout << "XMLFormatReader::read " << context.dataSource()->url() << endl;
+  Object  o( &obj );
+  try
+    {
+      rc_ptr<SyntaxSet> syntax = getSyntax( options );
+      readDictionaryMinfXML( *ds, o, syntax );
+      o.release();
+    }
+  catch( ... )
+    {
+      o.release();
+      throw;
+    }
+}
+
+
+//==============================================================================
+//   O L D   M E T H O D S
+//==============================================================================
 
 GenericObject* XMLFormatReader::createAndRead( Object, rc_ptr<DataSource> ds, 
                                                const AllocatorContext &, 
@@ -86,23 +156,4 @@ void XMLFormatReader::read( GenericObject & obj, Object /*header*/,
       throw;
     }
 }
-
-
-namespace
-{
-
-  bool initxmlformat()
-  {
-    XMLFormatReader	*r = new XMLFormatReader;
-    vector<string>	exts;
-    exts.push_back( "minf" );
-    exts.push_back( "xml" );
-    FormatDictionary<GenericObject>::registerFormat( "XML", r, exts );
-    return true;
-  }
-
-  bool dummy = initxmlformat();
-
-}
-
 

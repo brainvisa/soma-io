@@ -392,7 +392,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     DataSource* minfds = dsi.list().dataSource( "minf", 0 ).get();
-    //DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
+    DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
     dsi.header()->setProperty( "object_type", obtype );
   }
   //--- write capabilities -----------------------------------------------------
@@ -406,6 +406,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekLine( true );
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
+    dsi.capabilities().setDataSource( dsi.list().dataSource( "ima", 0 ) );
   }
   //----------------------------------------------------------------------------
   return dsi;

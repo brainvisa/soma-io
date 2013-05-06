@@ -31,15 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_MINFXML2_H
-#define CARTOBASE_IO_MINFXML2_H
-
+#ifndef SOMAIO_UTILITIES_MINFXML2_H
+#define SOMAIO_UTILITIES_MINFXML2_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/filedatasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
-#include <cartobase/type/string_conversion.h>
-#include <cartobase/datasource/filedatasource.h>
 #include <cartobase/object/syntax.h>
+#include <cartobase/type/string_conversion.h>
+//------------------------------------------------------------------------------
 
-namespace carto {
+namespace soma {
 
 
 //-----------------------------------------------------------------------------
@@ -67,14 +69,20 @@ extern const std::string identifierAttribute;
 
 
 //-----------------------------------------------------------------------------
-Object readDictionaryMinfXML( const std::string &fileName, 
-                              rc_ptr<SyntaxSet> syntax = rc_ptr<SyntaxSet>() );
-Object readDictionaryMinfXML( DataSource &source, 
-                              rc_ptr<SyntaxSet> syntax = rc_ptr<SyntaxSet>() );
-void readDictionaryMinfXML( const std::string &fileName, Object &dictionary, 
-                            rc_ptr<SyntaxSet> syntax = rc_ptr<SyntaxSet>() );
-void readDictionaryMinfXML( DataSource &source, Object &dictionary, 
-                            rc_ptr<SyntaxSet> syntax = rc_ptr<SyntaxSet>() );
+carto::Object readDictionaryMinfXML( const std::string &fileName, 
+                                     carto::rc_ptr<carto::SyntaxSet> syntax 
+                                       = carto::rc_ptr<carto::SyntaxSet>() );
+carto::Object readDictionaryMinfXML( DataSource &source, 
+                                     carto::rc_ptr<carto::SyntaxSet> syntax 
+                                       = carto::rc_ptr<carto::SyntaxSet>() );
+void readDictionaryMinfXML( const std::string &fileName, 
+                            carto::Object &dictionary, 
+                            carto::rc_ptr<carto::SyntaxSet> syntax 
+                              = carto::rc_ptr<carto::SyntaxSet>() );
+void readDictionaryMinfXML( DataSource &source, 
+                            carto::Object &dictionary, 
+                            carto::rc_ptr<carto::SyntaxSet> syntax 
+                              = carto::rc_ptr<carto::SyntaxSet>() );
 /** just to force initializing libxml2, needs to be called once from the
     main thread in a multi-threaded environment. Called from PluginLoader::load
 */
@@ -82,19 +90,19 @@ void init_libXML();
 
 
 //-----------------------------------------------------------------------------
-class ObjectListener : public virtual RCObject
+class ObjectListener : public virtual carto::RCObject
 {
 public:
   virtual ~ObjectListener();
 
-  virtual void nextObject( const Object & ) = 0;
+  virtual void nextObject( const carto::Object & ) = 0;
   virtual void noMoreObject() = 0;
 };
 
 
 //-----------------------------------------------------------------------------
 class MinfTreeExpander;
-class MinfNodeExpander : public virtual RCObject
+class MinfNodeExpander : public virtual carto::RCObject
 {
 public:
   virtual ~MinfNodeExpander();
@@ -102,40 +110,40 @@ public:
   virtual std::string startStructure( MinfTreeExpander &,
                                const std::string &nodeType,
                                const std::string &identifier,
-                               Object attributes,
+                               carto::Object attributes,
                                const std::string &parentSyntax=std::string(), 
                                const std::string &name=std::string() ) = 0;
   virtual void endStructure( MinfTreeExpander &, const std::string &nodeType ) = 0;
-  virtual void atom( MinfTreeExpander &, Object, const std::string &identifier  ) = 0;
+  virtual void atom( MinfTreeExpander &, carto::Object, const std::string &identifier  ) = 0;
   virtual void reference( MinfTreeExpander &, const std::string &identifier ) = 0;
 };
 
 
 //-----------------------------------------------------------------------------
-class MinfTreeExpander : public virtual RCObject
+class MinfTreeExpander : public virtual carto::RCObject
 {
 public:
   MinfTreeExpander();
   virtual ~MinfTreeExpander();
 
-  void push( rc_ptr< MinfNodeExpander > );
-  rc_ptr< MinfNodeExpander > pop();
+  void push( carto::rc_ptr< MinfNodeExpander > );
+  carto::rc_ptr< MinfNodeExpander > pop();
 
-  void addReference( const std::string &identifier, Object value );
-  Object getReferencedObject( const std::string &identifier );
+  void addReference( const std::string &identifier, carto::Object value );
+  carto::Object getReferencedObject( const std::string &identifier );
 
   virtual std::string startStructure( const std::string &nodeType,
                                const std::string &identifier,
-                               Object attributes,
+                               carto::Object attributes,
                                const std::string &parentSyntax=std::string(), 
                                const std::string &name=std::string() );
   virtual void endStructure( const std::string &nodeType );
-  virtual void atom( Object, const std::string &identifier  );
+  virtual void atom( carto::Object, const std::string &identifier  );
   virtual void reference( const std::string &identifier );
 
 private:
-  std::list< rc_ptr< MinfNodeExpander > > _stack;
-  std::map< std::string, Object > _references;
+  std::list< carto::rc_ptr< MinfNodeExpander > > _stack;
+  std::map< std::string, carto::Object > _references;
 };
 
 
@@ -143,28 +151,30 @@ private:
 class DefaultMinfNodeExpander : public MinfNodeExpander
 {
 public:
-  DefaultMinfNodeExpander( rc_ptr< ObjectListener > ol = rc_ptr< ObjectListener >(),
-                           rc_ptr<SyntaxSet> syntax = rc_ptr<SyntaxSet>() );
-  DefaultMinfNodeExpander( rc_ptr<SyntaxSet> syntax );
+  DefaultMinfNodeExpander( carto::rc_ptr< ObjectListener > ol 
+                             = carto::rc_ptr< ObjectListener >(),
+                           carto::rc_ptr<carto::SyntaxSet> syntax 
+                             = carto::rc_ptr<carto::SyntaxSet>() );
+  DefaultMinfNodeExpander( carto::rc_ptr<carto::SyntaxSet> syntax );
   virtual ~DefaultMinfNodeExpander();
 
   virtual std::string startStructure( MinfTreeExpander &,
                                const std::string &nodeType,
                                const std::string &identifier,
-                               Object attributes,
+                               carto::Object attributes,
                                const std::string &parentSyntax=std::string(), 
                                const std::string &name=std::string() );
   virtual void endStructure( MinfTreeExpander &, const std::string &nodeType );
-  virtual void atom( MinfTreeExpander &, Object, const std::string &identifier  );
+  virtual void atom( MinfTreeExpander &, carto::Object, const std::string &identifier  );
   virtual void reference( MinfTreeExpander &, const std::string &identifier );
 
 private:
 
-  rc_ptr< ObjectListener > _objectListener;
+  carto::rc_ptr< ObjectListener > _objectListener;
 
 protected:
 
-  rc_ptr<SyntaxSet> _syntax;
+  carto::rc_ptr<carto::SyntaxSet> _syntax;
 };
 
 
@@ -172,19 +182,20 @@ protected:
 class SingleDictionaryExpander : public DefaultMinfNodeExpander
 {
 public:
-  SingleDictionaryExpander( Object dictionary, rc_ptr<SyntaxSet> syntax );
+  SingleDictionaryExpander( carto::Object dictionary, 
+                            carto::rc_ptr<carto::SyntaxSet> syntax );
   virtual ~SingleDictionaryExpander();
 
   virtual std::string startStructure( MinfTreeExpander &,
                                const std::string &nodeType,
                                const std::string &identifier,
-                               Object attributes,
+                               carto::Object attributes,
                                const std::string &parentSyntax=std::string(), 
                                const std::string &name=std::string() );
 
 private:
 
-  Object _dictionary;
+  carto::Object _dictionary;
 };
 
 
@@ -193,18 +204,18 @@ class ListBuilder : public ObjectListener
 {
 public:
   ListBuilder();
-  ListBuilder( Object );
-  ListBuilder( rc_ptr< ObjectListener > );
-  ListBuilder( Object, rc_ptr< ObjectListener > );
+  ListBuilder( carto::Object );
+  ListBuilder( carto::rc_ptr< ObjectListener > );
+  ListBuilder( carto::Object, carto::rc_ptr< ObjectListener > );
   virtual ~ListBuilder();
 
-  virtual void nextObject( const Object & );
+  virtual void nextObject( const carto::Object & );
   virtual void noMoreObject();
 
-  Object result;
+  carto::Object result;
 private:
 
-  rc_ptr< ObjectListener > _objectListener;
+  carto::rc_ptr< ObjectListener > _objectListener;
 };
 
 
@@ -213,36 +224,36 @@ class DictionaryBuilder : public ObjectListener
 {
 public:
   DictionaryBuilder();
-  DictionaryBuilder( Object );
-  DictionaryBuilder( rc_ptr< ObjectListener > );
-  DictionaryBuilder( Object, rc_ptr< ObjectListener > );
+  DictionaryBuilder( carto::Object );
+  DictionaryBuilder( carto::rc_ptr< ObjectListener > );
+  DictionaryBuilder( carto::Object, carto::rc_ptr< ObjectListener > );
   virtual ~DictionaryBuilder();
 
-  virtual void nextObject( const Object & );
+  virtual void nextObject( const carto::Object & );
   virtual void noMoreObject();
 
-  Object result;
+  carto::Object result;
 
 private:
 
-  Object _key;
-  rc_ptr< ObjectListener > _objectListener;
+  carto::Object _key;
+  carto::rc_ptr< ObjectListener > _objectListener;
 };
 
 
 
 //-----------------------------------------------------------------------------
-class MinfXMLReader : public virtual RCObject
+class MinfXMLReader : public virtual carto::RCObject
 {
 public:
-  MinfXMLReader( MinfTreeExpander &, rc_ptr<SyntaxSet> syntax );
+  MinfXMLReader( MinfTreeExpander &, carto::rc_ptr<carto::SyntaxSet> syntax );
   void read( const std::string & );
   void read( DataSource & );
 
 private:
 
   MinfTreeExpander &_expander;
-  rc_ptr< SyntaxSet > _syntax;
+  carto::rc_ptr< carto::SyntaxSet > _syntax;
 };
 
 
@@ -256,9 +267,9 @@ private:
 //   virtual void startStructure( MinfTreeExpander &,
 //                                const std::string &nodeType,
 //                                const std::string &identifier,
-//                                Object attributes );
+//                                carto::Object attributes );
 //   virtual void endStructure( MinfTreeExpander &, const std::string &nodeType );
-//   virtual void atom( MinfTreeExpander &, Object, const std::string &identifier  );
+//   virtual void atom( MinfTreeExpander &, carto::Object, const std::string &identifier  );
 //   virtual void reference( MinfTreeExpander &, const std::string &identifier );
 // 
 // private:
@@ -266,7 +277,6 @@ private:
 //   int _level;
 // };
 
+} // namespace soma
 
-#endif // ifndef CARTOBASE_IO_MINFXML2_H
-
-} // namespace carto
+#endif // ifndef SOMAIO_UTILITIES_MINFXML2_H

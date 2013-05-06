@@ -70,31 +70,30 @@ namespace
 }
 
 
-DataSourceInfo XMLFormatChecker::check( DataSourceList & dsl, 
-                                        DataSourceInfoLoader &,
-                                        Object ) const
+DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi, 
+                                        DataSourceInfoLoader & ) const
 {
-  DataSource ds = *dsl.dataSource( "default", 0 ).get();
-  ds.open( DataSource::Read );
+  DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
+  ds->open( DataSource::Read );
   static const string	sign = "<?xml";
   char		c;
   int		i, n = sign.length();
 
-  for( i=0; i<n && ds.isOpen() && sign[i] == (c=(char)ds.getch()); ++i ) {}
-  if( ds.isOpen() )
+  for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
+  if( ds->isOpen() )
     {
       // rewind
       int	j = i;
       if( i == n )
         --j;
       for( ; j>=0; --j )
-        ds.ungetch( sign[j] );
+        ds->ungetch( sign[j] );
     }
   if( i != n )
     {
-      if( !ds.isOpen() )
-        io_error::launchErrnoExcept( ds.url() );
-      throw wrong_format_error( "not a XML MINF file", ds.url() );
+      if( !ds->isOpen() )
+        io_error::launchErrnoExcept( ds->url() );
+      throw wrong_format_error( "not a XML MINF file", ds->url() );
     }
 
   Object hdr = Object::value( PropertySet() );
@@ -102,10 +101,19 @@ DataSourceInfo XMLFormatChecker::check( DataSourceList & dsl,
   hdr->setProperty( "object_type", string( "genericobject" ) );
   hdr->setProperty( "data_type", string( "any" ) );
   
-  DataSourceInfo dsi;
+  // add header to datasourceinfo
   dsi.header() = hdr;
-  dsi.dataSourceList() = dsl;
-  dsi.dataSourceList().addDataSource( "minf", ds );
+  // create list
+  dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
+  // create capabilities
+  dsi.capabilities().setMemoryMapping( false );
+  dsi.capabilities().setThreadSafe( false ); /* TODO */
+  dsi.capabilities().setOrdered( false );
+  dsi.capabilities().setSeekVoxel( false );
+  dsi.capabilities().setSeekLine( false );
+  dsi.capabilities().setSeekSlice( false );
+  dsi.capabilities().setSeekVolume( false );
+  return dsi;
   
   return dsi;
 }

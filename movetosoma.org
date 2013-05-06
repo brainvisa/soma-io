@@ -184,8 +184,8 @@
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 **** TODO build dsl & capabilities
@@ -277,15 +277,15 @@
 **** DONE compile
 **** TODO test
 **** DONE svn add
-**** TODO fonction read() utilise le DS de l'AllocatorContext (!?)
+**** TODO on utilise le DS "minf". Autre cas possible ?
 *** xmlformatreader
 **** DONE move
-**** TODO ifndef
-**** TODO includes
-**** TODO namepsace
-**** TODO carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 *** areader         // read generic object
@@ -372,12 +372,12 @@
 **** DONE svn add
 *** minfXML2
 **** DONE move
-**** TODO ifndef
-**** TODO includes
-**** TODO namepsace
-**** TODO carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 ** allocator

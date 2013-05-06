@@ -34,25 +34,19 @@
 #ifndef SOMAIO_CHECKER_XMLFORMATCHECKER_H
 #define SOMAIO_CHECKER_XMLFORMATCHECKER_H
 //--- soma-io ------------------------------------------------------------------
-#include <cartobase/io/formatchecker.h>                            // base class
+#include <soma-io/checker/formatchecker.h>                         // base class
 //------------------------------------------------------------------------------
-
-namespace carto {
-  class Object;
-}
 
 namespace soma
 {
-  class DataSourceList;
   class DataSourceInfo;
   class DataSourceInfoLoader;
   
   class XMLFormatChecker : public FormatChecker
   {
   public:
-    virtual DataSourceInfo check( DataSourceList & dsl, 
-                                  DataSourceInfoLoader & f,
-                                  carto::Object base ) const;
+    virtual DataSourceInfo check( DataSourceInfo dsi, 
+                                  DataSourceInfoLoader & f ) const;
   };
 
 }

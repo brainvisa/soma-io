@@ -114,9 +114,19 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   #ifdef CARTO_DEBUG_IO
     cout << "PythonFormatChecker::check " << ds->url() << " OK" << endl;
   #endif
-
+  
+  // add header to datasourceinfo
   dsi.header() = hdr;
+  // create list
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
+  // create capabilities
+  dsi.capabilities().setMemoryMapping( false );
+  dsi.capabilities().setThreadSafe( false ); /* TODO */
+  dsi.capabilities().setOrdered( false );
+  dsi.capabilities().setSeekVoxel( false );
+  dsi.capabilities().setSeekLine( false );
+  dsi.capabilities().setSeekSlice( false );
+  dsi.capabilities().setSeekVolume( false );
   return dsi;
 }
 

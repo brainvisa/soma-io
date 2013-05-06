@@ -52,7 +52,7 @@ using namespace std;
 //==============================================================================
 //   I N I T
 //==============================================================================
-/*
+
 namespace
 {
 
@@ -69,7 +69,7 @@ namespace
   bool dummy = initpythonformat();
 
 }
-*/
+
 
 //==============================================================================
 //   N E W   M E T H O D S
@@ -98,10 +98,11 @@ PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
 
 
 void PythonFormatReader::read( GenericObject & obj, 
-                               rc_ptr<DataSourceInfo>, 
+                               rc_ptr<DataSourceInfo> dsi, 
                                const AllocatorContext & context, 
                                Object options )
 {
+  rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
   SyntaxSet	synt;
   rc_ptr<SyntaxSet> rsynt;
   PythonReader::HelperSet	hs;
@@ -111,7 +112,7 @@ void PythonFormatReader::read( GenericObject & obj,
           || options->getProperty( "syntaxset", synt );
       options->getProperty( "helpers", hs );
     }
-  PythonReader	pr( context.dataSource(), rsynt ? *rsynt : synt, hs );
+  PythonReader	pr( ds, rsynt ? *rsynt : synt, hs );
   pr.read( obj );
 }
 
