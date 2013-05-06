@@ -14,7 +14,7 @@ set( _headers
   allocator/mappingro.h
   allocator/mappingrw.h
   checker/formatchecker.h
-  #checker/pythonformatchecker.h
+  checker/pythonformatchecker.h
   #checker/xmlformatchecker.h
   datasource/bufferdatasource.h
   datasource/chaindatasource.h
@@ -33,8 +33,8 @@ set( _headers
   #image/imagwriter.h
   io/formatdictionary.h
   io/formatdictionary_d.h
-  #io/reader.h
-  #io/reader_d.h
+  io/reader.h
+  io/reader_d.h
   #io/readeralgorithm.h
   #io/writer.h
   #io/writer_d.h
@@ -42,10 +42,13 @@ set( _headers
   #plugingis//gisimagereader.h
   #plugingis/gisimagereader_d.h
   #plugingis/gisimagewriter.h
+  reader/areader.h
   reader/formatreader.h
   reader/formatreader_d.h
   reader/itemreader.h
-  #reader/pythonformatreader.h
+  reader/pythonformatreader.h
+  reader/pythonreader.h
+  reader/pythonreader_d.h
   #reader/xmlformatreader.h
   utilities/asciidatasourcetraits.h
   utilities/creator.h
@@ -64,7 +67,7 @@ set( _somaio_sources
   allocator/mappingro.cc
   allocator/mappingrw.cc
   allocator/meminfo.cc
-  #checker/pythonformatchecker.cc
+  checker/pythonformatchecker.cc
   #checker/xmlformatchecker.cc
   config/version.cc
   datasource/bufferdatasource.cc
@@ -80,11 +83,13 @@ set( _somaio_sources
   datasourceinfo/datasourceinfo.cc
   datasourceinfo/datasourceinfoloader.cc
   io/formatdictionary.cc
-  #io/reader_object.cc
+  io/reader_object.cc
   #io/readeralgorithm.cc
   #io/writer.cc
   plugingis/gisformatchecker.cc
-  #reader/pythonformatreader.cc
+  reader/areader.cc
+  reader/pythonformatreader.cc
+  reader/pythonreader.cc
   #reader/xmlformatreader.cc
   utilities/asciidatasourcetraits.cc
   #utilities/minfXML2.cc

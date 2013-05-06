@@ -60,30 +60,76 @@ namespace soma
   //============================================================================
   //--- setupAndRead -----------------------------------------------------------
   template<typename T>
-  void FormatReader<T>::setupAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
+  void FormatReader<T>::setupAndRead( T & obj, 
+                                      carto::rc_ptr<DataSourceInfo> dsi,
+                                      const AllocatorContext & context,
+                                      carto::Object options )
   {
+    setup( obj, dsi->header(), context, options );
+    read( obj, dsi, context, options );
   }
   //--- createAndRead ----------------------------------------------------------
   template<typename T>
-  T* FormatReader<T>::createAndRead( T & obj, DataSourceInfo & dsi /* Others ? */ )
+  T* FormatReader<T>::createAndRead( carto::rc_ptr<DataSourceInfo> dsi,
+                                     const AllocatorContext & context,
+                                     carto::Object options )
   {
+    std::auto_ptr<T>  objp( create( dsi->header(), context, options ) );
+    T  *obj = objp.get();
+    read( *obj, dsi, context, options );
+    objp.release();
+    return obj;
   }
   //--- read -------------------------------------------------------------------
-  /* This method is totally abstract and should be implemented in a 
-   * structure-specific FormatReader (like VolumeFormatReader)
+  /* This method is totally abstract and should be implemented in a format-
+   * specific FormatReader.
+   * This implem is only used for FormatReader<GenericObject>
    */
+  
+  template<typename T>
+  void FormatReader<T>::read( T & obj, 
+                              carto::rc_ptr<DataSourceInfo> dsi, 
+                              const AllocatorContext & context, 
+                              carto::Object options )
+  {
+    throw carto::invalid_format_error( "format reader not implemented yet...", 
+                                       context.dataSource() ? 
+                                       context.dataSource()->url() : "" );
+  }
+  
+  //============================================================================
+  //   S T I L L   U S E D
+  //============================================================================
 
+  template<typename T>
+  T* FormatReader<T>::create( carto::Object header, 
+                              const AllocatorContext & context, 
+                              carto::Object options )
+  {
+    return Creator<T>::create( header, context, options );
+  }
+
+
+  template<typename T>
+  void FormatReader<T>::setup( T & obj, carto::Object header, 
+                               const AllocatorContext & context, 
+                               carto::Object options )
+  {
+    Creator<T>::setup( obj, header, context, options );
+  }
+  
   //============================================================================
   //   O L D   M E T H O D S
   //============================================================================
+  
   template<typename T>
   void FormatReader<T>::setupAndRead( T & obj, carto::Object header, 
                                       carto::rc_ptr<DataSource> ds, 
                                       const AllocatorContext & context, 
                                       carto::Object options )
   {
-    carto::rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
-    AllocatorContext	ac = getAllocatorContext( header, decoder, 
+    carto::rc_ptr<DataSource> decoder = getDataSource( header, ds, options );
+    AllocatorContext  ac = getAllocatorContext( header, decoder, 
                                                       context, options );
     setup( obj, header, ac, options );
     read( obj, header, ac, options );
@@ -96,11 +142,11 @@ namespace soma
                                      const AllocatorContext & context, 
                                      carto::Object options )
   {
-    carto::rc_ptr<DataSource>	decoder = getDataSource( header, ds, options );
-    AllocatorContext	ac = getAllocatorContext( header, decoder, 
+    carto::rc_ptr<DataSource> decoder = getDataSource( header, ds, options );
+    AllocatorContext  ac = getAllocatorContext( header, decoder, 
                                                       context, options );
-    std::auto_ptr<T>	objp( create( header, ac, options ) );
-    T			*obj = objp.get();
+    std::auto_ptr<T>  objp( create( header, ac, options ) );
+    T     *obj = objp.get();
     read( *obj, header, ac, options );
     objp.release();
     return obj;
@@ -124,45 +170,28 @@ namespace soma
                                         const AllocatorContext & basecontext, 
                                         carto::Object )
   {
-    AllocatorContext	alloc( basecontext );
+    AllocatorContext  alloc( basecontext );
     alloc.setDataSource( decoder );
     alloc.setAllowsMemoryMapping( decoder->allowsMemoryMapping() );
     return alloc;
   }
-
-
-  template<typename T>
-  T* FormatReader<T>::create( carto::Object header, 
-                              const AllocatorContext & context, 
-                              carto::Object options )
-  {
-    return Creator<T>::create( header, context, options );
-  }
-
-
-  template<typename T>
-  void FormatReader<T>::setup( T & obj, carto::Object header, 
-                               const AllocatorContext & context, 
-                               carto::Object options )
-  {
-    Creator<T>::setup( obj, header, context, options );
-  }
-
+  
   //--- read -------------------------------------------------------------------
   /* This method is totally abstract and should be implemented in a format-
    * specific FormatReader.
+   * This implem is only used for FormatReader<GenericObject>
    */
-  /*
+  
   template<typename T>
   void FormatReader<T>::read( T &, carto::Object, 
                               const AllocatorContext & context, 
                               carto::Object )
   {
-    throw invalid_format_error( "format reader not implemented yet...", 
-                                context.dataSource() ? 
-                                context.dataSource()->url() : "" );
+    throw carto::invalid_format_error( "format reader not implemented yet...", 
+                                       context.dataSource() ? 
+                                       context.dataSource()->url() : "" );
   }
-  */
+  
 }
 
 #endif

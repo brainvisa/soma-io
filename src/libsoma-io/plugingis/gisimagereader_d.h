@@ -33,23 +33,23 @@
 
 #ifndef GISIMAGEREADER_D_H
 #define GISIMAGEREADER_D_H
-//--- partial io ---------------------------------------------------------------
-#include <cartobase/partialio/plugin/gisimagereader.h>
-#include <cartobase/partialio/imagereader.h>
-#include <cartobase/partialio/datasourceinfo.h>
-//--- useful -------------------------------------------------------------------
-#include <cartobase/datasource/datasource.h>        // source to manipulate
-#include <cartobase/datasource/chaindatasource.h>   // heritage
-#include <cartobase/io/itemreader.h>                // read + byteswap
-#include <cartobase/io/itemwriter.h>                // write + byteswap
-#include <cartobase/object/object.h>                // header, options
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/plugingis/gisimagereader.h>               // class declaration
+#include <soma-io/image/imagereader.h>                               // heritage
+#include <soma-io/datasource/datasourceinfo.h>            // function's argument
+#include <soma-io/datasource/datasource.h>                           
+#include <soma-io/datasource/chaindatasource.h>                      // heritage
+#include <soma-io/reader/itemreader.h>                        // read + byteswap
+#include <soma-io/writer/itemwriter.h>                       // write + byteswap
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>                          // header, options
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
 //------------------------------------------------------------------------------
 
 
-namespace carto {
+namespace soma {
   
   //============================================================================
   //   U S E F U L
@@ -67,7 +67,7 @@ namespace carto {
   //   C O N S T R U C T O R S
   //============================================================================
   /* base constructors usage :
-   * - ChainDataSource( rc_ptr<DataSource> ds, const string & url = string() );
+   * - FileDataSource( rc_ptr<DataSource> ds, const string & url = string() );
    * - /!\ no copy constructor
    * - ImageReader( DataSourceInfo & dsi = 0, bool threadsafe = false );
    * - ImageReader( const ImageReader<T> & );
@@ -75,8 +75,8 @@ namespace carto {
   
   template <typename T>
   GisImageReader<T>::GisImageReader( DataSourceInfo & dsi ): 
-    ImageReader<T>( dsi, false ), 
-    ChainDataSource( dsi.dataSourceList().dataSource( "ima", 0) )
+    ImageReader<T>( dsi ), 
+    ChainDataSource( dsi.list().dataSource( "ima", 0) )
   {
     // dataSource should be in ("ima", 0), if not, the function returns a
     // none() rc_ptr<DataSource>

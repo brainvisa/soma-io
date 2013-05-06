@@ -67,12 +67,12 @@ namespace soma
     MappingCopyAllocator() : LowLevelAllocator() { _allocptr() = 0; }
 
     static MappingCopyAllocator			*&_allocptr();
-#ifdef _WIN32
-    mutable std::map<char*, HANDLE>		_mapDesc;
-#else
-    mutable std::map<char*, std::string>	_mapname;
-    mutable std::map<char*, int>		      _mapDesc;
-#endif
+    #ifdef _WIN32
+      mutable std::map<char*, HANDLE>		_mapDesc;
+    #else
+      mutable std::map<char*, std::string>	_mapname;
+      mutable std::map<char*, int>		      _mapDesc;
+    #endif
 
   };
 

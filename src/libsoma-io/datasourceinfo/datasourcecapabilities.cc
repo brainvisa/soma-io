@@ -33,9 +33,13 @@
 
 //--- soma io ------------------------------------------------------------------
 #include <soma-io/datasourceinfo/datasourcecapabilities.h>  // class declaration
+#include <soma-io/datasource/datasource.h>
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>
 //------------------------------------------------------------------------------
 
 using namespace soma;
+using namespace carto;
 using namespace std;
 
 //==============================================================================
@@ -103,6 +107,11 @@ bool DataSourceCapabilities::canSeekSlice() const
 bool DataSourceCapabilities::canSeekVolume() const
 {
   return _capabilities & 128;
+}
+
+rc_ptr<DataSource>  DataSourceCapabilities::mappableDataSource() const
+{
+  return _mds;
 }
 
 //==============================================================================
@@ -178,4 +187,9 @@ void DataSourceCapabilities::setSeekVolume( const bool & boo )
   else
     _capabilities = _capabilities & !128;
   setInit();
+}
+
+void DataSourceCapabilities::setDataSource( const rc_ptr<DataSource> ds )
+{
+  _mds = ds;
 }

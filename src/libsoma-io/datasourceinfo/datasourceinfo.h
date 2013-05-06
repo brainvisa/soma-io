@@ -43,6 +43,7 @@
 
 namespace soma
 {
+  class DataSource;
   
   /// \brief Object assembling a header, a list of capabilities and a list of 
   /// DataSource
@@ -62,9 +63,13 @@ namespace soma
                       const DataSourceList & 
                         dsl = DataSourceList());
       /// Constructor from a datasource [+ dimensions (to build a header)]
-      //DataSourceInfo( const DataSource & ds, 
-      //                const std::vector<int> & dim = std::vector<int>( 4, 0 ) );
-      /// Constructor from a buffer
+      /// DSList is set as containing only ds pointed by "default" key
+      /// Capabilities are set uninitialized
+      /// If dim is given, a header is built with keys sizeX,Y,Z,T
+      /// Else the header is none()
+      DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
+                      const std::vector<int> & dim = std::vector<int>() );
+      // Constructor from a buffer
       //DataSourceInfo( char* buffer );
       /// Constructor by copy
       DataSourceInfo( const DataSourceInfo & );

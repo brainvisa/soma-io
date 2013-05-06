@@ -76,35 +76,34 @@ namespace
 }
 
 
-DataSourceInfo PythonFormatChecker::check( DataSourceList & dsl, 
-                                           DataSourceInfoLoader &,
-                                           Object ) const
+DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi, 
+                                           DataSourceInfoLoader & ) const
 {
   #ifdef CARTO_DEBUG_IO
     cout << "PythonFormatChecker::check " << ds.url() << endl;
   #endif
 
   static const string	sign = "attributes";
-  DataSource ds = *dsl.dataSource( "default", 0 ).get();
-  ds.open( DataSource::Read );
+  DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
+  ds->open( DataSource::Read );
   char  c;
   int   i, n = sign.length();
 
-  for( i=0; i<n && ds.isOpen() && sign[i] == (c=(char)ds.getch()); ++i ) {}
-  if( ds.isOpen() )
+  for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
+  if( ds->isOpen() )
     {
       // rewind
       int	j = i;
       if( i == n )
         --j;
       for( ; j>=0; --j )
-        ds.ungetch( sign[j] );
+        ds->ungetch( sign[j] );
     }
   if( i != n )
     {
       if( !ds->isOpen() )
-        io_error::launchErrnoExcept( ds.url() );
-      throw wrong_format_error( "not a python MINF file", ds.url() );
+        io_error::launchErrnoExcept( ds->url() );
+      throw wrong_format_error( "not a python MINF file", ds->url() );
     }
 
   Object hdr = Object::value( PropertySet() );
@@ -113,13 +112,11 @@ DataSourceInfo PythonFormatChecker::check( DataSourceList & dsl,
   hdr->setProperty( "data_type", string( "any" ) );
 
   #ifdef CARTO_DEBUG_IO
-    cout << "PythonFormatChecker::check " << ds.url() << " OK" << endl;
+    cout << "PythonFormatChecker::check " << ds->url() << " OK" << endl;
   #endif
 
-  DataSourceInfo dsi;
   dsi.header() = hdr;
-  dsi.dataSourceList() = dsl;
-  dsi.dataSourceList().addDataSource( "minf", ds );
+  dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
   return dsi;
 }
 

@@ -35,8 +35,11 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>          // class declaration
 #include <soma-io/datasourceinfo/datasourcecapabilities.h>             // member
 #include <soma-io/datasource/datasourcelist.h>                         // member
+#include <soma-io/datasource/datasource.h>             // constructor's argument
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                                   // member
+#include <cartobase/object/property.h>            // to manage header properties
+#include <cartobase/smart/rcptr.h>                        // used by constructor
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -51,6 +54,19 @@ DataSourceInfo::DataSourceInfo( const Object & header,
                                 const DataSourceList & dsl )
 : _header( header ), _capabilities( cap ), _datasourcelist( dsl )
 {
+}
+
+DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds,
+                                const std::vector<int> & dim )
+: _header( none() ), _capabilities(), _datasourcelist( ds )
+{
+  if( !dim.empty() ) {
+    _header = Object::value( PropertySet() );
+    _header->setProperty( "sizeX", dim[ 0 ] );
+    _header->setProperty( "sizeY", dim[ 1 ] );
+    _header->setProperty( "sizeZ", dim[ 2 ] );
+    _header->setProperty( "sizeT", dim[ 3 ] );
+  }
 }
 
 DataSourceInfo::DataSourceInfo( const DataSourceInfo & other )

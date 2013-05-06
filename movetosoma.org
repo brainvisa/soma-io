@@ -16,10 +16,13 @@
 ** DONE somaCapabilities_test
 ** DONE somaDSList_test
 ** DONE somaGisFormatCheck
-*** done if reads gis fil
-*** todo if reads another format (check if loanches exception)
-*** done if header already computed
-*** done with readMinf
+*** DONE reads gis fil
+*** DONE reads wrong format
+*** DONE header already computed
+*** DONE wrong format AND header already computed
+**** no error if pre-computed header is of correct format
+**** error if pre computed header is not of correct format
+*** TODO with readMinf
 
 * libsoma-io
 ** config
@@ -151,7 +154,7 @@
 **** DONE carto::
 **** DONE CMakeList except.cc
 **** DONE compile   except.cc
-**** TODO test
+**** DONE test
 **** DONE svn add
 ** checker
 *** formatchecker
@@ -170,8 +173,8 @@
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 **** TODO build dsl & capabilities
@@ -219,8 +222,8 @@
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 *** readeralgorithm
@@ -266,14 +269,15 @@
 **** DONE svn add
 *** pythonformatreader
 **** DONE move
-**** TODO ifndef
-**** TODO includes
-**** TODO namepsace
-**** TODO carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
+**** TODO fonction read() utilise le DS de l'AllocatorContext (!?)
 *** xmlformatreader
 **** DONE move
 **** TODO ifndef
@@ -282,6 +286,26 @@
 **** TODO carto::
 **** TODO CMakeLists
 **** TODO compile
+**** TODO test
+**** DONE svn add
+*** areader         // read generic object
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** TODO test
+**** DONE svn add
+*** pythonreader    // read python minf
+**** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 ** writer
@@ -422,6 +446,8 @@
 **** DONE compile : without readminf
 **** DONE test
 **** DONE svn add
+**** TODO orientation matrix
+**** TODO add files list to header
 *** gisimagereader
 **** DONE move
 *** gisimagewriter

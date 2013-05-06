@@ -33,16 +33,19 @@
 
 #ifndef GISIMAGEREADER_H
 #define GISIMAGEREADER_H
-
-#include <cartobase/partialio/imagereader.h>       // heritage
-#include <cartobase/datasource/chaindatasource.h>  // heritage
-#include <cartobase/io/itemreader.h>               // read + byteswap
-//#include <cartobase/io/itemwriter.h>               // write + byteswap
-#include <cartobase/object/object.h>               // header, options
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/image/imagereader.h>                               // heritage
+#include <soma-io/datasource/filedatasource.h>                       // heritage
+#include <soma-io/reader/itemreader.h>                        // read + byteswap
+//#include <soma-io/writer/itemwriter.h>                       // write + byteswap
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>                          // header, options
+//--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
   class DataSourceInfo;
   
@@ -56,7 +59,7 @@ namespace carto
       //========================================================================
       //   C O N S T R U C T O R S
       //========================================================================
-      GisImageReader( DataSourceInfo & dsi = 0 );
+      GisImageReader( DataSourceInfo & dsi );
       GisImageReader( const GisImageReader<T> & );
       virtual ~GisImageReader();
       
@@ -66,10 +69,12 @@ namespace carto
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
                          std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         int level = 0, Object options = none() );
+                         std::vector<int> & stride = vector<int>,
+                         int level = 0, 
+                         carto::Object options = carto::none() );
       
       //========================================================================
-      //   C H A I N D A T A S O U R C E
+      //   D A T A S O U R C E
       //========================================================================
       //virtual DataSource* clone() const;
       virtual int iterateMode() const;

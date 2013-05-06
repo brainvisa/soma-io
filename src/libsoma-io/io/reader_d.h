@@ -67,17 +67,26 @@ namespace soma
   }
 
   template<class T> Reader<T>::Reader( carto::rc_ptr<DataSource> ds )
-    : _datasourcelist( ds )
+    : _datasourceinfo( new DataSourceInfo( ds ) )
+  {
+  }
+  
+  template<class T> Reader<T>::Reader( carto::rc_ptr<DataSourceInfo> dsi )
+    : _datasourceinfo( new DataSourceInfo( *dsi ) )
   {
   }
 
   template<class T> Reader<T>::Reader( const std::string& filename )
-  : _datasourcelist( carto::rc_ptr<DataSource>( new FileDataSource( filename ) ) )
+  : _datasourceinfo( new DataSourceInfo( 
+                  carto::rc_ptr<DataSource>( new FileDataSource( filename ) ) 
+                   ) )
   {
   }
 
   template<class T> Reader<T>::Reader( std::istream & stream )
-  : _datasourcelist( carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) ) )
+  : _datasourceinfo( new DataSourceInfo( 
+                  carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) )
+                   ) )
   {
   }
 
@@ -127,42 +136,42 @@ namespace soma
   template<class T>
   void Reader<T>::attach( carto::rc_ptr<DataSource> ds )
   {
-    if ( !_datasourcelist.isEmpty( "default" ) ) {
-      _datasourcelist( "default", 0 ) = ds;
+    if ( !_datasourceinfo->list().empty( "default" ) ) {
+      _datasourceinfo->list().dataSource( "default", 0 ) = ds;
     } else {
-      _datasourcelist.addDataSource( "default", ds );
+      _datasourceinfo->list().addDataSource( "default", ds );
     }
   }
 
   template<class T>
   void Reader<T>::attach( const std::string & filename, offset_t offset )
   {
-    if ( !_datasourcelist.isEmpty( "default" ) ) {
-      _datasourcelist( "default", 0 ) = carto::rc_ptr<DataSource>
-                                     ( new FileDataSource( filename, offset ) );
+    if ( !_datasourceinfo->list().empty( "default" ) ) {
+      _datasourceinfo->list().dataSource( "default", 0 )
+          = carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) );
     } else {
-      _datasourcelist.addDataSource( "default", carto::rc_ptr<DataSource>
-                                   ( new FileDataSource( filename, offset ) ) );
+      _datasourceinfo->list().addDataSource( "default", 
+          carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) ) );
     }
   }
 
   template<class T>
   void Reader<T>::attach( std::istream & stream )
   {
-    if ( !_datasourcelist.isEmpty( "default" ) ) {
-      _datasourcelist( "default", 0 ) = carto::rc_ptr<DataSource>
-                                      ( new IStreamDataSource( stream ) );
+    if ( !_datasourceinfo->list().empty( "default" ) ) {
+      _datasourceinfo->list().dataSource( "default", 0 ) 
+          = carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) );
     } else {
-      _datasourcelist.addDataSource( "default", carto::rc_ptr<DataSource>
-                                      ( new IStreamDataSource( stream ) ) );
+      _datasourceinfo->list().addDataSource( "default", 
+          carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) ) );
     }
   }
 
   template<class T>
   const carto::rc_ptr<DataSource> Reader<T>::dataSource() const
   {
-    if ( !_datasourcelist.isEmpty( "default" ) ) {
-      return _datasourcelist( "default", 0 );
+    if ( !_datasourceinfo->list().empty( "default" ) ) {
+      return _datasourceinfo->list().dataSource( "default", 0 );
     } else {
       return DataSource::none();
     }
@@ -171,8 +180,8 @@ namespace soma
   template<class T>
   carto::rc_ptr<DataSource> Reader<T>::dataSource()
   {
-    if ( !_datasourcelist.isEmpty() ) {
-      return _datasourcelist( "default", 0 );
+    if ( !_datasourceinfo->list().empty() ) {
+      return _datasourceinfo->list().dataSource( "default", 0 );
     } else {
       return DataSource::none();
     }
@@ -181,16 +190,16 @@ namespace soma
   template <typename T>
   void Reader<T>::flush()
   {
-    if( _datasourcelist( "default", 0 ) )
-      _datasourcelist( "default", 0 )->flush();
+    if( _datasourceinfo->list().dataSource( "default", 0 ) )
+      _datasourceinfo->list().dataSource( "default", 0 )->flush();
   }
 
 
   template <typename T>
   void Reader<T>::close()
   {
-    if( _datasourcelist( "default", 0 ) )
-      _datasourcelist( "default", 0 )->close();
+    if( _datasourceinfo->list().dataSource( "default", 0 ) )
+      _datasourceinfo->list().dataSource( "default", 0 )->close();
   }
   
   //============================================================================
@@ -210,6 +219,9 @@ namespace soma
     #ifdef CARTO_DEBUG_IO
       std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
     #endif
+    
+    if( !header.isNone() )
+      _datasourceinfo->header() = header;
 
     if( !dataSource() )
       throw std::runtime_error( "Reader with no source of data" );
@@ -218,21 +230,23 @@ namespace soma
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *dataSource().get(), header );
-    _datasourcelist = dsi.dataSourceList();
-    if( _datasourcelist.isEmpty() )
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo.get() );
+    if( dsi.list().empty() )
       dsil.launchException();
-    header = dsi.header();
-    if( !header.get() )
-        dsil.launchException();
+    if( dsi.header().get() )
+      dsil.launchException();
+    *_datasourceinfo = dsi;
+    _alloccontext.setDataSourceInfo( _datasourceinfo );
     
     std::string	format;
     if( !_options->getProperty( "format", format )  // user options first
-        && !header->getProperty( "format", format ) ) // new style
-      header->getProperty( "file_type" ); // old style
+        && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
+      _datasourceinfo->header()->getProperty( "file_type", format ); // old style
     
     //// Reading data //////////////////////////////////////////////////////////
-    std::string   filename  = _datasourcelist.dataSource( "default", 0 )->url();
+    std::string   filename  = _datasourceinfo->list()
+                                             .dataSource( "default", 0 )
+                                             ->url();
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
@@ -250,8 +264,7 @@ namespace soma
           #ifdef CARTO_DEBUG_IO
             std::cout << "1. try reader " << format << std::endl;
           #endif
-          reader->setupAndRead( obj, header, _datasourcelist, _alloccontext, 
-                                _options ); /* changé */
+          reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
           #ifdef CARTO_DEBUG_IO
             std::cout << "1. " << format << " OK\n";
           #endif
@@ -283,8 +296,7 @@ namespace soma
             #ifdef CARTO_DEBUG_IO
               std::cout << "2. try reader " << ie->second << std::endl;
             #endif
-            reader->setupAndRead( obj, header, _datasourcelist, 
-                                  _alloccontext, _options );
+            reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
             #ifdef CARTO_DEBUG_IO
               std::cout << "2. " << ie->second << " OK\n";
             #endif
@@ -317,8 +329,7 @@ namespace soma
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. try reader " << ie->second << std::endl;
               #endif
-              reader->setupAndRead( obj, header, _datasourcelist, 
-                                    _alloccontext, _options );
+              reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. " << ie->second << " OK\n";
               #endif
@@ -348,8 +359,7 @@ namespace soma
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. try reader " << ie->second << std::endl;
             #endif
-            reader->setupAndRead( obj, header, _datasourcelist, 
-                                  _alloccontext, _options );
+            reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. " << ie->second << " OK\n";
             #endif
@@ -377,6 +387,9 @@ namespace soma
     #ifdef CARTO_DEBUG_IO
       std::cout << "Reader<" << DataTypeCode<T>::name() << ">\n";
     #endif
+    
+    if( !header.isNone() )
+      _datasourceinfo->header() = header;
 
     if( dataSource() )
       throw std::runtime_error( "Reader with no source of data" );
@@ -385,27 +398,27 @@ namespace soma
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *dataSource().get(), header );
-    _datasourcelist = dsi.dataSourceList();
-    if( _datasourcelist.isEmpty() )
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo.get() );
+    if( dsi.list().empty() )
       dsil.launchException();
-    header = dsi.header();
-    if( !header.get() )
-        dsil.launchException();
-    #ifdef CARTO_DEBUG_IO
-      std::cout << "source checked\n";
-    #endif
+    if( dsi.header().get() )
+      dsil.launchException();
+    *_datasourceinfo = dsi;
+    _alloccontext.setDataSourceInfo( _datasourceinfo );
     
-    std::string	format;
+    std::string format;
     if( !_options->getProperty( "format", format )  // user options first
-        && !header->getProperty( "format", format ) ) // new style
-      header->getProperty( "file_type" ); // old style
+        && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
+      _datasourceinfo->header()->getProperty( "file_type", format ); // old style
 
     #ifdef CARTO_DEBUG_IO
       std::cout << "format: " << format << std::endl;
     #endif
 
-    std::string   filename = _datasourcelist( "default", 0 )->url();
+    //// Reading data //////////////////////////////////////////////////////////
+    std::string   filename  = _datasourceinfo->list()
+                                             .dataSource( "default", 0 )
+                                             ->url();
     set_S                         tried;
     std::set<FormatReader<T> *>   triedf;
     FormatReader<T>			          *reader;
@@ -424,8 +437,7 @@ namespace soma
           #ifdef CARTO_DEBUG_IO
             std::cout << "1. try reader " << format << std::endl;
           #endif
-          obj = reader->createAndRead( header, _datasourcelist, 
-                                       _alloccontext, _options );
+          obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
           if( obj ) {
             #ifdef CARTO_DEBUG_IO
               std::cout << "1. " << format << " OK\n";
@@ -459,8 +471,7 @@ namespace soma
             #ifdef CARTO_DEBUG_IO
               std::cout << "2. try reader " << ie->second << std::endl;
             #endif
-            obj = reader->createAndRead( header, _datasourcelist, 
-                                         _alloccontext, _options );
+            obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
               #ifdef CARTO_DEBUG_IO
                 std::cout << "2. " << ie->second << " OK\n";
@@ -495,8 +506,7 @@ namespace soma
               #ifdef CARTO_DEBUG_IO
                 std::cout << "3. try reader " << ie->second << std::endl;
               #endif
-              obj = reader->createAndRead( header, _datasourcelist, 
-                                           _alloccontext, _options );
+              obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
               if( obj ) {
                 #ifdef CARTO_DEBUG_IO
                   std::cout << "3. " << ie->second << " OK\n";
@@ -528,8 +538,7 @@ namespace soma
             #ifdef CARTO_DEBUG_IO
               std::cout << "4. try reader " << ie->second << std::endl;
             #endif
-            obj = reader->createAndRead( header, _datasourcelist, 
-                                         _alloccontext, _options );
+            obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
               #ifdef CARTO_DEBUG_IO
                 std::cout << "4. " << ie->second << " OK\n";

@@ -75,7 +75,7 @@ namespace soma
       /// \return a DataSourceInfo object containing a header, a list of 
       /// DataSource and a list of capabilities.
       /// \see DataSourceInfo DataSourceList DataSourceCapabilities
-      DataSourceInfo check( DataSourceInfo & dsi );
+      DataSourceInfo check( DataSourceInfo dsi );
       State state() const;
       
       std::string errorMessage() const;

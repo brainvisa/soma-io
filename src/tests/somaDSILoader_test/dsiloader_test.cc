@@ -50,37 +50,17 @@ using namespace std;
 int main( int argc, const char** argv )
 {
   try {
-    string  fname, hname;
+    string  fname;
     int     test = 1;
     CartoApplication  app( argc, argv, "Test for GIS format checking" );
     app.addOption( fname, "-i", "input filename to be read\n" );
-    app.addOption( hname, "-j", "input filename to be read (if 2 passes)\n", true );
-    app.addOption( test, "-t", "test to perform. 1) normal reading. "
-                              "2) two pass reading with complete dsi. "
-                              "3) two pass reading with juste header\n", true );
     app.alias( "-v", "--verbose" );
     app.initialize();
     
-    if( hname.empty() )
-      hname = fname;
-    
     rc_ptr<DataSource> ds ( new FileDataSource( fname ) );
     DataSourceInfo dsi( ds );
-    GisFormatChecker gfc;
     DataSourceInfoLoader dsil;
-    dsi = gfc.check( dsi, dsil );
-    
-    if( test == 2) {
-      dsi = gfc.check( dsi, dsil );
-    } else if( test == 3 ) {
-      dsi.list().reset();
-      dsi.list().addDataSource( "default", 
-                                rc_ptr<DataSource>( new FileDataSource( hname ) ) 
-                              );
-      dsi.capabilities().reset();
-      //dsi.header()->setProperty( "format" , "JPEG" );
-      dsi = gfc.check( dsi, dsil );
-    }
+    dsi = dsil.check( dsi );
     
     //--- Write Header -----------------------------------------------------------
     cout << "//---------------------------------------------------------" << endl;

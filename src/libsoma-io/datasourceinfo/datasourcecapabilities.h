@@ -33,9 +33,14 @@
 
 #ifndef SOMAIO_DATASOURCEINFO_DATASOURCECAPABILITIES_H
 #define SOMAIO_DATASOURCEINFO_DATASOURCECAPABILITIES_H
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>
+//------------------------------------------------------------------------------
 
 namespace soma
 {
+  class DataSource;
+  
   /// Reading/Writing Capabilities of a FormatReader
   ///
   /// This object is constructed by the FormatChecker after reading the header.
@@ -65,6 +70,8 @@ namespace soma
       bool  canSeekSlice()  const;
       bool  canSeekVolume() const;
       
+      carto::rc_ptr<DataSource>  mappableDataSource() const;
+      
       //========================================================================
       //   M U T A T O R S
       //========================================================================
@@ -75,6 +82,8 @@ namespace soma
       void  setSeekLine       ( const bool & boo = true );
       void  setSeekSlice      ( const bool & boo = true );
       void  setSeekVolume     ( const bool & boo = true );
+      
+      void  setDataSource( const carto::rc_ptr<DataSource> ds );
       
       //========================================================================
       //   I N I T I A L I Z E D
@@ -103,6 +112,7 @@ namespace soma
       ///  - seek_slice
       ///  - seek_volume
       unsigned char _capabilities;  // default: [00000000]
+      carto::rc_ptr<DataSource>  _mds;
   };
   
 }

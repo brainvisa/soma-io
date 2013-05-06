@@ -45,92 +45,109 @@
 namespace soma
 {
   
-  /**
-   * Generic reader for *every* format of Cartograph object.
-   * Still a template class, the data type must be switched at upper-level 
-   * (see DataSourceInfoLoader or ReaderAlgorithm).\n
-   * Generic readers offer a plug-in mechanism to allow new formats to 
-   * be registered.\n
-   * It uses at lower level specific readers of each object type (Volume,
-   * Meshes, Buckets, Textures) and even lower, specific reader of each
-   * format (GIS, SPM)
-   *
-   * \par Adding new readers
-   *
-   * The standard cartodata library includes a set of already compiled 
-   * formats, using a FormatDictionary to provide a common link between Reader 
-   * and Writer, see FormatDictionary for a list.
-   *
-   * If you need to use other types, you'll have to include 
-   * \c cartobase/io/reader_d.h in order to have the template functions 
-   * definitions, \c cartobase/io/reader.h is only the class declarations.
-   * In addition, you may want to specialize the registerBaseFormats() 
-   * functions of the FormatDictionary classes.
-   *
-   * \see FormatDictionary Writer DataSourceInfo ReaderAlgorithm
-   */
+  /// Generic reader for *every* format of Cartograph object.
+  /// Still a template class, the data type must be switched at upper-level 
+  /// (see DataSourceInfoLoader or ReaderAlgorithm).\n
+  /// Generic readers offer a plug-in mechanism to allow new formats to 
+  /// be registered.\n
+  /// It uses at lower level specific readers of each object type (Volume,
+  /// Meshes, Buckets, Textures) and even lower, specific reader of each
+  /// format (GIS, SPM)
+  ///
+  /// \par Adding new readers
+  ///
+  /// The standard cartodata library includes a set of already compiled 
+  /// formats, using a FormatDictionary to provide a common link between Reader 
+  /// and Writer, see FormatDictionary for a list.
+  ///
+  /// If you need to use other types, you'll have to include 
+  /// \c cartobase/io/reader_d.h in order to have the template functions 
+  /// definitions, \c cartobase/io/reader.h is only the class declarations.
+  /// In addition, you may want to specialize the registerBaseFormats() 
+  /// functions of the FormatDictionary classes.
+  ///
+  /// \see FormatDictionary Writer DataSourceInfo ReaderAlgorithm
   template <typename T>
   class Reader
   {
   public:
-    //--- constructors ---------------------------------------------------------
+    //==========================================================================
+    //   C O N S T R U C T O R S
+    //==========================================================================
     Reader();
     Reader( const std::string & filename );
     Reader( carto::rc_ptr<DataSource> ds );
+    Reader( carto::rc_ptr<DataSourceInfo> dsi );
     Reader( std::istream & stream );
     virtual ~Reader();
     
-    //--- read methods ---------------------------------------------------------
-    /**
-     * \brief Finds the correct format and reads the object. 
-     * if \c format is specified, this format is tried first, so you can use it
-     * as a hint if you already know it (from the DataSourceInfoLoader check ).
-     */
+    //==========================================================================
+    //   R E A D I N G
+    //==========================================================================
+    /// \brief Finds the correct format and reads the object. 
+    /// if \c format is specified, this format is tried first, so you can use it
+    /// as a hint if you already know it (from the DataSourceInfoLoader check ).
     virtual bool read( T & obj, carto::Object header = carto::none() );
-    /**
-     * \brief Creates and reads an object. 
-     * This function differs from the read( T&, ... ) function in the way 
-     * that it creates the object and does not just fill it. This enables 
-     * to create sub-classes of T (factory-like behaviour) on types that 
-     * allow subclasses. The object is created by \c new and can be deleted. 
-     * The default is just to create a T and call the read( T&, ... ) function, 
-     * but some specialized low-level readers may behave differently.
-     */
+    
+    /// \brief Creates and reads an object. 
+    /// This function differs from the read( T&, ... ) function in the way 
+    /// that it creates the object and does not just fill it. This enables 
+    /// to create sub-classes of T (factory-like behaviour) on types that 
+    /// allow subclasses. The object is created by \c new and can be deleted. 
+    /// The default is just to create a T and call the read( T&, ... ) function, 
+    /// but some specialized low-level readers may behave differently.
     virtual T* read( carto::Object header = carto::none() );
     
-    //--- allocator ------------------------------------------------------------
+    //==========================================================================
+    //   D A T A S O U R C E I N F O
+    //==========================================================================
+    const carto::rc_ptr<DataSourceInfo> & dataSourceInfo() const 
+            { return _datasourceinfo; }
+          carto::rc_ptr<DataSourceInfo> & dataSourceInfo()
+            { return _datasourceinfo; }
+    
+    //==========================================================================
+    //   A L L O C A T O R
+    //==========================================================================
     void setAllocatorContext( const AllocatorContext & ac );
     const AllocatorContext & allocatorContext() const;
     
-    //--- options --------------------------------------------------------------
+    //==========================================================================
+    //   O P T I O N S
+    //==========================================================================
     void setOptions( carto::Object options );
     carto::Object   options() const;
     carto::Object & options();
     
-    //--- datasource -> manipulates "default" datasource -----------------------
+    //==========================================================================
+    //   D A T A S O U R C E
+    //==========================================================================
+    // these methods are kept for compability. They manipulate the "default" 
+    // datasource
     const carto::rc_ptr<DataSource> dataSource() const;
           carto::rc_ptr<DataSource> dataSource();
     void attach( carto::rc_ptr<DataSource> ds );
     void attach( const std::string & filename, offset_t offset = 0 );
     void attach( std::istream & stream );
     
-    //--- data source control --------------------------------------------------
-    // maybe add flushAll() and closeAll() ?
+    //==========================================================================
+    //   C O N T R O L
+    //==========================================================================
     void flush();
     void close();
+    // void flushAll();
+    // void closeAll();
     
-    //--- useful ---------------------------------------------------------------
+    //==========================================================================
+    //   U T I L I T I E S
+    //==========================================================================
     // is it actually used or implemented somewhere ?
     static std::string extension( const std::string & filename );
     
-    //--- new : datasourcelist -------------------------------------------------
-    const DataSourceList & dataSourceList() const { return _datasourcelist; }
-          DataSourceList & dataSourceList()       { return _datasourcelist; }
-
   protected:
-    DataSourceList           _datasourcelist;
-    AllocatorContext         _alloccontext;
-    carto::Object            _options;
+    carto::rc_ptr<DataSourceInfo>  _datasourceinfo;
+    AllocatorContext               _alloccontext;
+    carto::Object                  _options;
   };
 }
 

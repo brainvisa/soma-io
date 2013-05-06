@@ -49,7 +49,7 @@
 #include <map>
 #include <set>
 //-- debug ---------------------------------------------------------------------
-// #define CARTO_IO_DEBUG
+//#define CARTO_IO_DEBUG
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -177,7 +177,7 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
 //------------------------------------------------------------------------------
 
-DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo & dsi  )
+DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
 {
   #ifdef CARTO_IO_DEBUG
     cout << "DataSourceInfo::check()\n";

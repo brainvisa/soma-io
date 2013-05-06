@@ -33,16 +33,17 @@
 
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
-#include <cartobase/object/pythonreader_d.h>
 #include <cartobase/object/syntobject.h>
 #include <cartobase/exception/parse.h>
 #include <cartobase/exception/file.h>
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/stream/attachable_cuifstream.h>
-#include <cartobase/io/itemreader.h>
-#include <cartobase/datasource/filedatasource.h>
-#include <cartobase/datasource/streamdatasource.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/reader/itemreader.h>
+#include <soma-io/datasource/filedatasource.h>
+#include <soma-io/datasource/streamdatasource.h>
+#include <soma-io/reader/pythonreader_d.h>
 //---- system ------------------------------------------------------------------
 #include <stdio.h>
 #include <vector>
@@ -51,6 +52,7 @@
 
 using namespace std;
 using namespace carto;
+using namespace soma;
 
 
 GenericObject* PythonReader::propertySetHelper(GenericObject *, const string &, 

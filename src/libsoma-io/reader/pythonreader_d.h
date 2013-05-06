@@ -33,12 +33,14 @@
 
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
-#include <cartobase/object/pythonreader.h>
-#include <cartobase/datasource/datasource.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>
+#include <soma-io/reader/pythonreader.h>
 //------------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
+using namespace soma;
 
 struct PythonReader::Private
 {

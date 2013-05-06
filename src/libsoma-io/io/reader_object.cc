@@ -35,7 +35,7 @@
 #include <soma-io/io/formatdictionary_d.h>
 #include <soma-io/io/reader_d.h>
 #include <soma-io/reader/formatreader_d.h>
-#include <soma-io/other/creator.h>
+#include <soma-io/utilities/creator.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/property.h>
 //------------------------------------------------------------------------------

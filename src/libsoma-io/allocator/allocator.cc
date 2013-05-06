@@ -38,6 +38,7 @@
 #include <soma-io/allocator/mappingcopy.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/bufferdatasource.h>
+#include <soma-io/datasourceinfo/datasourceinfo.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/stream/fileutil.h>
 //--- system -------------------------------------------------------------------
@@ -49,16 +50,26 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
+//==============================================================================
+//   L O W   L E V E L   A L L O C A T O R
+//==============================================================================
 
 LowLevelAllocator::~LowLevelAllocator()
 {
 }
 
-// ---
+//==============================================================================
+//   A L L O C A T O R   C O N T E X T
+//==============================================================================
+
+//------------------------------------------------------------------------------
+//   c o n s t r u c t o r s
+//------------------------------------------------------------------------------
 
 AllocatorContext::AllocatorContext( const AllocatorContext & al ) 
   : _alloc( al._alloc ), 
     _datasource( al._datasource ? al._datasource->clone() : 0 ), 
+    _dsi( al._dsi ),
     _access( al._access ), _diskcompat( al._diskcompat ), 
     _usefact( al._usefact ), _allocated( false ), _forced( al._forced )
 {
@@ -70,61 +81,11 @@ AllocatorContext::AllocatorContext( const AllocatorContext & al )
   */
 }
 
-
-void AllocatorContext::setDataSource( rc_ptr<DataSource> ds )
-{
-  _datasource = ds;
-}
-
-
-void AllocatorContext::setAccessMode( DataAccess mode )
-{
-  _access = mode;
-}
-
-
-bool AllocatorContext::canDuplicate() const
-{
-  if( _alloc )
-    return _alloc->canDuplicate();
-  return false;
-}
-
-
-void AllocatorContext::setUseFactor( float x )
-{
-  _usefact = x;
-}
-
-
-float AllocatorContext::useFactor() const
-{
-  return _usefact;
-}
-
-
-AllocatorStrategy::MappingMode AllocatorContext::allocatorType() const
-{
-  if( _alloc == &MemoryAllocator::singleton() )
-    return AllocatorStrategy::Memory;
-  if( _alloc == &MappingROAllocator::singleton() )
-    return AllocatorStrategy::ReadOnlyMap;
-  if( _alloc == &MappingRWAllocator::singleton() )
-    return AllocatorStrategy::ReadWriteMap;
-  if( _alloc == &NullAllocator::singleton() )
-    return AllocatorStrategy::Unallocated;
-  if( _alloc == &MappingCopyAllocator::singleton() )
-    return AllocatorStrategy::CopyMap;
-  cerr << "Unknown allocation method\n";
-  return AllocatorStrategy::CopyMap;
-}
-
-
 AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
                                     rc_ptr<DataSource> datasource, 
                                     bool isDiskformatOK, 
                                     float usefactor )
-  : _alloc( 0 ), _datasource( datasource ), _access( mode ), 
+  : _alloc( 0 ), _datasource( datasource ), _access( mode ), _dsi(),
     _diskcompat( isDiskformatOK ), _usefact( usefactor ), _allocated( false ), 
     _forced( false )
 {
@@ -132,11 +93,24 @@ AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
   // << endl;
 }
 
+AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
+                                    rc_ptr<DataSourceInfo> datasourceinfo, 
+                                    float usefactor )
+  : _alloc( 0 ), _datasource(), _access( mode ), _dsi( datasourceinfo ),
+    _diskcompat( false ), _usefact( usefactor ), _allocated( false ), 
+    _forced( false )
+{
+  // cout << "AllocatorContext " << this << " with DS: " << datasource.get() 
+  // << endl;
+  _diskcompat = datasourceinfo->capabilities().allowsMemoryMapping();
+  if ( _diskcompat )
+    setDataSource( datasourceinfo->capabilities().mappableDataSource() );
+}
 
 AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
                                     const string & url, offset_t offset, 
                                     bool isDiskformatOK, float usefactor )
-  : _alloc( 0 ), _datasource( new FileDataSource( url, offset ) ), 
+  : _alloc( 0 ), _datasource( new FileDataSource( url, offset ) ), _dsi(),
     _access( mode ), _diskcompat( isDiskformatOK ), _usefact( usefactor ), 
     _allocated( false ), _forced( false )
 {
@@ -144,7 +118,7 @@ AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
 
 
 AllocatorContext::AllocatorContext( const LowLevelAllocator* alloc )
-  : _alloc( alloc ), _datasource(), 
+  : _alloc( alloc ), _datasource(), _dsi(),
     _access( AllocatorStrategy::InternalModif ),
     _diskcompat( false ), _usefact( 1 ), _allocated( false ), _forced( true )
 {
@@ -177,8 +151,85 @@ AllocatorContext::operator = ( const AllocatorContext & other )
   return *this;
 }
 
+//------------------------------------------------------------------------------
+//   m u t a t o r s
+//------------------------------------------------------------------------------
 
-// ---
+void AllocatorContext::setDataSource( rc_ptr<DataSource> ds )
+{
+  _datasource = ds;
+}
+
+void AllocatorContext::setDataSourceInfo( rc_ptr<DataSourceInfo> dsi )
+{
+  _dsi = dsi;
+  _diskcompat = dsi->capabilities().allowsMemoryMapping();
+  if( _diskcompat )
+    _datasource = dsi->capabilities().mappableDataSource();
+  else
+    _datasource.reset();
+}
+
+void AllocatorContext::setAccessMode( DataAccess mode )
+{
+  _access = mode;
+}
+
+void AllocatorContext::setUseFactor( float x )
+{
+  _usefact = x;
+}
+
+//------------------------------------------------------------------------------
+//   a c c e s s o r s
+//------------------------------------------------------------------------------
+
+bool AllocatorContext::canDuplicate() const
+{
+  if( _alloc )
+    return _alloc->canDuplicate();
+  return false;
+}
+
+
+float AllocatorContext::useFactor() const
+{
+  return _usefact;
+}
+
+
+AllocatorStrategy::MappingMode AllocatorContext::allocatorType() const
+{
+  if( _alloc == &MemoryAllocator::singleton() )
+    return AllocatorStrategy::Memory;
+  if( _alloc == &MappingROAllocator::singleton() )
+    return AllocatorStrategy::ReadOnlyMap;
+  if( _alloc == &MappingRWAllocator::singleton() )
+    return AllocatorStrategy::ReadWriteMap;
+  if( _alloc == &NullAllocator::singleton() )
+    return AllocatorStrategy::Unallocated;
+  if( _alloc == &MappingCopyAllocator::singleton() )
+    return AllocatorStrategy::CopyMap;
+  cerr << "Unknown allocation method\n";
+  return AllocatorStrategy::CopyMap;
+}
+
+//==============================================================================
+//   M E M O R Y   A L L O C A T O R
+//==============================================================================
+
+//------------------------------------------------------------------------------
+//   c o n s t r u c t o r s
+//------------------------------------------------------------------------------
+
+MemoryAllocator::~MemoryAllocator()
+{
+  _allocptr() = 0;
+}
+
+//------------------------------------------------------------------------------
+//   s t a t i c
+//------------------------------------------------------------------------------
 
 const MemoryAllocator & MemoryAllocator::singleton()
 {
@@ -195,12 +246,9 @@ MemoryAllocator *& MemoryAllocator::_allocptr()
   return allocptr;
 }
 
-
-MemoryAllocator::~MemoryAllocator()
-{
-  _allocptr() = 0;
-}
-
+//------------------------------------------------------------------------------
+//   a l l o c a t e
+//------------------------------------------------------------------------------
 
 char * MemoryAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 {
@@ -223,6 +271,9 @@ void MemoryAllocator::deallocate( char* ptr, size_t n, size_t ) const
     free( ptr );
 }
 
+//------------------------------------------------------------------------------
+//   s t r e a m
+//------------------------------------------------------------------------------
 
 std::ostream& operator << ( std::ostream& os, const MemoryAllocator& thing )
 {
@@ -230,7 +281,22 @@ std::ostream& operator << ( std::ostream& os, const MemoryAllocator& thing )
   return os;
 }
 
-// ----------
+//==============================================================================
+//   N U L L   A L L O C A T O R
+//==============================================================================
+
+//------------------------------------------------------------------------------
+//   c o n s t r u c t o r s
+//------------------------------------------------------------------------------
+
+NullAllocator::~NullAllocator()
+{
+  _allocptr() = 0;
+}
+
+//------------------------------------------------------------------------------
+//   s t a t i c
+//------------------------------------------------------------------------------
 
 const NullAllocator & NullAllocator::singleton()
 {
@@ -247,12 +313,9 @@ NullAllocator *& NullAllocator::_allocptr()
   return allocptr;
 }
 
-
-NullAllocator::~NullAllocator()
-{
-  _allocptr() = 0;
-}
-
+//------------------------------------------------------------------------------
+//   a l l o c a t e
+//------------------------------------------------------------------------------
 
 char * NullAllocator::allocate( size_t, size_t, DataSource* ds ) const
 {
@@ -261,11 +324,13 @@ char * NullAllocator::allocate( size_t, size_t, DataSource* ds ) const
   return static_cast<BufferDataSource *>( ds )->buffer();
 }
 
-
 void NullAllocator::deallocate( char*, size_t, size_t ) const
 {
 }
 
+//------------------------------------------------------------------------------
+//   s t r e a m
+//------------------------------------------------------------------------------
 
 std::ostream& operator << ( std::ostream& os, const NullAllocator& thing )
 {
@@ -273,7 +338,13 @@ std::ostream& operator << ( std::ostream& os, const NullAllocator& thing )
   return os;
 }
 
-// ----------
+//==============================================================================
+//   A L L O C A T O R   S T R A T E G Y
+//==============================================================================
+
+//------------------------------------------------------------------------------
+//   u t i l i t i e s
+//------------------------------------------------------------------------------
 
 namespace
 {
@@ -302,6 +373,9 @@ namespace
 
 }
 
+//------------------------------------------------------------------------------
+//   m a p p i n g   m o d e
+//------------------------------------------------------------------------------
 
 bool AllocatorStrategy::isMMapCompatible( bool ascii, int byteorder, 
                                           bool scalefactored, int border )
@@ -390,6 +464,9 @@ AllocatorStrategy::mappingMode( DataAccess mode,
     return MAP_COPY;
 }
 
+//------------------------------------------------------------------------------
+//   a l l o c a t o r
+//------------------------------------------------------------------------------
 
 AllocatorContext AllocatorStrategy::allocator( MappingMode mode, 
                                                rc_ptr<DataSource> ds )
