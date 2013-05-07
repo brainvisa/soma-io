@@ -15,14 +15,15 @@
 * Tests
 ** DONE somaCapabilities_test
 ** DONE somaDSList_test
-** DONE somaGisFormatCheck
+** DONE somaGisFormatCheck_test
 *** DONE reads gis fil
 *** DONE reads wrong format
 *** DONE header already computed
 *** DONE wrong format AND header already computed
 **** no error if pre-computed header is of correct format
 **** error if pre computed header is not of correct format
-*** TODO with readMinf
+*** DONE with readMinf
+** DONE somaGisIR_test
 
 * libsoma-io
 ** config
@@ -196,8 +197,8 @@
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** TODO CMakeLists
-**** TODO compile
+**** DONE CMakeLists
+**** DONE compile
 **** TODO test
 **** DONE svn add
 *** imagewriter
@@ -390,8 +391,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
-**** TODO what about including cartobase_config ?
+**** DONE svn add
 *** mappingcopy
 **** DONE move
 **** DONE ifndef
@@ -401,8 +401,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
-**** TODO what about including cartobase_config and path ?
+**** DONE svn add
 *** mappingro
 **** DONE move
 **** DONE ifndef
@@ -412,8 +411,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
-**** TODO what about including cartobase_config and path ?
+**** DONE svn add
 *** mappingrw
 **** DONE move
 **** DONE ifndef
@@ -423,8 +421,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
-**** TODO what about including cartobase_config ?
+**** DONE svn add
 *** meminfo
 **** DONE move
 **** DONE ifndef
@@ -434,7 +431,7 @@
 **** DONE CMakeLists
 **** DONE compile
 **** TODO test
-**** TODO svn add
+**** DONE svn add
 ** plugingis
 *** gisformatchecker
 **** DONE move
@@ -443,12 +440,23 @@
 **** DONE namepsace
 **** DONE carto::
 **** DONE CMakeLists
-**** DONE compile : without readminf
+**** DONE compile
 **** DONE test
 **** DONE svn add
 **** TODO orientation matrix
 **** TODO add files list to header
 *** gisimagereader
 **** DONE move
+**** DONE ifndef
+**** DONE includes
+**** DONE namepsace
+**** DONE carto::
+**** DONE CMakeLists
+**** DONE compile
+**** DONE test
+**** DONE svn add
+**** TODO strides
+**** TODO test partial, visu ?
+**** TODO deal with memory mapping
 *** gisimagewriter
 **** DONE move

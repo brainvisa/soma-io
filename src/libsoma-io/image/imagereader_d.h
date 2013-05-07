@@ -46,22 +46,21 @@
 namespace soma {
   
   //============================================================================
-  //   U S E F U L
+  //   U T I L I T I E S
   //============================================================================
   template <typename T> 
   void ImageReader<T>::updateParams()
   {
     try {
       _binary = !(bool) 
-        _dsi.header().getProperty( "ascii" )->getScalar();
+        _dsi.header()->getProperty( "ascii" )->getScalar();
     } catch( ... ) {
       _binary = true;
     }
     
     try {
       _byteswap = (bool) 
-        _dsi.header().getProperty( "byte_swapping" )
-        ->getScalar();
+        _dsi.header()->getProperty( "byte_swapping" )->getScalar();
     } catch( ... ) {
       _byteswap = false;
     }
@@ -71,24 +70,31 @@ namespace soma {
   //   C O N S T R U C T O R S
   //============================================================================
   template <typename T>
-  ImageReader<T>::ImageReader( DataSourceInfo & dsi, bool threadsafe ) : 
+  ImageReader<T>::ImageReader( DataSourceInfo & dsi ) : 
   _dsi( dsi ), 
   _byteswap( false ), 
   _binary( true ),
-  _isthreadsafe( threadsafe ),
-  _sizes( /* ? */ )
+  _sizes( 1, std::vector<int>(4) )
   {
     // set _sizes from dsi's header or capabilities ?
+    _dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+    _dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+    _dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+    _dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
     updateParams();
   }
   
   template <typename T>
-  ImageReader<T>::ImageReader( ImageReader<T> & other ) :
-  _dsi( other.dsi ), 
+  ImageReader<T>::ImageReader( const ImageReader<T> & other ) :
+  _dsi( other._dsi ), 
   _byteswap( other._byteswap ), 
   _binary( other._binary ),
-  _isthreadsafe( other._isthreadsafe ),
   _sizes( other._sizes )
+  {
+  }
+  
+  template <typename T>
+  ImageReader<T>::~ImageReader()
   {
   }
   
@@ -99,6 +105,18 @@ namespace soma {
   /* This is an abstract method that is defined in format-specific readers
    * (like GisImageReader)
    */
+  template <typename T>
+  void ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
+             std::vector<int> & /* pos */,
+             std::vector<int> & /*size */,
+             std::vector<int> /* stride */,
+             int /* level */, 
+             carto::Object /* options */ )
+  {
+    carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
+    throw carto::invalid_format_error( "format reader not implemented yet...", 
+                                       ds ? ds->url() : "" );
+  }
 }
 
 #endif

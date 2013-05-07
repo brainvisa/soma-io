@@ -35,7 +35,7 @@
 #define GISIMAGEREADER_H
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/image/imagereader.h>                               // heritage
-#include <soma-io/datasource/filedatasource.h>                       // heritage
+#include <soma-io/datasource/chaindatasource.h>                      // heritage
 #include <soma-io/reader/itemreader.h>                        // read + byteswap
 //#include <soma-io/writer/itemwriter.h>                       // write + byteswap
 //--- cartobase ----------------------------------------------------------------
@@ -69,20 +69,20 @@ namespace soma
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
                          std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         std::vector<int> & stride = vector<int>,
+                         std::vector<int> stride = std::vector<int>(),
                          int level = 0, 
                          carto::Object options = carto::none() );
       
       //========================================================================
       //   D A T A S O U R C E
       //========================================================================
-      //virtual DataSource* clone() const;
+      virtual DataSource* clone() const;
       virtual int iterateMode() const;
       virtual offset_t size() const;
       virtual offset_t at() const;
       virtual bool at( offset_t pos );
       virtual long readBlock( char * data, unsigned long maxlen );
-      //virtual long writeBlock( const char * data, unsigned long len );
+      virtual long writeBlock( const char * data, unsigned long len );
       virtual int getch();
       virtual int putch( int ch );
       virtual bool ungetch( int ch );

@@ -28,9 +28,9 @@ set( _headers
   datasourceinfo/datasourcecapabilities.h
   datasourceinfo/datasourceinfo.h
   datasourceinfo/datasourceinfoloader.h
-  #image/imagereader.h
-  #image/imagereader_d.h
-  #image/imagwriter.h
+  image/imagereader.h
+  image/imagereader_d.h
+  #image/imagewriter.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   io/reader.h
@@ -39,8 +39,8 @@ set( _headers
   #io/writer.h
   #io/writer_d.h
   plugingis/gisformatchecker.h
-  #plugingis//gisimagereader.h
-  #plugingis/gisimagereader_d.h
+  plugingis//gisimagereader.h
+  plugingis/gisimagereader_d.h
   #plugingis/gisimagewriter.h
   reader/areader.h
   reader/formatreader.h
@@ -82,11 +82,13 @@ set( _somaio_sources
   datasourceinfo/datasourcecapabilities.cc
   datasourceinfo/datasourceinfo.cc
   datasourceinfo/datasourceinfoloader.cc
+  image/imagereader.cc
   io/formatdictionary.cc
   io/reader_object.cc
   #io/readeralgorithm.cc
   #io/writer.cc
   plugingis/gisformatchecker.cc
+  plugingis/gisimagereader.cc
   reader/areader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc

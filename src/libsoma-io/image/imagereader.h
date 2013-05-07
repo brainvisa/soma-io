@@ -54,7 +54,7 @@ namespace soma
   class ImageReader
   {
     public:
-      ImageReader( DataSourceInfo & dsi = 0, bool threadsafe = false );
+      ImageReader( DataSourceInfo & dsi = 0 );
       ImageReader( const ImageReader<T> & );
       virtual ~ImageReader();
       
@@ -72,14 +72,16 @@ namespace soma
         *               resolution ( sole present if no multiresolution ) is 0.
         * \param options  ( is it useful here ? )
         */
-      virtual void read( T * dest,
-                         std::vector<int> & pos,  /* 4D : x,y,z,t */
-                         std::vector<int> & size, /* 4D : x,y,z,t */
-                         int level = 0, carto::Object options = carto::none() );
+      virtual void read( T * dest, DataSourceInfo & dsi,
+                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
+                         std::vector<int> & size, /* taille 4 : x,y,z,t */
+                         std::vector<int> stride = std::vector<int>(),
+                         int level = 0, 
+                         carto::Object options = carto::none() );
       
       //// FOR DEVELOPEMENT ONLY ///////////////////////////////////////////////
-      const std::vector<std::vector<int> > & sizes() const { return _sizes }
-            std::vector<std::vector<int> > & sizes()       { return _sizes }
+      const std::vector<std::vector<int> > & sizes() const { return _sizes; }
+            std::vector<std::vector<int> > & sizes()       { return _sizes; }
     protected:
       void updateParams();
       
@@ -87,7 +89,6 @@ namespace soma
       std::vector<std::vector<int> >  _sizes;  /*  4D : x, y, z, t */
       bool  _binary;        // default: true
       bool  _byteswap;      // default: false
-      bool  _isthreadsafe;  // default: false
   };
   
 }

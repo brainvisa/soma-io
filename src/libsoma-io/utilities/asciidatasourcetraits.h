@@ -414,7 +414,7 @@ namespace soma
       ds.ungetch( c );
       if( i == 0 )
         return false;
-      stringTo( num, item );
+      carto::stringTo( num, item );
       return true;
     }
 
@@ -502,7 +502,7 @@ namespace soma
       ds.ungetch( c );
       if( i == 0 )
         return false;
-      stringTo( num, item );
+      carto::stringTo( num, item );
       return true;
     }
 
