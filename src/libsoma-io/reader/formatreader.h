@@ -164,7 +164,7 @@ namespace soma
     
     virtual void read( T & obj, carto::Object header, 
                        const AllocatorContext & context, 
-                       carto::Object options ) = 0;
+                       carto::Object options );
     
   };
 

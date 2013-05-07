@@ -13,6 +13,18 @@ set( _headers
   allocator/mappingcopy.h
   allocator/mappingro.h
   allocator/mappingrw.h
+  cartodata/volume.h
+  cartodata/volume_d.h
+  cartodata/volumeproxy.h
+  cartodata/volumeproxy_d.h
+  cartodata/volumeutil.h
+  cartodata/volumeutil_d.h
+  cartodata/volumeoperators.h
+  cartodata/volumeview.h
+  cartodata/volumeformatreader.h
+  cartodata/volumeformatreader_d.h
+  #cartodata/plugingis/gisvolumeformatreader.h
+  #cartodata/plugingis/gisvolumeformatreader_d.h
   checker/formatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
@@ -50,6 +62,7 @@ set( _headers
   reader/pythonreader.h
   reader/pythonreader_d.h
   reader/xmlformatreader.h
+  utilities/allocatedvector.h
   utilities/asciidatasourcetraits.h
   utilities/creator.h
   #utilities/headertranslator.h
@@ -67,6 +80,10 @@ set( _somaio_sources
   allocator/mappingro.cc
   allocator/mappingrw.cc
   allocator/meminfo.cc
+  cartodata/volume.cc
+  cartodata/volumeview.cc
+  cartodata/volumeformatreader.cc
+  #cartodata/plugingis/gisvolumeformatreader.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
   config/version.cc
