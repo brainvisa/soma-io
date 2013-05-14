@@ -53,14 +53,15 @@ namespace soma
    * \todo doc ?
    */
   template<typename T>
-  class GisImageReader : public ImageReader<T>, public ChainDataSource
+  class GisImageReader : public ImageReader<T>, protected ChainDataSource
   {
     public:
       //========================================================================
       //   C O N S T R U C T O R S
       //========================================================================
-      GisImageReader( DataSourceInfo & dsi );
-      GisImageReader( const GisImageReader<T> & );
+      GisImageReader();
+      //GisImageReader( DataSourceInfo & dsi );
+      //GisImageReader( const GisImageReader<T> & );
       virtual ~GisImageReader();
       
       //========================================================================
@@ -73,6 +74,10 @@ namespace soma
                          int level = 0, 
                          carto::Object options = carto::none() );
       
+      //virtual void resetParams();
+      virtual void updateParams( DataSourceInfo & dsi );
+      
+    protected:
       //========================================================================
       //   D A T A S O U R C E
       //========================================================================
@@ -90,7 +95,6 @@ namespace soma
       virtual bool setpos( int x, int y = 0, int z = 0, int t = 0 );
       
     protected:
-      void updateItemRW();
       std::auto_ptr<ItemReader<T> > _itemr;
       //std::auto_ptr<ItemWriter<T> > _itemw;
   };

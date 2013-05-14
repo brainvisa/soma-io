@@ -37,4 +37,11 @@
 
 using namespace soma;
 
+template class GisImageReader<int8_t>;
 template class GisImageReader<int16_t>;
+template class GisImageReader<int32_t>;
+template class GisImageReader<uint8_t>;
+template class GisImageReader<uint16_t>;
+template class GisImageReader<uint32_t>;
+template class GisImageReader<float>;
+template class GisImageReader<double>;

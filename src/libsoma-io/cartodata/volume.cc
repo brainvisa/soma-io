@@ -46,44 +46,44 @@ using namespace soma;
 
 namespace moncartodata {
   
-template class VolumeProxy< int8_t >;
-template class VolumeProxy< uint8_t >;
-// ### remove after everything has been moved to intN_t/uintN_t
-#if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
-template class VolumeProxy< char >;
-#endif
-template class VolumeProxy< int16_t >;
-template class VolumeProxy< uint16_t >;
-template class VolumeProxy< int32_t >;
-template class VolumeProxy< uint32_t >;
-template class VolumeProxy< long >;
-template class VolumeProxy< unsigned long >;
-template class VolumeProxy< float >;
-template class VolumeProxy< double >;
-template class VolumeProxy< cfloat >;
-template class VolumeProxy< cdouble >;
-template class VolumeProxy< std::map<int, float> >;
+  template class VolumeProxy< int8_t >;
+  template class VolumeProxy< uint8_t >;
+  // ### remove after everything has been moved to intN_t/uintN_t
+  #if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
+    template class VolumeProxy< char >;
+  #endif
+  template class VolumeProxy< int16_t >;
+  template class VolumeProxy< uint16_t >;
+  template class VolumeProxy< int32_t >;
+  template class VolumeProxy< uint32_t >;
+  template class VolumeProxy< long >;
+  template class VolumeProxy< unsigned long >;
+  template class VolumeProxy< float >;
+  template class VolumeProxy< double >;
+  template class VolumeProxy< cfloat >;
+  template class VolumeProxy< cdouble >;
+  template class VolumeProxy< std::map<int, float> >;
 
 
-template class Volume< int8_t >;
-template class Volume< uint8_t >;
-// ### remove after everything has been moved to intN_t/uintN_t
-#if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
-template class Volume< char >;
-#endif
-template class Volume< int16_t >;
-template class Volume< uint16_t >;
-template class Volume< int32_t >;
-template class Volume< uint32_t >;
-template class Volume< long >;
-template class Volume< unsigned long >;
-template class Volume< float >;
-template class Volume< double >;
-template class Volume< cfloat >;
-template class Volume< cdouble >;
-template class Volume< std::map<int, float> >;
+  template class Volume< int8_t >;
+  template class Volume< uint8_t >;
+  // ### remove after everything has been moved to intN_t/uintN_t
+  #if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
+    template class Volume< char >;
+  #endif
+  template class Volume< int16_t >;
+  template class Volume< uint16_t >;
+  template class Volume< int32_t >;
+  template class Volume< uint32_t >;
+  template class Volume< long >;
+  template class Volume< unsigned long >;
+  template class Volume< float >;
+  template class Volume< double >;
+  template class Volume< cfloat >;
+  template class Volume< cdouble >;
+  template class Volume< std::map<int, float> >;
 
-}
+} // namespace moncartodata
 
 template class Creator<moncartodata::Volume< int8_t > >;
 template class Creator<moncartodata::Volume< uint8_t > >;
@@ -103,134 +103,136 @@ template class Creator<moncartodata::Volume< cfloat > >;
 template class Creator<moncartodata::Volume< cdouble > >;
 template class Creator<moncartodata::Volume< std::map<int, float> > >;
 
-// utilities
+namespace moncartodata {
 
-#define instantiate_volutil( T ) \
-template class VolumeUtil<T>; \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Scaler<T,double>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Scaler<T,double>, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Scaler<T,float>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Scaler<T,float>, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Scaler<T,long>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Scaler<T,long>, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( std::negate<T>, const VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Divider<T,double>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Divider<T,double>, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Divider<T,float>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Divider<T,float>, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( Divider<T,long>, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( Divider<T,long>, VolumeRef<T> & );
+  #define instantiate_volutil( T ) \
+    template class VolumeUtil<T>; \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Scaler<T,double>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Scaler<T,double>, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Scaler<T,float>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Scaler<T,float>, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Scaler<T,long>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Scaler<T,long>, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( std::negate<T>, const VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Divider<T,double>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Divider<T,double>, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Divider<T,float>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Divider<T,float>, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( Divider<T,long>, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( Divider<T,long>, VolumeRef<T> & );
 
-#define instantiate_volutil2( T, BinaryFunction ) \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( BinaryFunction, const VolumeRef<T> &, \
-                      const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( BinaryFunction, VolumeRef<T> &, \
-                          const VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( UnaryFromConstantBinaryFunctor<T, \
-                      BinaryFunction >, const VolumeRef<T> & ); \
-template void \
-VolumeUtil<T>::selfApply( UnaryFromConstantBinaryFunctor<T, \
-                          BinaryFunction >, VolumeRef<T> & ); \
-template VolumeRef<T> \
-VolumeUtil<T>::apply( UnaryFromConstantBinaryFunctor2<T, \
-                      BinaryFunction >, const VolumeRef<T> & ); \
+  #define instantiate_volutil2( T, BinaryFunction ) \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( BinaryFunction, const VolumeRef<T> &, \
+                            const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( BinaryFunction, VolumeRef<T> &, \
+                                const VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( UnaryFromConstantBinaryFunctor<T, \
+                            BinaryFunction >, const VolumeRef<T> & ); \
+    template void \
+      VolumeUtil<T>::selfApply( UnaryFromConstantBinaryFunctor<T, \
+                                BinaryFunction >, VolumeRef<T> & ); \
+    template VolumeRef<T> \
+      VolumeUtil<T>::apply( UnaryFromConstantBinaryFunctor2<T, \
+                            BinaryFunction >, const VolumeRef<T> & ); \
 
-instantiate_volutil( int8_t )
-instantiate_volutil2( int8_t, std::plus<int8_t> )
-instantiate_volutil2( int8_t, std::minus<int8_t> )
-instantiate_volutil2( int8_t, std::multiplies<int8_t> )
-instantiate_volutil2( int8_t, std::divides<int8_t> )
+  instantiate_volutil( int8_t )
+  instantiate_volutil2( int8_t, std::plus<int8_t> )
+  instantiate_volutil2( int8_t, std::minus<int8_t> )
+  instantiate_volutil2( int8_t, std::multiplies<int8_t> )
+  instantiate_volutil2( int8_t, std::divides<int8_t> )
 
-instantiate_volutil( uint8_t )
-instantiate_volutil2( uint8_t, std::plus<uint8_t> )
-instantiate_volutil2( uint8_t, std::minus<uint8_t> )
-instantiate_volutil2( uint8_t, std::multiplies<uint8_t> )
-instantiate_volutil2( uint8_t, std::divides<uint8_t> )
+  instantiate_volutil( uint8_t )
+  instantiate_volutil2( uint8_t, std::plus<uint8_t> )
+  instantiate_volutil2( uint8_t, std::minus<uint8_t> )
+  instantiate_volutil2( uint8_t, std::multiplies<uint8_t> )
+  instantiate_volutil2( uint8_t, std::divides<uint8_t> )
 
-// ### remove after everything has been moved to intN_t/uintN_t
-#if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
-instantiate_volutil( char )
-instantiate_volutil2( char, std::plus<char> )
-instantiate_volutil2( char, std::minus<char> )
-instantiate_volutil2( char, std::multiplies<char> )
-instantiate_volutil2( char, std::divides<char> )
-#endif
+  // ### remove after everything has been moved to intN_t/uintN_t
+  #if !defined(__sun__) || !defined(_CHAR_IS_SIGNED)
+    instantiate_volutil( char )
+    instantiate_volutil2( char, std::plus<char> )
+    instantiate_volutil2( char, std::minus<char> )
+    instantiate_volutil2( char, std::multiplies<char> )
+    instantiate_volutil2( char, std::divides<char> )
+  #endif
 
-instantiate_volutil( int16_t )
-instantiate_volutil2( int16_t, std::plus<int16_t> )
-instantiate_volutil2( int16_t, std::minus<int16_t> )
-instantiate_volutil2( int16_t, std::multiplies<int16_t> )
-instantiate_volutil2( int16_t, std::divides<int16_t> )
+  instantiate_volutil( int16_t )
+  instantiate_volutil2( int16_t, std::plus<int16_t> )
+  instantiate_volutil2( int16_t, std::minus<int16_t> )
+  instantiate_volutil2( int16_t, std::multiplies<int16_t> )
+  instantiate_volutil2( int16_t, std::divides<int16_t> )
 
-instantiate_volutil( uint16_t )
-instantiate_volutil2( uint16_t, std::plus<uint16_t> )
-instantiate_volutil2( uint16_t, std::minus<uint16_t> )
-instantiate_volutil2( uint16_t, std::multiplies<uint16_t> )
-instantiate_volutil2( uint16_t, std::divides<uint16_t> )
+  instantiate_volutil( uint16_t )
+  instantiate_volutil2( uint16_t, std::plus<uint16_t> )
+  instantiate_volutil2( uint16_t, std::minus<uint16_t> )
+  instantiate_volutil2( uint16_t, std::multiplies<uint16_t> )
+  instantiate_volutil2( uint16_t, std::divides<uint16_t> )
 
-instantiate_volutil( int32_t )
-instantiate_volutil2( int32_t, std::plus<int32_t> )
-instantiate_volutil2( int32_t, std::minus<int32_t> )
-instantiate_volutil2( int32_t, std::multiplies<int32_t> )
-instantiate_volutil2( int32_t, std::divides<int32_t> )
+  instantiate_volutil( int32_t )
+  instantiate_volutil2( int32_t, std::plus<int32_t> )
+  instantiate_volutil2( int32_t, std::minus<int32_t> )
+  instantiate_volutil2( int32_t, std::multiplies<int32_t> )
+  instantiate_volutil2( int32_t, std::divides<int32_t> )
 
-instantiate_volutil( uint32_t )
-instantiate_volutil2( uint32_t, std::plus<uint32_t> )
-instantiate_volutil2( uint32_t, std::minus<uint32_t> )
-instantiate_volutil2( uint32_t, std::multiplies<uint32_t> )
-instantiate_volutil2( uint32_t, std::divides<uint32_t> )
+  instantiate_volutil( uint32_t )
+  instantiate_volutil2( uint32_t, std::plus<uint32_t> )
+  instantiate_volutil2( uint32_t, std::minus<uint32_t> )
+  instantiate_volutil2( uint32_t, std::multiplies<uint32_t> )
+  instantiate_volutil2( uint32_t, std::divides<uint32_t> )
 
-instantiate_volutil( long )
-instantiate_volutil2( long, std::plus<long> )
-instantiate_volutil2( long, std::minus<long> )
-instantiate_volutil2( long, std::multiplies<long> )
-instantiate_volutil2( long, std::divides<long> )
+  instantiate_volutil( long )
+  instantiate_volutil2( long, std::plus<long> )
+  instantiate_volutil2( long, std::minus<long> )
+  instantiate_volutil2( long, std::multiplies<long> )
+  instantiate_volutil2( long, std::divides<long> )
 
-instantiate_volutil( unsigned long )
-instantiate_volutil2( unsigned long, std::plus<unsigned long> )
-instantiate_volutil2( unsigned long, std::minus<unsigned long> )
-instantiate_volutil2( unsigned long, std::multiplies<unsigned long> )
-instantiate_volutil2( unsigned long, std::divides<unsigned long> )
+  instantiate_volutil( unsigned long )
+  instantiate_volutil2( unsigned long, std::plus<unsigned long> )
+  instantiate_volutil2( unsigned long, std::minus<unsigned long> )
+  instantiate_volutil2( unsigned long, std::multiplies<unsigned long> )
+  instantiate_volutil2( unsigned long, std::divides<unsigned long> )
 
-instantiate_volutil( float )
-instantiate_volutil2( float, std::plus<float> )
-instantiate_volutil2( float, std::minus<float> )
-instantiate_volutil2( float, std::multiplies<float> )
-instantiate_volutil2( float, std::divides<float> )
+  instantiate_volutil( float )
+  instantiate_volutil2( float, std::plus<float> )
+  instantiate_volutil2( float, std::minus<float> )
+  instantiate_volutil2( float, std::multiplies<float> )
+  instantiate_volutil2( float, std::divides<float> )
 
-instantiate_volutil( double )
-instantiate_volutil2( double, std::plus<double> )
-instantiate_volutil2( double, std::minus<double> )
-instantiate_volutil2( double, std::multiplies<double> )
-instantiate_volutil2( double, std::divides<double> )
+  instantiate_volutil( double )
+  instantiate_volutil2( double, std::plus<double> )
+  instantiate_volutil2( double, std::minus<double> )
+  instantiate_volutil2( double, std::multiplies<double> )
+  instantiate_volutil2( double, std::divides<double> )
 
-instantiate_volutil( cfloat )
-instantiate_volutil2( cfloat, std::plus<cfloat> )
-instantiate_volutil2( cfloat, std::minus<cfloat> )
-instantiate_volutil2( cfloat, std::multiplies<cfloat> )
-instantiate_volutil2( cfloat, std::divides<cfloat> )
+  instantiate_volutil( cfloat )
+  instantiate_volutil2( cfloat, std::plus<cfloat> )
+  instantiate_volutil2( cfloat, std::minus<cfloat> )
+  instantiate_volutil2( cfloat, std::multiplies<cfloat> )
+  instantiate_volutil2( cfloat, std::divides<cfloat> )
 
-instantiate_volutil( cdouble )
-instantiate_volutil2( cdouble, std::plus<cdouble> )
-instantiate_volutil2( cdouble, std::minus<cdouble> )
-instantiate_volutil2( cdouble, std::multiplies<cdouble> )
-instantiate_volutil2( cdouble, std::divides<cdouble> )
+  instantiate_volutil( cdouble )
+  instantiate_volutil2( cdouble, std::plus<cdouble> )
+  instantiate_volutil2( cdouble, std::minus<cdouble> )
+  instantiate_volutil2( cdouble, std::multiplies<cdouble> )
+  instantiate_volutil2( cdouble, std::divides<cdouble> )
+
+} // namespace moncartodata
 
 namespace carto {
 

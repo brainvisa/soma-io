@@ -74,21 +74,6 @@ namespace soma
                          const AllocatorContext & context, 
                          carto::Object options = carto::none() );
       
-      /// Reading a region into a buffer.
-      ///
-      /// This method calls an ImageReader method. It is called only from 
-      /// read( Volume<T> &, ... ) and should be defined in format-specific 
-      /// derived class ( like GisVolumeFormatReader )
-      ///
-      /// \remarks should we derive from ImageReader instead ?
-      virtual void read( T * dest, 
-                         carto::rc_ptr<DataSourceInfo> dsi,
-                         std::vector<int> & pos,  /* size 4 : x,y,z,t */
-                         std::vector<int> & size, /* size 4 : x,y,z,t */
-                         std::vector<int> & strides, /* size 4 : x,y,z,t */
-                         int level = 0, 
-                         carto::Object options = carto::none() );
-      
       /// Linking to a ImageReader
       /// Allows us to declare only once the ImageReader
       void attach( carto::rc_ptr<ImageReader<T> > imr );
@@ -141,15 +126,6 @@ namespace soma
       virtual void read( carto::rc_ptr<moncartodata::Volume<T> > & obj, 
                          carto::rc_ptr<DataSourceInfo> dsi, 
                          const AllocatorContext & context, 
-                         carto::Object options = carto::none() );
-    
-      /// Reading a region into a buffer.
-      virtual void read( T * dest, 
-                         carto::rc_ptr<DataSourceInfo> dsi,
-                         std::vector<int> & pos,  /* size 4 : x,y,z,t */
-                         std::vector<int> & size, /* size 4 : x,y,z,t */
-                         std::vector<int> & strides, /* size 4 : x,y,z,t */
-                         int level = 0, 
                          carto::Object options = carto::none() );
       
       /// Linking to a ImageReader

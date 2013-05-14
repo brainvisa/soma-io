@@ -18,6 +18,7 @@ BRAINVISA_ADD_EXECUTABLE(somaDSList_test         somaDSList_test/dslist_test.cc 
 BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(somaDSILoader_test      somaDSILoader_test/dsiloader_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(somaGisIR_test          somaGisIR_test/gisir_test.cc HELP_GENERATE FALSE)
+BRAINVISA_ADD_EXECUTABLE(somaPartialIO_test      somaPartialIO_test/partialio_test.cc HELP_GENERATE FALSE)
 
 TARGET_LINK_LIBRARIES(cartoAlgorithm_test     cartobase)
 TARGET_LINK_LIBRARIES(cartoConversion_test    cartobase)
@@ -38,3 +39,4 @@ TARGET_LINK_LIBRARIES(somaDSList_test         ${SOMA-IO_LIBRARIES})
 TARGET_LINK_LIBRARIES(somaGisFormatCheck_test ${SOMA-IO_LIBRARIES})
 TARGET_LINK_LIBRARIES(somaDSILoader_test      ${SOMA-IO_LIBRARIES})
 TARGET_LINK_LIBRARIES(somaGisIR_test          ${SOMA-IO_LIBRARIES})
+TARGET_LINK_LIBRARIES(somaPartialIO_test      ${SOMA-IO_LIBRARIES})

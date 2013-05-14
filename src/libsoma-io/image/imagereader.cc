@@ -37,4 +37,11 @@
 
 using namespace soma;
 
+template class ImageReader<int8_t>;
 template class ImageReader<int16_t>;
+template class ImageReader<int32_t>;
+template class ImageReader<uint8_t>;
+template class ImageReader<uint16_t>;
+template class ImageReader<uint32_t>;
+template class ImageReader<float>;
+template class ImageReader<double>;

@@ -119,16 +119,17 @@ namespace soma
       moncartodata::VolumeView<T> *vv = dynamic_cast<moncartodata::VolumeView<T> *>( &obj );
       if( vv ) {
         const typename moncartodata::VolumeView<T>::Position4Di & p = vv->posInRefVolume();
-        pos[ 0 ] = p[0];
-        pos[ 1 ] = p[1];
-        pos[ 2 ] = p[2];
-        pos[ 3 ] = p[3];
+        pos[ 0 ] = p[ 0 ];
+        pos[ 1 ] = p[ 1 ];
+        pos[ 2 ] = p[ 2 ];
+        pos[ 3 ] = p[ 3 ];
       }
       
       int y, z, t;
       if ( !withborders ) {
         // we can read the volume/region into a contiguous buffer
-        read( ( T * ) &obj(0,0,0,0), dsi, pos, viewsize, strides, level, options );
+        _imr->read( ( T * ) &obj(0,0,0,0), *dsi, pos, 
+                    viewsize, strides, level, options );
       } else {
         // we are in a "border" context. The volume/region must be read
         // line by line
@@ -141,26 +142,15 @@ namespace soma
               posline[ 1 ] = pos[ 1 ] + y;
               posline[ 2 ] = pos[ 2 ] + z;
               posline[ 3 ] = pos[ 3 ] + t;
-              read( ( T * ) &obj(0,y,z,t), dsi, posline, 
-                    sizeline, strides, level, options );
+              _imr->read( ( T * ) &obj(0,y,z,t), *dsi, posline, 
+                          sizeline, strides, level, options );
             }
       }
     
     }
-  }
-  //--- Reading to a Buffer ----------------------------------------------------
-  /* This method depends deeply on the file format (like Gis). It is used by
-   * the previous read(...) function and thus is declared here but is only
-   * defined in format-specific FormatReader (like GisVolumeFormatReader)
-   */
-  template<typename T>
-  void VolumeFormatReader<T>::read( T * dest, carto::rc_ptr<DataSourceInfo> dsi,
-                                    std::vector<int> &,std::vector<int> &,
-                                    std::vector<int> &, int, carto::Object )
-  {
-    throw carto::invalid_format_error( "format reader not implemented yet...", 
-                                       dsi->list().dataSource( "default", 0 ) ? 
-                                       dsi->list().dataSource( "default", 0 )->url() : "" );
+    // we reset at 0 the ImageReader's members (sizes, binary, ...) so that 
+    // they are recomputed at the next reading.
+    _imr->resetParams();
   }
   
   //--- Attaching a ImageReader ------------------------------------------------
@@ -199,21 +189,6 @@ namespace soma
     VolumeFormatReader<T> vrf;
     vrf.attach( _imr );
     vrf.read( *obj, dsi, context, options );
-  }
-  //--- Reading to a Buffer ----------------------------------------------------
-  /* This method depends deeply on the file format (like Gis). It is used by
-   * the previous read(...) function and thus is declared here but is only
-   * defined in format-specific FormatReader (like GisVolumeFormatReader)
-   */
-  template<typename T>
-  void VolumeRefFormatReader<T>::read( T * dest, 
-                                       carto::rc_ptr<DataSourceInfo> dsi,
-                                       std::vector<int> &,std::vector<int> &,
-                                       std::vector<int> &, int, carto::Object )
-  {
-    throw carto::invalid_format_error( "format reader not implemented yet...", 
-                                       dsi->list().dataSource( "default", 0 ) ? 
-                                       dsi->list().dataSource( "default", 0 )->url() : "" );
   }
   
   //--- Attaching a ImageReader ------------------------------------------------

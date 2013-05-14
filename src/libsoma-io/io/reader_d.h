@@ -396,7 +396,7 @@ namespace soma
     if( !header.isNone() )
       _datasourceinfo->header() = header;
 
-    if( dataSource() )
+    if( !dataSource() )
       throw std::runtime_error( "Reader with no source of data" );
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );

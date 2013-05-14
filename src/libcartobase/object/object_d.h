@@ -37,45 +37,45 @@
 #include <cartobase/object/object.h>
 
 #define INSTANTIATE_GENERIC_OBJECT_TYPE( T )    \
-template class TypedObject< T >; \
-template class ValueObject< T >; \
-template class ReferenceObject< T >; \
-template class PointerObject< T >; \
-template \
-T const &GenericObject::value< T >() const; \
-template \
-T &GenericObject::value< T >(); \
-template \
-bool GenericObject::value( T &dest ) const; \
-template \
-void GenericObject::setValue( T const & x ); \
-template bool DictionaryInterface:: \
-getProperty( const std::string &, T &  ) const; \
-template void DictionaryInterface:: \
-setProperty( const std::string &, T const & ); \
-template <> \
-void DictionaryInterface::setProperty( const std::string &key, \
-                                       T const &value ) \
-{ \
-  this->setProperty( key, Object::value( value ) ); \
-} \
-template <> \
-bool DictionaryInterface::getProperty( const std::string &key, T &value ) const \
-{ \
-  Object	o; \
-  if( getProperty( key, o ) && o.get() ) \
+  template class TypedObject< T >; \
+  template class ValueObject< T >; \
+  template class ReferenceObject< T >; \
+  template class PointerObject< T >; \
+  template \
+    T const &GenericObject::value< T >() const; \
+  template \
+    T &GenericObject::value< T >(); \
+  template \
+    bool GenericObject::value( T &dest ) const; \
+  template \
+    void GenericObject::setValue( T const & x ); \
+  template bool DictionaryInterface:: \
+    getProperty( const std::string &, T &  ) const; \
+  template void DictionaryInterface:: \
+    setProperty( const std::string &, T const & ); \
+  template <> \
+    void DictionaryInterface::setProperty( const std::string &key, \
+                                           T const &value ) \
     { \
-      try \
+      this->setProperty( key, Object::value( value ) ); \
+    } \
+  template <> \
+    bool DictionaryInterface::getProperty( const std::string &key, T &value ) const \
+    { \
+      Object	o; \
+      if( getProperty( key, o ) && o.get() ) \
+      { \
+        try \
         { \
           value = o->GenericObject::value< T >(); \
           return true; \
         } \
-      catch( ... ) \
+        catch( ... ) \
         { \
         } \
+      } \
+      return false; \
     } \
-  return false; \
-} \
 
 
 namespace carto

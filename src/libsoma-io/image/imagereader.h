@@ -54,8 +54,9 @@ namespace soma
   class ImageReader
   {
     public:
-      ImageReader( DataSourceInfo & dsi = 0 );
-      ImageReader( const ImageReader<T> & );
+      //ImageReader( DataSourceInfo & dsi = 0 );
+      //ImageReader( const ImageReader<T> & );
+      ImageReader();
       virtual ~ImageReader();
       
       /** Reading a region of a Image/Volume at a given resolution to a 
@@ -79,13 +80,13 @@ namespace soma
                          int level = 0, 
                          carto::Object options = carto::none() );
       
-      //// FOR DEVELOPEMENT ONLY ///////////////////////////////////////////////
-      const std::vector<std::vector<int> > & sizes() const { return _sizes; }
-            std::vector<std::vector<int> > & sizes()       { return _sizes; }
-    protected:
-      void updateParams();
+      virtual void resetParams();
+      virtual void updateParams( DataSourceInfo & dsi );
       
-      DataSourceInfo  _dsi; /* on peut l'avoir dès la construction du reader */
+      //// FOR DEVELOPEMENT ONLY ///////////////////////////////////////////////
+      //const std::vector<std::vector<int> > & sizes() const { return _sizes; }
+      //      std::vector<std::vector<int> > & sizes()       { return _sizes; }
+    protected:
       std::vector<std::vector<int> >  _sizes;  /*  4D : x, y, z, t */
       bool  _binary;        // default: true
       bool  _byteswap;      // default: false

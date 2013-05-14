@@ -70,6 +70,7 @@ int main( int argc, const char** argv )
     app.alias( "-v", "--verbose" );
     app.initialize();
     
+    /*
     cout << "//---------------------------------------------------------" << endl;
     cout << "//   A R G U M E N T S                                     " << endl;
     cout << "//---------------------------------------------------------" << endl;
@@ -81,6 +82,7 @@ int main( int argc, const char** argv )
                        << frame[ 1 ] << ", "
                        << frame[ 2 ] << ", "
                        << frame[ 3 ] << endl;
+    */
     
     rc_ptr<DataSource> ds ( new FileDataSource( fname ) );
     DataSourceInfo dsi( ds );
@@ -96,6 +98,7 @@ int main( int argc, const char** argv )
     if( frame[ 0 ] == 0 )
       frame = size;
     
+    /*
     cout << "//---------------------------------------------------------" << endl;
     cout << "//   H E A D E R                                           " << endl;
     cout << "//---------------------------------------------------------" << endl;
@@ -107,14 +110,11 @@ int main( int argc, const char** argv )
                        << frame[ 1 ] << ", "
                        << frame[ 2 ] << ", "
                        << frame[ 3 ] << endl;
+    */
     
     int16_t *buffer = (int16_t*) malloc( sizeof(int16_t) * frame[ 0 ] * frame[ 1 ] * frame[ 2 ] * frame[ 3 ] );
-    GisImageReader<int16_t> gir( dsi );
+    GisImageReader<int16_t> gir;
     gir.read( buffer, dsi, origin, frame );
-    
-    cout << "//---------------------------------------------------------" << endl;
-    cout << "//   RESULT ?                                              " << endl;
-    cout << "//---------------------------------------------------------" << endl;
     
   } catch( user_interruption & ) {
     return EXIT_SUCCESS;

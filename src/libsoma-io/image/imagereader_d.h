@@ -49,47 +49,43 @@ namespace soma {
   //   U T I L I T I E S
   //============================================================================
   template <typename T> 
-  void ImageReader<T>::updateParams()
+  void ImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     try {
       _binary = !(bool) 
-        _dsi.header()->getProperty( "ascii" )->getScalar();
+        dsi.header()->getProperty( "ascii" )->getScalar();
     } catch( ... ) {
       _binary = true;
     }
     
     try {
       _byteswap = (bool) 
-        _dsi.header()->getProperty( "byte_swapping" )->getScalar();
+        dsi.header()->getProperty( "byte_swapping" )->getScalar();
     } catch( ... ) {
       _byteswap = false;
     }
+    
+    _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
+    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+  }
+  
+  template <typename T>
+  void ImageReader<T>::resetParams()
+  {
+    _binary = false;
+    _byteswap = false;
+    _sizes = std::vector< std::vector<int> >();
   }
   
   //============================================================================
   //   C O N S T R U C T O R S
   //============================================================================
   template <typename T>
-  ImageReader<T>::ImageReader( DataSourceInfo & dsi ) : 
-  _dsi( dsi ), 
-  _byteswap( false ), 
-  _binary( true ),
-  _sizes( 1, std::vector<int>(4) )
-  {
-    // set _sizes from dsi's header or capabilities ?
-    _dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-    _dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-    _dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-    _dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
-    updateParams();
-  }
-  
-  template <typename T>
-  ImageReader<T>::ImageReader( const ImageReader<T> & other ) :
-  _dsi( other._dsi ), 
-  _byteswap( other._byteswap ), 
-  _binary( other._binary ),
-  _sizes( other._sizes )
+  ImageReader<T>::ImageReader() :
+    _binary( false ), _byteswap( false ), _sizes()
   {
   }
   
@@ -107,11 +103,11 @@ namespace soma {
    */
   template <typename T>
   void ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-             std::vector<int> & /* pos */,
-             std::vector<int> & /*size */,
-             std::vector<int> /* stride */,
-             int /* level */, 
-             carto::Object /* options */ )
+                             std::vector<int> &  /* pos */,
+                             std::vector<int> &  /*size */,
+                             std::vector<int>    /* stride */,
+                             int                 /* level */, 
+                             carto::Object       /* options */ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
     throw carto::invalid_format_error( "format reader not implemented yet...", 

@@ -23,8 +23,6 @@ set( _headers
   cartodata/volumeview.h
   cartodata/volumeformatreader.h
   cartodata/volumeformatreader_d.h
-  #cartodata/plugingis/gisvolumeformatreader.h
-  #cartodata/plugingis/gisvolumeformatreader_d.h
   checker/formatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
@@ -83,7 +81,8 @@ set( _somaio_sources
   cartodata/volume.cc
   cartodata/volumeview.cc
   cartodata/volumeformatreader.cc
-  #cartodata/plugingis/gisvolumeformatreader.cc
+  cartodata/volumeformatreader_gis.cc
+  cartodata/reader_volume.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
   config/version.cc

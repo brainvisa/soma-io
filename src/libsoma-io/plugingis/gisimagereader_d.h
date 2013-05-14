@@ -37,18 +37,20 @@
 #include <soma-io/plugingis/gisimagereader.h>               // class declaration
 #include <soma-io/image/imagereader.h>                               // heritage
 #include <soma-io/datasourceinfo/datasourceinfo.h>        // function's argument
-#include <soma-io/datasource/datasource.h>                           
+#include <soma-io/datasource/filedatasource.h>                // used by clone()
+#include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
 #include <soma-io/reader/itemreader.h>                        // read + byteswap
 //#include <soma-io/writer/itemwriter.h>                     // write + byteswap
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
+#include <cartobase/type/string_conversion.h>                 // conversion
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
 #include <iostream>
 //------------------------------------------------------------------------------
-
+//#define SOMAIO_GIR_DEBUG
 
 namespace soma {
   
@@ -56,12 +58,37 @@ namespace soma {
   //   U S E F U L
   //============================================================================
   template <typename T> 
-  void GisImageReader<T>::updateItemRW()
+  void GisImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
+    try {
+      ImageReader<T>::_binary = !(bool) dsi.header()->getProperty( "ascii" )
+                                                    ->getScalar();
+    } catch( ... ) {
+      ImageReader<T>::_binary = true;
+    }
+    
+    try {
+      ImageReader<T>::_byteswap = (bool) dsi.header()
+                                            ->getProperty( "byte_swapping" )
+                                            ->getScalar();
+    } catch( ... ) {
+      ImageReader<T>::_byteswap = false;
+    }
+    
     DefaultItemReader<T>  dir;
-    _itemr.reset( dir.reader( ImageReader<T>::_binary, ImageReader<T>::_byteswap ) );
+    _itemr.reset( dir.reader( ImageReader<T>::_binary, 
+                              ImageReader<T>::_byteswap ) );
     //DefaultItemWriter<T>  diw;
     //_itemw.reset( diw.writer( _binary, _byteswap ) );
+    
+    ImageReader<T>::_sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
+    dsi.header()->getProperty( "sizeX", ImageReader<T>::_sizes[ 0 ][ 0 ] );
+    dsi.header()->getProperty( "sizeY", ImageReader<T>::_sizes[ 0 ][ 1 ] );
+    dsi.header()->getProperty( "sizeZ", ImageReader<T>::_sizes[ 0 ][ 2 ] );
+    dsi.header()->getProperty( "sizeT", ImageReader<T>::_sizes[ 0 ][ 3 ] );
+    
+    ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
+                                dsi.list().dataSource( "ima", 0)->url() );
   }
   
   //============================================================================
@@ -75,22 +102,11 @@ namespace soma {
    */
   
   template <typename T>
-  GisImageReader<T>::GisImageReader( DataSourceInfo & dsi ): 
-    ImageReader<T>( dsi ), 
-    ChainDataSource( dsi.list().dataSource( "ima", 0) )
-  {
-    // dataSource should be in ("ima", 0), if not, the function returns a
-    // none() rc_ptr<DataSource>
-    updateItemRW();
-  }
-  
-  template <typename T>
-  GisImageReader<T>::GisImageReader( const GisImageReader<T> & other ) : 
-    ImageReader<T>( other ), 
-    ChainDataSource( other._source, other.url() ), 
+  GisImageReader<T>::GisImageReader() :
+    ImageReader<T>(),
+    ChainDataSource( DataSource::none() ),
     _itemr()
   {
-    updateItemRW();
   }
   
   template <typename T>
@@ -104,8 +120,7 @@ namespace soma {
   template <typename T> 
   DataSource* GisImageReader<T>::clone() const
   {
-    DataSourceInfo dsi( ImageReader<T>::_dsi );
-    return new GisImageReader<T>( dsi );
+    return new FileDataSource( ChainDataSource::url() );
   }
   
   template <typename T> 
@@ -113,7 +128,7 @@ namespace soma {
   {
     int m = source()->iterateMode();
     // direct access is not possible on ascii streams
-    if( !ImageReader<T>::_binary )
+    if( ImageReader<T>::_binary )
       m &= SequentialAccess;
     return m;
   }
@@ -183,6 +198,7 @@ namespace soma {
   bool GisImageReader<T>::allowsMemoryMapping() const
   {
     return ImageReader<T>::_binary && !ImageReader<T>::_byteswap;
+    
   }
   
   template <typename T> 
@@ -205,6 +221,9 @@ namespace soma {
                                 std::vector<int> /* stride */,
                                 int /* level */, carto::Object /* options */ )
   {
+    if( ImageReader<T>::_sizes.empty() )
+      updateParams( dsi );
+    
     // dest is supposed to be allocated
     
     // total volume size
@@ -237,12 +256,20 @@ namespace soma {
                             + y + oy ) + ox ) * sizeof(T) );
           // we move in the buffer
           char * target = (char *) dest + len * ( y + z + t );
-          if( readBlock( target, len ) != (long) len )
+          if( readBlock(target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
       }
     }
     
+    #ifdef SOMAIO_GIR_DEBUG
+      int x;
+      for( x=0; x<vt*vz*vy*vx; ++x ) {
+        std::cout << *(dest + x) << " ";
+        if( x%vx == vx-1 )
+          std::cout << std:: endl;
+      }
+    #endif
   }
 }
 
