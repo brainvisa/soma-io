@@ -31,10 +31,14 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/io/writer.h>
-#include <cartobase/datasource/filedatasource.h>
-#include <cartobase/datasource/streamdatasource.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/io/writer.h>
+#include <soma-io/datasource/filedatasource.h>
+#include <soma-io/datasource/streamdatasource.h>
+#include <soma-io/datasourceinfo/datasourceinfo.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 
@@ -44,19 +48,27 @@ GenericWriter::GenericWriter()
 
 
 GenericWriter::GenericWriter( rc_ptr<DataSource> ds )
-  : _datasource( ds )
+  : _datasourceinfo( new DataSourceInfo( ds ) )
 {
 }
 
 
 GenericWriter::GenericWriter( const string & filename )
-  : _datasource( new FileDataSource( filename ) )
+  : _datasourceinfo ( new DataSourceInfo
+                      ( rc_ptr<DataSource>
+                        ( new FileDataSource( filename ) ) 
+                      )
+                    )
 {
 }
 
 
 GenericWriter::GenericWriter( ostream & stream )
-  : _datasource( new OStreamDataSource( stream ) )
+  : _datasourceinfo ( new DataSourceInfo
+                      ( rc_ptr<DataSource>
+                        ( new OStreamDataSource( stream ) ) 
+                      )
+                    )
 {
 }
 
@@ -68,45 +80,49 @@ GenericWriter::~GenericWriter()
 
 void GenericWriter::flush()
 {
-  if( _datasource )
-    _datasource->flush();
+  if( _datasourceinfo->list().dataSource( "default", 0 ) )
+    _datasourceinfo->list().dataSource( "default", 0 )->flush();
 }
 
 
 void GenericWriter::close()
 {
-  if( _datasource )
-    _datasource->close();
+  if( _datasourceinfo->list().dataSource( "default", 0 ) )
+    _datasourceinfo->list().dataSource( "default", 0 )->close();
 }
 
 
 const rc_ptr<DataSource> GenericWriter::dataSource() const
 {
-  return _datasource;
+  return _datasourceinfo->list().dataSource( "default", 0 );
 }
 
 
 rc_ptr<DataSource> GenericWriter::dataSource()
 {
-  return _datasource;
+  return _datasourceinfo->list().dataSource( "default", 0 );
 }
 
 
 void GenericWriter::attach( rc_ptr<DataSource> ds )
 {
-  _datasource = ds;
+  _datasourceinfo.reset( new DataSourceInfo( ds ) );
 }
 
 
 void GenericWriter::attach( const std::string & filename )
 {
-  _datasource.reset( new FileDataSource( filename ) );
+  _datasourceinfo.reset ( new DataSourceInfo
+                          ( rc_ptr<DataSource>( new FileDataSource( filename ) ) )
+                        );
 }
 
 
 void GenericWriter::attach( ostream & stream )
 {
-  _datasource.reset( new OStreamDataSource( stream ) );
+  _datasourceinfo.reset ( new DataSourceInfo
+                          ( rc_ptr<DataSource>( new OStreamDataSource( stream ) ) )
+                        );
 }
 
 

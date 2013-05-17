@@ -45,6 +45,7 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 #include <cartobase/smart/rcptr.h>
+#include <cartobase/exception/ioexcept.h>
 //--- system -------------------------------------------------------------------
 #include <vector>
 //------------------------------------------------------------------------------
@@ -78,7 +79,9 @@ namespace soma
                                     carto::Object options )
   {
     // multiresolution level
-    int level = 0; // for now
+    int level = 0;
+    if( options->hasProperty( "resolution_level" ) )
+      options->getProperty( "resolution_level", level );
     
     if( obj.allocatorContext().isAllocated() 
         && obj.allocatorContext().allocatorType() 
@@ -93,7 +96,7 @@ namespace soma
       viewsize[ 3 ] = obj.getSizeT();
     
       // volume on disk size
-      // for now we just have the 0 level
+      // we know size[XYZT] contain the dimensions of the chosen resolution level
       std::vector<int>  imagesize( 4, 0 );
       dsi->header()->getProperty( "sizeX", imagesize[ 0 ] );
       dsi->header()->getProperty( "sizeY", imagesize[ 1 ] );
@@ -110,15 +113,17 @@ namespace soma
       bool withborders = diff[0]<0 || diff[1]<0 || diff[2]<0 || diff[3]<0;
       bool partialreading = diff[0]>0 || diff[1]>0 || diff[2]>0 || diff[3]>0;
       
-      // strides
+      // TODO strides
       // for now we don't use them
       std::vector<int> strides;
       
       // region's origine
       std::vector<int>  pos ( 4 , 0 );
-      moncartodata::VolumeView<T> *vv = dynamic_cast<moncartodata::VolumeView<T> *>( &obj );
+      moncartodata::VolumeView<T> *vv 
+        = dynamic_cast<moncartodata::VolumeView<T> *>( &obj );
       if( vv ) {
-        const typename moncartodata::VolumeView<T>::Position4Di & p = vv->posInRefVolume();
+        const typename moncartodata::VolumeView<T>::Position4Di & p 
+          = vv->posInRefVolume();
         pos[ 0 ] = p[ 0 ];
         pos[ 1 ] = p[ 1 ];
         pos[ 2 ] = p[ 2 ];
@@ -164,7 +169,7 @@ namespace soma
 ////             V O L U M E R E F F O R M A T R E A D E R                  ////
 ////////////////////////////////////////////////////////////////////////////////
 
-//============================================================================
+  //============================================================================
   //   C O N S T R U C T O R S
   //============================================================================
   template <typename T>

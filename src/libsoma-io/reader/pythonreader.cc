@@ -318,6 +318,9 @@ void PythonReader::init( const HelperSet& helpers )
     d->helpers["string_vector"] = &PythonReader::genericSequenceHelper<vector<string> >;
   if (d->helpers.find("None") == d->helpers.end())
     d->helpers["None"] = &noneHelper;
+  // TRYING VECTOR OF VECTOR
+  if (d->helpers.find("int_vector_vector") == d->helpers.end())
+    d->helpers["int_vector_vector"] = &PythonReader::genericSequenceHelper<vector<vector<int> > >;
 
   // Some helpers compatible with DataTypeCode::dataType()
   if (d->helpers.find( "U8" ) == d->helpers.end())

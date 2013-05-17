@@ -634,7 +634,7 @@ namespace soma
     return ds;
   }
 
-} // namespace carto
+} // namespace soma
 
 #endif
 

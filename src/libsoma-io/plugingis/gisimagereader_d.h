@@ -255,7 +255,7 @@ namespace soma {
           at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
                             + y + oy ) + ox ) * sizeof(T) );
           // we move in the buffer
-          char * target = (char *) dest + len * ( y + z + t );
+          char * target = (char *) dest + len * ( vy * ( vz * t + z ) + y );
           if( readBlock(target, len ) != (long) len )
             throw carto::eof_error( url() );
         }

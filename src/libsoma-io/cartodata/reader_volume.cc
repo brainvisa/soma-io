@@ -31,31 +31,20 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_WRITER_FORMATWRITER_H
-#define SOMAIO_WRITER_FORMATWRITER_H
-//--- cartobase ----------------------------------------------------------------
+#include <soma-io/io/reader_d.h>
+#include <soma-io/io/formatdictionary_d.h>
+#include <soma-io/reader/formatreader_d.h>
+#include <soma-io/cartodata/volume.h>
 #include <cartobase/smart/rcptr.h>
-//------------------------------------------------------------------------------
 
-namespace carto {
-  class Object;
-}
+using namespace soma;
+using namespace carto;
+using namespace moncartodata;
 
-namespace soma
-{
-  class DataSourceInfo;
+template class Reader<Volume<int16_t> >;
+template class FormatReader<Volume<int16_t> >;
+template class FormatDictionary<Volume<int16_t> >;
 
-  /// Low-level object IO writer specialized for a specific format
-  template<typename T>
-  class FormatWriter
-  {
-  public:
-    virtual ~FormatWriter() {}
-    virtual bool write( const T & obj, 
-                        carto::rc_ptr<DataSourceInfo> dsi,
-                        carto::Object options ) = 0;
-  };
-
-}
-
-#endif
+template class Reader<rc_ptr<Volume<int16_t> > >;
+template class FormatReader<rc_ptr<Volume<int16_t> > >;
+template class FormatDictionary<rc_ptr<Volume<int16_t> > >;

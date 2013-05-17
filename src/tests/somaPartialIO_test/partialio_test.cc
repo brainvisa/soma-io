@@ -33,12 +33,14 @@
 
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/io/reader.h>
+#include <soma-io/io/writer.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
 //--- cartodata ----------------------------------------------------------------
 #include <soma-io/cartodata/volumeview.h>
+#include <soma-io/cartodata/volumeformatwriter.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 #include <cartobase/getopt/getopt.h>
@@ -66,17 +68,21 @@ int main( int argc, const char** argv )
     //=== APPLICATION ==========================================================
     VolumeView<int16_t>::Position4Di origin;
     VolumeView<int16_t>::Position4Di frame;
+    string ofname;
+    bool partial_writing;
 
     CartoApplication  app( argc, argv, "Test for soma partial reading" );
     app.addOption( fname, "-i", "input filename to be read\n" );
+    app.addOption( ofname, "-o", "output filename to be written\n", true );
     app.addOption( origin[ 0 ], "-ox", "frame origin (x comp)\n", true );
-    app.addOption( origin[ 1 ], "-oy", "frame origin (x comp)\n", true );
-    app.addOption( origin[ 2 ], "-oz", "frame origin (x comp)\n", true );
-    app.addOption( origin[ 3 ], "-ot", "frame origin (x comp)\n", true );
+    app.addOption( origin[ 1 ], "-oy", "frame origin (y comp)\n", true );
+    app.addOption( origin[ 2 ], "-oz", "frame origin (z comp)\n", true );
+    app.addOption( origin[ 3 ], "-ot", "frame origin (t comp)\n", true );
     app.addOption( frame[ 0 ], "-sx", "frame size (x comp)\n", true );
-    app.addOption( frame[ 1 ], "-sy", "frame size (x comp)\n", true );
-    app.addOption( frame[ 2 ], "-sz", "frame size (x comp)\n", true );
-    app.addOption( frame[ 3 ], "-st", "frame size (x comp)\n", true );
+    app.addOption( frame[ 1 ], "-sy", "frame size (y comp)\n", true );
+    app.addOption( frame[ 2 ], "-sz", "frame size (z comp)\n", true );
+    app.addOption( frame[ 3 ], "-st", "frame size (t comp)\n", true );
+    app.addOption( partial_writing, "-pw", "partial writing of volume\n", true );
     app.alias( "-v", "--verbose" );
 
     app.initialize();
@@ -100,6 +106,7 @@ int main( int argc, const char** argv )
     cout << "=========================================================" << endl;
     options = Object::value( PropertySet() );
     options->setProperty( "unallocated", true );
+    options->setProperty( "resolution_level", 0 );
     rVol.setOptions( options );
     cout << "reading unallocated volume..." << endl;
     VolumeRef<int16_t>  vol( rVol.read() );
@@ -116,11 +123,35 @@ int main( int argc, const char** argv )
         frame[ 2 ] == 0 || frame[ 3 ] == 0 )
       frame = size;
     cout << "done" << endl;
+    cout << "=== HEADER ==============================================" << endl;
+    int rescount = 0;
+    if( rVol.dataSourceInfo()->header()->hasProperty( "resolutions_count" ) ) {
+      rVol.dataSourceInfo()->header()->getProperty( "resolutions_count", rescount );
+      cout << "resolutions_count: " << rescount << endl;
+    }
+    vector<vector<int> > resdim( rescount, vector<int>( 4, 0 ) );
+    if( rVol.dataSourceInfo()->header()->hasProperty( "resolutions_dimension" ) ) {
+      cout << "resolutions_dimension: ";
+      int i, j;
+      for( i=0; i<rescount; ++i ) {
+        cout << "[ ";
+        for (j=0; j<4; ++j ) {
+          resdim[i][j] = rVol.dataSourceInfo()
+                             ->header()->getProperty( "resolutions_dimension" )
+                             ->getArrayItem(i)->getArrayItem(j)->getScalar();
+          cout << resdim[i][j] << " ";
+        }
+        cout << "] ";
+      }
+      cout << endl;
+    }
+    cout << "=========================================================" << endl;
     
     //=== SET ALLOCATED VOLUME VIEW ============================================
     Reader<Volume<int16_t> > rView( rVol.dataSourceInfo() );
     options = Object::value( PropertySet() );
     options->setProperty( "partial_reading", true );
+    options->setProperty( "resolution_level", 0 );
     rView.setOptions( options );
     VolumeRef<int16_t> view( new VolumeView<int16_t>( vol, origin, frame ) );
     
@@ -144,6 +175,7 @@ int main( int argc, const char** argv )
          << endl;
     cout << "=========================================================" << endl;
     cout << "=== WRITE VOLUME ========================================" << endl;
+    /*
     int x, y, z, t;
     for( t=0; t<view->getSizeT(); ++t )
       for( z=0; z<view->getSizeZ(); ++z )
@@ -152,7 +184,22 @@ int main( int argc, const char** argv )
             cout << view( x, y, z, t ) << " ";
           cout << endl;
         }
+    */
+    if( !ofname.empty() ) {
+      Writer<VolumeRef<int16_t> > vfw( ofname );
+      options = Object::value( PropertySet() );
+      if( partial_writing ) {
+        vfw.write( vol, options );
+        options = Object::value( PropertySet() );
+        options->setProperty( "partial_writing", true );
+        vfw.attach( ofname );
+      }
+     vfw.write( view, options );
+    }
     cout << "=========================================================" << endl;
+    
+    //=== WRITE ================================================================
+    
   }
   catch( user_interruption & )
   {

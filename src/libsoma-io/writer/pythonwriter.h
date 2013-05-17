@@ -31,92 +31,105 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_OBJECT_PYTHONWRITER_H
-#define CARTOBASE_OBJECT_PYTHONWRITER_H
-
+#ifndef SOMAIO_WRITER_PYTHONWRITER_H
+#define SOMAIO_WRITER_PYTHONWRITER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/object/syntax.h>
 #include <cartobase/object/object.h>
-#include <cartobase/datasource/datasource.h>
+//--- system -------------------------------------------------------------------
 #include <fstream>
+//------------------------------------------------------------------------------
 
 namespace carto
 {
   class GenericObject;
   class Object;
+}
+
+namespace soma
+{
 
   class CARTOBASE_API PythonWriter
   {
   public:
-    typedef void (*Helper)( const GenericObject &, PythonWriter & w, 
-			    int indent, bool writeInternals );
+    typedef void (*Helper)( const carto::GenericObject &, PythonWriter & w, 
+                            int indent, bool writeInternals );
     typedef std::map<std::string, Helper> HelperSet;
     typedef void (*CatchFunction)( PythonWriter &, std::exception &,
-                                   const GenericObject & );
+                                   const carto::GenericObject & );
 
     PythonWriter( const std::string& filename,
-		  const SyntaxSet& rules = SyntaxSet(),
-		  const HelperSet& helpers = HelperSet() );
-    PythonWriter( const SyntaxSet& rules = SyntaxSet(),
-		  const HelperSet& helpers = HelperSet() );
+                  const carto::SyntaxSet& rules = carto::SyntaxSet(),
+                  const HelperSet& helpers = HelperSet() );
+    PythonWriter( const carto::SyntaxSet& rules = carto::SyntaxSet(),
+                  const HelperSet& helpers = HelperSet() );
     /// PythonWriter takes ownership of the DataSource
-    PythonWriter( rc_ptr<DataSource> ds, const SyntaxSet& rules = SyntaxSet(),
-		  const HelperSet& helpers = HelperSet() );
+    PythonWriter( carto::rc_ptr<DataSource> ds, 
+                  const carto::SyntaxSet& rules = carto::SyntaxSet(),
+                  const HelperSet& helpers = HelperSet() );
     virtual ~PythonWriter();
 
     void open(const std::string& filename);
     ///	attach to an existing (and open) stream
     void attach( std::ostream & s );
-    void attach( rc_ptr<DataSource> ds );
+    void attach( carto::rc_ptr<DataSource> ds );
     void close();
     virtual std::string name() const;
     bool operator ! () const;
     bool is_open() const;
-    rc_ptr<DataSource> dataSource() { return _datasource; }
+    carto::rc_ptr<DataSource> dataSource() { return _datasource; }
 
     /// helper functions read basic data type
     const HelperSet & helpers() const;
-    HelperSet & helpers();
-    const SyntaxSet & syntaxes() const;
-    SyntaxSet & syntaxes();
+          HelperSet & helpers();
+    const carto::SyntaxSet & syntaxes() const;
+          carto::SyntaxSet & syntaxes();
 
     /// Writes a generic object to stream
-    void write( const GenericObject & object, bool writeInternals = false, 
-		bool writevariable = true );
-    void write( const Object & object, bool writeInternals = false, 
-		bool writevariable = true );
+    void write( const carto::GenericObject & object, 
+                bool writeInternals = false, 
+                bool writevariable = true );
+    void write( const carto::Object & object, 
+                bool writeInternals = false, 
+                bool writevariable = true );
     /// Writes an element according to the syntax
-    void write( const GenericObject & object, int indent, 
-		const std::string & syntax = "", 
-		const std::string & semantic = "", 
-		bool writeInternals = false );
+    void write( const carto::GenericObject & object, int indent, 
+                const std::string & syntax = "", 
+                const std::string & semantic = "", 
+                bool writeInternals = false );
     bool isInternal( const std::string & syntax, 
-		     const std::string & semantic );
+                     const std::string & semantic );
     void setSingleLineMode( bool x ) { _singleLine = x; }
     bool singleLine() const { return _singleLine; }
-    /** if set, the catch function is used instead of throwing the regular
-      exception during writing */
+    /// if set, the catch function is used instead of throwing the regular
+    /// exception during writing
     void setCatchFunction( CatchFunction f );
 
     /// utility function
     static void writeString( DataSource &, std::string );
 
     template<typename T>
-    static void genericSequenceHelper( const GenericObject & obj, PythonWriter & w, int ind, bool writeInternals );
+    static void genericSequenceHelper( const carto::GenericObject & obj, 
+                                       PythonWriter & w, int ind, 
+                                       bool writeInternals );
 
   protected:
     void init( const HelperSet & helpers );
 
-    SyntaxSet		_rules;
-    rc_ptr<DataSource>	_datasource;
-    HelperSet		_helpers;
-    bool		_singleLine;
-    CatchFunction       _catchFunction;
+    carto::SyntaxSet          _rules;
+    carto::rc_ptr<DataSource> _datasource;
+    HelperSet                 _helpers;
+    bool                      _singleLine;
+    CatchFunction             _catchFunction;
   };
+} // namespace soma
 
-DECLARE_GENERIC_OBJECT_TYPE( PythonWriter::Helper )
-DECLARE_GENERIC_OBJECT_TYPE( PythonWriter::HelperSet )
-
-  } // namespace carto
+namespace carto {
+  DECLARE_GENERIC_OBJECT_TYPE( soma::PythonWriter::Helper )
+  DECLARE_GENERIC_OBJECT_TYPE( soma::PythonWriter::HelperSet )
+}
 
 #endif

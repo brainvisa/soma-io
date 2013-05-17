@@ -31,18 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_ITEMWRITER_H
-#define CARTOBASE_IO_ITEMWRITER_H
+#ifndef SOMAIO_WRITER_ITEMWRITER_H
+#define SOMAIO_WRITER_ITEMWRITER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
+//------------------------------------------------------------------------------
 
-#include <cartobase/datasource/datasource.h>
-#include <cartobase/io/asciidatasourcetraits.h>
-
-namespace carto
+namespace soma
 {
 
-  /**	Low-level "small item" writer, used by higher-level file readers. 
-	\sa ItemReader
-  */
+  ///	Low-level "small item" writer, used by higher-level file readers. 
+	/// \sa ItemReader
   template<typename T>
   class ItemWriter
   {
@@ -60,12 +60,11 @@ namespace carto
   };
 
 
-  /**	Default low-levels writers.
-	They are a default implementation of the writers for most common types,
-	and can be specialized for other types if needed.
-	We have aleady specialized AimsVector writers
-	\sa DefaultItemReader 
-  */
+  ///	Default low-levels writers.
+	/// They are a default implementation of the writers for most common types,
+	/// and can be specialized for other types if needed.
+	/// We have aleady specialized AimsVector writers
+	/// \sa DefaultItemReader 
   template <typename T>
   class DefaultItemWriter : public ItemWriter<T>
   {

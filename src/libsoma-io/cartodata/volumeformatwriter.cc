@@ -31,31 +31,26 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_WRITER_FORMATWRITER_H
-#define SOMAIO_WRITER_FORMATWRITER_H
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>
+//--- cartodata ----------------------------------------------------------------
+#include <soma-io/cartodata/volumeformatwriter_d.h>
 //------------------------------------------------------------------------------
 
-namespace carto {
-  class Object;
-}
+using namespace soma;
 
-namespace soma
-{
-  class DataSourceInfo;
+template class VolumeFormatWriter<int8_t>;
+template class VolumeFormatWriter<int16_t>;
+template class VolumeFormatWriter<int32_t>;
+template class VolumeFormatWriter<uint8_t>;
+template class VolumeFormatWriter<uint16_t>;
+template class VolumeFormatWriter<uint32_t>;
+template class VolumeFormatWriter<float>;
+template class VolumeFormatWriter<double>;
 
-  /// Low-level object IO writer specialized for a specific format
-  template<typename T>
-  class FormatWriter
-  {
-  public:
-    virtual ~FormatWriter() {}
-    virtual bool write( const T & obj, 
-                        carto::rc_ptr<DataSourceInfo> dsi,
-                        carto::Object options ) = 0;
-  };
-
-}
-
-#endif
+template class VolumeRefFormatWriter<int8_t>;
+template class VolumeRefFormatWriter<int16_t>;
+template class VolumeRefFormatWriter<int32_t>;
+template class VolumeRefFormatWriter<uint8_t>;
+template class VolumeRefFormatWriter<uint16_t>;
+template class VolumeRefFormatWriter<uint32_t>;
+template class VolumeRefFormatWriter<float>;
+template class VolumeRefFormatWriter<double>;

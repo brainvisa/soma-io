@@ -31,20 +31,23 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_PYTHONFORMATWRITER_H
-#define CARTOBASE_IO_PYTHONFORMATWRITER_H
-
-#include <cartobase/io/formatwriter.h>
+#ifndef SOMAIO_WRITER_PYTHONFORMATWRITER_H
+#define SOMAIO_WRITER_PYTHONFORMATWRITER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/writer/formatwriter.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
 
-  class PythonFormatWriter : public FormatWriter<GenericObject>
+  class PythonFormatWriter : public FormatWriter<carto::GenericObject>
   {
   public:
-    virtual bool write( rc_ptr<DataSource> ds, const GenericObject & obj, 
-                        Object options );
+    virtual bool write( const carto::GenericObject & obj, 
+                        carto::rc_ptr<DataSourceInfo> dsi,
+                        carto::Object options );
   };
 
 }

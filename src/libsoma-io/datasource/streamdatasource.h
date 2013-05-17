@@ -45,6 +45,9 @@
 namespace soma
 {
 
+  //============================================================================
+  //   S T R E A M
+  //============================================================================
   /// DataSource on a std::iostream (read/write stream)
   class StreamDataSource : public DataSource
   {
@@ -84,7 +87,9 @@ namespace soma
     std::string			_url;
   };
 
-
+  //============================================================================
+  //   I S T R E A M
+  //============================================================================
   /// DataSource on a std::istream (read-only stream)
   class IStreamDataSource : public DataSource
   {
@@ -126,7 +131,9 @@ namespace soma
     std::string			_url;
   };
 
-
+  //============================================================================
+  //   O S T R E A M
+  //============================================================================
   /// DataSource on a std::ostream (write-only stream)
   class OStreamDataSource : public DataSource
   {
@@ -168,8 +175,133 @@ namespace soma
     carto::rc_ptr<std::ostream>	_rcstr;
     std::string			_url;
   };
-
+  
 }
 
+//==============================================================================
+//   S T R E A M   O P E R A T O R
+//==============================================================================
+namespace soma {
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, bool val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, int8_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, uint8_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, int16_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, uint16_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, int32_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, uint32_t val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, float val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, double val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, long double val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, void* val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, std::streambuf* buf )
+{
+  ds.stream() << buf;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, std::ostream& (*pf)(std::ostream&) )
+{
+  ds.stream() << pf;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, std::ios& (*pf)(std::ios&) )
+{
+  ds.stream() << pf;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, std::ios_base& (*pf)(std::ios_base&) )
+{
+  ds.stream() << pf;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, const std::string & val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+inline soma::OStreamDataSource &
+operator << ( soma::OStreamDataSource & ds, const char * const & val )
+{
+  ds.stream() << val;
+  return ds;
+}
+
+} // soma
 #endif
 

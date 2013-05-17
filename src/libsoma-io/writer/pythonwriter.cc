@@ -31,19 +31,24 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/object/pythonwriter_d.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/writer/pythonwriter_d.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
+#include <soma-io/datasource/filedatasource.h>
+#include <soma-io/datasource/streamdatasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
 #include <cartobase/object/property.h>
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/ioexcept.h>
-#include <cartobase/io/asciidatasourcetraits.h>
-#include <cartobase/datasource/filedatasource.h>
-#include <cartobase/datasource/streamdatasource.h>
+//--- system -------------------------------------------------------------------
 // debug
 //#include <iostream>
+//------------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
+using namespace soma;
 
 
 PythonWriter::PythonWriter( const std::string& filename, 
@@ -320,14 +325,14 @@ PythonWriter::is_open() const
 
 
 void PythonWriter::write( const Object & object, bool writeInternals, 
-			  bool writevariable )
+                          bool writevariable )
 {
   write( *object, writeInternals, writevariable );
 }
 
 
 void PythonWriter::write( const GenericObject & object, bool writeInternals, 
-			  bool writevariable )
+                          bool writevariable )
 {
   if( !_datasource )
     throw file_error( "no IO source\n" );

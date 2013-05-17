@@ -231,10 +231,10 @@ namespace soma
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *_datasourceinfo.get() );
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo );
     if( dsi.list().empty() )
       dsil.launchException();
-    if( dsi.header().get() )
+    if( !dsi.header().get() )
       dsil.launchException();
     *_datasourceinfo = dsi;
     _alloccontext.setDataSourceInfo( _datasourceinfo );
@@ -415,7 +415,7 @@ namespace soma
     if( !_options->getProperty( "format", format )  // user options first
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
-
+    
     #ifdef CARTO_DEBUG_IO
       std::cout << "format: " << format << std::endl;
     #endif

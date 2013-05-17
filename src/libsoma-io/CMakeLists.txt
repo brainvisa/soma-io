@@ -23,6 +23,9 @@ set( _headers
   cartodata/volumeview.h
   cartodata/volumeformatreader.h
   cartodata/volumeformatreader_d.h
+  cartodata/volumeformatwriter.h
+  cartodata/volumeformatwriter_d.h
+  #checker/achecker.h
   checker/formatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
@@ -40,18 +43,20 @@ set( _headers
   datasourceinfo/datasourceinfoloader.h
   image/imagereader.h
   image/imagereader_d.h
-  #image/imagewriter.h
+  image/imagewriter.h
+  image/imagewriter_d.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   io/reader.h
   io/reader_d.h
   #io/readeralgorithm.h
-  #io/writer.h
-  #io/writer_d.h
+  io/writer.h
+  io/writer_d.h
   plugingis/gisformatchecker.h
-  plugingis//gisimagereader.h
+  plugingis/gisimagereader.h
   plugingis/gisimagereader_d.h
-  #plugingis/gisimagewriter.h
+  plugingis/gisimagewriter.h
+  plugingis/gisimagewriter_d.h
   reader/areader.h
   reader/formatreader.h
   reader/formatreader_d.h
@@ -65,9 +70,12 @@ set( _headers
   utilities/creator.h
   #utilities/headertranslator.h
   utilities/minfXML2.h
+  #writer/awriter.h
   writer/formatwriter.h
-  #writer/itemwriter.h
-  #writer/pythonformatwriter.h
+  writer/itemwriter.h
+  writer/pythonformatwriter.h
+  writer/pythonwriter.h
+  writer/pythonwriter_d.h
 )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
@@ -82,7 +90,11 @@ set( _somaio_sources
   cartodata/volumeview.cc
   cartodata/volumeformatreader.cc
   cartodata/volumeformatreader_gis.cc
+  cartodata/volumeformatwriter.cc
+  cartodata/volumeformatwriter_gis.cc
   cartodata/reader_volume.cc
+  cartodata/writer_volume.cc
+  #checker/achecker.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
   config/version.cc
@@ -99,19 +111,23 @@ set( _somaio_sources
   datasourceinfo/datasourceinfo.cc
   datasourceinfo/datasourceinfoloader.cc
   image/imagereader.cc
+  image/imagewriter.cc
   io/formatdictionary.cc
   io/reader_object.cc
   #io/readeralgorithm.cc
-  #io/writer.cc
+  io/writer.cc
   plugingis/gisformatchecker.cc
   plugingis/gisimagereader.cc
+  plugingis/gisimagewriter.cc
   reader/areader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc
   reader/xmlformatreader.cc
   utilities/asciidatasourcetraits.cc
   utilities/minfXML2.cc
-  #writer/pythonformatwriter.cc
+  #writer/awriter.cc
+  writer/pythonformatwriter.cc
+  writer/pythonwriter.cc
 )
 
 add_library( soma-io SHARED ${_somaio_sources} )

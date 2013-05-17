@@ -420,6 +420,10 @@ SyntaxSet & DataSourceInfoLoader::minfSyntax()
     sx[ "referentials" ] = Semantic( "string_vector" );
 
     sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
+    
+    // TRYING VECTOR OF VECTOR
+    sx[ "resolutions_count" ] = Semantic( "int" );
+    sx[ "resolutions_dimension" ] = Semantic( "int_vector_vector " );
 
     pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
     pheader_syntax[ "float_vector" ][ "" ] = Semantic( "float" );

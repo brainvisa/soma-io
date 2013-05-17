@@ -31,25 +31,25 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_IMAGEREADER_D_H
-#define SOMAIO_IMAGE_IMAGEREADER_D_H
-//--- soma io ------------------------------------------------------------------
-#include <soma-io/image/imagereader.h>                      // class declaration
+#ifndef SOMAIO_IMAGE_IMAGEWRITER_D_H
+#define SOMAIO_IMAGE_IMAGEWRITER_D_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/image/imagewriter.h>                      // class declaration
 #include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
+#include <soma-io/datasource/datasource.h>
 //--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>         // updateParams(): to access header
-#include <cartobase/object/property.h>         // updateParams(): to read header
+#include <cartobase/smart/rcptr.h>
+#include <cartobase/object/object.h>
 //--- system -------------------------------------------------------------------
-#include <vector>
 //------------------------------------------------------------------------------
 
-namespace soma {
-  
+namespace soma
+{
   //============================================================================
   //   U T I L I T I E S
   //============================================================================
   template <typename T> 
-  void ImageReader<T>::updateParams( DataSourceInfo & dsi )
+  void ImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
     try {
       _binary = !(bool) 
@@ -94,7 +94,7 @@ namespace soma {
   }
   
   template <typename T>
-  void ImageReader<T>::resetParams()
+  void ImageWriter<T>::resetParams()
   {
     _binary = false;
     _byteswap = false;
@@ -105,30 +105,39 @@ namespace soma {
   //   C O N S T R U C T O R S
   //============================================================================
   template <typename T>
-  ImageReader<T>::ImageReader() :
+  ImageWriter<T>::ImageWriter() :
     _binary( false ), _byteswap( false ), _sizes()
   {
   }
   
   template <typename T>
-  ImageReader<T>::~ImageReader()
+  ImageWriter<T>::~ImageWriter()
   {
   }
   
   //============================================================================
   //   M E T H O D S
   //============================================================================
-  //--- read(...) --------------------------------------------------------------
-  /* This is an abstract method that is defined in format-specific readers
-   * (like GisImageReader)
+  //--- write(...) --------------------------------------------------------------
+  /* This is an abstract method that is defined in format-specific writers
+   * (like GisImageWriter)
    */
   template <typename T>
-  void ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                             std::vector<int> &  /* pos */,
-                             std::vector<int> &  /*size */,
-                             std::vector<int>    /* stride */,
-                             int                 /* level */, 
-                             carto::Object       /* options */ )
+  void ImageWriter<T>::write( T * /*source*/, 
+                              DataSourceInfo & dsi,
+                              std::vector<int> & /*pos*/,
+                              std::vector<int> & /*size*/,
+                              int /*level*/,
+                              carto::Object /*options*/ )
+  {
+    carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
+    throw carto::invalid_format_error( "format reader not implemented yet...", 
+                                       ds ? ds->url() : "" );
+  }
+  
+  template <typename T>
+  DataSourceInfo ImageWriter<T>::writeHeader( DataSourceInfo dsi, 
+                                              carto::Object /*options*/ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
     throw carto::invalid_format_error( "format reader not implemented yet...", 

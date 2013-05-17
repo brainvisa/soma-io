@@ -31,31 +31,62 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_WRITER_FORMATWRITER_H
-#define SOMAIO_WRITER_FORMATWRITER_H
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>
-//------------------------------------------------------------------------------
+//=============================================================================
+//	H E A D E R  F I L E S
+//=============================================================================
 
-namespace carto {
-  class Object;
-}
+#include <cartobase/object/achecker.h>
+#include <cartobase/object/syntobject.h>
 
-namespace soma
+using namespace carto;
+using namespace std;
+
+
+//=============================================================================
+//	M E T H O D S
+//=============================================================================
+
+AttributedChecker::AttributedChecker(const SyntaxSet& syntax) : _syntax(syntax)
 {
-  class DataSourceInfo;
-
-  /// Low-level object IO writer specialized for a specific format
-  template<typename T>
-  class FormatWriter
-  {
-  public:
-    virtual ~FormatWriter() {}
-    virtual bool write( const T & obj, 
-                        carto::rc_ptr<DataSourceInfo> dsi,
-                        carto::Object options ) = 0;
-  };
-
 }
 
-#endif
+
+AttributedChecker::~AttributedChecker()
+{
+}
+
+
+set<string>
+AttributedChecker::check(const GenericObject& object) const
+{
+	set<string> result;
+
+        const SyntaxedInterface	*si 
+          = object.getInterface<const SyntaxedInterface>();
+        if( !si || !si->hasSyntax() )
+	  return result;
+	// get the syntactic attribute
+	SyntaxSet::const_iterator s = _syntax.find(si->getSyntax());
+	if(s == _syntax.end())
+	  {
+	    result.insert( "<syntax not found>" );
+	    return result;
+	  }
+
+	// make sure all mandatory semantic attributes are here
+	set<string> attributes;
+        Object	it = object.objectIterator();
+        for( it=object.objectIterator(); it->isValid(); it->next() )
+          attributes.insert( it->key() );
+	for (SemanticSet::const_iterator i = s->second.begin(); 
+	     i != s->second.end(); ++i)
+	{
+		if (i->second.needed == true 
+		    && attributes.find(i->first) == attributes.end())
+		{
+			result.insert(i->first);
+		}
+	}
+
+	return result;
+}

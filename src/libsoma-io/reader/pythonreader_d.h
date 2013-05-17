@@ -77,6 +77,14 @@ namespace
     return( new ValueObject<T>( x ) );
   }
 
+
+  template<>
+  GenericObject*
+  genericHelper<std::vector<int> >(GenericObject* o, const string & s, PythonReader & r )
+  {
+    return PythonReader::genericSequenceHelper<std::vector<int> >( o, s, r );
+  }
+
   template<>
   GenericObject*
   genericHelper<char>( GenericObject*, const string &, PythonReader & r )
@@ -224,8 +232,9 @@ namespace
 } // namespace (internal linkage)
 
 template<typename T>
-GenericObject* PythonReader::genericSequenceHelper( GenericObject*, const string &,
-                                      PythonReader & r )
+GenericObject* PythonReader::genericSequenceHelper( GenericObject*, 
+                                                    const string &,
+                                                    PythonReader & r )
 {
   bool        end = false;
   string  id, type;
@@ -280,8 +289,7 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*, const string
             }
           ds.ungetch( c );
           de = genericHelper<typename T::value_type>( obj, "", r );
-          dev
-            = dynamic_cast<ValueObject<typename T::value_type>*>( de );
+          dev = dynamic_cast<ValueObject<typename T::value_type>*>( de );
           if( dev )
             obj->getValue().push_back( dev->getValue() );
           else

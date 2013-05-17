@@ -47,6 +47,7 @@
 //--- system -------------------------------------------------------------------
 #include <stdio.h>
 #include <iostream>
+#define SOMAIO_BYTE_ORDER 0x41424344  //"ABCD" in ascii
 //-- debug ---------------------------------------------------------------------
 //#define CARTO_IO_DEBUG
 //------------------------------------------------------------------------------
@@ -321,7 +322,9 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
     else
       break;
   }
-
+  //if( hds->isOpen() )
+  //  hds->close();
+  
   if( type.empty() )
     throw format_mismatch_error( "Not a GIS header", fname );
 
@@ -350,7 +353,7 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   if( !ascii )
     if( byteord.length() >= 4 ) {
       uint32_t  bo = *( (uint32_t*) byteord.c_str() );
-      hdr->setProperty( "byte_swapping", (int) ( bo != 0x41424344 ) );
+      hdr->setProperty( "byte_swapping", (int) ( bo != SOMAIO_BYTE_ORDER ) );
     }
     
   return hdr;

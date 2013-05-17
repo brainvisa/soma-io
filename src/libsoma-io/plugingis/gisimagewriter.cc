@@ -31,31 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_WRITER_FORMATWRITER_H
-#define SOMAIO_WRITER_FORMATWRITER_H
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/plugingis/gisimagewriter_d.h>
 //------------------------------------------------------------------------------
 
-namespace carto {
-  class Object;
-}
+using namespace soma;
 
-namespace soma
-{
-  class DataSourceInfo;
-
-  /// Low-level object IO writer specialized for a specific format
-  template<typename T>
-  class FormatWriter
-  {
-  public:
-    virtual ~FormatWriter() {}
-    virtual bool write( const T & obj, 
-                        carto::rc_ptr<DataSourceInfo> dsi,
-                        carto::Object options ) = 0;
-  };
-
-}
-
-#endif
+template class GisImageWriter<int8_t>;
+template class GisImageWriter<int16_t>;
+template class GisImageWriter<int32_t>;
+template class GisImageWriter<uint8_t>;
+template class GisImageWriter<uint16_t>;
+template class GisImageWriter<uint32_t>;
+template class GisImageWriter<float>;
+template class GisImageWriter<double>;

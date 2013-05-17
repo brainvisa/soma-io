@@ -143,9 +143,9 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
-**** TODO constructor: ds + dimensions
+**** DONE constructor: ds + dimensions
 **** TODO constructor: buffer
 *** datasourceinfoloader
 **** DONE move
@@ -153,8 +153,8 @@
 **** DONE includes
 **** DONE namespace
 **** DONE carto::
-**** DONE CMakeList except.cc
-**** DONE compile   except.cc
+**** DONE CMakeList
+**** DONE compile
 **** DONE test
 **** DONE svn add
 ** checker
@@ -166,7 +166,7 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
 *** pythonformatchecker
 **** DONE move
@@ -176,7 +176,7 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
 **** TODO build dsl & capabilities
 *** xmlformatchecker
@@ -199,7 +199,7 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
 *** imagewriter
 **** DONE move
@@ -215,7 +215,7 @@
 **** TODO what is the interest of including cart/types to _d.h ?
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
 *** reader
 **** DONE move
@@ -225,8 +225,9 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
+**** TODO flushAll & closeAll
 *** readeralgorithm
 **** DONE move
 **** TODO ifndef
@@ -256,7 +257,7 @@
 **** DONE carto::
 **** DONE CMakeLists
 **** DONE compile
-**** TODO test
+**** DONE test
 **** DONE svn add
 *** itemreader
 **** DONE move
@@ -289,6 +290,7 @@
 **** DONE compile
 **** TODO test
 **** DONE svn add
+**** TODO on utilise la ds "minf" (idem python)
 *** areader         // read generic object
 **** DONE move
 **** DONE ifndef
@@ -392,6 +394,7 @@
 **** DONE compile
 **** TODO test
 **** DONE svn add
+**** TODO deal with memory mapping contexts
 *** mappingcopy
 **** DONE move
 **** DONE ifndef
@@ -456,7 +459,5 @@
 **** DONE test
 **** DONE svn add
 **** TODO strides
-**** TODO test partial, visu ?
-**** TODO deal with memory mapping
 *** gisimagewriter
 **** DONE move

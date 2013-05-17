@@ -880,6 +880,7 @@ DECLARE_GENERIC_OBJECT_TYPE( std::vector<Object> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::string> * )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<float> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<char> > )
+DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<int> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::set<unsigned> > )
 
 DECLARE_GENERIC_OBJECT_TYPE( std::set<int> )

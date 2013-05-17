@@ -44,12 +44,10 @@
 namespace soma
 {
   
-  /**
-   * ImageReader is a low level Image/Volume reader.
-   *
-   * Format-specific readers ( GIS, OpenSlide, ... ) are derived from it.
-   * They allow ( if implemented ) partial reading and multiresolution access.
-   */
+  /// ImageReader is a low level Image/Volume reader.
+  ///
+  /// Format-specific readers ( GIS, OpenSlide, ... ) are derived from it.
+  /// They allow ( if implemented ) partial reading and multiresolution access.
   template<typename T>
   class ImageReader
   {
@@ -59,20 +57,20 @@ namespace soma
       ImageReader();
       virtual ~ImageReader();
       
-      /** Reading a region of a Image/Volume at a given resolution to a 
-        * pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
-        * or more of these dimensions are of no interest for the format, they
-        * take the value 0 ( pos ) or 1 ( size )
-        * \param dest   Pre-allocated buffer. Its size must be sufficient to
-        *               contain the region to read.
-        * \param pos    Position of the first voxel of the region to read, 
-        *               expressed in the referential of the chosen level.
-        * \param size   Size of the region to read, expressed in the referential
-        *               of the chosen level.
-        * \param level  Resolution level we want to access. Level of maximum 
-        *               resolution ( sole present if no multiresolution ) is 0.
-        * \param options  ( is it useful here ? )
-        */
+      /// Reading a region of a Image/Volume at a given resolution to a 
+      /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
+      /// or more of these dimensions are of no interest for the format, they
+      /// take the value 0 ( pos ) or 1 ( size )
+      /// \param dest   Pre-allocated buffer. Its size must be sufficient to
+      ///               contain the region to read.
+      /// \param pos    Position of the first voxel of the region to read, 
+      ///               expressed in the referential of the chosen level.
+      /// \param size   Size of the region to read, expressed in the referential
+      ///               of the chosen level.
+      /// \param stride TODO
+      /// \param level  Resolution level we want to access. Level of maximum 
+      ///               resolution ( sole present if no multiresolution ) is 0.
+      /// \param options  ( is it useful here ? )
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
                          std::vector<int> & size, /* taille 4 : x,y,z,t */
@@ -80,14 +78,13 @@ namespace soma
                          int level = 0, 
                          carto::Object options = carto::none() );
       
-      virtual void resetParams();
+      /// Sets _sizes, _binary and _byteswap values from DataSourceInfo
       virtual void updateParams( DataSourceInfo & dsi );
+      /// Sets _sizes, _binary and _byteswap values as default or empty
+      virtual void resetParams();
       
-      //// FOR DEVELOPEMENT ONLY ///////////////////////////////////////////////
-      //const std::vector<std::vector<int> > & sizes() const { return _sizes; }
-      //      std::vector<std::vector<int> > & sizes()       { return _sizes; }
     protected:
-      std::vector<std::vector<int> >  _sizes;  /*  4D : x, y, z, t */
+      std::vector<std::vector<int> >  _sizes;  //  4D : x, y, z, t
       bool  _binary;        // default: true
       bool  _byteswap;      // default: false
   };

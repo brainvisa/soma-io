@@ -101,11 +101,9 @@ namespace soma
     virtual bool allowsMemoryMapping() const = 0;
     virtual std::string url() const;
 
-    /** An empty ref-counter that is more convenient than calling a constructor
-     *  of rc_ptr<DataSource> (useful when calling functions)
-     */
+    /// An empty ref-counter that is more convenient than calling a constructor
+    /// of rc_ptr<DataSource> (useful when calling functions)
     static const carto::rc_ptr<DataSource> none();
-
   protected:
     int		_mode;
   };

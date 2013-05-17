@@ -31,30 +31,32 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_WRITER_D_H
-#define CARTOBASE_IO_WRITER_D_H
-
-
-#include <cartobase/io/writer.h>
-#include <cartobase/io/formatwriter.h>
-#include <cartobase/io/formatdictionary.h>
+#ifndef SOMAIO_IO_WRITER_D_H
+#define SOMAIO_IO_WRITER_D_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/io/writer.h>
+#include <soma-io/io/formatdictionary.h>
+#include <soma-io/datasourceinfo/datasourceinfo.h>
+#include <soma-io/writer/formatwriter.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>
-#include <cartobase/datasource/datasource.h>
 #include <cartobase/object/property.h>
 #include <cartobase/stream/fileutil.h>
+//--- system -------------------------------------------------------------------
 #include <set>
+//------------------------------------------------------------------------------
 
 
-namespace carto
+namespace soma
 {
 
   template <typename T>
-  bool GenericWriter::write( const T & obj, Object options )
+  bool GenericWriter::write( const T & obj, carto::Object options )
   {
     Writer<T> *writer = dynamic_cast< Writer<T> * >( this );
     if ( ! writer ) {
       std::string	filename;
-      filename = _datasource->url();
+      filename = _datasourceinfo->list().dataSource( "default", 0)->url();
       
       throw carto::format_mismatch_error( filename );
     }
@@ -69,30 +71,40 @@ namespace carto
     return carto::DataTypeCode<T>::name();
   }
 
-
+  //============================================================================
+  //   W R I T E   M E T H O D S
+  //============================================================================
+  
+  //--- useful typedef ---------------------------------------------------------
+  typedef std::multimap<std::string,std::string> multi_S;
+  typedef std::set<std::string> set_S;
+  typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
+      std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
+  //----------------------------------------------------------------------------
+  
   template<class T>
-  bool Writer<T>::write( const T & obj, Object options )
+  bool Writer<T>::write( const T & obj, carto::Object options )
   {
-    std::set<std::string>  tried;
-    FormatWriter<T>        *writer;
-    std::set<std::string>::iterator notyet = tried.end();
-    int           excp = 0;
-    int           exct = -1;
-    std::string   excm;
+    set_S            tried;
+    FormatWriter<T>  *writer;
+    set_S::iterator  notyet = tried.end();
+    int              excp = 0;
+    int              exct = -1;
+    std::string      excm;
 
     if( !options.get() )
-      options = Object::value( PropertySet() );
+      options = carto::Object::value( carto::PropertySet() );
     std::string	format;
     options->getProperty( "format", format );
     std::string	filename;
-    filename = _datasource->url();
+    filename = _datasourceinfo->list().dataSource( "default", 0)->url();
 
-    // priority to format hint
+    //// priority to format hint ///////////////////////////////////////////////
     if( !format.empty() ) {
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
         try {
-          if( writer->write( _datasource, obj, options ) )
+          if( writer->write( obj, _datasourceinfo, options ) )
             return true;
 	      } catch( std::exception & e ) {
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
@@ -101,24 +113,18 @@ namespace carto
       }
     }
 
-    std::string	ext = FileUtil::extension( filename );
+    std::string	            ext = carto::FileUtil::extension( filename );
+    const multi_S	&         extensions = FormatDictionary<T>::writeExtensions();
+    pair_cit_S              iext = extensions.equal_range( ext );
+    multi_S::const_iterator ie, ee = iext.second;
 
-    const std::multimap<std::string, std::string>	& extensions 
-      = FormatDictionary<T>::writeExtensions();
-
-    std::pair<std::multimap<std::string, std::string>::const_iterator, 
-      std::multimap<std::string, std::string>::const_iterator>	iext 
-      = extensions.equal_range( ext );
-    std::multimap<std::string, std::string>::const_iterator 
-      ie, ee = iext.second;
-
-    // try every matching format until one works
+    //// try every matching format until one works /////////////////////////////
     for( ie=iext.first; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( writer->write( _datasource, obj, options ) )
+            if( writer->write( obj, _datasourceinfo, options ) )
               return true;
           } catch( std::exception & e ) {
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
@@ -127,16 +133,15 @@ namespace carto
         }
       }
 
+    //// not found or none works: try writers with no extension ////////////////
     if( !ext.empty() ) {
-      // not found or none works: try writers with no extension
       iext = extensions.equal_range( "" );
-
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
           writer = FormatDictionary<T>::writeFormat( ie->second );
           if( writer ) {
             try {
-              if( writer->write( _datasource, obj, options ) )
+              if( writer->write( obj, _datasourceinfo, options ) )
                 return true;
             } catch( std::exception & e ) {
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
@@ -146,7 +151,7 @@ namespace carto
         }
     }
 
-    // still not found ? well, try EVERY format this time...
+    //// still not found ? well, try EVERY format this time... /////////////////
     iext.first = extensions.begin();
     iext.second = extensions.end();
 
@@ -155,7 +160,7 @@ namespace carto
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( writer->write( _datasource, obj, options ) )
+            if( writer->write( obj, _datasourceinfo, options ) )
               return true;
           } catch( std::exception & e ) {
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
@@ -164,7 +169,7 @@ namespace carto
         }
       }
 
-    // still not succeeded, it's hopeless...
+    //// still not succeeded, it's hopeless... /////////////////////////////////
     carto::io_error::launchExcept( exct, excm, 
                                    filename + " : no matching format" );
     return false;

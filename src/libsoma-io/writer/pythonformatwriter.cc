@@ -31,19 +31,26 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <cartobase/io/pythonformatwriter.h>
-#include <cartobase/io/formatdictionary.h>
-#include <cartobase/object/pythonwriter.h>
-#include <cartobase/io/writer_d.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/writer/pythonformatwriter.h>
+#include <soma-io/io/formatdictionary.h>
+#include <soma-io/writer/pythonwriter.h>
+#include <soma-io/io/writer_d.h>
+//--- system -------------------------------------------------------------------
 //debug
-// #include <iostream>
+ #include <iostream>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool PythonFormatWriter::write( rc_ptr<DataSource> ds, 
-                                const GenericObject & obj, Object options )
+bool PythonFormatWriter::write( const GenericObject & obj, 
+                                rc_ptr<DataSourceInfo> dsi, 
+                                Object options )
 {
+  rc_ptr<DataSource> ds = dsi->list().dataSource( "default", 0 );
+  
   // cout << "PythonFormatWriter::write " << ds->url() << endl;
   SyntaxSet			synt;
   PythonWriter::HelperSet	hs;

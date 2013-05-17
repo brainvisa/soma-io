@@ -31,41 +31,41 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_WRITER_H
-#define CARTOBASE_IO_WRITER_H
-
+#ifndef SOMAIO_IO_WRITER_H
+#define SOMAIO_IO_WRITER_H
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
+//------------------------------------------------------------------------------
 
-
-namespace carto
+namespace soma
 {
   class DataSource;
+  class DataSourceInfo;
 
   class GenericWriter
   {
   public:
     GenericWriter();
-    GenericWriter( rc_ptr<DataSource> ds );
+    GenericWriter( carto::rc_ptr<DataSource> ds );
     GenericWriter( const std::string & filename );
     GenericWriter( std::ostream & stream );
     virtual ~GenericWriter();
 
-    /*!	\brief Finds the correct format and writes the object
-
-    Options can be passed to specify some writing parameters. The most 
-    important is the format (\c "format" property): if it is specified, this 
-    format is tried first, so you can use it to force the format, otherwise it 
-    will be determined from the filename extension (if available). If no 
-    extension and no format are given, the first working format will be used. 
-    */
+    ///	\brief Finds the correct format and writes the object
+    ///
+    /// Options can be passed to specify some writing parameters. The most 
+    /// important is the format (\c "format" property): if it is specified, this 
+    /// format is tried first, so you can use it to force the format, otherwise 
+    /// it will be determined from the filename extension (if available). If no 
+    /// extension and no format are given, the first working format will be used. 
     template <typename T>
-    bool write( const T & obj, Object options = none() );
+    bool write( const T & obj, carto::Object options = carto::none() );
 
     virtual std::string writtenObjectType() const = 0;
 
-    const rc_ptr<DataSource> dataSource() const;
-    rc_ptr<DataSource> dataSource();
-    void attach( rc_ptr<DataSource> ds );
+    const carto::rc_ptr<DataSource> dataSource() const;
+          carto::rc_ptr<DataSource> dataSource();
+    void attach( carto::rc_ptr<DataSource> ds );
     void attach( const std::string & filename );
     void attach( std::ostream & stream );
 
@@ -75,39 +75,34 @@ namespace carto
     void close();
     
   protected:
-    DataSourceList      _datasourcelist
-    rc_ptr<DataSource>	_datasource; ///\deprecated
+    carto::rc_ptr<DataSourceInfo>  _datasourceinfo;
+    carto::rc_ptr<DataSource>	     _datasource; ///\deprecated
   };
 
 
-  /**	Generic writer for *every* format of Aims object. 
-	The Writer classes are built on the same model as the Reader classes
-	and share the same FormatDictionary with them to store all 
-	known file formats.
-
-	\see FormatDictionary Reader
-  */
+  ///	Generic writer for *every* format of Aims object. 
+	/// The Writer classes are built on the same model as the Reader classes
+	/// and share the same FormatDictionary with them to store all 
+	/// known file formats.
+  ///
+	/// \see FormatDictionary Reader
   template<class T> class Writer : public GenericWriter
   {
   public:
     inline Writer() {};
-    inline Writer( rc_ptr<DataSource> ds ) :
-      GenericWriter( ds ) {}
-    inline Writer( const std::string& filename ) :
-      GenericWriter( filename ) {}
-    inline Writer( std::ostream & stream ) :
-      GenericWriter( stream ) {}
+    inline Writer( carto::rc_ptr<DataSource> ds ) : GenericWriter( ds ) {}
+    inline Writer( const std::string& filename )  : GenericWriter( filename ) {}
+    inline Writer( std::ostream & stream )        : GenericWriter( stream ) {}
     virtual ~Writer() {}
 
-    /*!	\brief Finds the correct format and writes the object
- 
-    Options can be passed to specify some writing parameters. The most 
-    important is the format (\c "format" property): if it is specified, this 
-    format is tried first, so you can use it to force the format, otherwise it 
-    will be determined from the filename extension (if available). If no 
-    extension and no format are given, the first working format will be used. 
-    */
-    virtual bool write( const T & obj, Object options = none() );
+    ///	\brief Finds the correct format and writes the object
+    ///
+    /// Options can be passed to specify some writing parameters. The most 
+    /// important is the format (\c "format" property): if it is specified, this 
+    /// format is tried first, so you can use it to force the format, otherwise 
+    /// it will be determined from the filename extension (if available). If no 
+    /// extension and no format are given, the first working format will be used. 
+    virtual bool write( const T & obj, carto::Object options = carto::none() );
 
     virtual std::string writtenObjectType() const;
   };
@@ -116,8 +111,8 @@ namespace carto
 
 
 template <class T>
-inline carto::GenericWriter &
-operator << ( carto::GenericWriter & writer, const T & thing )
+inline soma::GenericWriter &
+operator << ( soma::GenericWriter & writer, const T & thing )
 {
   writer.write( thing );
   return writer;
@@ -125,8 +120,8 @@ operator << ( carto::GenericWriter & writer, const T & thing )
 
 
 template <class T>
-inline carto::Writer<T> &
-operator << ( carto::Writer<T> & writer, const T & thing )
+inline soma::Writer<T> &
+operator << ( soma::Writer<T> & writer, const T & thing )
 {
   writer.write( thing );
   return writer;
