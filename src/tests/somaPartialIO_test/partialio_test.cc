@@ -38,6 +38,7 @@
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
+#include <soma-io/writer/pythonwriter.h>
 //--- cartodata ----------------------------------------------------------------
 #include <soma-io/cartodata/volumeview.h>
 #include <soma-io/cartodata/volumeformatwriter.h>
@@ -57,7 +58,9 @@ using namespace std;
 
 void printheader( Object hdr )
 {
-  
+  PythonWriter  pw;
+  pw.attach( cout );
+  pw.write( hdr );
 }
 
 int main( int argc, const char** argv )
@@ -124,27 +127,7 @@ int main( int argc, const char** argv )
       frame = size;
     cout << "done" << endl;
     cout << "=== HEADER ==============================================" << endl;
-    int rescount = 0;
-    if( rVol.dataSourceInfo()->header()->hasProperty( "resolutions_count" ) ) {
-      rVol.dataSourceInfo()->header()->getProperty( "resolutions_count", rescount );
-      cout << "resolutions_count: " << rescount << endl;
-    }
-    vector<vector<int> > resdim( rescount, vector<int>( 4, 0 ) );
-    if( rVol.dataSourceInfo()->header()->hasProperty( "resolutions_dimension" ) ) {
-      cout << "resolutions_dimension: ";
-      int i, j;
-      for( i=0; i<rescount; ++i ) {
-        cout << "[ ";
-        for (j=0; j<4; ++j ) {
-          resdim[i][j] = rVol.dataSourceInfo()
-                             ->header()->getProperty( "resolutions_dimension" )
-                             ->getArrayItem(i)->getArrayItem(j)->getScalar();
-          cout << resdim[i][j] << " ";
-        }
-        cout << "] ";
-      }
-      cout << endl;
-    }
+    printheader( rVol.dataSourceInfo()->header() );
     cout << "=========================================================" << endl;
     
     //=== SET ALLOCATED VOLUME VIEW ============================================

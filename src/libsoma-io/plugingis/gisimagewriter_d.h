@@ -319,11 +319,10 @@ namespace soma {
     #endif
     ChainDataSource::setSource( dsi.list().dataSource( "dim", 0 ), 
                                 dsi.list().dataSource( "dim", 0)->url() );
-    OStreamDataSource *ds 
-      = dynamic_cast<OStreamDataSource *>( dsi.list().dataSource( "dim", 0 ).get() );
+    DataSource* ds;
+    ds = dsi.list().dataSource( "dim", 0 ).get();
     if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
-    //osds->stream().precision(std::numeric_limits< double >::digits10);
     // reading volume size
     std::vector<int> dim( 4, 0 );
     dsi.header()->getProperty( "sizeX", dim[0] );
@@ -342,21 +341,21 @@ namespace soma {
                         ->getArrayItem(3)->getScalar();
     // header :: volume dimensions
     *ds << dim[0] << " " << dim[1] << " " 
-        << dim[2] << " " << dim[3] << std::endl;
+        << dim[2] << " " << dim[3] << "\n";
     // header :: data type
-    *ds << "-type " << carto::DataTypeCode<T>::dataType() << std::endl;
+    *ds << "-type " << carto::DataTypeCode<T>::dataType() << "\n";
     // header :: voxel size
     *ds << "-dx " << vs[0] << " -dy " << vs[1] 
-        << " -dz " << vs[2] << " -dt " << vs[3] << std::endl;
+        << " -dz " << vs[2] << " -dt " << vs[3] << "\n";
     // header :: byte ordering
     *ds << "-bo ";
     uint magicNumber = SOMAIO_BYTE_ORDER;
     ds->writeBlock( (char *) &magicNumber , sizeof(uint) );
-    *ds << std::endl;
+    *ds << "\n";
     // header :: opening mode
     *ds << "-om " 
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
-        << std::endl;
+        << "\n";
     close();
     #ifdef SOMAIO_GIW_DEBUG
       std::cout << "GIW:: done: writing Header" << std::endl;
@@ -394,17 +393,10 @@ namespace soma {
                                   dsi.list().dataSource( "ima", 0)->url() );
       if( !open( DataSource::Write ) )
         throw carto::open_error( "data source not available", url() );
-      uint64_t space = dim[0]*dim[1]*dim[2]*dim[3];
-      uint64_t i;
       T value[1] = {0};
-      at( (space-1)*sizeof(T) );
+      at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
             throw carto::eof_error( url() );
-      //for( i=0; i<space; ++i ) {
-      //  at( i * sizeof(T) );
-      //  if( writeBlock( (char * ) &value, sizeof(T) ) != (long) sizeof(T) )
-      //      throw carto::eof_error( url() );
-      //}
       #ifdef SOMAIO_GIW_DEBUG
         std::cout << "GIW:: done:building file for partial writing" << std::endl;
       #endif
@@ -419,7 +411,7 @@ namespace soma {
   //============================================================================
   template <typename T>
   void GisImageWriter<T>::buildDSList( DataSourceList & dsl, 
-                                       carto::Object options ) const
+                                       carto::Object /*options*/ ) const
   {
     DataSource* pds = dsl.dataSource( "default", 0 ).get();
     std::string dimname, imaname, minfname;
@@ -446,10 +438,7 @@ namespace soma {
       }
       minfname = imaname + ".minf";
       
-      if( !options->hasProperty( "partial_writing" ) ) {
-        dsl.addDataSource( "dim", carto::rc_ptr<DataSource>
-                                  ( new OStreamDataSource( carto::rc_ptr<std::ostream>( new std::ofstream() ), dimname ) ) );
-      } else if( dimname == pds->url() ) {
+      if( dimname == pds->url() ) {
         // if dimname is original url
         dsl.addDataSource( "dim", carto::rc_ptr<DataSource>( pds ) );
       } else {

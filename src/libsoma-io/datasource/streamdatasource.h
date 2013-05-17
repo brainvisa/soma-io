@@ -181,6 +181,7 @@ namespace soma
 //==============================================================================
 //   S T R E A M   O P E R A T O R
 //==============================================================================
+/*
 namespace soma {
 
 inline soma::OStreamDataSource &
@@ -303,5 +304,6 @@ operator << ( soma::OStreamDataSource & ds, const char * const & val )
 }
 
 } // soma
+*/
 #endif
 
