@@ -31,17 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_IO_READERALGORITHM_H
-#define CARTOBASE_IO_READERALGORITHM_H
-
-#include <cstdlib>
+#ifndef SOMAIO_IO_READERALGORITHM_H
+#define SOMAIO_IO_READERALGORITHM_H
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/algorithm/algorithm.h>
+//--- system -------------------------------------------------------------------
+#include <cstdlib>
 #include <string>
 #include <map>
+//------------------------------------------------------------------------------
 
-
-namespace carto
+namespace soma
 {
   class DataSourceInfo;
   class DataSource;
@@ -214,43 +215,44 @@ namespace carto
 
 	\see DataSourceInfo FormatDictionary Reader Writer
   */
-  class ReaderAlgorithm : public Algorithm
+  class ReaderAlgorithm : public carto::Algorithm
   {
   public:
-    /**	Algorithm function type. These functions are stored in a 
-       type-to-function map and called by the execute() method. They are 
-       called with the DataSource containing the object to read and the 
-       corresponding header: here DataSourceInfo::check() has already been 
-       successfully called by execute(). Each function must 
-       be specialized for a given object and data type (possibly using 
-       template functions). Unfortunately these functions pointers can not 
-       be pointer to member functions as we will need access to derived 
-       classes members (not allowed in C++ spec), so we also provide a 
-       reference to \c this ReaderAlgorithm object to the algo function 
-       (callback-style)
-    */
-    typedef bool (*ProcFunc)( ReaderAlgorithm &, Object header, 
-                              rc_ptr<DataSource> source );
+    ///	Algorithm function type. These functions are stored in a 
+    /// type-to-function map and called by the execute() method. They are 
+    /// called with the DataSource containing the object to read and the 
+    /// corresponding header: here DataSourceInfo::check() has already been 
+    /// successfully called by execute(). Each function must 
+    /// be specialized for a given object and data type (possibly using 
+    /// template functions). Unfortunately these functions pointers can not 
+    /// be pointer to member functions as we will need access to derived 
+    /// classes members (not allowed in C++ spec), so we also provide a 
+    /// reference to \c this ReaderAlgorithm object to the algo function 
+    /// (callback-style)
+    typedef bool (*ProcFunc)( ReaderAlgorithm &, carto::Object header, 
+                              carto::rc_ptr<DataSource> source );
 
     ReaderAlgorithm( const std::string & algoname );
     virtual ~ReaderAlgorithm();
 
-    /**	Registers the algo function to call on a given object type
-	(just fills the map) */
+    ///	Registers the algo function to call on a given object type
+    /// (just fills the map)
     void registerAlgorithmType( const std::string & objectType, 
                                 ProcFunc procFunc );
-    /**	Executes the algo on the object type found in the given 
-	file. Uses DataSourceInfo to figure out which data should be used. 
-        This will either call the registered ProcFunc or throw a 
-        datatype_format_error exception if no algo function has been 
-        registered on that type
-    */
+    ///	Executes the algo on the object type found in the given 
+    /// file. Uses DataSourceInfo to figure out which data should be used. 
+    /// This will either call the registered ProcFunc or throw a 
+    /// datatype_format_error exception if no algo function has been 
+    /// registered on that type
     bool execute( const std::string & filename );
     /// same as above but uses a DataSource as input
-    bool execute( rc_ptr<DataSource> stream );
-    /**	Same as above but the header has already been read (or hand-made to 
-	fake it!) */
-    bool execute( Object header, rc_ptr<DataSource> source );
+    bool execute( carto::rc_ptr<DataSource> stream );
+    ///	Same as above but the header has already been read (or hand-made to 
+    /// fake it!)
+    bool execute( carto::Object header, carto::rc_ptr<DataSource> source );
+    /// same as above but uses DataSourceInfo as input. Header may have already 
+    /// been read
+    bool execute( carto::rc_ptr<DataSourceInfo> dsi );
     /// Query registered process types
     const std::map<std::string, ProcFunc> & algorithmTypes() const
     { return( _execs ); }

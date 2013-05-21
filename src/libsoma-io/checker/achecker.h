@@ -31,21 +31,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_OBJECT_ACHECKER_H
-#define CARTOBASE_OBJECT_ACHECKER_H
-
-//=============================================================================
-//	H E A D E R  F I L E S
-//=============================================================================
-
+#ifndef SOMAIO_CHECKER_ACHECKER_H
+#define SOMAIO_CHECKER_ACHECKER_H
+//--- cartobase ----------------------------------------------------------------
 #ifndef CARTOBASE_OBJECT_SYNTAX_H
-#include <cartobase/object/syntax.h>
+  #include <cartobase/object/syntax.h>
 #endif
 #include <cartobase/object/object.h>
+//--- system -------------------------------------------------------------------
 #include <set>
 #include <string>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
 
   //===========================================================================
@@ -64,7 +62,7 @@ namespace carto
     //---------------------------------------------------------------------
     //@{
 
-    AttributedChecker(const SyntaxSet& syntax);
+    AttributedChecker(const carto::SyntaxSet& syntax);
     virtual ~AttributedChecker();
 
     //@}
@@ -79,7 +77,7 @@ namespace carto
 	@param object object to check
 	@return missing semantic attributes
     */
-    std::set<std::string> check(const GenericObject& object) const;
+    std::set<std::string> check(const carto::GenericObject& object) const;
 
     //@}
 
@@ -104,7 +102,7 @@ namespace carto
     //@{
 
     ///	rules for every syntactic attribute
-    SyntaxSet _syntax;
+    carto::SyntaxSet _syntax;
 
     //@}
   };

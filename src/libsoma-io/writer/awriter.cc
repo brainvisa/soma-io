@@ -31,20 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//=============================================================================
-//	H E A D E R  F I L E S
-//=============================================================================
-
-#include <cartobase/object/awriter.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/writer/awriter.h>
+#include <soma-io/checker/achecker.h>
+#include <soma-io/writer/pythonwriter.h>
+//#include <soma-io/utilities/minfXML2.h> // not ready yet
+//---- cartobase ---------------------------------------------------------------
 #include <cartobase/object/attributed.h>
-#include <cartobase/object/achecker.h>
 #include <cartobase/exception/file.h>
-#include <cartobase/object/pythonwriter.h>
-//#include <cartobase/io/minfXML2.h> // not ready yet
+//--- system -------------------------------------------------------------------
 #include <vector>
 #include <iomanip>
 #include <assert.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 

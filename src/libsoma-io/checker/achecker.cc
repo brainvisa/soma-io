@@ -31,13 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//=============================================================================
-//	H E A D E R  F I L E S
-//=============================================================================
-
-#include <cartobase/object/achecker.h>
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/checker/achecker.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/syntobject.h>
+//------------------------------------------------------------------------------
 
+using namespace soma;
 using namespace carto;
 using namespace std;
 

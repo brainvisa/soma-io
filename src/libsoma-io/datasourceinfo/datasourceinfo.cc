@@ -69,6 +69,12 @@ DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds,
   }
 }
 
+DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds, 
+                                Object header )
+: _header( header ), _capabilities(), _datasourcelist( ds )
+{
+}
+
 DataSourceInfo::DataSourceInfo( const DataSourceInfo & other )
 : _header( other._header ), 
   _capabilities( other._capabilities ), 

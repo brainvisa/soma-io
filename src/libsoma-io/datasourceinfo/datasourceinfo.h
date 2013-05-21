@@ -69,6 +69,8 @@ namespace soma
       /// Else the header is none()
       DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
                       const std::vector<int> & dim = std::vector<int>() );
+      DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
+                      carto::Object header );
       // Constructor from a buffer
       //DataSourceInfo( char* buffer );
       /// Constructor by copy

@@ -31,87 +31,79 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_OBJECT_AWRITER_H
-#define CARTOBASE_OBJECT_AWRITER_H
-
-//=============================================================================
-//	H E A D E R  F I L E S
-//=============================================================================
-
+#ifndef SOMAIO_WRITER_AWRITER_H
+#define SOMAIO_WRITER_AWRITER_H
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #ifndef CARTOBASE_OBJECT_SYNTAX_H
-#include <cartobase/object/syntax.h>
+  #include <cartobase/object/syntax.h>
 #endif
 #include <cartobase/object/object.h>
+//--- system -------------------------------------------------------------------
 #include <fstream>
+//------------------------------------------------------------------------------
 
-namespace carto
+namespace soma
 {
 
   //===========================================================================
   //	C L A S S  D E C L A R A T I O N
   //===========================================================================
 
-  /**	To write an AttributedObject to a file
-   */
+  ///	To write an AttributedObject to a file
   class CARTOBASE_API AttributedWriter
   {
 
   public:
 
     //---------------------------------------------------------------------
-    /**	@name Associated types*/
+    ///	@name Associated types
     //---------------------------------------------------------------------
     //@{
 
-    typedef void (*Helper)(const GenericObject&, const std::string&,
-			   std::ostream&);
+    typedef void (*Helper)( const carto::GenericObject&, const std::string&,
+                            std::ostream& );
     typedef std::map<std::string, Helper> HelperSet;
 
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Constructors, destructor*/
+    ///	@name Constructors, destructor
     //---------------------------------------------------------------------
     //@{
 
-    /**	configure the parametres
-	\param filename name of the file to write into
-	\param rules syntactic attribute / rules pairs
-        \param helpers writing functions set
-    */
-    AttributedWriter(const std::string& filename,
-		     const SyntaxSet& rules,
-		     const HelperSet& helpers = HelperSet());
+    ///	configure the parametres
+    /// \param filename name of the file to write into
+    /// \param rules syntactic attribute / rules pairs
+    /// \param helpers writing functions set
+    AttributedWriter( const std::string& filename,
+                      const carto::SyntaxSet& rules,
+                      const HelperSet& helpers = HelperSet() );
 
-    /**	configure the parametres
-	\param rules syntactic attribute / rules pairs
-        \param helpers writing functions set
-    */
-    AttributedWriter(const SyntaxSet& rules,
-		     const HelperSet& helpers = HelperSet());
+    ///	configure the parametres
+    /// \param rules syntactic attribute / rules pairs
+    /// \param helpers writing functions set
+    AttributedWriter( const carto::SyntaxSet& rules,
+                      const HelperSet& helpers = HelperSet() );
 
-    /**	clean up
-     */
+    ///	clean up
     virtual ~AttributedWriter();
 
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Open, close*/
+    ///	@name Open, close
     //---------------------------------------------------------------------
     //@{
 
-    /**	open a new file
-	@param filename name of the file to write into
-    */
-    void open(const std::string& filename);
+    ///	open a new file
+    /// @param filename name of the file to write into
+    void open(const std::string& filename );
 
     ///	attach to an existing (and open) stream
     void attach( std::ostream & s );
 
-    /**	close or detach the stream
-     */
+    ///	close or detach the stream
     void close();
 
     //---------------------------------------------------------------------
@@ -125,18 +117,16 @@ namespace carto
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Helpers*/
+    ///	@name Helpers
     //---------------------------------------------------------------------
     //@{
 
-    /**	return the status of the stream
-	@return true if ifstream::operator!() returns true
-    */
+    /// return the status of the stream
+    /// @return true if ifstream::operator!() returns true
     bool operator!() const;
 
-    /**	is the stream open?
-	@return ifstream::is_open()
-    */
+    ///is the stream open?
+    /// @return ifstream::is_open()
     bool is_open() const;
 
     //@}
@@ -144,35 +134,35 @@ namespace carto
   protected:
 
     //---------------------------------------------------------------------
-    /**	@name Helpers*/
+    ///	@name Helpers
     //---------------------------------------------------------------------
     //@{
 
     ///
-    void writeAttributes(const GenericObject& object);
+    void writeAttributes( const carto::GenericObject& object );
 
     ///
-    void writeAttributes(const GenericObject& object,
-			 const std::set<std::string>& attributes, 
-			 std::string::size_type size);
+    void writeAttributes( const carto::GenericObject& object,
+                          const std::set<std::string>& attributes, 
+                          std::string::size_type size );
 
     // DO NOT USE! DEPRECIATED
-    void writeAttributes(const GenericObject* object);
+    void writeAttributes( const carto::GenericObject* object );
 
     // DO NOT USE! DEPRECIATED
-    void writeAttributes(const GenericObject* object,
-			 const std::set<std::string>& attributes, 
-			 std::string::size_type size);
+    void writeAttributes( const carto::GenericObject* object,
+                          const std::set<std::string>& attributes, 
+                          std::string::size_type size );
 
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Data*/
+    /// @name Data
     //---------------------------------------------------------------------
     //@{
 
     ///	rules for every syntactic attribute
-    SyntaxSet _rules;
+    carto::SyntaxSet _rules;
 
     /// C++ stream to write into
     std::ostream	*_stream;
@@ -183,18 +173,17 @@ namespace carto
   private:
 
     //---------------------------------------------------------------------
-    /**	@name Constructors, destructor*/
+    ///	@name Constructors, destructor
     //---------------------------------------------------------------------
     //@{
 
-    /**	install helpers for basic data types
-     */
+    ///	install helpers for basic data types
     void init();
 
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Data*/
+    ///	@name Dat
     //---------------------------------------------------------------------
     //@{
 
@@ -207,15 +196,15 @@ namespace carto
     //@}
 
     //---------------------------------------------------------------------
-    /**	@name Disable copy*/
+    ///	@name Disable copy
     //---------------------------------------------------------------------
     //@{
 
     /// Copy constructor
-    AttributedWriter(const AttributedWriter&);
+    AttributedWriter( const AttributedWriter& );
 
     /// Assignment operator
-    AttributedWriter& operator=(const AttributedWriter&);
+    AttributedWriter& operator=( const AttributedWriter& );
 
     //@}
   };

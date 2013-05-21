@@ -161,6 +161,21 @@ rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
 
 }
 
+const rc_ptr<DataSource> & DataSourceList::dataSource() const
+{
+  if( !exists( "default" ) || empty( "default") )
+    return DataSource::none();
+  else
+    return dataSource( "default", 0 );
+}
+
+rc_ptr<DataSource> & DataSourceList::dataSource()
+{
+  if( !exists( "default" ) || empty( "default") )
+    addDataSource( "default", DataSource::none() );
+  return dataSource( "default", 0 );
+}
+
 //==============================================================================
 //   M U T A T O R S
 //==============================================================================

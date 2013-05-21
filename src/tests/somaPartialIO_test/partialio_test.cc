@@ -49,6 +49,7 @@
 //--- system -------------------------------------------------------------------
 #include <iostream>
 #include <cstdlib>
+#include <limits>
 //------------------------------------------------------------------------------
 
 using namespace moncartodata;
@@ -128,6 +129,8 @@ int main( int argc, const char** argv )
     cout << "done" << endl;
     cout << "=== HEADER ==============================================" << endl;
     printheader( rVol.dataSourceInfo()->header() );
+    cout.precision(std::numeric_limits< double >::digits10);
+    cout << rVol.dataSourceInfo()->header()->getProperty( "voxel_size" )->getArrayItem(0)->getScalar() << endl;
     cout << "=========================================================" << endl;
     
     //=== SET ALLOCATED VOLUME VIEW ============================================

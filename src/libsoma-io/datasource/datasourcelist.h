@@ -112,6 +112,9 @@ namespace soma
       /// Numbering starts at 0
       const carto::rc_ptr<DataSource> & dataSource( const std::string &, int ) const ;
             carto::rc_ptr<DataSource> & dataSource( const std::string &, int );
+      /// Accessing default source
+      const carto::rc_ptr<DataSource> & dataSource() const ;
+            carto::rc_ptr<DataSource> & dataSource();
       /// Adds an element to the dictionary
       /// If new keyword, creates it.
       void addDataSource( const std::string &, const carto::rc_ptr<DataSource> &);
