@@ -44,7 +44,8 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
 //#include <soma-io/reader/itemreader.h>                        // read + byteswap
-#include <soma-io/writer/itemwriter.h>                     // write + byteswap
+#include <soma-io/writer/itemwriter.h>                       // write + byteswap
+#include <soma-io/writer/pythonwriter.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
 #include <cartobase/object/property.h>                        // header, options
@@ -235,19 +236,28 @@ namespace soma {
     int  sy = ImageWriter<T>::_sizes[ 0 ][ 1 ];
     int  sz = ImageWriter<T>::_sizes[ 0 ][ 2 ];
     int  st = ImageWriter<T>::_sizes[ 0 ][ 3 ];
-    std::cout << "GIW::s : " << sx << " " << sy << " " << sz << " " << st << std::endl;
+    #ifdef SOMAIO_GIW_DEBUG
+      std::cout << "GIW::s : " << sx << " " << sy << " " 
+                << sz << " " << st << std::endl;
+    #endif
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
     int  vz = size[ 2 ];
     int  vt = size[ 3 ];
-    std::cout << "GIW::v : " << vx << " " << vy << " " << vz << " " << vt << std::endl;
+    #ifdef SOMAIO_GIW_DEBUG
+      std::cout << "GIW::v : " << vx << " " << vy << " " 
+                << vz << " " << vt << std::endl;
+    #endif
     // region position
     int  ox = pos[ 0 ];
     int  oy = pos[ 1 ];
     int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
-    std::cout << "GIW::o : " << ox << " " << oy << " " << oz << " " << ot << std::endl;
+    #ifdef SOMAIO_GIW_DEBUG
+      std::cout << "GIW::o : " << ox << " " << oy << " " 
+                << oz << " " << ot << std::endl;
+    #endif
     int  y, z, t;
     // region line size
     offset_t  len = vx * sizeof( T );
@@ -260,9 +270,6 @@ namespace soma {
     for( t=0; t<vt; ++t ) {
       for( z=0; z<vz; ++z ) {
         for( y=0; y<vy; ++y ) {
-          #ifdef SOMAIO_GIW_DEBUG
-            std::cout << "|";
-          #endif
           // we move in the file
           at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
                             + y + oy ) + ox ) * sizeof(T) );
@@ -271,9 +278,6 @@ namespace soma {
           if( writeBlock( target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
-        #ifdef SOMAIO_GIW_DEBUG
-          std::cout << std::endl;
-        #endif
       }
     }
   }
@@ -304,7 +308,10 @@ namespace soma {
       dsi.header()->setProperty( "ascii", dimdsi.header()->getProperty( "ascii" ) );
       return dsi;
     } else {
-      dsi.header()->setProperty( "byte_swapping", false );
+      if( options->hasProperty( "byte_swapping" ) )
+        dsi.header()->setProperty( "byte_swapping", options->getProperty( "byte_swapping" ) );
+      else
+        dsi.header()->setProperty( "byte_swapping", false );
       if( options->hasProperty( "ascii" ) )
         dsi.header()->setProperty( "ascii", options->getProperty( "ascii" ) );
       else
@@ -350,9 +357,19 @@ namespace soma {
     // header :: byte ordering
     *ds << "-bo ";
     uint magicNumber = SOMAIO_BYTE_ORDER;
+    try {
+      if( options->getProperty( "byte_swapping" )->getScalar() ) {
+        uint hhbyte = ( magicNumber & 0xff000000 ) >> 24;
+        uint hbyte = ( magicNumber & 0x00ff0000 ) >> 16;
+        uint lbyte = ( magicNumber & 0x0000ff00 ) >> 8;
+        uint llbyte = ( magicNumber & 0x000000ff);
+        magicNumber = llbyte << 24 | lbyte << 16 | hbyte << 8 | hhbyte;
+      }
+    } catch ( ... ) {
+    }
     ds->writeBlock( (char *) &magicNumber , sizeof(uint) );
     *ds << "\n";
-    // header :: opening mode
+    //header :: opening mode
     *ds << "-om " 
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
         << "\n";

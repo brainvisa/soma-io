@@ -52,7 +52,7 @@
 //--- system -------------------------------------------------------------------
 #include <set>
 #include <map>
-#define CARTO_DEBUG_IO
+//#define CARTO_DEBUG_IO
 #ifdef CARTO_DEBUG_IO
   #include <iostream>
 #endif

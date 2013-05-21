@@ -195,7 +195,7 @@ namespace soma
     uint8_t	*ptr = (uint8_t*) pitem;
     for( long k=0; k<len; k+=sizeof(T) )
       for( size_t b=0; b<sizeof(T)/2; ++b )
-	std::swap( ptr[k+b], ptr[k+sizeof(T)-1-b] );
+        std::swap( ptr[k+b], ptr[k+sizeof(T)-1-b] );
     return len / sizeof(T);
   }
 

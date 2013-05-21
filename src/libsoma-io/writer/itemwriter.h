@@ -37,6 +37,7 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
 //------------------------------------------------------------------------------
+#include <iostream>
 
 namespace soma
 {
@@ -137,11 +138,14 @@ namespace soma
   long DefaultBSwapItemWriter<T>::write( DataSource & ds, const T* pitem, 
 					 size_t n ) const
   {
-    std::vector<uint8_t>	pd( n * sizeof( T ) );
+    std::vector<uint8_t> pd( n * sizeof(T) );
     const uint8_t	*ps = (uint8_t *) pitem;
-    for( size_t k=0; k<n*sizeof(T); k+=sizeof(T) )
-      for( size_t b=0; b<sizeof(T)/2; ++b )
-	pd[k+b] = ps[k+sizeof(T)-1-b];
+    for( size_t k=0; k<n*sizeof(T); k+=sizeof(T) ) {
+      for( size_t b=0; b<sizeof(T)/2; ++b ) {
+        pd[k+b] = ps[k+sizeof(T)-1-b];
+        pd[k+sizeof(T)-1-b] = ps[k+b];
+      }
+    }
     return ds.writeBlock( (const char *) &pd[0], sizeof(T) * n ) / sizeof(T);
   }
 

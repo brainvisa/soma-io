@@ -73,7 +73,7 @@ int main( int argc, const char** argv )
     VolumeView<int16_t>::Position4Di origin;
     VolumeView<int16_t>::Position4Di frame;
     string ofname;
-    bool partial_writing;
+    bool partial_writing=false, byte_swapping=false, no_create=false;
 
     CartoApplication  app( argc, argv, "Test for soma partial reading" );
     app.addOption( fname, "-i", "input filename to be read\n" );
@@ -86,7 +86,10 @@ int main( int argc, const char** argv )
     app.addOption( frame[ 1 ], "-sy", "frame size (y comp)\n", true );
     app.addOption( frame[ 2 ], "-sz", "frame size (z comp)\n", true );
     app.addOption( frame[ 3 ], "-st", "frame size (t comp)\n", true );
+    app.addOption( byte_swapping, "-bs", "force byte swapping for writing\n", true );
     app.addOption( partial_writing, "-pw", "partial writing of volume\n", true );
+    app.addOption( no_create, "-nc", "if partial writing, does not create" 
+    " an empty volume (warning: it must then already exist)\n", true );
     app.alias( "-v", "--verbose" );
 
     app.initialize();
@@ -127,11 +130,6 @@ int main( int argc, const char** argv )
         frame[ 2 ] == 0 || frame[ 3 ] == 0 )
       frame = size;
     cout << "done" << endl;
-    cout << "=== HEADER ==============================================" << endl;
-    printheader( rVol.dataSourceInfo()->header() );
-    cout.precision(std::numeric_limits< double >::digits10);
-    cout << rVol.dataSourceInfo()->header()->getProperty( "voxel_size" )->getArrayItem(0)->getScalar() << endl;
-    cout << "=========================================================" << endl;
     
     //=== SET ALLOCATED VOLUME VIEW ============================================
     Reader<Volume<int16_t> > rView( rVol.dataSourceInfo() );
@@ -146,6 +144,12 @@ int main( int argc, const char** argv )
     cout << "done" << endl;
     
     //=== SHOW RESULTS =========================================================
+    cout << "=== HEADER ==============================================" << endl;
+    cout << " Volume:" << endl;
+    printheader( Object::value( vol->header() ) );
+    cout << "View:" << endl;
+    printheader( Object::value( view->header() ) );
+    cout << "=========================================================" << endl;
     cout << "=== VOLUME SIZES ========================================" << endl;
     cout << "unallocated volume: size(" 
          << vol->getSizeX() << ", "
@@ -174,13 +178,16 @@ int main( int argc, const char** argv )
     if( !ofname.empty() ) {
       Writer<VolumeRef<int16_t> > vfw( ofname );
       options = Object::value( PropertySet() );
+      if( byte_swapping )
+        options->setProperty( "byte_swapping", true );
       if( partial_writing ) {
-        vfw.write( vol, options );
+        if( !no_create )
+          vfw.write( vol, options );
         options = Object::value( PropertySet() );
         options->setProperty( "partial_writing", true );
         vfw.attach( ofname );
       }
-     vfw.write( view, options );
+      vfw.write( view, options );
     }
     cout << "=========================================================" << endl;
     
