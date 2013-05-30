@@ -11,6 +11,7 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h"
 
 ## still in cartobase
 set( _headers
+   algorithm/algorithm.h
    config/cartobase_config.h
    config/info.h
    config/paths.h
@@ -106,7 +107,6 @@ set( _headers
 ## moved to soma-io
 set( _headers
   "${_headers}"
-   algorithm/algorithm.h
    allocator/allocator.h
    allocator/mappingcopy.h
    allocator/mappingro.h
@@ -156,6 +156,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers cartobase headersTarget )
 
 ## still in cartobase
 set( _cartobase_0_sources
+  algorithm/algorithm.cc 
   config/paths.cc 
   config/verbose.cc 
   config/version.cc 
@@ -206,26 +207,27 @@ set( _cartobase_0_sources
 )
 
 ## moved to soma-io
-set( _cartobase_O_sources
-  "${_cartobase_0_sources}"
-  algorithm/algorithm.cc 
-  allocator/allocator.cc 
-  allocator/mappingcopy.cc 
-  allocator/mappingro.cc 
-  allocator/mappingrw.cc 
-  allocator/meminfo.cc 
-  datasource/bufferdatasource.cc 
-  datasource/chaindatasource.cc 
-  datasource/cstreamdatasource.cc 
-  datasource/datasource.cc 
-  datasource/fddatasource.cc 
-  datasource/filedatasource.cc 
-  datasource/filteringdatasource.cc 
-  datasource/streamdatasource.cc 
-  object/achecker.cc 
-  io/asciidatasourcetraits.cc 
-  io/formatdictionary.cc 
-)
+if( NOT USE_SOMA_IO )
+  set( _cartobase_0_sources
+    "${_cartobase_0_sources}"
+    allocator/allocator.cc 
+    allocator/mappingcopy.cc 
+    allocator/mappingro.cc 
+    allocator/mappingrw.cc 
+    allocator/meminfo.cc 
+    datasource/bufferdatasource.cc 
+    datasource/chaindatasource.cc 
+    datasource/cstreamdatasource.cc 
+    datasource/datasource.cc 
+    datasource/fddatasource.cc 
+    datasource/filedatasource.cc 
+    datasource/filteringdatasource.cc 
+    datasource/streamdatasource.cc 
+    object/achecker.cc 
+    io/asciidatasourcetraits.cc 
+    io/formatdictionary.cc 
+  )
+endif()
 
 ## still in cartobase
 set( _cartobase_1_sources
@@ -246,23 +248,25 @@ set( _cartobase_sources
 )
 
 ## moved to soma-io
-set( _cartobase_sources
-  "${_cartobase_sources}"
-  object/areader.cc 
-  object/awriter.cc 
-  object/pythonreader.cc 
-  object/pythonwriter.cc 
-  io/datasourceinfo.cc 
-  io/minfXML2.cc 
-  io/pythonformatchecker.cc 
-  io/pythonformatreader.cc 
-  io/pythonformatwriter.cc 
-  io/reader_object.cc 
-  io/readeralgorithm.cc 
-  io/writer.cc 
-  io/xmlformatchecker.cc 
-  io/xmlformatreader.cc
-)
+if( NOT USE_SOMA_IO )
+  set( _cartobase_sources
+    "${_cartobase_sources}"
+    object/areader.cc 
+    object/awriter.cc 
+    object/pythonreader.cc 
+    object/pythonwriter.cc 
+    io/datasourceinfo.cc 
+    io/minfXML2.cc 
+    io/pythonformatchecker.cc 
+    io/pythonformatreader.cc 
+    io/pythonformatwriter.cc 
+    io/reader_object.cc 
+    io/readeralgorithm.cc 
+    io/writer.cc 
+    io/xmlformatchecker.cc 
+    io/xmlformatreader.cc
+  )
+endif()
 
 add_library( cartobase_0 SHARED ${_cartobase_0_sources} )
 add_dependencies( cartobase_0 ${headersTarget} )

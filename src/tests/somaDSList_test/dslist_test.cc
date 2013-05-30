@@ -31,12 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasourcelist.h>
 #include <soma-io/datasource/filedatasource.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/exception/assert.h>
+//--- system -------------------------------------------------------------------
 #include <set>
 #include <string>
+//------------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
