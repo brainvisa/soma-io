@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IMAGE_IMAGEREADER_H
 #define SOMAIO_IMAGE_IMAGEREADER_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                            // to use none()

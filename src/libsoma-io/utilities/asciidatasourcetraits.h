@@ -34,6 +34,7 @@
 #ifndef SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
 #define SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/type/types.h>

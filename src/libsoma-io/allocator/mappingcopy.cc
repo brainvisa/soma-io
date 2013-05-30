@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/mappingcopy.h>                // class declaration
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/assert.h>
@@ -53,7 +54,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 //------------------------------------------------------------------------------
-
 using namespace soma;
 using namespace carto;
 using namespace std;

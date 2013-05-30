@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_READER_PYTHONREADER_H
 #define SOMAIO_READER_PYTHONREADER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/object/object.h>

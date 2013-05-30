@@ -31,10 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//=============================================================================
-//	H E A D E R  F I L E S
-//=============================================================================
-
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
+#include <soma-io/reader/areader.h>
+#include <soma-io/reader/pythonreader.h>
+#include <soma-io/datasource/streamdatasource.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/parse.h>
@@ -42,11 +44,6 @@
 #include <cartobase/object/syntobject.h>
 //#include <cartobase/io/minfXML2.h> // not ready yet
 #include <cartobase/stream/attachable_cuifstream.h>
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/reader/areader.h>
-#include <soma-io/reader/pythonreader.h>
-#include <soma-io/datasource/streamdatasource.h>
-#include <soma-io/utilities/asciidatasourcetraits.h>
 //--- system -------------------------------------------------------------------
 #include <vector>
 #include <assert.h>

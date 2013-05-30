@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/reader/pythonformatreader.h>              // class declaration
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasource/datasource.h>

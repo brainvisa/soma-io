@@ -1,4 +1,4 @@
-# Cartobase/Soma-IO config
+## Soma-IO config
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/version.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/version.h" 
                    DESTINATION "include/soma-io/config" 
@@ -13,22 +13,11 @@ set( _headers
   allocator/mappingcopy.h
   allocator/mappingro.h
   allocator/mappingrw.h
-  cartodata/volume.h
-  cartodata/volume_d.h
-  cartodata/volumeproxy.h
-  cartodata/volumeproxy_d.h
-  cartodata/volumeutil.h
-  cartodata/volumeutil_d.h
-  cartodata/volumeoperators.h
-  cartodata/volumeview.h
-  cartodata/volumeformatreader.h
-  cartodata/volumeformatreader_d.h
-  cartodata/volumeformatwriter.h
-  cartodata/volumeformatwriter_d.h
   checker/achecker.h
   checker/formatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
+  config/soma_config.h
   datasource/bufferdatasource.h
   datasource/chaindatasource.h
   datasource/cstreamdatasource.h
@@ -52,11 +41,6 @@ set( _headers
   io/readeralgorithm.h
   io/writer.h
   io/writer_d.h
-  plugingis/gisformatchecker.h
-  plugingis/gisimagereader.h
-  plugingis/gisimagereader_d.h
-  plugingis/gisimagewriter.h
-  plugingis/gisimagewriter_d.h
   reader/areader.h
   reader/formatreader.h
   reader/formatreader_d.h
@@ -78,22 +62,12 @@ set( _headers
   writer/pythonwriter_d.h
 )
 
-BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
-
 set( _somaio_sources
   allocator/allocator.cc
   allocator/mappingcopy.cc
   allocator/mappingro.cc
   allocator/mappingrw.cc
   allocator/meminfo.cc
-  cartodata/volume.cc
-  cartodata/volumeview.cc
-  cartodata/volumeformatreader.cc
-  cartodata/volumeformatreader_gis.cc
-  cartodata/volumeformatwriter.cc
-  cartodata/volumeformatwriter_gis.cc
-  cartodata/reader_volume.cc
-  cartodata/writer_volume.cc
   checker/achecker.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
@@ -116,9 +90,6 @@ set( _somaio_sources
   io/reader_object.cc
   io/readeralgorithm.cc
   io/writer.cc
-  plugingis/gisformatchecker.cc
-  plugingis/gisimagereader.cc
-  plugingis/gisimagewriter.cc
   reader/areader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc
@@ -130,10 +101,50 @@ set( _somaio_sources
   writer/pythonwriter.cc
 )
 
+IF( NOT USE_SOMA_IO )
+  set( _headers
+    "${_headers}"
+    cartodata/volume.h
+    cartodata/volume_d.h
+    cartodata/volumeproxy.h
+    cartodata/volumeproxy_d.h
+    cartodata/volumeutil.h
+    cartodata/volumeutil_d.h
+    cartodata/volumeoperators.h
+    cartodata/volumeview.h
+    cartodata/volumeformatreader.h
+    cartodata/volumeformatreader_d.h
+    cartodata/volumeformatwriter.h
+    cartodata/volumeformatwriter_d.h
+    plugingis/gisformatchecker.h
+    plugingis/gisimagereader.h
+    plugingis/gisimagereader_d.h
+    plugingis/gisimagewriter.h
+    plugingis/gisimagewriter_d.h
+    #pluginos/osformatchecker.h
+  )
+  set( _somaio_sources
+    "${_somaio_sources}"
+    cartodata/volume.cc
+    cartodata/volumeview.cc
+    cartodata/somaio_declare.cc
+    plugingis/gisformatchecker.cc
+    plugingis/gisimagereader.cc
+    plugingis/gisimagewriter.cc
+    plugingis/volumeformatreader_gis.cc
+    plugingis/volumeformatwriter_gis.cc
+    plugingis/formatchecker_gis.cc
+    #pluginos/osformatchecker.cc
+  )
+ENDIF()
+MESSAGE( "${_somaio_sources}" )
+
+BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
+
 add_library( soma-io SHARED ${_somaio_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( soma-io ${SOMA_CARTOBASE_LIB} ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES}  )
+target_link_libraries( soma-io ${SOMA_CARTOBASE_LIB} ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
 if( WIN32 AND CMAKE_CROSSCOMPILING )
   target_link_libraries( soma-io ws2_32 ole32 )
 endif( WIN32 AND CMAKE_CROSSCOMPILING )

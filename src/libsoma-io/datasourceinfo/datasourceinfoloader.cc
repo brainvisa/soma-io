@@ -32,6 +32,7 @@
  */
 
 //--- soma io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>    // class declaration
 #include <soma-io/datasourceinfo/datasourceinfo.h>          // returned by check
 #include <soma-io/checker/formatchecker.h>                            // check()
@@ -49,7 +50,7 @@
 #include <map>
 #include <set>
 //-- debug ---------------------------------------------------------------------
-//#define CARTO_IO_DEBUG
+//#define SOMA_IO_DEBUG
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -177,10 +178,11 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
 //------------------------------------------------------------------------------
 
-DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
+DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
+                                            Object options )
 {
-  #ifdef CARTO_IO_DEBUG
-    cout << "DataSourceInfo::check()\n";
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: check()\n";
   #endif
   
   // If dsi already complete : returns it //////////////////////////////////////
@@ -203,12 +205,12 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
   // find filename extension if it's a file ////////////////////////////////////
   string  ext, url = dsi.list().dataSource( "default", 0 )->url() ;
   int     excp = 0;
-  #ifdef CARTO_IO_DEBUG
-    cout << "filename: " << url << endl;
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: filename: " << url << endl;
   #endif
   ext = FileUtil::extension( url );
-  #ifdef CARTO_IO_DEBUG
-    cout << "ext : " << ext << endl;
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: ext : " << ext << endl;
   #endif
 
   // Check compatible formats //////////////////////////////////////////////////
@@ -225,14 +227,14 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
   //// Pass 1 : try every matching format until one works //////////////////////
   for( ie=iext.first; ie!=ee; ++ie )
     if( tried.find( ie->second ) == notyet ) {
-      #ifdef CARTO_IO_DEBUG
-        cout << "trying " << (*ie).second << "...\n";
+      #ifdef SOMA_IO_DEBUG
+        cout << "DSILOADER:: trying " << (*ie).second << "...\n";
       #endif
       reader = formatInfo( ie->second );
       if( reader ) {
         try {
           d->state = Ok;
-          return reader->check( dsi, *this );
+          return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
@@ -243,22 +245,22 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
     }
 
   //// Pass 2 : not found or none works: try readers with no extension /////////
-  #ifdef CARTO_IO_DEBUG
-    cout << "not found yet... pass2...\n";
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: not found yet... pass2...\n";
   #endif
   if( !ext.empty() ) {
     iext = ps.extensions.equal_range( "" );
 
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
-        #ifdef CARTO_IO_DEBUG
-          cout << "pass2, trying " << (*ie).second << "...\n";
+        #ifdef SOMA_IO_DEBUG
+          cout << "DSILOADER:: pass2, trying " << (*ie).second << "...\n";
         #endif
         reader = formatInfo( ie->second );
         if( reader ) {
           try {
             d->state = Ok;
-            return reader->check( dsi, *this );
+            return reader->check( dsi, *this, options );
           } catch( exception & e ) {
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
@@ -270,8 +272,8 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
   }
 
   //// Pass 3 : still not found ? well, try EVERY format this time... //////////
-  #ifdef CARTO_IO_DEBUG
-    cout << "not found yet... pass3...\n";
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: not found yet... pass3...\n";
   #endif
   iext.first = ps.extensions.begin();
   iext.second = ps.extensions.end();
@@ -280,12 +282,12 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
     if( tried.find( ie->second ) == notyet ) {
       reader = formatInfo( ie->second );
       if( reader ) {
-        #ifdef CARTO_IO_DEBUG
-          cout << "pass3, trying " << (*ie).second << "...\n";
+        #ifdef SOMA_IO_DEBUG
+          cout << "DSILOADER:: pass3, trying " << (*ie).second << "...\n";
         #endif
         try {
           d->state = Ok;
-          return reader->check( dsi, *this );
+          return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
@@ -296,8 +298,8 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi  )
     }
 
   //// End : still not succeeded, it's hopeless... /////////////////////////////
-  #ifdef CARTO_IO_DEBUG
-    cout << "not found at all, giving up\n";
+  #ifdef SOMA_IO_DEBUG
+    cout << "DSILOADER:: not found at all, giving up\n";
   #endif
   d->state = Error;
   if( d->errorcode < 0 ) {

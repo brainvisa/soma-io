@@ -34,6 +34,7 @@
 #ifndef SOMAIO_ALLOCATOR_ALLOCATOR_H
 #define SOMAIO_ALLOCATOR_ALLOCATOR_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 //--- cartobase ----------------------------------------------------------------

@@ -34,6 +34,7 @@
 #ifndef SOMAIO_READER_ITEMREADER_H
 #define SOMAIO_READER_ITEMREADER_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
 //--- cartobase ----------------------------------------------------------------

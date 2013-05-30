@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/utilities/asciidatasourcetraits.h>
+#else
 
 #ifndef CARTOBASE_IO_ASCIIDATASOURCETRAITS_H
 #define CARTOBASE_IO_ASCIIDATASOURCETRAITS_H
@@ -633,5 +636,6 @@ namespace carto
 
 } // namespace carto
 
-#endif
+#endif // CARTOBASE_IO_ASCIIDATASOURCETRAITS_H
 
+#endif // USE_SOMA_IO

@@ -30,18 +30,15 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef SOMAIO_CONFIG_SOMA_CONFIG_H
+#define SOMAIO_CONFIG_SOMA_CONFIG_H
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/plugingis/gisimagereader_d.h>
-//------------------------------------------------------------------------------
+#ifdef USE_SOMA_IO
+  #define soma carto
+#endif
 
-using namespace soma;
+//#define SOMA_IO_DEBUG
 
-template class GisImageReader<int8_t>;
-template class GisImageReader<int16_t>;
-template class GisImageReader<int32_t>;
-template class GisImageReader<uint8_t>;
-template class GisImageReader<uint16_t>;
-template class GisImageReader<uint32_t>;
-template class GisImageReader<float>;
-template class GisImageReader<double>;
+#include <soma-io/config/config.h>
+
+#endif

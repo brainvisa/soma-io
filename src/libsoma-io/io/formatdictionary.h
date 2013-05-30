@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_IO_FORMATDICTIONARY_H
 #define SOMAIO_IO_FORMATDICTIONARY_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- system -------------------------------------------------------------------
 #include <string>
 #include <map>

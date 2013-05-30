@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/io/formatdictionary_d.h>
 #include <cartobase/io/reader_d.h>
@@ -57,3 +58,4 @@ template class FormatReader<GenericObject>;
 template class FormatDictionary<GenericObject>;
 
 
+#endif // USE_SOMA_IO

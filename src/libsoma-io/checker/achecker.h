@@ -30,9 +30,10 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
 #ifndef SOMAIO_CHECKER_ACHECKER_H
 #define SOMAIO_CHECKER_ACHECKER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #ifndef CARTOBASE_OBJECT_SYNTAX_H
   #include <cartobase/object/syntax.h>

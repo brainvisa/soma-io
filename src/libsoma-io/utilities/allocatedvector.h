@@ -34,11 +34,12 @@
 #ifndef SOMAIO_UTILITIES_ALLOCATEDVECTOR_H
 #define SOMAIO_UTILITIES_ALLOCATEDVECTOR_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
 #include <soma-io/datasource/bufferdatasource.h>
 //------------------------------------------------------------------------------
 
-namespace moncartodata {
+namespace carto {
   template <typename T> class Volume;
 }
 
@@ -92,7 +93,7 @@ namespace soma
     protected:
       void free();
       void allocate( size_type n, const AllocatorContext & ac );
-      friend class moncartodata::Volume<T>;
+      friend class carto::Volume<T>;
       
     private:
       AllocatorContext _allocatorContext;

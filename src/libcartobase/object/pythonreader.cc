@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
@@ -1234,3 +1235,5 @@ SyntaxSet & PythonReader::syntaxes()
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::Helper )
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::HelperSet )
+
+#endif // USE_SOMA_IO

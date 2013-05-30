@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_UTILITIES_CREATOR_H
 #define SOMAIO_UTILITIES_CREATOR_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 //------------------------------------------------------------------------------

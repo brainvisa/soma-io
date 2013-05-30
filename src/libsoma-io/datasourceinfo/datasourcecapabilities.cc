@@ -32,6 +32,7 @@
  */
 
 //--- soma io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourcecapabilities.h>  // class declaration
 #include <soma-io/datasource/datasource.h>
 //--- cartobase ----------------------------------------------------------------

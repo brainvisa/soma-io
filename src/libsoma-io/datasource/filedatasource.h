@@ -38,6 +38,7 @@
   #define CARTO_FILEDS_AS_FD
 #endif
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #ifdef CARTO_FILEDS_AS_FD
   #include <soma-io/datasource/fddatasource.h>                     // base class
 #else

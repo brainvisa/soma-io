@@ -34,6 +34,7 @@
 #ifndef SOMAIO_READER_AREADER_H
 #define SOMAIO_READER_AREADER_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>

@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/utilities/minfXML2.h>
+#else
 
 #ifndef CARTOBASE_IO_MINFXML2_H
 #define CARTOBASE_IO_MINFXML2_H
@@ -270,3 +273,5 @@ private:
 #endif // ifndef CARTOBASE_IO_MINFXML2_H
 
 } // namespace carto
+
+#endif // USE_SOMA_IO

@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/datasource/fddatasource.h>
 #include <sys/types.h>
@@ -192,4 +193,4 @@ bool FDDataSource::isFile() const
   return S_ISREG( buf.st_mode );
 }
 
-
+#endif // USE_SOMA_IO

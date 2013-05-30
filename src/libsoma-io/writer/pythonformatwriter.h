@@ -34,6 +34,7 @@
 #ifndef SOMAIO_WRITER_PYTHONFORMATWRITER_H
 #define SOMAIO_WRITER_PYTHONFORMATWRITER_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/writer/formatwriter.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>

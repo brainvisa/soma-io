@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/checker/achecker.h>
+#else
 
 #ifndef CARTOBASE_OBJECT_ACHECKER_H
 #define CARTOBASE_OBJECT_ACHECKER_H
@@ -111,4 +114,6 @@ namespace carto
 
 }
 
-#endif 
+#endif // CARTOBASE_OBJECT_ACHECKER_H
+
+#endif // USE_SOMA_IO

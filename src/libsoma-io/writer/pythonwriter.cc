@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/writer/pythonwriter_d.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
 #include <soma-io/datasource/filedatasource.h>

@@ -32,6 +32,7 @@
  */
 
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>                   // class definition
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                       // none()'s return type

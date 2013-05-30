@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/writer/pythonwriter_d.h>
+#else
 
 #include <cartobase/object/object_d.h>
 #include <cartobase/datasource/datasource.h>
@@ -444,3 +447,6 @@ PythonWriter::genericSequenceHelper( const GenericObject & obj, PythonWriter & w
   ds.putch( ' ' );
   ds.putch( ']' );
 }
+
+
+#endif // USE_SOMA_IO

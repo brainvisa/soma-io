@@ -32,6 +32,7 @@
  */
 
 //--- soma io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasourcelist.h>               // class definition
 #include <soma-io/datasource/datasource.h>               // to declare rc_ptr of
 //--- cartobase ----------------------------------------------------------------
@@ -42,6 +43,9 @@
 #include <map>
 #include <vector>
 //------------------------------------------------------------------------------
+#ifdef USE_SOMA_IO
+  #define soma carto
+#endif
 
 using namespace soma;
 using namespace carto;

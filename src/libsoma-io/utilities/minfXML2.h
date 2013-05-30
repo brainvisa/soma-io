@@ -34,6 +34,7 @@
 #ifndef SOMAIO_UTILITIES_MINFXML2_H
 #define SOMAIO_UTILITIES_MINFXML2_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/filedatasource.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>

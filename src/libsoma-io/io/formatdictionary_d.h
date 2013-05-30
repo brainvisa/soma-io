@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IO_FORMATDICTIONARY_D_H
 #define SOMAIO_IO_FORMATDICTIONARY_D_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/io/formatdictionary.h>                    // class declaration
 #include <soma-io/reader/formatreader.h>                               // map of
 #include <soma-io/writer/formatwriter.h>                               // map of

@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/checker/pythonformatchecker.h>            // class declaration
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>         // function arg
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function return value
@@ -42,8 +43,8 @@
 #include <cartobase/object/object.h>                             // function arg
 #include <cartobase/object/property.h>        // to manipulate header properties
 //--- system -------------------------------------------------------------------
-// #define CARTO_DEBUG_IO
-#ifdef CARTO_DEBUG_IO
+// #define SOMA_IO_DEBUG
+#ifdef SOMA_IO_DEBUG
   #include <iostream>
 #endif
 #include <vector>
@@ -77,18 +78,19 @@ namespace
 
 
 DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi, 
-                                           DataSourceInfoLoader & ) const
+                                           DataSourceInfoLoader &,
+                                           Object /* options */ ) const
 {
-  #ifdef CARTO_DEBUG_IO
-    cout << "PythonFormatChecker::check " << ds.url() << endl;
-  #endif
 
   static const string	sign = "attributes";
   DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
   ds->open( DataSource::Read );
   char  c;
   int   i, n = sign.length();
-
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "PYTHONFORMATCHECKER:: Reading minf header..." << ds->url() << endl;
+  #endif
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
     {
@@ -110,16 +112,18 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   hdr->setProperty( "format", string( "PYTHON" ) );
   hdr->setProperty( "object_type", string( "genericobject" ) );
   hdr->setProperty( "data_type", string( "any" ) );
-
-  #ifdef CARTO_DEBUG_IO
-    cout << "PythonFormatChecker::check " << ds->url() << " OK" << endl;
-  #endif
   
   // add header to datasourceinfo
   dsi.header() = hdr;
-  // create list
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "PYTHONFORMATCHECKER:: Building list..." << ds->url() << endl;
+  #endif
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
-  // create capabilities
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "PYTHONFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
+  #endif
   dsi.capabilities().setMemoryMapping( false );
   dsi.capabilities().setThreadSafe( false ); /* TODO */
   dsi.capabilities().setOrdered( false );
@@ -127,6 +131,10 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   dsi.capabilities().setSeekLine( false );
   dsi.capabilities().setSeekSlice( false );
   dsi.capabilities().setSeekVolume( false );
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "PYTHONFORMATCHECKER:: Checking done " << ds->url() << endl;
+  #endif
   return dsi;
 }
 

@@ -31,7 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------ 
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
 #include <soma-io/allocator/mappingro.h>
 #include <soma-io/allocator/mappingrw.h>

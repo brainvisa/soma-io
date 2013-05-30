@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/datasource/datasource.h>
 
@@ -104,3 +105,4 @@ DataSource::operator bool () const
 }
 
 
+#endif // USE_SOMA_IO

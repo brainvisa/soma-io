@@ -32,6 +32,7 @@
  */
 
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/cstreamdatasource.h>             // base definition
 //--- sys ----------------------------------------------------------------------
 #include <sys/types.h>

@@ -34,6 +34,7 @@
 #ifndef SOMAIO_DATASOURCEINFO_DATASOURCEINFO_H
 #define SOMAIO_DATASOURCEINFO_DATASOURCEINFO_H
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourcecapabilities.h>             // member
 #include <soma-io/datasource/datasourcelist.h>                         // member
 //--- cartobase ----------------------------------------------------------------

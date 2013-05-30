@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IO_WRITER_D_H
 #define SOMAIO_IO_WRITER_D_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/io/writer.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>

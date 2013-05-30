@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/io/formatdictionary_d.h>
 #include <soma-io/io/reader_d.h>
 #include <soma-io/reader/formatreader_d.h>

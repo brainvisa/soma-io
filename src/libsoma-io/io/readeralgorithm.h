@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_IO_READERALGORITHM_H
 #define SOMAIO_IO_READERALGORITHM_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/algorithm/algorithm.h>

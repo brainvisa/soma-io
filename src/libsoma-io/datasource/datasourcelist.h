@@ -34,6 +34,7 @@
 #ifndef SOMAIO_DATASOURCE_DATASOURCELIST_H
 #define SOMAIO_DATASOURCE_DATASOURCELIST_H
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>               // to declare rc_ptr of
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                       // to declare vector of
@@ -43,6 +44,9 @@
 #include <map>
 #include <vector>
 //------------------------------------------------------------------------------
+#ifdef USE_SOMA_IO
+  #define soma carto
+#endif
 
 namespace soma
 {

@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_DATASOURCE_DATASOURCE_H
 #define SOMAIO_DATASOURCE_DATASOURCE_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>               // declares base class RCObject
 //--- system -------------------------------------------------------------------

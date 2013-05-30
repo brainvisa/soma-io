@@ -34,6 +34,7 @@
 #ifndef SOMAIO_ALLOCATOR_MAPPINGCOPY_H
 #define SOMAIO_ALLOCATOR_MAPPINGCOPY_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
@@ -44,7 +45,6 @@
   #include <windows.h>
 #endif
 //------------------------------------------------------------------------------
-
 
 namespace soma
 {

@@ -32,6 +32,7 @@
  */
 
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/bufferdatasource.h>             // class definition
 //--- system -------------------------------------------------------------------
 #include <cstring>

@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/checker/xmlformatchecker.h>               // class declaration
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>         // function arg
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function return value
@@ -42,6 +43,10 @@
 #include <cartobase/object/object.h>                             // function arg
 #include <cartobase/object/property.h>        // to manipulate header properties
 //--- system -------------------------------------------------------------------
+// #define SOMA_IO_DEBUG
+#ifdef SOMA_IO_DEBUG
+  #include <iostream>
+#endif
 #include <vector>
 #include <string>
 //------------------------------------------------------------------------------
@@ -71,14 +76,18 @@ namespace
 
 
 DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi, 
-                                        DataSourceInfoLoader & ) const
+                                        DataSourceInfoLoader &,
+                                        Object /* options */ ) const
 {
   DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
   ds->open( DataSource::Read );
   static const string	sign = "<?xml";
   char		c;
   int		i, n = sign.length();
-
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "XMLFORMATCHECKER:: Reading minf header..." << ds->url() << endl;
+  #endif
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
     {
@@ -103,9 +112,15 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   
   // add header to datasourceinfo
   dsi.header() = hdr;
-  // create list
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "XMLFORMATCHECKER:: Building list..." << ds->url() << endl;
+  #endif
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
-  // create capabilities
+  
+  #ifdef SOMA_IO_DEBUG
+    cout << "XMLFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
+  #endif
   dsi.capabilities().setMemoryMapping( false );
   dsi.capabilities().setThreadSafe( false ); /* TODO */
   dsi.capabilities().setOrdered( false );
@@ -113,8 +128,10 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   dsi.capabilities().setSeekLine( false );
   dsi.capabilities().setSeekSlice( false );
   dsi.capabilities().setSeekVolume( false );
-  return dsi;
   
+  #ifdef SOMA_IO_DEBUG
+    cout << "XMLFORMATCHECKER:: Checking done " << ds->url() << endl;
+  #endif
   return dsi;
 }
 

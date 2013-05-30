@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/checker/achecker.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/syntobject.h>

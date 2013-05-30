@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 //=============================================================================
 //	H E A D E R  F I L E S
@@ -418,3 +419,4 @@ AttributedReader::readAttribute(GenericObject* object,
 }
 
 
+#endif // USE_SOMA_IO

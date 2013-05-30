@@ -33,6 +33,9 @@
 
 #ifndef SOMAIO_READER_FORMATREADER_H
 #define SOMAIO_READER_FORMATREADER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
+//------------------------------------------------------------------------------
 
 namespace carto {
   template<typename T> class rc_ptr;

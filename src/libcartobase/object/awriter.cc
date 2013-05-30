@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 //=============================================================================
 //	H E A D E R  F I L E S
@@ -441,3 +442,5 @@ AttributedWriter::writeAttributes(const GenericObject* object,
 	assert(object != 0);
 	writeAttributes(*object, attributes, size);
 }
+
+#endif // USE_SOMA_IO

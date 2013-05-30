@@ -31,6 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
+#include <soma-io/reader/itemreader.h>
+#include <soma-io/datasource/filedatasource.h>
+#include <soma-io/datasource/streamdatasource.h>
+#include <soma-io/reader/pythonreader_d.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
 #include <cartobase/object/syntobject.h>
@@ -39,11 +45,6 @@
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/stream/attachable_cuifstream.h>
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/reader/itemreader.h>
-#include <soma-io/datasource/filedatasource.h>
-#include <soma-io/datasource/streamdatasource.h>
-#include <soma-io/reader/pythonreader_d.h>
 //---- system ------------------------------------------------------------------
 #include <stdio.h>
 #include <vector>

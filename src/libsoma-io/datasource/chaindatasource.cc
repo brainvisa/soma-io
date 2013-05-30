@@ -32,6 +32,7 @@
  */
 
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/chaindatasource.h>              // class definition
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                              // argument type

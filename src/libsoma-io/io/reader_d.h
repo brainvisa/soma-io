@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IO_READER_D_H
 #define SOMAIO_IO_READER_D_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>        // read(): format info
 #include <soma-io/datasourceinfo/datasourceinfoloader.h> // read(): format check
 #include <soma-io/datasource/datasourcelist.h>                         // member
@@ -231,12 +232,17 @@ namespace soma
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *_datasourceinfo );
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
     if( dsi.list().empty() )
       dsil.launchException();
     if( !dsi.header().get() )
       dsil.launchException();
     *_datasourceinfo = dsi;
+    try {
+      if( (bool)_options->getProperty( "partial_reading" )->getScalar() )
+        _datasourceinfo->capabilities().setMemoryMapping( false );
+    } catch( ... ) {
+    }
     _alloccontext.setDataSourceInfo( _datasourceinfo );
     
     std::string	format;

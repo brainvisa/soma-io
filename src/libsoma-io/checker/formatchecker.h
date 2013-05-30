@@ -30,9 +30,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
 #ifndef SOMAIO_CHECKER_FORMATCHECKER_H
 #define SOMAIO_CHECKER_FORMATCHECKER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>
+//------------------------------------------------------------------------------
 
 namespace soma
 {
@@ -48,7 +52,9 @@ namespace soma
     // be modified if the format is recognized.
     
     virtual DataSourceInfo check( DataSourceInfo dsi, 
-                                  DataSourceInfoLoader & f ) const = 0;
+                                  DataSourceInfoLoader & f,
+                                  carto::Object options = carto::none() ) 
+                                  const = 0;
     virtual ~FormatChecker() {}
   };
 

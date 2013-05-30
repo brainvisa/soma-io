@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
 //--- system -------------------------------------------------------------------
 #include <cstdlib>

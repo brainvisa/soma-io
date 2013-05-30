@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_DATASOURCEINFO_DATASOURCECAPABILITIES_H
 #define SOMAIO_DATASOURCEINFO_DATASOURCECAPABILITIES_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>
 //------------------------------------------------------------------------------

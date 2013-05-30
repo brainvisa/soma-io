@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/io/readeralgorithm.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>

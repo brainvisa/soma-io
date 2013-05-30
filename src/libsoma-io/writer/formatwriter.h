@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_WRITER_FORMATWRITER_H
 #define SOMAIO_WRITER_FORMATWRITER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>
 //------------------------------------------------------------------------------

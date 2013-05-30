@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/utilities/minfXML2.h>
 //#include <soma-io/writer/pythonwriter.h>
 //--- cartobase ----------------------------------------------------------------

@@ -2,6 +2,7 @@ cmake_minimum_required( VERSION 2.6 )
 find_package( brainvisa-cmake REQUIRED )
 BRAINVISA_PROJECT()
 
+## Lib dependencies
 find_package( Sigc++2 REQUIRED )
 BRAINVISA_DEPENDENCY( RUN DEPENDS libsigc++2 RUN 2.0-0c2a )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libsigc++2 DEV 2.0 )
@@ -14,7 +15,7 @@ find_package( Boost REQUIRED )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libboost DEV )
 
 # Python is required for the DICOM conversion script
-# It should be make optional
+# It should be made optional
 find_package( python REQUIRED )
 
 BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVISA_PACKAGE_NAME}_VERSION}" )
@@ -30,7 +31,7 @@ else()
 endif()
 
 BRAINVISA_COPY_PYTHON_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/python"
-				 ${PROJECT_NAME} )
+                                 ${PROJECT_NAME} )
 BRAINVISA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/bin"
                           bin
                           ${PROJECT_NAME} )
@@ -48,20 +49,36 @@ else()
   endif()
 endif()
 
-set( SOMA-IO_DEFINITIONS "-D_REENTRANT" )
+## Enabling of SOMA-IO
+## /!\ It is then used by the whole aims project
+set( USE_SOMA_IO "False" CACHE BOOL "Enable/Disable use of new soma-io classes")
 
+## Flags definitions
+set( SOMA-IO_DEFINITIONS "-D_REENTRANT" )
+if( USE_SOMA_IO )
+  set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DUSE_SOMA_IO" )
+  add_definitions(${SOMA-IO_DEFINITIONS})
+endif()
+
+## Include directories
 set( SOMA-IO_INCLUDE_DIRS 
      ${Sigc++2_INCLUDE_DIRS} 
      "${LIBXML2_INCLUDE_DIR}"
-     ${Boost_INCLUDE_DIRS} )
-
+     ${Boost_INCLUDE_DIRS}
+   )
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 
-set( SOMA-IO_LIBRARIES cartobase soma-io "${LIBXML2_LIBRARIES}" )
+## Libraries
+set( SOMA-IO_LIBRARIES cartobase "${LIBXML2_LIBRARIES}" )
+if( USE_SOMA_IO )
+  set( SOMA-IO_LIBRARIES soma-io "${SOMA-IO_LIBRARIES}" )
+endif()
 
-
+## Subdirectories
 add_subdirectory( src/libcartobase )
-add_subdirectory( src/libsoma-io )
+if( USE_SOMA_IO )
+  add_subdirectory( src/libsoma-io )
+endif()
 add_subdirectory( src/tests )
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()

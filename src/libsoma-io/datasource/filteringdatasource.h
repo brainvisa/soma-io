@@ -34,6 +34,7 @@
 #ifndef SOMAIO_DATASOURCE_FILTERINGDATASOURCE_H
 #define SOMAIO_DATASOURCE_FILTERINGDATASOURCE_H
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/chaindatasource.h>                    // base class
 //--- system -------------------------------------------------------------------
 #include <string>

@@ -33,7 +33,9 @@
 
 #ifndef SOMAIO_DATASOURCEINFO_DATASOURCEINFOLOADER_H
 #define SOMAIO_DATASOURCEINFO_DATASOURCEINFOLOADER_H
-//--- cartobase -----------------------------------------------------------------
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/syntax.h>                                // SyntaxSet
 #include <cartobase/object/object.h>                          // usage of none()
 //--- system -------------------------------------------------------------------
@@ -75,7 +77,8 @@ namespace soma
       /// \return a DataSourceInfo object containing a header, a list of 
       /// DataSource and a list of capabilities.
       /// \see DataSourceInfo DataSourceList DataSourceCapabilities
-      DataSourceInfo check( DataSourceInfo dsi );
+      DataSourceInfo check( DataSourceInfo dsi, 
+                            carto::Object options = carto::none() );
       State state() const;
       
       std::string errorMessage() const;

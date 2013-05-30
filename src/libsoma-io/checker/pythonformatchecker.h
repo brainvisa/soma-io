@@ -30,12 +30,17 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
 #ifndef SOMAIO_CHECKER_PYTHONFORMATCHECKER_H
 #define SOMAIO_CHECKER_PYTHONFORMATCHECKER_H
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/checker/formatchecker.h>                         // base class
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>
 //------------------------------------------------------------------------------
+#ifdef USE_SOMA_IO
+  #define soma carto
+#endif
 
 namespace soma
 {
@@ -46,7 +51,8 @@ namespace soma
   {
   public:
     virtual DataSourceInfo check( DataSourceInfo dsi, 
-                                  DataSourceInfoLoader & f ) const;
+                                  DataSourceInfoLoader & f,
+                                  carto::Object options = carto::none() ) const;
   };
 
 }

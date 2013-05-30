@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/io/asciidatasourcetraits.h>
 #include <stdio.h>
@@ -189,3 +190,4 @@ bool StreamUtil::skip( istream & is, const string & s, bool ascii )
 }
 
 
+#endif // USE_SOMA_IO

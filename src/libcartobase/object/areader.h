@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/reader/areader.h>
+#else
 
 #ifndef CARTOBASE_OBJECT_AREADER_H
 #define CARTOBASE_OBJECT_AREADER_H
@@ -214,4 +217,6 @@ namespace carto
 
 }
 
-#endif 
+#endif // CARTOBASE_OBJECT_AREADER_H
+
+#endif // USE_SOMA_IO

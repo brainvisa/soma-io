@@ -32,6 +32,7 @@
  */
 
 //--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/io/writer.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>

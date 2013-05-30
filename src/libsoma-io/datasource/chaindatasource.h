@@ -34,6 +34,7 @@
 #ifndef SOMAIO_DATASOURCE_CHAINDATASOURCE_H
 #define SOMAIO_DATASOURCE_CHAINDATASOURCE_H
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>                         // base class
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                            // member: _source

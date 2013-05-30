@@ -32,6 +32,7 @@
  */
 
 //--- somaio -------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/filedatasource.h>                // class defintion
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/stream/fileutil.h>                             // fileStat()

@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/io/reader.h>
+#else
 
 #ifndef CARTOBASE_IO_READER_H
 #define CARTOBASE_IO_READER_H
@@ -124,5 +127,6 @@ operator >> ( carto::Reader<T> & reader, T & thing )
   return reader;
 }
 
-#endif
+#endif // CARTOBASE_IO_READER_H
 
+#endif // USE_SOMA_IO

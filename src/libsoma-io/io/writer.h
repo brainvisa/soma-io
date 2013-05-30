@@ -33,6 +33,8 @@
 
 #ifndef SOMAIO_IO_WRITER_H
 #define SOMAIO_IO_WRITER_H
+//--- soma-io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 //------------------------------------------------------------------------------

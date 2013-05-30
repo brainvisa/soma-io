@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IMAGE_IMAGEREADER_D_H
 #define SOMAIO_IMAGE_IMAGEREADER_D_H
 //--- soma io ------------------------------------------------------------------
+#include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader.h>                      // class declaration
 #include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
 //--- cartobase ----------------------------------------------------------------
