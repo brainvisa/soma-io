@@ -34,6 +34,8 @@ set( _headers
   image/imagereader_d.h
   image/imagewriter.h
   image/imagewriter_d.h
+  image/voxelvalue.h
+  image/voxelvalue_d.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   io/reader.h
@@ -86,6 +88,7 @@ set( _somaio_sources
   datasourceinfo/datasourceinfoloader.cc
   image/imagereader.cc
   image/imagewriter.cc
+  image/voxelvalue.cc
   io/formatdictionary.cc
   io/reader_object.cc
   io/readeralgorithm.cc
@@ -100,44 +103,6 @@ set( _somaio_sources
   writer/pythonformatwriter.cc
   writer/pythonwriter.cc
 )
-
-IF( NOT USE_SOMA_IO )
-  set( _headers
-    "${_headers}"
-    cartodata/volume.h
-    cartodata/volume_d.h
-    cartodata/volumeproxy.h
-    cartodata/volumeproxy_d.h
-    cartodata/volumeutil.h
-    cartodata/volumeutil_d.h
-    cartodata/volumeoperators.h
-    cartodata/volumeview.h
-    cartodata/volumeformatreader.h
-    cartodata/volumeformatreader_d.h
-    cartodata/volumeformatwriter.h
-    cartodata/volumeformatwriter_d.h
-    plugingis/gisformatchecker.h
-    plugingis/gisimagereader.h
-    plugingis/gisimagereader_d.h
-    plugingis/gisimagewriter.h
-    plugingis/gisimagewriter_d.h
-    #pluginos/osformatchecker.h
-  )
-  set( _somaio_sources
-    "${_somaio_sources}"
-    cartodata/volume.cc
-    cartodata/volumeview.cc
-    cartodata/somaio_declare.cc
-    plugingis/gisformatchecker.cc
-    plugingis/gisimagereader.cc
-    plugingis/gisimagewriter.cc
-    plugingis/volumeformatreader_gis.cc
-    plugingis/volumeformatwriter_gis.cc
-    plugingis/formatchecker_gis.cc
-    #pluginos/osformatchecker.cc
-  )
-ENDIF()
-MESSAGE( "${_somaio_sources}" )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 

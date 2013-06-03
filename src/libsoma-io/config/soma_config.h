@@ -37,7 +37,7 @@
   #define soma carto
 #endif
 
-//#define SOMA_IO_DEBUG
+#define SOMA_IO_DEBUG
 
 #include <soma-io/config/config.h>
 

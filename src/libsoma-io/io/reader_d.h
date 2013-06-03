@@ -53,8 +53,8 @@
 //--- system -------------------------------------------------------------------
 #include <set>
 #include <map>
-//#define CARTO_DEBUG_IO
-#ifdef CARTO_DEBUG_IO
+//#define SOMA_IO_DEBUG
+#ifdef SOMA_IO_DEBUG
   #include <iostream>
 #endif
 //------------------------------------------------------------------------------
@@ -218,8 +218,8 @@ namespace soma
   template<class T>
   bool Reader<T>::read( T & obj, carto::Object header )
   {
-    #ifdef CARTO_DEBUG_IO
-      std::cout << "Reader<" << carto::DataTypeCode<T>::name() << ">\n";
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "READER:: <" << carto::DataTypeCode<T>::name() << ">\n";
     #endif
     
     if( !header.isNone() )
@@ -250,8 +250,8 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
     
-    #ifdef CARTO_DEBUG_IO
-      std::cout << "format: " << format << std::endl;
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "READER:: format: " << format << std::endl;
     #endif
     
     //// Reading data //////////////////////////////////////////////////////////
@@ -272,17 +272,17 @@ namespace soma
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "1. try reader " << format << std::endl;
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 1. try reader " << format << std::endl;
           #endif
           reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "1. " << format << " OK\n";
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 1. " << format << " OK\n";
           #endif
           return true;
 	      } catch( std::exception & e ) {
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "1. failed\n";
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 1. failed\n";
           #endif
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
@@ -304,22 +304,22 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "2. try reader " << ie->second << std::endl;
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 2. try reader " << ie->second << std::endl;
             #endif
             reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "2. " << ie->second << " OK\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 2. " << ie->second << " OK\n";
             #endif
             return true;
           } catch( std::exception & e ) {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "2. failed\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 2. failed\n";
             #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "2. unsuccessfully tried " << ie->second 
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 2. unsuccessfully tried " << ie->second 
                       << std::endl;
           #endif
           tried.insert( ie->second );
@@ -337,17 +337,17 @@ namespace soma
           reader = FormatDictionary<T>::readFormat( ie->second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "3. try reader " << ie->second << std::endl;
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 3. try reader " << ie->second << std::endl;
               #endif
               reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "3. " << ie->second << " OK\n";
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 3. " << ie->second << " OK\n";
               #endif
               return true;
             } catch( std::exception & e ) {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "3. failed\n";
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 3. failed\n";
               #endif
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
@@ -367,17 +367,17 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "4. try reader " << ie->second << std::endl;
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 4. try reader " << ie->second << std::endl;
             #endif
             reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "4. " << ie->second << " OK\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 4. " << ie->second << " OK\n";
             #endif
             return true;
           } catch( std::exception & e ) {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "4. failed\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 4. failed\n";
             #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
@@ -395,8 +395,8 @@ namespace soma
   template<class T>
   T* Reader<T>::read( carto::Object header )
   {
-    #ifdef CARTO_DEBUG_IO
-      std::cout << "Reader<" << carto::DataTypeCode<T>::name() << ">\n";
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "READER:: <" << carto::DataTypeCode<T>::name() << ">\n";
     #endif
     
     if( !header.isNone() )
@@ -422,8 +422,8 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
     
-    #ifdef CARTO_DEBUG_IO
-      std::cout << "format: " << format << std::endl;
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "READER:: format: " << format << std::endl;
     #endif
 
     //// Reading data //////////////////////////////////////////////////////////
@@ -445,19 +445,19 @@ namespace soma
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "1. try reader " << format << std::endl;
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 1. try reader " << format << std::endl;
           #endif
           obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
           if( obj ) {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "1. " << format << " OK\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 1. " << format << " OK\n";
             #endif
             return obj;
           }
 	      } catch( std::exception & e ) {
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "1. failed\n";
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 1. failed\n";
           #endif
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
@@ -479,24 +479,24 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( (*ie).second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "2. try reader " << ie->second << std::endl;
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 2. try reader " << ie->second << std::endl;
             #endif
             obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "2. " << ie->second << " OK\n";
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 2. " << ie->second << " OK\n";
               #endif
               return obj;
             }
           } catch( std::exception & e ) {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "2. failed\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 2. failed\n";
             #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
-          #ifdef CARTO_DEBUG_IO
-            std::cout << "2. unsuccessfully tried " << ie->second 
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "READER:: 2. unsuccessfully tried " << ie->second 
                       << std::endl;
           #endif
           tried.insert( ie->second );
@@ -514,19 +514,19 @@ namespace soma
           reader = FormatDictionary<T>::readFormat( (*ie).second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "3. try reader " << ie->second << std::endl;
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 3. try reader " << ie->second << std::endl;
               #endif
               obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
               if( obj ) {
-                #ifdef CARTO_DEBUG_IO
-                  std::cout << "3. " << ie->second << " OK\n";
+                #ifdef SOMA_IO_DEBUG
+                  std::cout << "READER:: 3. " << ie->second << " OK\n";
                 #endif
                 return obj;
               }
             } catch( std::exception & e ) {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "3. failed\n";
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 3. failed\n";
               #endif
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
@@ -546,19 +546,19 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "4. try reader " << ie->second << std::endl;
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 4. try reader " << ie->second << std::endl;
             #endif
             obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
-              #ifdef CARTO_DEBUG_IO
-                std::cout << "4. " << ie->second << " OK\n";
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "READER:: 4. " << ie->second << " OK\n";
               #endif
               return obj;
             }
           } catch( std::exception & e ) {
-            #ifdef CARTO_DEBUG_IO
-              std::cout << "4. failed\n";
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "READER:: 4. failed\n";
             #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
