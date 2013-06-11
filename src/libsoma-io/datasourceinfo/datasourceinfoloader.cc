@@ -228,7 +228,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   for( ie=iext.first; ie!=ee; ++ie )
     if( tried.find( ie->second ) == notyet ) {
       #ifdef SOMA_IO_DEBUG
-        cout << "DSILOADER:: trying " << (*ie).second << "...\n";
+        cout << "DSILOADER:: 1. trying " << (*ie).second << "...\n";
       #endif
       reader = formatInfo( ie->second );
       if( reader ) {
@@ -236,6 +236,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "DSILOADER:: 1. failed : " << e.what() << std::endl;
+          #endif
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );
@@ -254,7 +257,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
         #ifdef SOMA_IO_DEBUG
-          cout << "DSILOADER:: pass2, trying " << (*ie).second << "...\n";
+          cout << "DSILOADER:: 2. trying " << (*ie).second << "...\n";
         #endif
         reader = formatInfo( ie->second );
         if( reader ) {
@@ -262,6 +265,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
             d->state = Ok;
             return reader->check( dsi, *this, options );
           } catch( exception & e ) {
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "DSILOADER:: 2. failed : " << e.what() << std::endl;
+            #endif
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
             pds->at( dspos );
@@ -283,12 +289,15 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
       reader = formatInfo( ie->second );
       if( reader ) {
         #ifdef SOMA_IO_DEBUG
-          cout << "DSILOADER:: pass3, trying " << (*ie).second << "...\n";
+          cout << "DSILOADER:: 3. trying " << (*ie).second << "...\n";
         #endif
         try {
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
+          #ifdef SOMA_IO_DEBUG
+              std::cout << "DSILOADER:: 3. failed : " << e.what() << std::endl;
+          #endif
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );

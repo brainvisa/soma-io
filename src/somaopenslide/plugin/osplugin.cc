@@ -31,24 +31,65 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//--- plugin -------------------------------------------------------------------
+#include <soma-io/plugin/osplugin.h>
+#include <soma-io/checker/osformatchecker.h>
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>
+//--- system -------------------------------------------------------------------
+#include <vector>
+#include <string>
 //------------------------------------------------------------------------------
 
 using namespace soma;
+using namespace carto;
+using namespace std;
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+namespace soma {
+  namespace {
+    bool initos()
+    {
+      new OSPlugin;
+      return true;
+    }
+    bool osinit = initos();
+  }
+}
+
+OSPlugin::OSPlugin() : Plugin()
+{
+    vector<string>  exts(7);
+    exts[0] = "tif";    // Aperio, Trestle, Generic TIFF
+    exts[1] = "tiff";   // Aperio, Trestle, Generic TIFF
+    exts[2] = "svs";    // Aperio
+    exts[3] = "vms";    // Hamamatsu
+    exts[4] = "vmu";    // Hamamatsu
+    exts[5] = "scn";    // Leica
+    exts[6] = "mrxs";   // MIRAX
+    
+    ////////////////////////////////////////////////////////////////////////////
+    ////                          C H E C K E R                             ////
+    ////////////////////////////////////////////////////////////////////////////
+    
+    DataSourceInfoLoader::registerFormat( "OpenSlide", new OSFormatChecker, exts );
+    
+}
+
+
+OSPlugin::~OSPlugin()
+{
+}
+
+
+string OSPlugin::name() const
+{
+  return string("OpenSlide SOMA-IO");
+}
+
+
+bool OSPlugin::noop()
+{
+  return true;
+}
+

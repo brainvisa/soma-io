@@ -31,24 +31,38 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#ifndef SOMAIO_CHECKER_GISFORMATCHECKER_H
+#define SOMAIO_CHECKER_GISFORMATCHECKER_H
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
+#include <soma-io/checker/formatchecker.h>
+//--- cartobase ----------------------------------------------------------------
+#include <cartobase/object/object.h>
 //------------------------------------------------------------------------------
 
-using namespace soma;
+namespace soma
+{
+  class DataSource;
+  class DataSourceList;
+  class DataSourceInfoLoader;
+  class DataSourceInfo;
+  
+  /// \todo doc
+  class GisFormatChecker : public FormatChecker
+  {
+    public:
+      virtual DataSourceInfo check( DataSourceInfo dsi, 
+                                    DataSourceInfoLoader & f,
+                                    carto::Object options = carto::none() )
+                                    const;
+      virtual ~GisFormatChecker();
+      
+    protected:
+      void  _buildDSList( DataSourceList & dsl ) const;
+      carto::Object   _buildHeader( DataSource * hds ) const;
+  };
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+}
+
+#endif
+

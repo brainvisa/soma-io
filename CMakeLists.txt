@@ -14,6 +14,12 @@ BRAINVISA_DEPENDENCY( DEV DEPENDS libxml2 DEV )
 find_package( Boost REQUIRED )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libboost DEV )
 
+find_package( OpenSlide )
+if( OPENSLIDE_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )
+endif()
+BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenslide DEV )
+
 # Python is required for the DICOM conversion script
 # It should be made optional
 find_package( python REQUIRED )
@@ -66,6 +72,11 @@ set( SOMA-IO_INCLUDE_DIRS
      "${LIBXML2_INCLUDE_DIR}"
      ${Boost_INCLUDE_DIRS}
    )
+
+if( OPENSLIDE_FOUND )
+  set( SOMA-IO_INCLUDE_DIRS ${SOMA-IO_INCLUDE_DIRS} ${OPENSLIDE_INCLUDE_DIRS} )
+endif()
+
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 
 ## Libraries
@@ -78,6 +89,10 @@ endif()
 add_subdirectory( src/libcartobase )
 if( USE_SOMA_IO )
   add_subdirectory( src/libsoma-io )
+  add_subdirectory( src/somagis )
+  if( OPENSLIDE_FOUND )
+    add_subdirectory( src/somaopenslide )
+  endif()
 endif()
 add_subdirectory( src/tests )
 

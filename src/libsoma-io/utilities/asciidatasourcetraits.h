@@ -376,7 +376,6 @@ namespace soma
     return ds.isOpen();
   }
 
-
   namespace internal
   {
 

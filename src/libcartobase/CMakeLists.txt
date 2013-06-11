@@ -1,4 +1,5 @@
-## Cartobase config
+################################################################################
+## libCartobase
 
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" 

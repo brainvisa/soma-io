@@ -31,24 +31,25 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+//--- plugin -------------------------------------------------------------------
+#include <soma-io/image/gisimagewriter_d.h>
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
+//#include <soma-io/image/voxelrgb_d.h>
+//#include <soma-io/image/voxelrgba_d.h>
+//#include <soma-io/image/voxelhsv_d.h>
 //------------------------------------------------------------------------------
 
 using namespace soma;
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+template class GisImageWriter<int8_t>;
+template class GisImageWriter<int16_t>;
+template class GisImageWriter<int32_t>;
+template class GisImageWriter<uint8_t>;
+template class GisImageWriter<uint16_t>;
+template class GisImageWriter<uint32_t>;
+template class GisImageWriter<float>;
+template class GisImageWriter<double>;
+//template class GisImageWriter<VoxelRGB>;
+//template class GisImageWriter<VoxelRGBA>;
+//template class GisImageWriter<VoxelHSV>;

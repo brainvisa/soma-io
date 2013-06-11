@@ -31,24 +31,30 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
-//------------------------------------------------------------------------------
+#include <cartobase/config/version.h>
+#include <cartobase/plugin/plugin.h>
+#include <cartobase/config/paths.h>
+#include <list>
+#include <string>
 
-using namespace soma;
+using namespace carto;
+using namespace std;
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+namespace
+{
+
+  bool addSomaPlugins()
+  {
+    list<PluginLoader::PluginFile> & plugins = PluginLoader::pluginFiles();
+    string somaplugins = Paths::findResourceFile( "somaio.plugins", "soma-io" );
+    if( !somaplugins.empty() ) {
+      plugins.push_back( PluginLoader::PluginFile( somaplugins, cartobaseVersionString() ) );
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool dummy = addSomaPlugins();
+
+}

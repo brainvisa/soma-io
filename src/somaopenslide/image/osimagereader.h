@@ -31,60 +31,46 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_IMAGEWRITER_H
-#define SOMAIO_IMAGE_IMAGEWRITER_H
+#ifndef SOMAIO_IMAGE_OSIMAGEREADER_H
+#define SOMAIO_IMAGE_OSIMAGEREADER_H
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
+#include <soma-io/image/imagereader.h>                               // heritage
 //--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                            // to use none()
+#include <cartobase/object/object.h>                          // header, options
 //--- system -------------------------------------------------------------------
+#include <memory>
 #include <vector>
 //------------------------------------------------------------------------------
 
 namespace soma
 {
+  class DataSourceInfo;
   
-  /// ImageWriter is a low level Image/Volume writer.
-  ///
-  /// Format-specific writers ( GIS, OpenSlide, ... ) are derived from it.
-  /// They allow ( if implemented ) partial writing (and multiresolution ? ).
+  /**
+   * \todo doc ?
+   */
   template<typename T>
-  class ImageWriter
+  class OSImageReader : public ImageReader<T>
   {
     public:
-      ImageWriter();
-      virtual ~ImageWriter();
+      //========================================================================
+      //   C O N S T R U C T O R S
+      //========================================================================
+      OSImageReader();
+      virtual ~OSImageReader();
       
-      /// Reading a region of a Image/Volume at a given resolution to a 
-      /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
-      /// or more of these dimensions are of no interest for the format, they
-      /// take the value 0 ( pos ) or 1 ( size )
-      /// \param source Buffer containing the region to write. It must be of
-      ///               length size[0]*size[1]*size[2]*size[3]*sizeof(T)
-      /// \param pos    Position of the first voxel of the region to write.
-      /// \param size   Size of the region to write.
-      /// \param options  ( is it useful here ? )
-      virtual void write( T * source, DataSourceInfo & dsi,
-                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                          std::vector<int> & size, /* taille 4 : x,y,z,t */
-                          carto::Object options = carto::none() );
+      //========================================================================
+      //   I M A G E R E A D E R
+      //========================================================================
+      virtual void read( T * dest, DataSourceInfo & dsi,
+                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
+                         std::vector<int> & size, /* taille 4 : x,y,z,t */
+                         std::vector<int> stride = std::vector<int>(),
+                         carto::Object options = carto::none() );
       
-      /// Builds the DataSourceList
-      /// Checks whether the files need to be created and eventually does so.
-      /// (It is needed for partial writing)
-      virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
-                                          carto::Object options = carto::none() );
-      
-      /// Sets _sizes, _binary and _byteswap values from DataSourceInfo
+      //virtual void resetParams();
       virtual void updateParams( DataSourceInfo & dsi );
-      /// Sets _sizes, _binary and _byteswap values as default or empty
-      virtual void resetParams();
-      
-    protected:
-      std::vector<std::vector<int> >  _sizes;  //  4D : x, y, z, t
-      bool  _binary;        // default: true
-      bool  _byteswap;      // default: false
   };
   
 }

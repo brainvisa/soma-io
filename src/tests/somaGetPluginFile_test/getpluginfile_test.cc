@@ -31,24 +31,15 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
-//------------------------------------------------------------------------------
+#include <cartobase/config/paths.h>
+#include <string>
+#include <iostream>
 
-using namespace soma;
+using namespace carto;
+using namespace std;
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+int main( int argc, const char** argv )
+{
+  string pfile = Paths::findResourceFile( "plugins/cartodata.plugins", "aims" );
+  cout << "Plugin File: " << pfile << endl;
+}

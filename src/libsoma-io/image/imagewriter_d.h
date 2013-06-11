@@ -128,7 +128,6 @@ namespace soma
                               DataSourceInfo & dsi,
                               std::vector<int> & /*pos*/,
                               std::vector<int> & /*size*/,
-                              int /*level*/,
                               carto::Object /*options*/ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );

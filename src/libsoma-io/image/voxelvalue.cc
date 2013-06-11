@@ -44,3 +44,4 @@ using namespace carto;
 using namespace std;
 
 template class VoxelValue< uint8_t,3 >;
+template class VoxelValue< uint8_t,4 >;

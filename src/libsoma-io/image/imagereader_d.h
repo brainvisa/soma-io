@@ -128,7 +128,6 @@ namespace soma {
                              std::vector<int> &  /* pos */,
                              std::vector<int> &  /*size */,
                              std::vector<int>    /* stride */,
-                             int                 /* level */, 
                              carto::Object       /* options */ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );

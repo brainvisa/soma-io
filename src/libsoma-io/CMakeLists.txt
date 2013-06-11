@@ -36,6 +36,11 @@ set( _headers
   image/imagewriter_d.h
   image/voxelvalue.h
   image/voxelvalue_d.h
+  image/voxelrgb.h
+  image/voxelrgb_d.h
+  image/voxelrgba.h
+  image/voxelrgba_d.h
+  image/voxelhsv.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   io/reader.h
@@ -74,6 +79,7 @@ set( _somaio_sources
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
   config/version.cc
+  config/plugins.cc
   datasource/bufferdatasource.cc
   datasource/chaindatasource.cc
   datasource/cstreamdatasource.cc
@@ -122,6 +128,9 @@ endif(UNIX)
 if(APPLE)
   target_link_libraries( soma-io "-framework CoreServices" )
 endif(APPLE)
+if( OPENSLIDE_FOUND )
+  target_link_libraries( soma-io "${OPENSLIDE_LIBRARIES}" )
+endif()
 BRAINVISA_INSTALL( TARGETS soma-io
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )

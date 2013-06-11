@@ -31,24 +31,25 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+#ifndef SOMAIO_PLUGIN_GISPLUGIN_H
+#define SOMAIO_PLUGIN_GISPLUGIN_H
+
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter_d.h>
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
-//------------------------------------------------------------------------------
+#include <cartobase/plugin/plugin.h>
 
-using namespace soma;
+namespace soma
+{
 
-template class ImageWriter<int8_t>;
-template class ImageWriter<int16_t>;
-template class ImageWriter<int32_t>;
-template class ImageWriter<uint8_t>;
-template class ImageWriter<uint16_t>;
-template class ImageWriter<uint32_t>;
-template class ImageWriter<float>;
-template class ImageWriter<double>;
-template class ImageWriter<VoxelRGB>;
-template class ImageWriter<VoxelRGBA>;
-template class ImageWriter<VoxelHSV>;
+  class GisPlugin : public carto::Plugin
+  {
+  public:
+    GisPlugin();
+    virtual ~GisPlugin();
+    virtual std::string name() const;
+    static bool noop();
+  };
+
+}
+
+#endif
+

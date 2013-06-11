@@ -34,6 +34,9 @@
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader_d.h>
+#include <soma-io/image/voxelrgb_d.h>
+#include <soma-io/image/voxelrgba_d.h>
+#include <soma-io/image/voxelhsv.h>
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -46,3 +49,6 @@ template class ImageReader<uint16_t>;
 template class ImageReader<uint32_t>;
 template class ImageReader<float>;
 template class ImageReader<double>;
+template class ImageReader<VoxelRGB>;
+template class ImageReader<VoxelRGBA>;
+template class ImageReader<VoxelHSV>;

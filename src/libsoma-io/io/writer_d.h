@@ -86,6 +86,10 @@ namespace soma
   template<class T>
   bool Writer<T>::write( const T & obj, carto::Object options )
   {
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "WRITER:: <" << carto::DataTypeCode<T>::name() << ">\n";
+    #endif
+    
     set_S            tried;
     FormatWriter<T>  *writer;
     set_S::iterator  notyet = tried.end();
@@ -99,15 +103,29 @@ namespace soma
     options->getProperty( "format", format );
     std::string	filename;
     filename = _datasourceinfo->list().dataSource( "default", 0)->url();
+    
+    #ifdef SOMA_IO_DEBUG
+      std::cout << "WRITER:: format: " << format << std::endl;
+    #endif
 
     //// priority to format hint ///////////////////////////////////////////////
     if( !format.empty() ) {
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
         try {
-          if( writer->write( obj, _datasourceinfo, options ) )
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "WRITER:: 1. try writer " << format << std::endl;
+          #endif
+          if( writer->write( obj, _datasourceinfo, options ) ) {
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "WRITER:: 1. " << format << " OK\n";
+            #endif
             return true;
+          }
 	      } catch( std::exception & e ) {
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "WRITER:: 1. failed\n";
+          #endif
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
         tried.insert( format );
@@ -125,11 +143,25 @@ namespace soma
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( writer->write( obj, _datasourceinfo, options ) )
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "WRITER:: 2. try writer " << ie->second << std::endl;
+            #endif
+            if( writer->write( obj, _datasourceinfo, options ) ) {
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "WRITER:: 2. " << ie->second << " OK\n";
+              #endif
               return true;
+            }
           } catch( std::exception & e ) {
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "WRITER:: 2. failed\n";
+            #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
+          #ifdef SOMA_IO_DEBUG
+            std::cout << "WRITER:: 2. unsuccessfully tried " << ie->second 
+                      << std::endl;
+          #endif
           tried.insert( ie->second );
         }
       }
@@ -142,9 +174,19 @@ namespace soma
           writer = FormatDictionary<T>::writeFormat( ie->second );
           if( writer ) {
             try {
-              if( writer->write( obj, _datasourceinfo, options ) )
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "WRITER:: 3. try writer " << ie->second << std::endl;
+              #endif
+              if( writer->write( obj, _datasourceinfo, options ) ) {
+                #ifdef SOMA_IO_DEBUG
+                  std::cout << "WRITER:: 3. " << ie->second << " OK\n";
+                #endif
                 return true;
+              }
             } catch( std::exception & e ) {
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "WRITER:: 3. failed\n";
+              #endif
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -161,9 +203,19 @@ namespace soma
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( writer->write( obj, _datasourceinfo, options ) )
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "WRITER:: 4. try writer " << ie->second << std::endl;
+            #endif
+            if( writer->write( obj, _datasourceinfo, options ) ) {
+              #ifdef SOMA_IO_DEBUG
+                std::cout << "WRITER:: 4. " << ie->second << " OK\n";
+              #endif
               return true;
+            }
           } catch( std::exception & e ) {
+            #ifdef SOMA_IO_DEBUG
+              std::cout << "WRITER:: 4. failed\n";
+            #endif
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );

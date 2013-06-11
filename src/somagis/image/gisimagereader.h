@@ -31,62 +31,72 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_IMAGEREADER_H
-#define SOMAIO_IMAGE_IMAGEREADER_H
+#ifndef SOMAIO_IMAGE_GISIMAGEREADER_H
+#define SOMAIO_IMAGE_GISIMAGEREADER_H
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
+#include <soma-io/image/imagereader.h>                               // heritage
+#include <soma-io/datasource/chaindatasource.h>                      // heritage
+#include <soma-io/reader/itemreader.h>                        // read + byteswap
+//#include <soma-io/writer/itemwriter.h>                       // write + byteswap
 //--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                            // to use none()
+#include <cartobase/object/object.h>                          // header, options
 //--- system -------------------------------------------------------------------
+#include <memory>
 #include <vector>
 //------------------------------------------------------------------------------
 
 namespace soma
 {
+  class DataSourceInfo;
   
-  /// ImageReader is a low level Image/Volume reader.
-  ///
-  /// Format-specific readers ( GIS, OpenSlide, ... ) are derived from it.
-  /// They allow ( if implemented ) partial reading and multiresolution access.
+  /**
+   * \todo doc ?
+   */
   template<typename T>
-  class ImageReader
+  class GisImageReader : public ImageReader<T>, protected ChainDataSource
   {
     public:
-      //ImageReader( DataSourceInfo & dsi = 0 );
-      //ImageReader( const ImageReader<T> & );
-      ImageReader();
-      virtual ~ImageReader();
+      //========================================================================
+      //   C O N S T R U C T O R S
+      //========================================================================
+      GisImageReader();
+      //GisImageReader( DataSourceInfo & dsi );
+      //GisImageReader( const GisImageReader<T> & );
+      virtual ~GisImageReader();
       
-      /// Reading a region of a Image/Volume at a given resolution to a 
-      /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
-      /// or more of these dimensions are of no interest for the format, they
-      /// take the value 0 ( pos ) or 1 ( size )
-      /// \param dest   Pre-allocated buffer. Its size must be sufficient to
-      ///               contain the region to read.
-      /// \param pos    Position of the first voxel of the region to read, 
-      ///               expressed in the referential of the chosen level.
-      /// \param size   Size of the region to read, expressed in the referential
-      ///               of the chosen level.
-      /// \param stride TODO
-      /// \param level  Resolution level we want to access. Level of maximum 
-      ///               resolution ( sole present if no multiresolution ) is 0.
-      /// \param options  ( is it useful here ? )
+      //========================================================================
+      //   I M A G E R E A D E R
+      //========================================================================
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
                          std::vector<int> & size, /* taille 4 : x,y,z,t */
                          std::vector<int> stride = std::vector<int>(),
                          carto::Object options = carto::none() );
       
-      /// Sets _sizes, _binary and _byteswap values from DataSourceInfo
+      //virtual void resetParams();
       virtual void updateParams( DataSourceInfo & dsi );
-      /// Sets _sizes, _binary and _byteswap values as default or empty
-      virtual void resetParams();
       
     protected:
-      std::vector<std::vector<int> >  _sizes;  //  4D : x, y, z, t
-      bool  _binary;        // default: true
-      bool  _byteswap;      // default: false
+      //========================================================================
+      //   D A T A S O U R C E
+      //========================================================================
+      virtual DataSource* clone() const;
+      virtual int iterateMode() const;
+      virtual offset_t size() const;
+      virtual offset_t at() const;
+      virtual bool at( offset_t pos );
+      virtual long readBlock( char * data, unsigned long maxlen );
+      virtual long writeBlock( const char * data, unsigned long len );
+      virtual int getch();
+      virtual int putch( int ch );
+      virtual bool ungetch( int ch );
+      virtual bool allowsMemoryMapping() const;
+      virtual bool setpos( int x, int y = 0, int z = 0, int t = 0 );
+      
+    protected:
+      std::auto_ptr<ItemReader<T> > _itemr;
+      //std::auto_ptr<ItemWriter<T> > _itemw;
   };
   
 }

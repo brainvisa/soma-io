@@ -76,222 +76,48 @@ namespace soma {
   //   I N T E R N   O P E R A T O R S
   //============================================================================
   
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator  = ( const VoxelValue<T,C> & other )
+  template <typename T, unsigned int C> inline
+  bool VoxelValue<T,C>::operator == ( const VoxelValue<T,C> &aa )
   {
     #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator=( other )" << std::endl;
+      std::cout << "VOXELVALUE:: VV == VV" << std::endl;
     #endif
-    unsigned int i;
+    int i;
     for( i=0; i<C; ++i )
-      _voxel[ i ] = other._voxel[i];
-    return *this;
+      if( (*this)[ i ] != aa[ i ] )
+        return false;
+    return true;
   }
   
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator += ( const VoxelValue<T,C> & other )
+  template <typename T, unsigned int C> inline
+  bool VoxelValue<T,C>::operator != ( const VoxelValue<T,C> &aa )
   {
     #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator+=( other )" << std::endl;
+      std::cout << "VOXELVALUE:: VV != VV" << std::endl;
     #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] += other._voxel[i];
-    return *this;
+    return !( (*this) == aa );
   }
   
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator -= ( const VoxelValue<T,C> & other )
+  template <typename T, unsigned int C>
+  bool VoxelValue<T,C>::operator == ( const T &bb )
   {
     #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator-=( other)" << std::endl;
+      std::cout << "VOXELVALUE:: VV == const" << std::endl;
     #endif
-    unsigned int i;
+    int i;
     for( i=0; i<C; ++i )
-      _voxel[ i ] -= other._voxel[i];
-    return *this;
+      if( (*this)[ i ] != bb )
+        return false;
+    return true;
   }
   
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator  = ( const T & value )
+  template <typename T, unsigned int C> inline
+  bool VoxelValue<T,C>::operator != ( const T &bb )
   {
     #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator=( " << (int) value << " )" << std::endl;
+      std::cout << "VOXELVALUE:: VV != const" << std::endl;
     #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] = value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator += ( const T & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator+=( " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] += value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator -= ( const T & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator-=( " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] -= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const uint8_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (uint8_t) " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const uint16_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (uint16_t) " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const uint32_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (uint32_t) " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const uint64_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (uint64_t) " << (int) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const float & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (float) " << (float) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator *= ( const double & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator*=( (double) " << (float) value << " )" << std::endl;
-    #endif
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] *= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const uint8_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator/=( (uint8_t) " << (int) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const uint16_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator/=( (uint16_t) " << (int) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const uint32_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator/=( (uint32_t) " << (int) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const uint64_t & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator/=( (uint64_t) " << (int) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const float & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator/=( (float) " << (float) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-    return *this;
-  }
-  
-  template <typename T, unsigned int C> VoxelValue<T,C> & 
-  VoxelValue<T,C>::operator /= ( const double & value )
-  {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
-      std::cout << "VOXELVALUE:: operator=( (double) " << (float) value << " )" << std::endl;
-    #endif
-    ASSERT( value != 0 );
-    unsigned int i;
-    for( i=0; i<C; ++i )
-      _voxel[ i ] /= value;
-    return *this;
+    return !( (*this) == bb );
   }
   
 }

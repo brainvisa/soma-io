@@ -409,7 +409,7 @@ namespace soma
     
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *_datasourceinfo.get() );
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
     if( dsi.list().empty() )
       dsil.launchException();
     if( dsi.header().get() )
