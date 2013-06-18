@@ -34,7 +34,10 @@
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
 #include <cartobase/config/paths.h>
+#include <cartobase/object/object.h>
+#include <cartobase/object/property.h>
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -358,3 +361,51 @@ list<string> FileUtil::filenamesSplit( const string & fnames,
   return names;
 }
 
+string FileUtil::uriFilename( const string & filein )
+{
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return filein;
+  
+  return filein.substr( 0, epos );
+}
+
+Object FileUtil::uriOptions( const string & filein )
+{
+  Object options = none();
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return options;
+  
+  string opt = filein.substr( epos + 1, filein.length() - epos - 1 );
+  string::size_type spos;
+  string currentopt, currentval;
+  while( !opt.empty() ) {
+    epos = opt.find( '&' );
+    string currentopt = opt.substr( 0, epos );
+    spos = currentopt.find( '=' );
+    if( spos == string::npos )
+      currentval = "true";
+    else
+      currentval = currentopt.substr( spos + 1, currentopt.length() - spos - 1 );
+    currentopt = currentopt.substr( 0, spos );
+    if( currentopt != "" ) {
+      if( !options.get() )
+        options = Object::value( PropertySet() );
+      options->setProperty( currentopt, currentval );
+    }
+    if( epos == string::npos )
+      opt = "";
+    else
+      opt = opt.substr( epos + 1, opt.length() - epos - 1 );
+  }
+  
+  return options;
+}
+
+string FileUtil::itos( int number )
+{
+  std::ostringstream oss;
+  oss << number;
+  return oss.str();
+}

@@ -40,6 +40,8 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                                   // member
 #include <cartobase/smart/rcptr.h>                                     // member
+//--- system -------------------------------------------------------------------
+#include <string>
 //------------------------------------------------------------------------------
 
 namespace soma
@@ -66,12 +68,15 @@ namespace soma
       /// Constructor from a datasource [+ dimensions (to build a header)]
       /// DSList is set as containing only ds pointed by "default" key
       /// Capabilities are set uninitialized
-      /// If dim is given, a header is built with keys sizeX,Y,Z,T
+      /// If dim is given, a header is built with keys size[X,Y,Z,T]
       /// Else the header is none()
       DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
                       const std::vector<int> & dim = std::vector<int>() );
       DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
                       carto::Object header );
+      /// Constructor from a filename
+      /// eases the checking in high end classes
+      DataSourceInfo( const std::string & fname );
       // Constructor from a buffer
       //DataSourceInfo( char* buffer );
       /// Constructor by copy

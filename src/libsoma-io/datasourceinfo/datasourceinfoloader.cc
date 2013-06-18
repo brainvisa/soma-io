@@ -44,13 +44,12 @@
 #include <cartobase/object/property.h>                        // header, options
 #include <cartobase/plugin/plugin.h>                            // loads plugins
 #include <cartobase/stream/fileutil.h>                // used to find extensions
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <iostream>
 #include <map>
 #include <set>
-//-- debug ---------------------------------------------------------------------
-//#define SOMA_IO_DEBUG
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -181,9 +180,9 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
 DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
                                             Object options )
 {
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: check()\n";
-  #endif
+  }
   
   // If dsi already complete : returns it //////////////////////////////////////
   if( !dsi.header().isNone() 
@@ -205,13 +204,13 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   // find filename extension if it's a file ////////////////////////////////////
   string  ext, url = dsi.list().dataSource( "default", 0 )->url() ;
   int     excp = 0;
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: filename: " << url << endl;
-  #endif
+  }
   ext = FileUtil::extension( url );
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: ext : " << ext << endl;
-  #endif
+  }
 
   // Check compatible formats //////////////////////////////////////////////////
   set<string>            tried;
@@ -227,18 +226,18 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   //// Pass 1 : try every matching format until one works //////////////////////
   for( ie=iext.first; ie!=ee; ++ie )
     if( tried.find( ie->second ) == notyet ) {
-      #ifdef SOMA_IO_DEBUG
+      if( carto::debugMessageLevel > 3 ) {
         cout << "DSILOADER:: 1. trying " << (*ie).second << "...\n";
-      #endif
+      }
       reader = formatInfo( ie->second );
       if( reader ) {
         try {
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "DSILOADER:: 1. failed : " << e.what() << std::endl;
-          #endif
+          }
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );
@@ -248,26 +247,26 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     }
 
   //// Pass 2 : not found or none works: try readers with no extension /////////
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: not found yet... pass2...\n";
-  #endif
+  }
   if( !ext.empty() ) {
     iext = ps.extensions.equal_range( "" );
 
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
-        #ifdef SOMA_IO_DEBUG
+        if( carto::debugMessageLevel > 3 ) {
           cout << "DSILOADER:: 2. trying " << (*ie).second << "...\n";
-        #endif
+        }
         reader = formatInfo( ie->second );
         if( reader ) {
           try {
             d->state = Ok;
             return reader->check( dsi, *this, options );
           } catch( exception & e ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "DSILOADER:: 2. failed : " << e.what() << std::endl;
-            #endif
+            }
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
             pds->at( dspos );
@@ -278,9 +277,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   }
 
   //// Pass 3 : still not found ? well, try EVERY format this time... //////////
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: not found yet... pass3...\n";
-  #endif
+  }
   iext.first = ps.extensions.begin();
   iext.second = ps.extensions.end();
 
@@ -288,16 +287,16 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     if( tried.find( ie->second ) == notyet ) {
       reader = formatInfo( ie->second );
       if( reader ) {
-        #ifdef SOMA_IO_DEBUG
+        if( carto::debugMessageLevel > 3 ) {
           cout << "DSILOADER:: 3. trying " << (*ie).second << "...\n";
-        #endif
+        }
         try {
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
               std::cout << "DSILOADER:: 3. failed : " << e.what() << std::endl;
-          #endif
+          }
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );
@@ -307,9 +306,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     }
 
   //// End : still not succeeded, it's hopeless... /////////////////////////////
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: not found at all, giving up\n";
-  #endif
+  }
   d->state = Error;
   if( d->errorcode < 0 ) {
     d->errorcode = 0;
@@ -487,6 +486,5 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
   }
 
   return minf;
+
 }
-
-

@@ -42,11 +42,9 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                             // function arg
 #include <cartobase/object/property.h>        // to manipulate header properties
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
-// #define SOMA_IO_DEBUG
-#ifdef SOMA_IO_DEBUG
-  #include <iostream>
-#endif
+#include <iostream>
 #include <vector>
 #include <string>
 //------------------------------------------------------------------------------
@@ -85,9 +83,9 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   char		c;
   int		i, n = sign.length();
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "XMLFORMATCHECKER:: Reading minf header..." << ds->url() << endl;
-  #endif
+  }
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
     {
@@ -113,14 +111,14 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   // add header to datasourceinfo
   dsi.header() = hdr;
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "XMLFORMATCHECKER:: Building list..." << ds->url() << endl;
-  #endif
+  }
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "XMLFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
-  #endif
+  }
   dsi.capabilities().setMemoryMapping( false );
   dsi.capabilities().setThreadSafe( false ); /* TODO */
   dsi.capabilities().setOrdered( false );
@@ -129,9 +127,9 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   dsi.capabilities().setSeekSlice( false );
   dsi.capabilities().setSeekVolume( false );
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "XMLFORMATCHECKER:: Checking done " << ds->url() << endl;
-  #endif
+  }
   return dsi;
 }
 

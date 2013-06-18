@@ -50,13 +50,11 @@
 #include <cartobase/object/object.h>                         // header & options
 #include <cartobase/object/property.h>                       // header & options
 #include <cartobase/stream/fileutil.h>                 // finding file extension
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <set>
 #include <map>
-//#define SOMA_IO_DEBUG
-#ifdef SOMA_IO_DEBUG
-  #include <iostream>
-#endif
+#include <iostream>                                                     // debug
 //------------------------------------------------------------------------------
 
 namespace soma
@@ -218,9 +216,9 @@ namespace soma
   template<class T>
   bool Reader<T>::read( T & obj, carto::Object header )
   {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "READER:: <" << carto::DataTypeCode<T>::name() << ">\n";
-    #endif
+    }
     
     if( !header.isNone() )
       _datasourceinfo->header() = header;
@@ -250,9 +248,9 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
     
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "READER:: format: " << format << std::endl;
-    #endif
+    }
     
     //// Reading data //////////////////////////////////////////////////////////
     std::string   filename  = _datasourceinfo->list()
@@ -272,18 +270,18 @@ namespace soma
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 1. try reader " << format << std::endl;
-          #endif
+          }
           reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 1. " << format << " OK\n";
-          #endif
+          }
           return true;
 	      } catch( std::exception & e ) {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 1. failed\n";
-          #endif
+          }
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
 	      tried.insert( format );
@@ -304,24 +302,24 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 2. try reader " << ie->second << std::endl;
-            #endif
+            }
             reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 2. " << ie->second << " OK\n";
-            #endif
+            }
             return true;
           } catch( std::exception & e ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 2. failed\n";
-            #endif
+            }
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 2. unsuccessfully tried " << ie->second 
                       << std::endl;
-          #endif
+          }
           tried.insert( ie->second );
           triedf.insert( reader );
         }
@@ -337,18 +335,18 @@ namespace soma
           reader = FormatDictionary<T>::readFormat( ie->second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 3. try reader " << ie->second << std::endl;
-              #endif
+              }
               reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 3. " << ie->second << " OK\n";
-              #endif
+              }
               return true;
             } catch( std::exception & e ) {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 3. failed\n";
-              #endif
+              }
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -367,18 +365,18 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 4. try reader " << ie->second << std::endl;
-            #endif
+            }
             reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 4. " << ie->second << " OK\n";
-            #endif
+            }
             return true;
           } catch( std::exception & e ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 4. failed\n";
-            #endif
+            }
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );
@@ -395,9 +393,9 @@ namespace soma
   template<class T>
   T* Reader<T>::read( carto::Object header )
   {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "READER:: <" << carto::DataTypeCode<T>::name() << ">\n";
-    #endif
+    }
     
     if( !header.isNone() )
       _datasourceinfo->header() = header;
@@ -422,9 +420,9 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
       _datasourceinfo->header()->getProperty( "file_type", format ); // old style
     
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "READER:: format: " << format << std::endl;
-    #endif
+    }
 
     //// Reading data //////////////////////////////////////////////////////////
     std::string   filename  = _datasourceinfo->list()
@@ -445,20 +443,20 @@ namespace soma
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 1. try reader " << format << std::endl;
-          #endif
+          }
           obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
           if( obj ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 1. " << format << " OK\n";
-            #endif
+            }
             return obj;
           }
 	      } catch( std::exception & e ) {
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 1. failed\n";
-          #endif
+          }
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
         tried.insert( format );
@@ -479,26 +477,26 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( (*ie).second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 2. try reader " << ie->second << std::endl;
-            #endif
+            }
             obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 2. " << ie->second << " OK\n";
-              #endif
+              }
               return obj;
             }
           } catch( std::exception & e ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 2. failed\n";
-            #endif
+            }
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
-          #ifdef SOMA_IO_DEBUG
+          if( carto::debugMessageLevel > 3 ) {
             std::cout << "READER:: 2. unsuccessfully tried " << ie->second 
                       << std::endl;
-          #endif
+          }
           tried.insert( ie->second );
           triedf.insert( reader );
         }
@@ -514,20 +512,20 @@ namespace soma
           reader = FormatDictionary<T>::readFormat( (*ie).second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 3. try reader " << ie->second << std::endl;
-              #endif
+              }
               obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
               if( obj ) {
-                #ifdef SOMA_IO_DEBUG
+                if( carto::debugMessageLevel > 3 ) {
                   std::cout << "READER:: 3. " << ie->second << " OK\n";
-                #endif
+                }
                 return obj;
               }
             } catch( std::exception & e ) {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 3. failed\n";
-              #endif
+              }
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -546,20 +544,20 @@ namespace soma
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 4. try reader " << ie->second << std::endl;
-            #endif
+            }
             obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
             if( obj ) {
-              #ifdef SOMA_IO_DEBUG
+              if( carto::debugMessageLevel > 3 ) {
                 std::cout << "READER:: 4. " << ie->second << " OK\n";
-              #endif
+              }
               return obj;
             }
           } catch( std::exception & e ) {
-            #ifdef SOMA_IO_DEBUG
+            if( carto::debugMessageLevel > 3 ) {
               std::cout << "READER:: 4. failed\n";
-            #endif
+            }
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );
@@ -576,4 +574,3 @@ namespace soma
 }
 
 #endif
-

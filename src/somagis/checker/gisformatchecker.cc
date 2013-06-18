@@ -46,13 +46,11 @@
 #include <cartobase/object/object.h>                                   // header
 #include <cartobase/object/property.h>                                 // header
 #include <cartobase/stream/fileutil.h>               // to manipulate file names
-#include <cartobase/config/verbose.h>                 // to write debug messages
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <stdio.h>
 #include <iostream>
-#define SOMAIO_BYTE_ORDER 0x41424344  //"ABCD" in ascii
-//-- debug ---------------------------------------------------------------------
-//#define SOMA_IO_DEBUG
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byte swapping
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -172,12 +170,12 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
       }
     }
   }
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "GISFORMATCHECKER:: dim: " << dsl.dataSource( "dim", 0 )->url() << endl;
-  #endif
-  #ifdef SOMA_IO_DEBUG
+  }
+  if( carto::debugMessageLevel > 3 ) {
     cout << "GISFORMATCHECKER:: ima: " << dsl.dataSource( "ima", 0 )->url() << endl;
-  #endif
+  }
   
   //// Minf DataSource
   if( FileUtil::fileStat( minfname ).find( '+' ) != string::npos ) {
@@ -189,9 +187,9 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
     dsl.addDataSource( "minf", rc_ptr<DataSource>( pds ) );
   }
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "GISFORMATCHECKER:: minf: " << dsl.dataSource( "minf", 0 )->url() << endl;
-  #endif
+  }
 }
 
 //--- BUILDING HEADER ----------------------------------------------------------
@@ -327,17 +325,17 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   //  hds->close();
   
   if( type.empty() ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Not a GIS header: " << fname << endl;
-    #endif
+    }
     throw format_mismatch_error( "Not a GIS header", fname );
   }
 
   if( fds && fds->at() != fds->size() - 1 ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: GIS header not entirely read - garbage at end? " 
            << fname << endl;
-    #endif
+    }
     throw format_mismatch_error( "GIS header not entirely read - garbage at " 
                                  "end ?", fname );
   }
@@ -393,22 +391,22 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Building list..." << endl;
-    #endif
+    }
     _buildDSList( dsi.list() );
   }
   //--- build header -----------------------------------------------------------
   if( doread ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Reading header..." << endl;
-    #endif
+    }
     DataSource* hds = dsi.list().dataSource( "dim", 0 ).get();
     dsi.header() = _buildHeader( hds );
     
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Reading minf..." << endl;
-    #endif
+    }
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     DataSource* minfds = dsi.list().dataSource( "minf", 0 ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
@@ -417,9 +415,9 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   }
   //--- write capabilities -----------------------------------------------------
   if( docapa ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Writing capabilities..." << endl;
-    #endif
+    }
     dsi.capabilities().setMemoryMapping( false );
     try {
       if( !(bool) dsi.header()->getProperty( "byte_swapping" )->getScalar() 
@@ -436,10 +434,8 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekVolume( true );
   }
   //----------------------------------------------------------------------------
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "GISFORMATCHECKER:: Checking done" << endl;
-  #endif
+  }
   return dsi;
 }
-
-

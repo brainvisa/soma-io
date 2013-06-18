@@ -54,14 +54,14 @@
 #include <cartobase/type/string_conversion.h>                      // conversion
 #include <cartobase/type/types.h>                             // to write header
 #include <cartobase/stream/fileutil.h>                            // utilitaires
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
 #include <iostream>
 #include <fstream>
 //------------------------------------------------------------------------------
-#define SOMAIO_BYTE_ORDER 0x41424344  //"ABCD" in ascii
-//#define SOMA_IO_DEBUG
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii- > used for byte swapping
 
 namespace soma {
   
@@ -237,28 +237,28 @@ namespace soma {
     int  sy = ImageWriter<T>::_sizes[ 0 ][ 1 ];
     int  sz = ImageWriter<T>::_sizes[ 0 ][ 2 ];
     int  st = ImageWriter<T>::_sizes[ 0 ][ 3 ];
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 6 ) {
       std::cout << "GIW::s : " << sx << " " << sy << " " 
                 << sz << " " << st << std::endl;
-    #endif
+    }
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
     int  vz = size[ 2 ];
     int  vt = size[ 3 ];
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 6 ) {
       std::cout << "GIW::v : " << vx << " " << vy << " " 
                 << vz << " " << vt << std::endl;
-    #endif
+    }
     // region position
     int  ox = pos[ 0 ];
     int  oy = pos[ 1 ];
     int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 6 ) {
       std::cout << "GIW::o : " << ox << " " << oy << " " 
                 << oz << " " << ot << std::endl;
-    #endif
+    }
     int  y, z, t;
     // region line size
     offset_t  len = vx * sizeof( T );
@@ -288,19 +288,19 @@ namespace soma {
                                                  carto::Object options )
   {
     //--- build datasourcelist -------------------------------------------------
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: building DataSourceList..." << std::endl;
-    #endif
+    }
     bool dolist = dsi.list().nbTypes() == 1 ;
     if( dolist )
       buildDSList( dsi.list(), options );
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: done: building DataSourceList" << std::endl;
-    #endif
+    }
     //--- set header -----------------------------------------------------------
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: setting Header..." << std::endl;
-    #endif
+    }
     if( options->hasProperty( "partial_writing" ) ) {
       DataSourceInfoLoader  dsil;
       DataSourceInfo dimdsi( dsi.list().dataSource( "dim", 0 ) );
@@ -318,13 +318,13 @@ namespace soma {
       else
         dsi.header()->setProperty( "ascii", false );
     }
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: done:setting Header" << std::endl;
-    #endif
+    }
     //--- write header ---------------------------------------------------------
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: writing Header..." << std::endl;
-    #endif
+    }
     ChainDataSource::setSource( dsi.list().dataSource( "dim", 0 ), 
                                 dsi.list().dataSource( "dim", 0)->url() );
     DataSource* ds;
@@ -375,13 +375,13 @@ namespace soma {
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
         << "\n";
     close();
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: done: writing Header" << std::endl;
-    #endif
+    }
     //--- write minf -----------------------------------------------------------
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: writing Minf..." << std::endl;
-    #endif
+    }
     carto::Object minf = carto::Object::value( carto::PropertySet() );
     minf->setProperty( "file_type", std::string( "GIS" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
@@ -397,14 +397,14 @@ namespace soma {
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf", 0 ) );
     minfw.write( *minf );
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: done: writing Minf" << std::endl;
-    #endif
+    }
     //--- partial-io case ------------------------------------------------------
     if( options->hasProperty( "unallocated" ) ) {
-      #ifdef SOMA_IO_DEBUG
+      if( carto::debugMessageLevel > 3 ) {
         std::cout << "GIW:: building file for partial writing..." << std::endl;
-      #endif
+      }
       if( ImageWriter<T>::_sizes.empty() )
         updateParams( dsi );
       ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
@@ -415,9 +415,9 @@ namespace soma {
       at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
             throw carto::eof_error( url() );
-      #ifdef SOMA_IO_DEBUG
+      if( carto::debugMessageLevel > 3 ) {
         std::cout << "GIW:: done:building file for partial writing" << std::endl;
-      #endif
+      }
     }
       
     //--------------------------------------------------------------------------

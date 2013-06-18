@@ -38,7 +38,6 @@
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/io/writer_d.h>
 //--- system -------------------------------------------------------------------
-//debug
  #include <iostream>
 //------------------------------------------------------------------------------
 

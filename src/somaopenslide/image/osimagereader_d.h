@@ -43,6 +43,7 @@
 #include <soma-io/datasource/datasource.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <openslide.h>
 #include <memory>
@@ -50,7 +51,6 @@
 #include <iostream>
 #include <string>
 //------------------------------------------------------------------------------
-//#define SOMA_IO_DEBUG
 
 namespace soma {
   
@@ -72,8 +72,11 @@ namespace soma {
     int i, j;
     for( i=0; i<rcount; ++i )
       for( j=0; j<4; ++j )
-        dsi.header()->getProperty( "resolutions_dimension" )->getArrayItem( i )
-                    ->getArrayItem( j )->getScalar();
+        ImageReader<T>::_sizes[i][j] 
+          = dsi.header()->getProperty( "resolutions_dimension" )
+                        ->getArrayItem( i )
+                        ->getArrayItem( j )
+                        ->getScalar();
   }
   
   //============================================================================
@@ -101,9 +104,9 @@ namespace soma {
                                carto::Object options )
   {
     if( ImageReader<T>::_sizes.empty() ) {
-      #ifdef SOMA_IO_DEBUG
+      if( carto::debugMessageLevel > 3 ) {
         std::cout << "OSIMAGEREADER:: updating parameters..." << std::endl;
-      #endif
+      }
       updateParams( dsi );
     }
     
@@ -116,24 +119,19 @@ namespace soma {
     
     std::string fname = dsi.list().dataSource( "ima", 0 )->url();
     openslide_t *osimage;
-    #ifdef SOMA_IO_DEBUG
-      std::cout << "OSIMAGEREADER:: opening file..." << std::endl;
-    #endif
     if( !( osimage = openslide_open( fname.c_str() ) ) ) {
-      #ifdef SOMA_IO_DEBUG
+      if( carto::debugMessageLevel > 5 )
         std::cout << "OSIMAGEREADER:: can't open file." << std::endl;
-      #endif
       throw carto::open_error( "data source not available", fname );
     }
     
-    #ifdef SOMA_IO_DEBUG
-      std::cout << "OSIMAGEREADER:: reading file..." << std::endl;
-    #endif
-    openslide_read_region( osimage, (uint32_t *) dest, pos[ 0 ], pos[ 1 ],
+    int64_t posx = pos[ 0 ] * ImageReader<T>::_sizes[ 0 ][ 0 ] 
+                            / ImageReader<T>::_sizes[ level ][ 0 ];
+    int64_t posy = pos[ 1 ] * ImageReader<T>::_sizes[ 0 ][ 1 ] 
+                            / ImageReader<T>::_sizes[ level ][ 1 ];
+    
+    openslide_read_region( osimage, (uint32_t *) dest, posx, posy,
                            level, size[ 0 ], size[ 1 ] );
-    #ifdef SOMA_IO_DEBUG
-      std::cout << "OSIMAGEREADER:: file read." << std::endl;
-    #endif
     
     openslide_close( osimage );
   }

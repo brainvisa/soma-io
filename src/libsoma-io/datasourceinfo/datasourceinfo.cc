@@ -37,10 +37,13 @@
 #include <soma-io/datasourceinfo/datasourcecapabilities.h>             // member
 #include <soma-io/datasource/datasourcelist.h>                         // member
 #include <soma-io/datasource/datasource.h>             // constructor's argument
+#include <soma-io/datasource/filedatasource.h>   // used with string constructor
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                                   // member
 #include <cartobase/object/property.h>            // to manage header properties
 #include <cartobase/smart/rcptr.h>                        // used by constructor
+//--- system -------------------------------------------------------------------
+#include <string>
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -80,6 +83,12 @@ DataSourceInfo::DataSourceInfo( const DataSourceInfo & other )
 : _header( other._header ), 
   _capabilities( other._capabilities ), 
   _datasourcelist( other._datasourcelist )
+{
+}
+
+DataSourceInfo::DataSourceInfo( const string & fname )
+: _header( none() ), _capabilities(),
+  _datasourcelist( carto::rc_ptr<DataSource>( new FileDataSource( fname ) ) )
 {
 }
 

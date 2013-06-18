@@ -46,14 +46,12 @@
 #include <cartobase/object/object.h>                                   // header
 #include <cartobase/object/property.h>                                 // header
 #include <cartobase/stream/fileutil.h>               // to manipulate file names
-#include <cartobase/config/verbose.h>                 // to write debug messages
+#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <openslide.h>
 #include <stdio.h>
 #include <iostream>
-#define SOMAIO_BYTE_ORDER 0x41424344  //"ABCD" in ascii
-//-- debug ---------------------------------------------------------------------
-//#define SOMA_IO_DEBUG
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byte swapping
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -83,13 +81,13 @@ void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
         ( new FileDataSource( minfname ) ) );
   }
   
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: ima: " << dsl.dataSource( "ima", 0 )->url() << endl;
-  #endif
-  #ifdef SOMA_IO_DEBUG
+  }
+  if( carto::debugMessageLevel > 3 ) {
     if( !dsl.empty( "minf" ) )
       cout << "OSFORMATCHECKER:: minf: " << dsl.dataSource( "minf", 0 )->url() << endl;
-  #endif
+  }
 }
 
 //--- BUILDING HEADER ----------------------------------------------------------
@@ -98,18 +96,18 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   string  fname = hds->url();
   
   openslide_t *osimage;
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Opening image... " << endl;
-  #endif
+  }
   if( !( osimage = openslide_open( fname.c_str() ) ) ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: OpenSlide can't open file : " << fname << endl;
-    #endif
+    }
     throw format_mismatch_error( "Not a OpenSlide header", fname );
   }
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Image opened." << endl;
-  #endif
+  }
   
   Object  hdr = Object::value( PropertySet() );  // header
   int32_t resolution = 0;
@@ -121,10 +119,13 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   int32_t i;
   
   // resolutions sizes
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Reading sizes..." << endl;
-  #endif
+  }
   int32_t rcount = openslide_get_level_count( osimage );
+  if( carto::debugMessageLevel > 3 ) {
+    cout << "OSFORMATCHECKER:: -> " << rcount << " levels." << endl;
+  }
   vector<vector<int64_t> > rsizes( rcount, vector<int64_t>( 4, 1 ) );
   for( i=0; i<rcount; i++ )
     openslide_get_level_dimensions( osimage, i, &rsizes[i][0], &rsizes[i][1] );
@@ -133,9 +134,9 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   float ds = rsizes[0][0]/rsizes[resolution][0];
   
   // chosen resolution's voxel size
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Reading voxel size..." << endl;
-  #endif
+  }
   vector<float>  vs(4, 1.);
   const char *mppx = openslide_get_property_value( osimage, "openslide.mpp-x" );
   const char *mppy = openslide_get_property_value( osimage, "openslide.mpp-y" );
@@ -149,15 +150,15 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
     vs[1] = 1;
   
   openslide_close( osimage );
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Image closed." << endl;
-  #endif
+  }
   
   string type = "RGBA";
-  hdr->setProperty( "sizeX", rsizes[resolution][0] );
-  hdr->setProperty( "sizeY", rsizes[resolution][1] );
-  hdr->setProperty( "sizeZ", rsizes[resolution][2] );
-  hdr->setProperty( "sizeT", rsizes[resolution][3] );
+  hdr->setProperty( "sizeX", (int)rsizes[resolution][0] );
+  hdr->setProperty( "sizeY", (int)rsizes[resolution][1] );
+  hdr->setProperty( "sizeZ", (int)rsizes[resolution][2] );
+  hdr->setProperty( "sizeT", (int)rsizes[resolution][3] );
   hdr->setProperty( "resolutions_dimension", rsizes );
   hdr->setProperty( "format", string( "OpenSlide" ) );
   hdr->setProperty( "voxel_size", vs );
@@ -190,22 +191,22 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
   
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: Building list..." << endl;
-    #endif
+    }
     _buildDSList( dsi.list() );
   }
   //--- build header -----------------------------------------------------------
   if( doread ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: Reading header..." << endl;
-    #endif
+    }
     DataSource* hds = dsi.list().dataSource( "ima", 0 ).get();
     dsi.header() = _buildHeader( hds, options );
     
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: Reading minf..." << endl;
-    #endif
+    }
     if( !dsi.list().empty( "minf" ) ) {
       string obtype = dsi.header()->getProperty( "object_type" )->getString();
       DataSource* minfds = dsi.list().dataSource( "minf", 0 ).get();
@@ -216,9 +217,9 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
   }
   //--- write capabilities -----------------------------------------------------
   if( docapa ) {
-    #ifdef SOMA_IO_DEBUG
+    if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: Writing capabilities..." << endl;
-    #endif
+    }
     dsi.capabilities().setMemoryMapping( false );
     dsi.capabilities().setDataSource( dsi.list().dataSource( "ima", 0 ) );
     dsi.capabilities().setThreadSafe( false ); /* TODO */
@@ -229,10 +230,8 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekVolume( true );
   }
   //----------------------------------------------------------------------------
-  #ifdef SOMA_IO_DEBUG
+  if( carto::debugMessageLevel > 3 ) {
     cout << "OSFORMATCHECKER:: Checking done" << endl;
-  #endif
+  }
   return dsi;
 }
-
-
