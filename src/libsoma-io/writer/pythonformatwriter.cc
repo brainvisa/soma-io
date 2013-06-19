@@ -49,7 +49,11 @@ bool PythonFormatWriter::write( const GenericObject & obj,
                                 rc_ptr<DataSourceInfo> dsi, 
                                 Object options )
 {
-  rc_ptr<DataSource> ds = dsi->list().dataSource( "default", 0 );
+  rc_ptr<DataSource> ds;
+  if( !dsi->list().empty( "minf" ) )
+    ds = dsi->list().dataSource( "minf" );
+  else
+    ds = dsi->list().dataSource();
   
   // cout << "PythonFormatWriter::write " << ds->url() << endl;
   SyntaxSet			synt;

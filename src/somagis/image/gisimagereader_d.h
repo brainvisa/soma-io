@@ -43,7 +43,6 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
 #include <soma-io/reader/itemreader.h>                        // read + byteswap
-//#include <soma-io/writer/itemwriter.h>                     // write + byteswap
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
 #include <cartobase/type/string_conversion.h>                 // conversion
@@ -62,34 +61,37 @@ namespace soma {
   void GisImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     try {
-      ImageReader<T>::_binary = !(bool) dsi.header()->getProperty( "ascii" )
-                                                    ->getScalar();
+      _binary = !(bool) dsi.header()->getProperty( "ascii" )->getScalar();
     } catch( ... ) {
-      ImageReader<T>::_binary = true;
+      _binary = true;
     }
     
     try {
-      ImageReader<T>::_byteswap = (bool) dsi.header()
-                                            ->getProperty( "byte_swapping" )
-                                            ->getScalar();
+      _byteswap = (bool) dsi.header()->getProperty( "byte_swapping" )
+                                     ->getScalar();
     } catch( ... ) {
-      ImageReader<T>::_byteswap = false;
+      _byteswap = false;
     }
     
     DefaultItemReader<T>  dir;
-    _itemr.reset( dir.reader( ImageReader<T>::_binary, 
-                              ImageReader<T>::_byteswap ) );
-    //DefaultItemWriter<T>  diw;
-    //_itemw.reset( diw.writer( _binary, _byteswap ) );
+    _itemr.reset( dir.reader( _binary, _byteswap ) );
     
-    ImageReader<T>::_sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", ImageReader<T>::_sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", ImageReader<T>::_sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", ImageReader<T>::_sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", ImageReader<T>::_sizes[ 0 ][ 3 ] );
+    _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
+    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
     
     ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
                                 dsi.list().dataSource( "ima", 0)->url() );
+  }
+  
+  template <typename T> 
+  void GisImageReader<T>::resetParams()
+  {
+    _binary = true;
+    _byteswap = false;
+    _sizes = std::vector< std::vector<int> >();
   }
   
   //============================================================================
@@ -129,7 +131,7 @@ namespace soma {
   {
     int m = source()->iterateMode();
     // direct access is not possible on ascii streams
-    if( ImageReader<T>::_binary )
+    if( _binary )
       m &= SequentialAccess;
     return m;
   }
@@ -155,27 +157,20 @@ namespace soma {
   template <typename T> 
   long GisImageReader<T>::readBlock( char * data, unsigned long maxlen )
   {
+    if( !_itemr.get() )
+    {
+      DefaultItemReader<T>      dir;
+      _itemr.reset( dir.reader( _binary, _byteswap ) );
+    }
     unsigned long nitems = maxlen / sizeof( T );
     return _itemr->read( *source(), (T *) data, nitems ) * sizeof( T );
   }
   
-  
   template <typename T> 
   long GisImageReader<T>::writeBlock( const char * data, unsigned long len )
   {
-    /*
-    if( !_itemw.get() )
-    {
-      DefaultItemWriter<T>      diw;
-      _itemw.reset( diw.writer( _binary, _byteswap ) );
-    }
-    unsigned long nitems = len / sizeof( T );
-    return _itemw->write( *source(), (const T *) data, nitems ) 
-      * sizeof( T );
-    */
     return 0;
   }
-  
   
   template <typename T> 
   int GisImageReader<T>::getch()
@@ -198,16 +193,16 @@ namespace soma {
   template <typename T> 
   bool GisImageReader<T>::allowsMemoryMapping() const
   {
-    return ImageReader<T>::_binary && !ImageReader<T>::_byteswap;
+    return _binary && !_byteswap;
     
   }
   
   template <typename T> 
   bool GisImageReader<T>::setpos( int x, int y, int z, int t )
   {
-    offset_t  lin = (offset_t) ImageReader<T>::_sizes[ 0 ][ 0 ];
-    offset_t  sli = lin * ImageReader<T>::_sizes[ 0 ][ 1 ];
-    offset_t  vol = sli * ImageReader<T>::_sizes[ 0 ][ 2 ];
+    offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
+    offset_t  sli = lin * _sizes[ 0 ][ 1 ];
+    offset_t  vol = sli * _sizes[ 0 ][ 2 ];
     return source()->at( ( (offset_t) sizeof(T) ) * 
                          ( x + y * lin + z * sli + t * vol ) );
   }
@@ -217,21 +212,21 @@ namespace soma {
   //============================================================================
   template <typename T>
   void GisImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                                std::vector<int> & pos,  /* size 4 : x,y,z,t */
-                                std::vector<int> & size, /* size 4 : x,y,z,t */
-                                std::vector<int> /* stride */,
-                                carto::Object /* options */ )
+                                std::vector<int> & pos,
+                                std::vector<int> & size,
+                                std::vector<int> & /* stride */,
+                                carto::Object      /* options */ )
   {
-    if( ImageReader<T>::_sizes.empty() )
+    if( _sizes.empty() )
       updateParams( dsi );
     
     // dest is supposed to be allocated
     
     // total volume size
-    int  sx = ImageReader<T>::_sizes[ 0 ][ 0 ];
-    int  sy = ImageReader<T>::_sizes[ 0 ][ 1 ];
-    int  sz = ImageReader<T>::_sizes[ 0 ][ 2 ];
-    int  st = ImageReader<T>::_sizes[ 0 ][ 3 ];
+    int  sx = _sizes[ 0 ][ 0 ];
+    int  sy = _sizes[ 0 ][ 1 ];
+    int  sz = _sizes[ 0 ][ 2 ];
+    int  st = _sizes[ 0 ][ 3 ];
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];

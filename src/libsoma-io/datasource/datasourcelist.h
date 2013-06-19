@@ -44,9 +44,6 @@
 #include <map>
 #include <vector>
 //------------------------------------------------------------------------------
-#ifdef USE_SOMA_IO
-  #define soma carto
-#endif
 
 namespace soma
 {
@@ -55,36 +52,35 @@ namespace soma
   /// It has the design of a dictionary in order to sort sources by
   /// content (header, minf, data, ...). Since those contents depend on
   /// the format, the keywords used are defined by specific checkers 
-  /// and readers.\n
+  /// and readers.
   /// \see FormatChecker FormatReader
   /// 
   /// The only *global* keyword is "default" which is used to store the
-  /// DataSource defining (at construction) a reader, since we don't know at 
-  /// this time its content.\n
+  /// DataSource defining (at construction) a reader.
   /// \see Reader
+  /// \note The "default" keyword always contains at least one entry, which 
+  /// may be empty. I haven't for now found any use to several "default" 
+  /// entries.
   /// 
-  /// Access to the source is done using dataSource(...) methods.\n
+  /// Access to a source is done using dataSource(...) methods.\n
   /// Sources are ordered by increasing order of insertion and numbering 
   /// starts at 0.
   ///
-  /// \note For now, if this object is used in the context of reading/writing,
-  /// be careful to always have a source pointed by "default" (the source
-  /// used at construction). Thus, we know that if the number of keywords is
-  /// equal to 1, the *real* list is yet to be built.
   class DataSourceList
   {
     public:
       //========================================================================
       //   C O N S T R U C T O R S
       //========================================================================
-      /// Default constructor : builds an empty map
+      /// Default constructor : 
+      /// Builds a map containing only ( "default", empty pointer )
       DataSourceList();
       /// Constructor : builds a 1-element map
       /// This allows to construct easily a 1 element list, useful when
       /// declaring a Reader which creator takes a source as parameter.
-      /// \param ds Element to insert
+      /// \param ds   Element to insert
       /// \param type Category of the source
-      /// default key is "default" -> to be used for Reader construction
+      /// default key is "default" -> used at Reader construction
       DataSourceList( const carto::rc_ptr<DataSource> & ds, 
                       const std::string & type = "default" );
       /// Copy constructor
@@ -99,11 +95,11 @@ namespace soma
       bool operator != ( const DataSourceList & ) const;
       /// Returns true only if no keyword inserted. 
       /// \warning May return false while no DataSource present 
-      /// (in theory but in practice ? since we do not allow deletion of a DS)
+      /// (in theory but in practice, we do not allow deletion of a DS)
       bool  empty() const;
       /// Returns existing keywords.
       /// \warning There may be existing keywords with no DataSource
-      /// (in theory but in practice ? since we do not allow deletion of a DS)
+      /// (in theory but in practice, we do not allow deletion of a DS)
       std::set<std::string> types() const;
       int   nbTypes() const;
       bool  exists( const std::string & ) const;
@@ -111,14 +107,17 @@ namespace soma
       int   size( const std::string & ) const;
 
       /// Accessing an element of the list
-      /// If keyword doesn't exist or is empty or coordinate is undefined, 
-      /// returns DataSource::none()
+      /// If keyword doesn't exist, or is empty, or coordinate is undefined, 
+      /// launches exception.
       /// Numbering starts at 0
-      const carto::rc_ptr<DataSource> & dataSource( const std::string &, int ) const ;
-            carto::rc_ptr<DataSource> & dataSource( const std::string &, int );
-      /// Accessing default source
-      const carto::rc_ptr<DataSource> & dataSource() const ;
-            carto::rc_ptr<DataSource> & dataSource();
+      const carto::rc_ptr<DataSource> & 
+      dataSource( const std::string & s = "default", int i = 0 ) const ;
+      /// Accessing an element of the list
+      /// If keyword doesn't exist, or is empty, or coordinate is undefined, 
+      /// launches exception.
+      /// Numbering starts at 0
+      carto::rc_ptr<DataSource> & 
+      dataSource( const std::string & s  ="default", int i = 0 );
       /// Adds an element to the dictionary
       /// If new keyword, creates it.
       void addDataSource( const std::string &, const carto::rc_ptr<DataSource> &);

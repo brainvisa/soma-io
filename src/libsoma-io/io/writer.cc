@@ -81,27 +81,27 @@ GenericWriter::~GenericWriter()
 
 void GenericWriter::flush()
 {
-  if( _datasourceinfo->list().dataSource( "default", 0 ) )
-    _datasourceinfo->list().dataSource( "default", 0 )->flush();
+  if( _datasourceinfo->list().dataSource() )
+    _datasourceinfo->list().dataSource()->flush();
 }
 
 
 void GenericWriter::close()
 {
-  if( _datasourceinfo->list().dataSource( "default", 0 ) )
-    _datasourceinfo->list().dataSource( "default", 0 )->close();
+  if( _datasourceinfo->list().dataSource() )
+    _datasourceinfo->list().dataSource( )->close();
 }
 
 
 const rc_ptr<DataSource> GenericWriter::dataSource() const
 {
-  return _datasourceinfo->list().dataSource( "default", 0 );
+  return _datasourceinfo->list().dataSource();
 }
 
 
 rc_ptr<DataSource> GenericWriter::dataSource()
 {
-  return _datasourceinfo->list().dataSource( "default", 0 );
+  return _datasourceinfo->list().dataSource();
 }
 
 

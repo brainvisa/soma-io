@@ -38,9 +38,6 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
 //------------------------------------------------------------------------------
-#ifdef USE_SOMA_IO
-  #define soma carto
-#endif
 
 namespace soma
 {

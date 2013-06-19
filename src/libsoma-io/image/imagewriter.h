@@ -64,10 +64,11 @@ namespace soma
       ///               length size[0]*size[1]*size[2]*size[3]*sizeof(T)
       /// \param pos    Position of the first voxel of the region to write.
       /// \param size   Size of the region to write.
-      /// \param options  ( is it useful here ? )
+      /// \param options  Communicates info to the writer (for example, 
+      ///                 enabling of partial writing).
       virtual void write( T * source, DataSourceInfo & dsi,
-                          std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                          std::vector<int> & size, /* taille 4 : x,y,z,t */
+                          std::vector<int> & pos,
+                          std::vector<int> & size,
                           carto::Object options = carto::none() );
       
       /// Builds the DataSourceList
@@ -76,15 +77,10 @@ namespace soma
       virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
                                           carto::Object options = carto::none() );
       
-      /// Sets _sizes, _binary and _byteswap values from DataSourceInfo
+      /// Abstract : set specialized ImageReader's parameters.
       virtual void updateParams( DataSourceInfo & dsi );
-      /// Sets _sizes, _binary and _byteswap values as default or empty
+      /// Abstract : empty specialized ImageReader's parameters.
       virtual void resetParams();
-      
-    protected:
-      std::vector<std::vector<int> >  _sizes;  //  4D : x, y, z, t
-      bool  _binary;        // default: true
-      bool  _byteswap;      // default: false
   };
   
 }

@@ -116,10 +116,10 @@ namespace
  */
 void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
-  DataSource* pds = dsl.dataSource( "default", 0 ).get();
+  DataSource* pds = dsl.dataSource().get();
   string dimname, imaname, minfname;
-  
-  dimname = imaname = minfname = pds->url();
+
+  dimname = imaname = minfname = FileUtil::uriFilename( pds->url() );
   if( dimname.empty() ) {
     // we suppose ds is a dim file and a imafile
     dsl.addDataSource( "dim", rc_ptr<DataSource>( pds ) );
@@ -171,10 +171,10 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
     }
   }
   if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: dim: " << dsl.dataSource( "dim", 0 )->url() << endl;
+    cout << "GISFORMATCHECKER:: dim: " << dsl.dataSource( "dim" )->url() << endl;
   }
   if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: ima: " << dsl.dataSource( "ima", 0 )->url() << endl;
+    cout << "GISFORMATCHECKER:: ima: " << dsl.dataSource( "ima" )->url() << endl;
   }
   
   //// Minf DataSource
@@ -188,7 +188,7 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
   }
   
   if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: minf: " << dsl.dataSource( "minf", 0 )->url() << endl;
+    cout << "GISFORMATCHECKER:: minf: " << dsl.dataSource( "minf" )->url() << endl;
   }
 }
 
@@ -382,12 +382,22 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   bool doread = dsi.header().isNone() ;
   bool dolist = dsi.list().nbTypes() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
+  
+  //--- read uri ---------------------------------------------------------------
+  // we don't use any options right now, but we may later ?
+  // then, uncomment the following lines to get options from the uri.
+//   std::string uri = dsi.list().dataSource( "default", 0 )->url();
+//   carto::Object urioptions = FileUtil::uriOptions( uri );
+//   if( urioptions.get() ) {
+//     options->copyProperties( urioptions );
+//   }
+  
   //--- test header format -----------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
         || dsi.header()->getProperty( "format" )->getString() != "GIS" )
       throw wrong_format_error( "Not a GIS header", 
-                                dsi.list().dataSource( "default", 0 )->url() );
+                                dsi.list().dataSource()->url() );
   
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
@@ -401,14 +411,14 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Reading header..." << endl;
     }
-    DataSource* hds = dsi.list().dataSource( "dim", 0 ).get();
+    DataSource* hds = dsi.list().dataSource( "dim" ).get();
     dsi.header() = _buildHeader( hds );
     
     if( carto::debugMessageLevel > 3 ) {
       cout << "GISFORMATCHECKER:: Reading minf..." << endl;
     }
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
-    DataSource* minfds = dsi.list().dataSource( "minf", 0 ).get();
+    DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
     dsi.header()->setProperty( "object_type", obtype );
     
@@ -425,7 +435,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
         dsi.capabilities().setMemoryMapping( true );
     } catch( ... ) {
     }
-    dsi.capabilities().setDataSource( dsi.list().dataSource( "ima", 0 ) );
+    dsi.capabilities().setDataSource( dsi.list().dataSource( "ima" ) );
     dsi.capabilities().setThreadSafe( false ); /* TODO */
     dsi.capabilities().setOrdered( true );
     dsi.capabilities().setSeekVoxel( true );

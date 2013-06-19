@@ -53,8 +53,6 @@ namespace soma
   class ImageReader
   {
     public:
-      //ImageReader( DataSourceInfo & dsi = 0 );
-      //ImageReader( const ImageReader<T> & );
       ImageReader();
       virtual ~ImageReader();
       
@@ -62,31 +60,26 @@ namespace soma
       /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
       /// or more of these dimensions are of no interest for the format, they
       /// take the value 0 ( pos ) or 1 ( size )
-      /// \param dest   Pre-allocated buffer. Its size must be sufficient to
-      ///               contain the region to read.
-      /// \param pos    Position of the first voxel of the region to read, 
-      ///               expressed in the referential of the chosen level.
-      /// \param size   Size of the region to read, expressed in the referential
-      ///               of the chosen level.
-      /// \param stride TODO
-      /// \param level  Resolution level we want to access. Level of maximum 
-      ///               resolution ( sole present if no multiresolution ) is 0.
-      /// \param options  ( is it useful here ? )
+      /// \param dest    Pre-allocated buffer. Its size must be sufficient to
+      ///                contain the region to read.
+      /// \param pos     Position of the first voxel of the region to read, 
+      ///                expressed in the referential of the chosen level
+      ///                (if multiresolution enbaled).
+      /// \param size    Size of the region to read, expressed in the referential
+      ///                of the chosen level (if multiresolution enbaled).
+      /// \param stride  May be used to specialize the reading.
+      /// \param options Communicates info to the reader (for example, the
+      ///                chosen level if multiresolution is enabled)
       virtual void read( T * dest, DataSourceInfo & dsi,
-                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                         std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         std::vector<int> stride = std::vector<int>(),
+                         std::vector<int> & pos,
+                         std::vector<int> & size,
+                         std::vector<int> & stride,
                          carto::Object options = carto::none() );
       
-      /// Sets _sizes, _binary and _byteswap values from DataSourceInfo
+      /// Abstract : set specialized ImageReader's parameters.
       virtual void updateParams( DataSourceInfo & dsi );
-      /// Sets _sizes, _binary and _byteswap values as default or empty
+      /// Abstract : empty specialized ImageReader's parameters.
       virtual void resetParams();
-      
-    protected:
-      std::vector<std::vector<int> >  _sizes;  //  4D : x, y, z, t
-      bool  _binary;        // default: true
-      bool  _byteswap;      // default: false
   };
   
 }

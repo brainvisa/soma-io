@@ -43,9 +43,6 @@
 #include <map>
 #include <vector>
 //------------------------------------------------------------------------------
-#ifdef USE_SOMA_IO
-  #define soma carto
-#endif
 
 using namespace soma;
 using namespace carto;
@@ -61,6 +58,8 @@ typedef map<string,vectorDSL>        mapDSL;
 DataSourceList::DataSourceList()
 : _dslist()
 {
+  _dslist[ "default" ] 
+    = vectorDSL( 1, rc_ptr<DataSource>() );
 }
 
 DataSourceList::DataSourceList( const rc_ptr<DataSource> & ds, 
@@ -68,6 +67,8 @@ DataSourceList::DataSourceList( const rc_ptr<DataSource> & ds,
 : _dslist()
 {
   _dslist[ type ] = vectorDSL( 1, ds );
+  if( type != "default" )
+    _dslist[ "default" ] = vectorDSL( 1, ds );
 }
 
 DataSourceList::DataSourceList( const DataSourceList & other )
@@ -158,26 +159,11 @@ const rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type,
 rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
 {
   if( exists( type ) && i < _dslist.find( type )->second.size() )
-    return _dslist.find( type )->second[ i ];
+      return _dslist.find( type )->second[ i ];
   else
     // launch exception
     throw;
 
-}
-
-const rc_ptr<DataSource> & DataSourceList::dataSource() const
-{
-  if( !exists( "default" ) || empty( "default") )
-    return DataSource::none();
-  else
-    return dataSource( "default", 0 );
-}
-
-rc_ptr<DataSource> & DataSourceList::dataSource()
-{
-  if( !exists( "default" ) || empty( "default") )
-    addDataSource( "default", DataSource::none() );
-  return dataSource( "default", 0 );
 }
 
 //==============================================================================

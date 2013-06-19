@@ -119,10 +119,21 @@ namespace carto
     /// ( "options1" => "this", "option2" => "that" )
     static Object uriOptions( const std::string & filein );
     
+    //==========================================================================
+    //   U T I L I T I E S
+    //==========================================================================
     /// Converts integer to string
     static std::string itos( int number );
-    
     /// Converts string to integer
+    static int stoi( const std::string & number );
+    /// Does the string represent a valid integer ?
+    static bool isInt( const std::string & s );
+    /// Converts float to string
+    static std::string ftos( float number );
+    /// Converts string to float
+    static float stof( const std::string & number );
+    /// Does the string represent a valid float ?
+    static bool isFloat( const std::string & s );
   };
 
 }

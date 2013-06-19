@@ -44,10 +44,11 @@ using namespace std;
 int main( int argc, char *argv[] )
 {
   string uri1 = "/this/is/my/path/file.ext?option1=this&option2=that";
-  string uri2 = "this/is/my/path/?option1=1";
+  string uri2 = "this/is/my/path/?option1=1.2";
   string uri3 = "file.ext";
   string uri4 = "file.ext?";
   string uri5 = "file.ext?option1=this&&option2&";
+  string uri6 = "/home/Petri/base/TD201210_Aperio/3399.svs?bx=5&by=5&resolution_level=2";
   string filename;
   Object options;
   
@@ -79,11 +80,11 @@ int main( int argc, char *argv[] )
   options = FileUtil::uriOptions( uri2 );
   ASSERT( options.get() != 0 );
   try {
-    cout << " -> option1 : " << options->getProperty( "option1" )->getString() << endl;
+    cout << " -> option1 : " << options->getProperty( "option1" )->getScalar() << endl;
   } catch( ... ) {
     cout << "!!! option1 failed" << endl;
   }
-  ASSERT( options->getProperty( "option1" )->getString() == "1" );
+  ASSERT( options->getProperty( "option1" )->getScalar() == 1.2 );
   cout << endl;
   
   
@@ -118,10 +119,37 @@ int main( int argc, char *argv[] )
   }
   ASSERT( options->getProperty( "option1" )->getString() == "this" );
   try {
-    cout << " -> option2 : " << options->getProperty( "option2" )->getString() << endl;
+    cout << " -> option2 : " << options->getProperty( "option2" )->getScalar() << endl;
   } catch( ... ) {
     cout << "!!! option2 failed" << endl;
   }
-  ASSERT( options->getProperty( "option2" )->getString() == "true" );
+  ASSERT( options->getProperty( "option2" )->getScalar() == 1 );
+  cout << endl;
+  
+  
+  cout << "parsing uri : " << uri6 << endl;
+  filename = FileUtil::uriFilename( uri6 );
+  cout << " -> " << filename << endl;
+  ASSERT( filename == "/home/Petri/base/TD201210_Aperio/3399.svs" );
+  options = FileUtil::uriOptions( uri6 );
+  ASSERT( options.get() != 0 );
+  try {
+    cout << " -> bx : " << options->getProperty( "bx" )->getScalar() << endl;
+  } catch( ... ) {
+    cout << "!!! bx failed" << endl;
+  }
+  ASSERT( options->getProperty( "bx" )->getScalar() == 5 );
+  try {
+    cout << " -> by : " << options->getProperty( "by" )->getScalar() << endl;
+  } catch( ... ) {
+    cout << "!!! by failed" << endl;
+  }
+  ASSERT( options->getProperty( "by" )->getScalar() == 5 );
+  try {
+    cout << " -> resolution_level : " << options->getProperty( "resolution_level" )->getScalar() << endl;
+  } catch( ... ) {
+    cout << "!!! resolution_level failed" << endl;
+  }
+  ASSERT( options->getProperty( "resolution_level" )->getScalar() == 2 );
   cout << endl;
 }

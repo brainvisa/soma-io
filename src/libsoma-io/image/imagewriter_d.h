@@ -52,62 +52,18 @@ namespace soma
   template <typename T> 
   void ImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
-    try {
-      _binary = !(bool) 
-        dsi.header()->getProperty( "ascii" )->getScalar();
-    } catch( ... ) {
-      _binary = true;
-    }
-    
-    try {
-      _byteswap = (bool) 
-        dsi.header()->getProperty( "byte_swapping" )->getScalar();
-    } catch( ... ) {
-      _byteswap = false;
-    }
-    
-    int rescount = 1;
-    if( dsi.header()->hasProperty( "resolutions_dimension" ) ) {
-      rescount = dsi.header()->getProperty( "resolutions_dimension" )->size();
-      _sizes = std::vector< std::vector<int> >( rescount, std::vector<int>(4) );
-      int i;
-      for( int i=0; i<rescount; ++i ) {
-        _sizes[i][0] = dsi.header()->getProperty( "resolutions_dimension" )
-                                   ->getArrayItem(i)->getArrayItem(0)
-                                   ->getScalar();
-        _sizes[i][1] = dsi.header()->getProperty( "resolutions_dimension" )
-                                   ->getArrayItem(i)->getArrayItem(1)
-                                   ->getScalar();
-        _sizes[i][2] = dsi.header()->getProperty( "resolutions_dimension" )
-                                   ->getArrayItem(i)->getArrayItem(2)
-                                   ->getScalar();
-        _sizes[i][3] = dsi.header()->getProperty( "resolutions_dimension" )
-                                   ->getArrayItem(i)->getArrayItem(3)
-                                   ->getScalar();
-      }
-    } else {
-      _sizes = std::vector< std::vector<int> >( rescount, std::vector<int>(4) );
-      dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-      dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-      dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-      dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
-    }
   }
   
   template <typename T>
   void ImageWriter<T>::resetParams()
   {
-    _binary = false;
-    _byteswap = false;
-    _sizes = std::vector< std::vector<int> >();
   }
   
   //============================================================================
   //   C O N S T R U C T O R S
   //============================================================================
   template <typename T>
-  ImageWriter<T>::ImageWriter() :
-    _binary( false ), _byteswap( false ), _sizes()
+  ImageWriter<T>::ImageWriter()
   {
   }
   
@@ -130,7 +86,7 @@ namespace soma
                               std::vector<int> & /*size*/,
                               carto::Object /*options*/ )
   {
-    carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
+    carto::rc_ptr<DataSource> ds = dsi.list().dataSource();
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        ds ? ds->url() : "" );
   }
@@ -139,7 +95,7 @@ namespace soma
   DataSourceInfo ImageWriter<T>::writeHeader( DataSourceInfo dsi, 
                                               carto::Object /*options*/ )
   {
-    carto::rc_ptr<DataSource> ds = dsi.list().dataSource( "default", 0 );
+    carto::rc_ptr<DataSource> ds = dsi.list().dataSource();
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        ds ? ds->url() : "" );
   }

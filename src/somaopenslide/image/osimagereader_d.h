@@ -60,23 +60,26 @@ namespace soma {
   template <typename T> 
   void OSImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
-    ImageReader<T>::_binary = false;
-    ImageReader<T>::_byteswap = false;
     
     int rcount = 1;
     try {
       rcount = dsi.header()->getProperty( "resolutions_dimension" )->size();
     } catch( ... ) {
     }
-    ImageReader<T>::_sizes = std::vector< std::vector<int> >( rcount, std::vector<int>(4) );
+    _sizes = std::vector< std::vector<int> >( rcount, std::vector<int>(4) );
     int i, j;
     for( i=0; i<rcount; ++i )
       for( j=0; j<4; ++j )
-        ImageReader<T>::_sizes[i][j] 
-          = dsi.header()->getProperty( "resolutions_dimension" )
-                        ->getArrayItem( i )
-                        ->getArrayItem( j )
-                        ->getScalar();
+        _sizes[i][j] = dsi.header()->getProperty( "resolutions_dimension" )
+                                   ->getArrayItem( i )
+                                   ->getArrayItem( j )
+                                   ->getScalar();
+  }
+  
+  template <typename T> 
+  void OSImageReader<T>::resetParams()
+  {
+    _sizes = std::vector< std::vector<int> >();
   }
   
   //============================================================================
@@ -98,12 +101,12 @@ namespace soma {
   //============================================================================
   template <typename T>
   void OSImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                               std::vector<int> & pos,  /* size 4 : x,y,z,t */
-                               std::vector<int> & size, /* size 4 : x,y,z,t */
-                               std::vector<int> /* stride */,
-                               carto::Object options )
+                               std::vector<int> & pos,
+                               std::vector<int> & size,
+                               std::vector<int> & /* stride */,
+                               carto::Object      options )
   {
-    if( ImageReader<T>::_sizes.empty() ) {
+    if( _sizes.empty() ) {
       if( carto::debugMessageLevel > 3 ) {
         std::cout << "OSIMAGEREADER:: updating parameters..." << std::endl;
       }
@@ -125,10 +128,8 @@ namespace soma {
       throw carto::open_error( "data source not available", fname );
     }
     
-    int64_t posx = pos[ 0 ] * ImageReader<T>::_sizes[ 0 ][ 0 ] 
-                            / ImageReader<T>::_sizes[ level ][ 0 ];
-    int64_t posy = pos[ 1 ] * ImageReader<T>::_sizes[ 0 ][ 1 ] 
-                            / ImageReader<T>::_sizes[ level ][ 1 ];
+    int64_t posx = pos[ 0 ] * _sizes[ 0 ][ 0 ] / _sizes[ level ][ 0 ];
+    int64_t posy = pos[ 1 ] * _sizes[ 0 ][ 1 ] / _sizes[ level ][ 1 ];
     
     openslide_read_region( osimage, (uint32_t *) dest, posx, posy,
                            level, size[ 0 ], size[ 1 ] );

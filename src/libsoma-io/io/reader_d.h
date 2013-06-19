@@ -137,7 +137,7 @@ namespace soma
   void Reader<T>::attach( carto::rc_ptr<DataSource> ds )
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
-      _datasourceinfo->list().dataSource( "default", 0 ) = ds;
+      _datasourceinfo->list().dataSource() = ds;
     } else {
       _datasourceinfo->list().addDataSource( "default", ds );
     }
@@ -147,7 +147,7 @@ namespace soma
   void Reader<T>::attach( const std::string & filename, offset_t offset )
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
-      _datasourceinfo->list().dataSource( "default", 0 )
+      _datasourceinfo->list().dataSource()
           = carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) );
     } else {
       _datasourceinfo->list().addDataSource( "default", 
@@ -159,7 +159,7 @@ namespace soma
   void Reader<T>::attach( std::istream & stream )
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
-      _datasourceinfo->list().dataSource( "default", 0 ) 
+      _datasourceinfo->list().dataSource() 
           = carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) );
     } else {
       _datasourceinfo->list().addDataSource( "default", 
@@ -171,7 +171,7 @@ namespace soma
   const carto::rc_ptr<DataSource> Reader<T>::dataSource() const
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
-      return _datasourceinfo->list().dataSource( "default", 0 );
+      return _datasourceinfo->list().dataSource();
     } else {
       return DataSource::none();
     }
@@ -181,7 +181,7 @@ namespace soma
   carto::rc_ptr<DataSource> Reader<T>::dataSource()
   {
     if ( !_datasourceinfo->list().empty() ) {
-      return _datasourceinfo->list().dataSource( "default", 0 );
+      return _datasourceinfo->list().dataSource();
     } else {
       return DataSource::none();
     }
@@ -190,16 +190,16 @@ namespace soma
   template <typename T>
   void Reader<T>::flush()
   {
-    if( _datasourceinfo->list().dataSource( "default", 0 ) )
-      _datasourceinfo->list().dataSource( "default", 0 )->flush();
+    if( _datasourceinfo->list().dataSource() )
+      _datasourceinfo->list().dataSource()->flush();
   }
 
 
   template <typename T>
   void Reader<T>::close()
   {
-    if( _datasourceinfo->list().dataSource( "default", 0 ) )
-      _datasourceinfo->list().dataSource( "default", 0 )->close();
+    if( _datasourceinfo->list().dataSource() )
+      _datasourceinfo->list().dataSource()->close();
   }
   
   //============================================================================
@@ -228,6 +228,16 @@ namespace soma
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
     
+    //// Reading URI ///////////////////////////////////////////////////////////
+    std::string uri = _datasourceinfo->list().dataSource()->url();
+    std::string filename = FileUtil::uriFilename( uri );
+    carto::Object urioptions = FileUtil::uriOptions( uri );
+    if( urioptions.get() ) {
+      _datasourceinfo->list().dataSource()
+                             .reset( new FileDataSource( filename ) );
+      _options->copyProperties( urioptions );
+    }
+    
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
@@ -253,9 +263,6 @@ namespace soma
     }
     
     //// Reading data //////////////////////////////////////////////////////////
-    std::string   filename  = _datasourceinfo->list()
-                                             .dataSource( "default", 0 )
-                                             ->url();
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
@@ -405,6 +412,16 @@ namespace soma
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
     
+    //// Reading URI ///////////////////////////////////////////////////////////
+    std::string uri = _datasourceinfo->list().dataSource()->url();
+    std::string filename = FileUtil::uriFilename( uri );
+    carto::Object urioptions = FileUtil::uriOptions( uri );
+    if( urioptions.get() ) {
+      _datasourceinfo->list().dataSource()
+                             .reset( new FileDataSource( filename ) );
+      _options->copyProperties( urioptions );
+    }
+    
     //// Checking format ///////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
@@ -425,9 +442,6 @@ namespace soma
     }
 
     //// Reading data //////////////////////////////////////////////////////////
-    std::string   filename  = _datasourceinfo->list()
-                                             .dataSource( "default", 0 )
-                                             ->url();
     set_S                         tried;
     std::set<FormatReader<T> *>   triedf;
     FormatReader<T>			          *reader;

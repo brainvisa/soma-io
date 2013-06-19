@@ -45,7 +45,6 @@
 #include <soma-io/datasource/streamdatasource.h>        // used by writeHeader()
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
-//#include <soma-io/reader/itemreader.h>                        // read + byteswap
 #include <soma-io/writer/itemwriter.h>                       // write + byteswap
 #include <soma-io/writer/pythonwriter.h>
 //--- cartobase ----------------------------------------------------------------
@@ -72,32 +71,29 @@ namespace soma {
   void GisImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
     try {
-      ImageWriter<T>::_binary = !(bool) dsi.header()->getProperty( "ascii" )
-                                                    ->getScalar();
+      _binary = !(bool) dsi.header()->getProperty( "ascii" )->getScalar();
     } catch( ... ) {
-      ImageWriter<T>::_binary = true;
+      _binary = true;
     }
-    
+
     try {
-      ImageWriter<T>::_byteswap = (bool) dsi.header()
-                                            ->getProperty( "byte_swapping" )
-                                            ->getScalar();
+      _byteswap = (bool) dsi.header()->getProperty( "byte_swapping" )
+                                     ->getScalar();
     } catch( ... ) {
-      ImageWriter<T>::_byteswap = false;
+      _byteswap = false;
     }
-    
+
     DefaultItemWriter<T>  diw;
-    _itemw.reset( diw.writer( ImageWriter<T>::_binary, 
-                              ImageWriter<T>::_byteswap ) );
+    _itemw.reset( diw.writer( _binary, _byteswap ) );
+
+    _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
+    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
     
-    ImageWriter<T>::_sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", ImageWriter<T>::_sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", ImageWriter<T>::_sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", ImageWriter<T>::_sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", ImageWriter<T>::_sizes[ 0 ][ 3 ] );
-    
-    ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
-                                dsi.list().dataSource( "ima", 0)->url() );
+    ChainDataSource::setSource( dsi.list().dataSource( "ima" ), 
+                                dsi.list().dataSource( "ima" )->url() );
   }
   
   //============================================================================
@@ -137,7 +133,7 @@ namespace soma {
   {
     int m = source()->iterateMode();
     // direct access is not possible on ascii streams
-    if( ImageWriter<T>::_binary )
+    if( _binary )
       m &= SequentialAccess;
     return m;
   }
@@ -163,10 +159,6 @@ namespace soma {
   template <typename T> 
   long GisImageWriter<T>::readBlock( char * data, unsigned long maxlen )
   {
-    /*
-    unsigned long nitems = maxlen / sizeof( T );
-    return _itemr->read( *source(), (T *) data, nitems ) * sizeof( T );
-    */
     return 0;
   }
   
@@ -177,8 +169,7 @@ namespace soma {
     if( !_itemw.get() )
     {
       DefaultItemWriter<T>      diw;
-      _itemw.reset( diw.writer( ImageWriter<T>::_binary, 
-                                ImageWriter<T>::_byteswap ) );
+      _itemw.reset( diw.writer( _binary, _byteswap ) );
     }
     unsigned long nitems = len / sizeof( T );
     return _itemw->write( *source(), (const T *) data, nitems ) * sizeof( T );
@@ -206,16 +197,16 @@ namespace soma {
   template <typename T> 
   bool GisImageWriter<T>::allowsMemoryMapping() const
   {
-    return ImageWriter<T>::_binary && !ImageWriter<T>::_byteswap;
+    return _binary && !_byteswap;
     
   }
   
   template <typename T> 
   bool GisImageWriter<T>::setpos( int x, int y, int z, int t )
   {
-    offset_t  lin = (offset_t) ImageWriter<T>::_sizes[ 0 ][ 0 ];
-    offset_t  sli = lin * ImageWriter<T>::_sizes[ 0 ][ 1 ];
-    offset_t  vol = sli * ImageWriter<T>::_sizes[ 0 ][ 2 ];
+    offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
+    offset_t  sli = lin * _sizes[ 0 ][ 1 ];
+    offset_t  vol = sli * _sizes[ 0 ][ 2 ];
     return source()->at( ( (offset_t) sizeof(T) ) * 
                          ( x + y * lin + z * sli + t * vol ) );
   }
@@ -225,18 +216,18 @@ namespace soma {
   //============================================================================
   template <typename T>
   void GisImageWriter<T>::write( T * source, DataSourceInfo & dsi,
-                                 std::vector<int> & pos,  /* size 4 : x,y,z,t */
-                                 std::vector<int> & size, /* size 4 : x,y,z,t */
+                                 std::vector<int> & pos,
+                                 std::vector<int> & size,
                                  carto::Object options )
   {
-    if( ImageWriter<T>::_sizes.empty() )
+    if( _sizes.empty() )
       updateParams( dsi );
     
     // total volume size
-    int  sx = ImageWriter<T>::_sizes[ 0 ][ 0 ];
-    int  sy = ImageWriter<T>::_sizes[ 0 ][ 1 ];
-    int  sz = ImageWriter<T>::_sizes[ 0 ][ 2 ];
-    int  st = ImageWriter<T>::_sizes[ 0 ][ 3 ];
+    int  sx = _sizes[ 0 ][ 0 ];
+    int  sy = _sizes[ 0 ][ 1 ];
+    int  sz = _sizes[ 0 ][ 2 ];
+    int  st = _sizes[ 0 ][ 3 ];
     if( carto::debugMessageLevel > 6 ) {
       std::cout << "GIW::s : " << sx << " " << sy << " " 
                 << sz << " " << st << std::endl;
@@ -303,7 +294,7 @@ namespace soma {
     }
     if( options->hasProperty( "partial_writing" ) ) {
       DataSourceInfoLoader  dsil;
-      DataSourceInfo dimdsi( dsi.list().dataSource( "dim", 0 ) );
+      DataSourceInfo dimdsi( dsi.list().dataSource( "dim" ) );
       dimdsi = dsil.check( dimdsi );
       dsi.header()->setProperty( "byte_swapping", dimdsi.header()->getProperty( "byte_swapping" ) );
       dsi.header()->setProperty( "ascii", dimdsi.header()->getProperty( "ascii" ) );
@@ -325,10 +316,10 @@ namespace soma {
     if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: writing Header..." << std::endl;
     }
-    ChainDataSource::setSource( dsi.list().dataSource( "dim", 0 ), 
-                                dsi.list().dataSource( "dim", 0)->url() );
+    ChainDataSource::setSource( dsi.list().dataSource( "dim" ), 
+                                dsi.list().dataSource( "dim" )->url() );
     DataSource* ds;
-    ds = dsi.list().dataSource( "dim", 0 ).get();
+    ds = dsi.list().dataSource( "dim" ).get();
     if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
     // reading volume size
@@ -395,7 +386,7 @@ namespace soma {
     minf->setProperty( "voxel_size", 
                        dsi.header()->getProperty( "voxel_size" ) );
 
-    Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf", 0 ) );
+    Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
     if( carto::debugMessageLevel > 3 ) {
       std::cout << "GIW:: done: writing Minf" << std::endl;
@@ -405,10 +396,10 @@ namespace soma {
       if( carto::debugMessageLevel > 3 ) {
         std::cout << "GIW:: building file for partial writing..." << std::endl;
       }
-      if( ImageWriter<T>::_sizes.empty() )
+      if( _sizes.empty() )
         updateParams( dsi );
-      ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
-                                  dsi.list().dataSource( "ima", 0)->url() );
+      ChainDataSource::setSource( dsi.list().dataSource( "ima" ), 
+                                  dsi.list().dataSource( "ima" )->url() );
       if( !open( DataSource::Write ) )
         throw carto::open_error( "data source not available", url() );
       T value[1] = {0};
@@ -431,7 +422,7 @@ namespace soma {
   void GisImageWriter<T>::buildDSList( DataSourceList & dsl, 
                                        carto::Object /*options*/ ) const
   {
-    DataSource* pds = dsl.dataSource( "default", 0 ).get();
+    DataSource* pds = dsl.dataSource().get();
     std::string dimname, imaname, minfname;
     
     dimname = imaname = minfname = pds->url();

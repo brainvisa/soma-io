@@ -74,8 +74,8 @@ namespace soma
       virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
                                           carto::Object options = carto::none() );
                                           
-      //virtual void resetParams();
       virtual void updateParams( DataSourceInfo & dsi );
+      virtual void resetParams();
       
     protected:
       //========================================================================
@@ -96,9 +96,10 @@ namespace soma
       
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options ) const;
-      
-      //std::auto_ptr<ItemReader<T> > _itemr;
       std::auto_ptr<ItemWriter<T> > _itemw;
+      std::vector<std::vector<int> >  _sizes;
+      bool  _binary;
+      bool  _byteswap;
   };
   
 }

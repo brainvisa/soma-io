@@ -361,6 +361,10 @@ list<string> FileUtil::filenamesSplit( const string & fnames,
   return names;
 }
 
+//==============================================================================
+//   U R I
+//==============================================================================
+
 string FileUtil::uriFilename( const string & filein )
 {
   string::size_type epos = filein.rfind( '?' );
@@ -385,14 +389,19 @@ Object FileUtil::uriOptions( const string & filein )
     string currentopt = opt.substr( 0, epos );
     spos = currentopt.find( '=' );
     if( spos == string::npos )
-      currentval = "true";
+      currentval = "1";
     else
       currentval = currentopt.substr( spos + 1, currentopt.length() - spos - 1 );
     currentopt = currentopt.substr( 0, spos );
     if( currentopt != "" ) {
       if( !options.get() )
         options = Object::value( PropertySet() );
-      options->setProperty( currentopt, currentval );
+      if( isInt( currentval ) )
+        options->setProperty( currentopt, stoi( currentval ) );
+      else if( isFloat( currentval ) )
+        options->setProperty( currentopt, stof( currentval ) );
+      else
+        options->setProperty( currentopt, currentval );
     }
     if( epos == string::npos )
       opt = "";
@@ -403,9 +412,56 @@ Object FileUtil::uriOptions( const string & filein )
   return options;
 }
 
+//==============================================================================
+//   U T I L I T I E S
+//==============================================================================
+
 string FileUtil::itos( int number )
 {
   std::ostringstream oss;
   oss << number;
   return oss.str();
+}
+
+int FileUtil::stoi( const string & number )
+{
+  return atoi( number.c_str() );
+}
+
+bool FileUtil::isInt( const string & s )
+{
+  if( s.empty() )
+    return false;
+  
+  char *end;
+  strtol( s.c_str(), &end, 10 );
+  
+  // if end doesn't point to last character of the string ('\0'), 
+  // it's not an int
+  return( *end == 0 );
+}
+
+string FileUtil::ftos( float number )
+{
+  std::ostringstream oss;
+  oss << number;
+  return oss.str();
+}
+
+float FileUtil::stof( const string & number )
+{
+  return (float) atof( number.c_str() );
+}
+
+bool FileUtil::isFloat( const string & s )
+{
+  if( s.empty() )
+    return false;
+  
+  char *end;
+  strtof( s.c_str(), &end );
+  
+  // if end doesn't point to last character of the string ('\0'), 
+  // it's not a float
+  return( *end == 0 );
 }

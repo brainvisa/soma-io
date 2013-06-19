@@ -35,9 +35,9 @@
 #include <soma-io/image/gisimagereader_d.h>
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//#include <soma-io/image/voxelrgb_d.h>
-//#include <soma-io/image/voxelrgba_d.h>
-//#include <soma-io/image/voxelhsv_d.h>
+#include <soma-io/image/voxelrgb_d.h>
+#include <soma-io/image/voxelrgba_d.h>
+#include <soma-io/image/voxelhsv.h>
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -50,6 +50,6 @@ template class GisImageReader<uint16_t>;
 template class GisImageReader<uint32_t>;
 template class GisImageReader<float>;
 template class GisImageReader<double>;
-//template class GisImageReader<VoxelRGB>;
-//template class GisImageReader<VoxelRGBA>;
-//template class GisImageReader<VoxelHSV>;
+template class GisImageReader<VoxelRGB>;
+template class GisImageReader<VoxelRGBA>;
+template class GisImageReader<VoxelHSV>;

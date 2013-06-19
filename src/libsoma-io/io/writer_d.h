@@ -39,6 +39,7 @@
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/writer/formatwriter.h>
+#include <soma-io/datasource/filedatasource.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/object/property.h>
@@ -59,7 +60,7 @@ namespace soma
     Writer<T> *writer = dynamic_cast< Writer<T> * >( this );
     if ( ! writer ) {
       std::string	filename;
-      filename = _datasourceinfo->list().dataSource( "default", 0)->url();
+      filename = _datasourceinfo->list().dataSource()->url();
       
       throw carto::format_mismatch_error( filename );
     }
@@ -101,11 +102,20 @@ namespace soma
 
     if( !options.get() )
       options = carto::Object::value( carto::PropertySet() );
+    
+    //// Reading URI ///////////////////////////////////////////////////////////
+    std::string filename 
+      = FileUtil::uriFilename( _datasourceinfo->list().dataSource()->url() );
+    carto::Object urioptions 
+      = FileUtil::uriOptions( _datasourceinfo->list().dataSource()->url() );
+    if( urioptions.get() ) {
+      _datasourceinfo->list().dataSource()
+                             .reset( new FileDataSource( filename ) );
+      options->copyProperties( urioptions );
+    }
+    
     std::string	format;
     options->getProperty( "format", format );
-    std::string	filename;
-    filename = _datasourceinfo->list().dataSource( "default", 0)->url();
-    
     if( carto::debugMessageLevel > 3 ) {
       std::cout << "WRITER:: format: " << format << std::endl;
     }

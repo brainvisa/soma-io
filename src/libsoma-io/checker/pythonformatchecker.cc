@@ -49,10 +49,6 @@
 #include <string>
 //------------------------------------------------------------------------------
 
-// TODO
-// build dslist   (check if ok)
-// build capabilities
-
 using namespace soma;
 using namespace carto;
 using namespace std;
@@ -81,7 +77,7 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
 {
 
   static const string	sign = "attributes";
-  DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
+  DataSource *ds = dsi.list().dataSource().get();
   ds->open( DataSource::Read );
   char  c;
   int   i, n = sign.length();
@@ -123,7 +119,7 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
     cout << "PYTHONFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
   }
   dsi.capabilities().setMemoryMapping( false );
-  dsi.capabilities().setThreadSafe( false ); /* TODO */
+  dsi.capabilities().setThreadSafe( false );
   dsi.capabilities().setOrdered( false );
   dsi.capabilities().setSeekVoxel( false );
   dsi.capabilities().setSeekLine( false );

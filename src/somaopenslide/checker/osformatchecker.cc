@@ -64,12 +64,15 @@ using namespace std;
 //--- BUILDING DATASOURCELIST --------------------------------------------------
 void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
-  DataSource* pds = dsl.dataSource( "default", 0 ).get();
+  DataSource* pds = dsl.dataSource().get();
   string imaname, minfname;
   
-  dsl.addDataSource( "ima", rc_ptr<DataSource>( pds ) );
+  imaname = FileUtil::uriFilename( pds->url() );
+  if( imaname == pds->url() )
+    dsl.addDataSource( "ima", rc_ptr<DataSource>( pds ) );
+  else
+    dsl.addDataSource( "ima", rc_ptr<DataSource>( new FileDataSource( imaname ) ) );
   
-  imaname = pds->url();
   if( !imaname.empty() ) {
     minfname = imaname + ".minf";
   }
@@ -82,11 +85,11 @@ void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
   }
   
   if( carto::debugMessageLevel > 3 ) {
-    cout << "OSFORMATCHECKER:: ima: " << dsl.dataSource( "ima", 0 )->url() << endl;
+    cout << "OSFORMATCHECKER:: ima: " << dsl.dataSource( "ima" )->url() << endl;
   }
   if( carto::debugMessageLevel > 3 ) {
     if( !dsl.empty( "minf" ) )
-      cout << "OSFORMATCHECKER:: minf: " << dsl.dataSource( "minf", 0 )->url() << endl;
+      cout << "OSFORMATCHECKER:: minf: " << dsl.dataSource( "minf" )->url() << endl;
   }
 }
 
@@ -182,12 +185,20 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
   bool doread = dsi.header().isNone() ;
   bool dolist = dsi.list().nbTypes() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
+  
+  //--- read uri ---------------------------------------------------------------
+  std::string uri = dsi.list().dataSource()->url();
+  carto::Object urioptions = FileUtil::uriOptions( uri );
+  if( urioptions.get() ) {
+    options->copyProperties( urioptions );
+  }
+  
   //--- test header format -----------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
         || dsi.header()->getProperty( "format" )->getString() != "OpenSlide" )
       throw wrong_format_error( "Not a OpenSlide header", 
-                                dsi.list().dataSource( "default", 0 )->url() );
+                                dsi.list().dataSource()->url() );
   
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
@@ -201,7 +212,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     if( carto::debugMessageLevel > 3 ) {
       cout << "OSFORMATCHECKER:: Reading header..." << endl;
     }
-    DataSource* hds = dsi.list().dataSource( "ima", 0 ).get();
+    DataSource* hds = dsi.list().dataSource( "ima" ).get();
     dsi.header() = _buildHeader( hds, options );
     
     if( carto::debugMessageLevel > 3 ) {
@@ -209,7 +220,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     }
     if( !dsi.list().empty( "minf" ) ) {
       string obtype = dsi.header()->getProperty( "object_type" )->getString();
-      DataSource* minfds = dsi.list().dataSource( "minf", 0 ).get();
+      DataSource* minfds = dsi.list().dataSource( "minf" ).get();
       DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
       dsi.header()->setProperty( "object_type", obtype );
     }
@@ -221,7 +232,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
       cout << "OSFORMATCHECKER:: Writing capabilities..." << endl;
     }
     dsi.capabilities().setMemoryMapping( false );
-    dsi.capabilities().setDataSource( dsi.list().dataSource( "ima", 0 ) );
+    dsi.capabilities().setDataSource( dsi.list().dataSource( "ima" ) );
     dsi.capabilities().setThreadSafe( false ); /* TODO */
     dsi.capabilities().setOrdered( true );
     dsi.capabilities().setSeekVoxel( true );

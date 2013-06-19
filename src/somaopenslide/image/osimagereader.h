@@ -64,13 +64,16 @@ namespace soma
       //   I M A G E R E A D E R
       //========================================================================
       virtual void read( T * dest, DataSourceInfo & dsi,
-                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                         std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         std::vector<int> stride = std::vector<int>(),
+                         std::vector<int> & pos,
+                         std::vector<int> & size,
+                         std::vector<int> & stride,
                          carto::Object options = carto::none() );
       
-      //virtual void resetParams();
       virtual void updateParams( DataSourceInfo & dsi );
+      virtual void resetParams();
+      
+    protected:
+      std::vector<std::vector<int> >  _sizes;
   };
   
 }

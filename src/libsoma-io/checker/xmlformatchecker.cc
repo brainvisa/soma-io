@@ -49,10 +49,6 @@
 #include <string>
 //------------------------------------------------------------------------------
 
-// TODO
-// build datasourcelist (check if ok)
-// build capabilities
-
 using namespace soma;
 using namespace carto;
 using namespace std;
@@ -77,7 +73,7 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
                                         DataSourceInfoLoader &,
                                         Object /* options */ ) const
 {
-  DataSource *ds = dsi.list().dataSource( "default", 0 ).get();
+  DataSource *ds = dsi.list().dataSource().get();
   ds->open( DataSource::Read );
   static const string	sign = "<?xml";
   char		c;

@@ -36,7 +36,7 @@
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>    // class declaration
 #include <soma-io/datasourceinfo/datasourceinfo.h>          // returned by check
 #include <soma-io/checker/formatchecker.h>                            // check()
-//#include <somaio/datasource/datasource.h>                 // used by reference
+#include <soma-io/datasource/filedatasource.h>
 #include <soma-io/io/reader.h>                // readMinf: reader<GenericObject>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>                   // launch exceptions
@@ -201,8 +201,18 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   d->errorcode = -1;
   d->errormsg = "";
   
+  if( !options.get() )
+    options = carto::Object::value( carto::PropertySet() );
+  
+  //// Reading URI ///////////////////////////////////////////////////////////
+  std::string url = FileUtil::uriFilename( dsi.list().dataSource()->url() );
+  carto::Object urioptions 
+    = FileUtil::uriOptions( dsi.list().dataSource()->url() );
+  if( urioptions.get() )
+    options->copyProperties( urioptions );
+  
   // find filename extension if it's a file ////////////////////////////////////
-  string  ext, url = dsi.list().dataSource( "default", 0 )->url() ;
+  string  ext;
   int     excp = 0;
   if( carto::debugMessageLevel > 3 ) {
     cout << "DSILOADER:: filename: " << url << endl;
@@ -220,7 +230,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
 
   pair_cit_S               iext = ps.extensions.equal_range( ext );
   multi_S::const_iterator  ie, ee = iext.second;
-  DataSource*              pds = dsi.list().dataSource( "default", 0 ).get();
+  DataSource*              pds = dsi.list().dataSource().get();
   soma::offset_t           dspos = pds->at();
 
   //// Pass 1 : try every matching format until one works //////////////////////
@@ -431,8 +441,7 @@ SyntaxSet & DataSourceInfoLoader::minfSyntax()
 
     sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
     
-    // TRYING VECTOR OF VECTOR
-    sx[ "resolutions_count" ] = Semantic( "int" );
+    // VECTOR OF VECTOR (MULTIRESOLUTION)
     sx[ "resolutions_dimension" ] = Semantic( "int_vector_vector " );
 
     pheader_syntax[ "int_vector" ][ "" ] = Semantic( "int" );
