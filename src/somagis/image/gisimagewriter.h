@@ -37,7 +37,6 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagewriter.h>                               // heritage
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
-//#include <soma-io/reader/itemreader.h>                        // read + byteswap
 #include <soma-io/writer/itemwriter.h>                       // write + byteswap
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options

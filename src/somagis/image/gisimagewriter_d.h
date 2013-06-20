@@ -96,6 +96,14 @@ namespace soma {
                                 dsi.list().dataSource( "ima" )->url() );
   }
   
+  template <typename T> 
+  void GisImageWriter<T>::resetParams()
+  {
+    _binary = true;
+    _byteswap = false;
+    _sizes = std::vector< std::vector<int> >();
+  }
+  
   //============================================================================
   //   C O N S T R U C T O R S
   //============================================================================
