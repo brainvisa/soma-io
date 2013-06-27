@@ -43,13 +43,10 @@ namespace soma
   class DataSourceInfoLoader;
   class DataSourceInfo;
 
+  /// \todo doc
   class FormatChecker
   {
   public:
-    // why pass DSIloader ?
-    // I choose to pass the dsi by value because we start to work on it
-    // before knowing if the format is good, so the "extern" dsi should only
-    // be modified if the format is recognized.
     
     virtual DataSourceInfo check( DataSourceInfo dsi, 
                                   DataSourceInfoLoader & f,

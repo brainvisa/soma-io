@@ -46,11 +46,13 @@
 #include <cartobase/object/object.h>                                   // header
 #include <cartobase/object/property.h>                                 // header
 #include <cartobase/stream/fileutil.h>               // to manipulate file names
-#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <stdio.h>
-#include <iostream>
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byte swapping
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "GISFORMATCHECKER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -58,7 +60,7 @@ using namespace carto;
 using namespace std;
 
 //==============================================================================
-//   U S E F U L
+//   U T I L I T I E S
 //==============================================================================
 namespace
 {
@@ -106,14 +108,14 @@ namespace
 //==============================================================================
 //   P R I V A T E   M E T H O D S
 //==============================================================================
-//--- BUILDING DATASOURCELIST --------------------------------------------------
-/* This method builds a DataSourceList from the initial datasource.
+/*** BUILDING DATASOURCELIST ***************************************************
+ * This method builds a DataSourceList from the initial datasource.
  * It tries to find .dim, .ima and .minf files
  * If one or several of those files doesn't exist, it writes the initial
  * DataSource instead. Thus, the list returned contains at least one ds for
  * each of the following keywords : "dim", "ima", "minf", "default", but
  * in the worst case they can all be the initial ds.
- */
+ ******************************************************************************/
 void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
@@ -170,12 +172,8 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
       }
     }
   }
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: dim: " << dsl.dataSource( "dim" )->url() << endl;
-  }
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: ima: " << dsl.dataSource( "ima" )->url() << endl;
-  }
+  localMsg( "dim: " + dsl.dataSource( "dim" )->url() );
+  localMsg( "ima: " + dsl.dataSource( "ima" )->url() );
   
   //// Minf DataSource
   if( FileUtil::fileStat( minfname ).find( '+' ) != string::npos ) {
@@ -187,19 +185,17 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
     dsl.addDataSource( "minf", rc_ptr<DataSource>( pds ) );
   }
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: minf: " << dsl.dataSource( "minf" )->url() << endl;
-  }
+  localMsg( "minf: " + dsl.dataSource( "minf" )->url() );
 }
 
-//--- BUILDING HEADER ----------------------------------------------------------
-/* This method builds a header from a .dim DataSource.
+/*** BUILDING HEADER ***********************************************************
+ * This method builds a header from a .dim DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
  * However, since the DSList is constructed even if no .dim file is found,
  * it can be an absolutely different format. In this case, the method should 
- * launch an exception at one point which should be caught by 
- * DataSourceInfoLoader (?), thus knowing this checker cannot read the entry file.
- */
+ * launch an exception at one point which should be caught by DSILoader, 
+ * thus knowing this checker cannot read the entry file.
+ ******************************************************************************/
 Object GisFormatChecker::_buildHeader( DataSource* hds ) const
 {
   FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
@@ -249,9 +245,6 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
       }
     }
   }
-
-  /* cout << "size: " << sizex << ", " << sizey << ", " << sizez << ", " 
-     << sizet << endl; */
 
   const Syntax  &sx = DataSourceInfoLoader::minfSyntax()[ "__generic__" ];
 
@@ -321,21 +314,14 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
     else
       break;
   }
-  //if( hds->isOpen() )
-  //  hds->close();
   
   if( type.empty() ) {
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: Not a GIS header: " << fname << endl;
-    }
+    localMsg( "Not a GIS header: " + fname );
     throw format_mismatch_error( "Not a GIS header", fname );
   }
 
   if( fds && fds->at() != fds->size() - 1 ) {
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: GIS header not entirely read - garbage at end? " 
-           << fname << endl;
-    }
+    localMsg( "GIS header not entirely read - garbage at end? " + fname );
     throw format_mismatch_error( "GIS header not entirely read - garbage at " 
                                  "end ?", fname );
   }
@@ -401,22 +387,16 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   
   //--- build datasourcelist ---------------------------------------------------
   if( dolist ) {
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: Building list..." << endl;
-    }
+    localMsg( "Building list..." );
     _buildDSList( dsi.list() );
   }
   //--- build header -----------------------------------------------------------
   if( doread ) {
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: Reading header..." << endl;
-    }
+    localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "dim" ).get();
     dsi.header() = _buildHeader( hds );
     
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: Reading minf..." << endl;
-    }
+    localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
@@ -425,16 +405,13 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   }
   //--- write capabilities -----------------------------------------------------
   if( docapa ) {
-    if( carto::debugMessageLevel > 3 ) {
-      cout << "GISFORMATCHECKER:: Writing capabilities..." << endl;
-    }
+    localMsg ("Writing capabilities..." );
     dsi.capabilities().setMemoryMapping( false );
     try {
       if( !(bool) dsi.header()->getProperty( "byte_swapping" )->getScalar() 
           && !(bool) dsi.header()->getProperty( "ascii" )->getScalar() )
         dsi.capabilities().setMemoryMapping( true );
-    } catch( ... ) {
-    }
+    } catch( ... ) {}
     dsi.capabilities().setDataSource( dsi.list().dataSource( "ima" ) );
     dsi.capabilities().setThreadSafe( false ); /* TODO */
     dsi.capabilities().setOrdered( true );
@@ -444,8 +421,8 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekVolume( true );
   }
   //----------------------------------------------------------------------------
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "GISFORMATCHECKER:: Checking done" << endl;
-  }
+  localMsg( "Checking done" );
   return dsi;
 }
+
+#undef localMsg

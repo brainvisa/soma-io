@@ -48,8 +48,11 @@
 #include <openslide.h>
 #include <memory>
 #include <vector>
-#include <iostream>
 #include <string>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "OSIMAGEWRITER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 namespace soma {
@@ -106,12 +109,8 @@ namespace soma {
                                std::vector<int> & /* stride */,
                                carto::Object      options )
   {
-    if( _sizes.empty() ) {
-      if( carto::debugMessageLevel > 3 ) {
-        std::cout << "OSIMAGEREADER:: updating parameters..." << std::endl;
-      }
+    if( _sizes.empty() )
       updateParams( dsi );
-    }
     
     int32_t level = 0;
     try {
@@ -123,8 +122,7 @@ namespace soma {
     std::string fname = dsi.list().dataSource( "ima", 0 )->url();
     openslide_t *osimage;
     if( !( osimage = openslide_open( fname.c_str() ) ) ) {
-      if( carto::debugMessageLevel > 5 )
-        std::cout << "OSIMAGEREADER:: can't open file." << std::endl;
+      localMsg( "can't open file." );
       throw carto::open_error( "data source not available", fname );
     }
     
@@ -138,4 +136,5 @@ namespace soma {
   }
 }
 
+#undef localMsg
 #endif

@@ -46,21 +46,20 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                      // heritage
 #include <soma-io/writer/itemwriter.h>                       // write + byteswap
-#include <soma-io/writer/pythonwriter.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
 #include <cartobase/object/property.h>                        // header, options
-#include <cartobase/type/string_conversion.h>                      // conversion
 #include <cartobase/type/types.h>                             // to write header
 #include <cartobase/stream/fileutil.h>                            // utilitaires
-#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
-#include <iostream>
-#include <fstream>
-//------------------------------------------------------------------------------
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii- > used for byte swapping
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "GISIMAGEWRITER" )
+// localMsg must be undef at end of file
+//------------------------------------------------------------------------------
 
 namespace soma {
   
@@ -236,28 +235,19 @@ namespace soma {
     int  sy = _sizes[ 0 ][ 1 ];
     int  sz = _sizes[ 0 ][ 2 ];
     int  st = _sizes[ 0 ][ 3 ];
-    if( carto::debugMessageLevel > 6 ) {
-      std::cout << "GIW::s : " << sx << " " << sy << " " 
-                << sz << " " << st << std::endl;
-    }
+    
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
     int  vz = size[ 2 ];
     int  vt = size[ 3 ];
-    if( carto::debugMessageLevel > 6 ) {
-      std::cout << "GIW::v : " << vx << " " << vy << " " 
-                << vz << " " << vt << std::endl;
-    }
+    
     // region position
     int  ox = pos[ 0 ];
     int  oy = pos[ 1 ];
     int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
-    if( carto::debugMessageLevel > 6 ) {
-      std::cout << "GIW::o : " << ox << " " << oy << " " 
-                << oz << " " << ot << std::endl;
-    }
+    
     int  y, z, t;
     // region line size
     offset_t  len = vx * sizeof( T );
@@ -267,8 +257,8 @@ namespace soma {
     else if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
     
-    for( t=0; t<vt; ++t ) {
-      for( z=0; z<vz; ++z ) {
+    for( t=0; t<vt; ++t )
+      for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
           // we move in the file
           at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
@@ -278,8 +268,6 @@ namespace soma {
           if( writeBlock( target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
-      }
-    }
   }
   
   template <typename T>
@@ -287,19 +275,13 @@ namespace soma {
                                                  carto::Object options )
   {
     //--- build datasourcelist -------------------------------------------------
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: building DataSourceList..." << std::endl;
-    }
     bool dolist = dsi.list().nbTypes() == 1 ;
-    if( dolist )
+    if( dolist ) {
+      localMsg( "building DataSourceList..." );
       buildDSList( dsi.list(), options );
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: done: building DataSourceList" << std::endl;
     }
     //--- set header -----------------------------------------------------------
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: setting Header..." << std::endl;
-    }
+    localMsg( "setting Header..." );
     if( options->hasProperty( "partial_writing" ) ) {
       DataSourceInfoLoader  dsil;
       DataSourceInfo dimdsi( dsi.list().dataSource( "dim" ) );
@@ -317,13 +299,8 @@ namespace soma {
       else
         dsi.header()->setProperty( "ascii", false );
     }
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: done:setting Header" << std::endl;
-    }
     //--- write header ---------------------------------------------------------
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: writing Header..." << std::endl;
-    }
+    localMsg( "writing Header..." );
     ChainDataSource::setSource( dsi.list().dataSource( "dim" ), 
                                 dsi.list().dataSource( "dim" )->url() );
     DataSource* ds;
@@ -365,8 +342,7 @@ namespace soma {
         uint llbyte = ( magicNumber & 0x000000ff);
         magicNumber = llbyte << 24 | lbyte << 16 | hbyte << 8 | hhbyte;
       }
-    } catch ( ... ) {
-    }
+    } catch ( ... ) {}
     ds->writeBlock( (char *) &magicNumber , sizeof(uint) );
     *ds << "\n";
     //header :: opening mode
@@ -374,13 +350,8 @@ namespace soma {
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
         << "\n";
     close();
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: done: writing Header" << std::endl;
-    }
     //--- write minf -----------------------------------------------------------
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: writing Minf..." << std::endl;
-    }
+    localMsg( "writing Minf..." );
     carto::Object minf = carto::Object::value( carto::PropertySet() );
     minf->setProperty( "file_type", std::string( "GIS" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
@@ -396,14 +367,9 @@ namespace soma {
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "GIW:: done: writing Minf" << std::endl;
-    }
     //--- partial-io case ------------------------------------------------------
     if( options->hasProperty( "unallocated" ) ) {
-      if( carto::debugMessageLevel > 3 ) {
-        std::cout << "GIW:: building file for partial writing..." << std::endl;
-      }
+      localMsg( "building file for partial writing..." );
       if( _sizes.empty() )
         updateParams( dsi );
       ChainDataSource::setSource( dsi.list().dataSource( "ima" ), 
@@ -414,12 +380,10 @@ namespace soma {
       at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
             throw carto::eof_error( url() );
-      if( carto::debugMessageLevel > 3 ) {
-        std::cout << "GIW:: done:building file for partial writing" << std::endl;
-      }
     }
-      
+
     //--------------------------------------------------------------------------
+    localMsg( "done writing header." );
     return dsi;
   }
   
@@ -477,4 +441,5 @@ namespace soma {
   }
 }
 
+#undef localMsg
 #endif

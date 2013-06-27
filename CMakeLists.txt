@@ -63,8 +63,14 @@ set( USE_SOMA_IO "False" CACHE BOOL "Enable/Disable use of new soma-io classes")
 set( SOMA-IO_DEFINITIONS "-D_REENTRANT" )
 if( USE_SOMA_IO )
   set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DUSE_SOMA_IO" )
-  add_definitions(${SOMA-IO_DEFINITIONS})
 endif()
+if( "${CARTO_DEBUGMODE}" STREQUAL "debug" )
+  set( CARTO_DEBUG 1 )
+  set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DCARTO_DEBUG" )
+else()
+  set( CARTO_DEBUG 0 )
+endif()
+add_definitions(${SOMA-IO_DEFINITIONS})
 
 ## Include directories
 set( SOMA-IO_INCLUDE_DIRS 
@@ -72,10 +78,6 @@ set( SOMA-IO_INCLUDE_DIRS
      "${LIBXML2_INCLUDE_DIR}"
      ${Boost_INCLUDE_DIRS}
    )
-
-if( OPENSLIDE_FOUND )
-  set( SOMA-IO_INCLUDE_DIRS ${SOMA-IO_INCLUDE_DIRS} ${OPENSLIDE_INCLUDE_DIRS} )
-endif()
 
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 

@@ -128,9 +128,6 @@ endif(UNIX)
 if(APPLE)
   target_link_libraries( soma-io "-framework CoreServices" )
 endif(APPLE)
-if( OPENSLIDE_FOUND )
-  target_link_libraries( soma-io "${OPENSLIDE_LIBRARIES}" )
-endif()
 BRAINVISA_INSTALL( TARGETS soma-io
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )

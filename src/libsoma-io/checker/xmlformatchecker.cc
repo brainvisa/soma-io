@@ -42,11 +42,13 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                             // function arg
 #include <cartobase/object/property.h>        // to manipulate header properties
-#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
-#include <iostream>
 #include <vector>
 #include <string>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "XMLFORMATCHECKER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -79,9 +81,7 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   char		c;
   int		i, n = sign.length();
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "XMLFORMATCHECKER:: Reading minf header..." << ds->url() << endl;
-  }
+  localMsg( "Reading minf header... " + ds->url() );
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
     {
@@ -107,14 +107,10 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   // add header to datasourceinfo
   dsi.header() = hdr;
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "XMLFORMATCHECKER:: Building list..." << ds->url() << endl;
-  }
+  localMsg( "Building list... " + ds->url() );
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "XMLFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
-  }
+  localMsg( "Writing capabilities... " + ds->url() );
   dsi.capabilities().setMemoryMapping( false );
   dsi.capabilities().setThreadSafe( false ); /* TODO */
   dsi.capabilities().setOrdered( false );
@@ -123,9 +119,8 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   dsi.capabilities().setSeekSlice( false );
   dsi.capabilities().setSeekVolume( false );
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "XMLFORMATCHECKER:: Checking done " << ds->url() << endl;
-  }
+  localMsg( "Checking done " + ds->url() );
   return dsi;
 }
 
+#undef localMsg

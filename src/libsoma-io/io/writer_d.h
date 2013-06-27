@@ -44,10 +44,12 @@
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/object/property.h>
 #include <cartobase/stream/fileutil.h>
-#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <set>
-#include <iostream>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "WRITER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 
@@ -89,9 +91,7 @@ namespace soma
   template<class T>
   bool Writer<T>::write( const T & obj, carto::Object options )
   {
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "WRITER:: <" << carto::DataTypeCode<T>::name() << ">\n";
-    }
+    localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
     
     set_S            tried;
     FormatWriter<T>  *writer;
@@ -116,28 +116,20 @@ namespace soma
     
     std::string	format;
     options->getProperty( "format", format );
-    if( carto::debugMessageLevel > 3 ) {
-      std::cout << "WRITER:: format: " << format << std::endl;
-    }
+    localMsg( "format: " + format );
 
     //// priority to format hint ///////////////////////////////////////////////
     if( !format.empty() ) {
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
         try {
-          if( carto::debugMessageLevel > 3 ) {
-            std::cout << "WRITER:: 1. try writer " << format << std::endl;
-          }
+          localMsg( "1. try writer " + format );
           if( writer->write( obj, _datasourceinfo, options ) ) {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "WRITER:: 1. " << format << " OK\n";
-            }
+            localMsg( "1. " + format + " OK" );
             return true;
           }
 	      } catch( std::exception & e ) {
-          if( carto::debugMessageLevel > 3 ) {
-            std::cout << "WRITER:: 1. failed\n";
-          }
+          localMsg( "1. " + format + " failed" );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
 	      }
         tried.insert( format );
@@ -155,24 +147,14 @@ namespace soma
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "WRITER:: 2. try writer " << ie->second << std::endl;
-            }
+            localMsg( "2. try writer " + ie->second );
             if( writer->write( obj, _datasourceinfo, options ) ) {
-              if( carto::debugMessageLevel > 3 ) {
-                std::cout << "WRITER:: 2. " << ie->second << " OK\n";
-              }
+              localMsg( "2. " + ie->second + " OK" );
               return true;
             }
           } catch( std::exception & e ) {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "WRITER:: 2. failed\n";
-            }
+            localMsg( " 2. " + ie->second + " failed" );
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
-          }
-          if( carto::debugMessageLevel > 3 ) {
-            std::cout << "WRITER:: 2. unsuccessfully tried " << ie->second 
-                      << std::endl;
           }
           tried.insert( ie->second );
         }
@@ -186,19 +168,13 @@ namespace soma
           writer = FormatDictionary<T>::writeFormat( ie->second );
           if( writer ) {
             try {
-              if( carto::debugMessageLevel > 3 ) {
-                std::cout << "WRITER:: 3. try writer " << ie->second << std::endl;
-              }
+              localMsg( "3. try writer " + ie->second );
               if( writer->write( obj, _datasourceinfo, options ) ) {
-                if( carto::debugMessageLevel > 3 ) {
-                  std::cout << "WRITER:: 3. " << ie->second << " OK\n";
-                }
+                localMsg( "3. " + ie->second + " OK" );
                 return true;
               }
             } catch( std::exception & e ) {
-              if( carto::debugMessageLevel > 3 ) {
-                std::cout << "WRITER:: 3. failed\n";
-              }
+              localMsg( "3. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -215,19 +191,13 @@ namespace soma
         writer = FormatDictionary<T>::writeFormat( ie->second );
         if( writer ) {
           try {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "WRITER:: 4. try writer " << ie->second << std::endl;
-            }
+            localMsg( "4. try writer " + ie->second );
             if( writer->write( obj, _datasourceinfo, options ) ) {
-              if( carto::debugMessageLevel > 3 ) {
-                std::cout << "WRITER:: 4. " << ie->second << " OK\n";
-              }
+              localMsg( "4. " + ie->second + " OK" );
               return true;
             }
           } catch( std::exception & e ) {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "WRITER:: 4. failed\n";
-            }
+            localMsg( "4. " + ie->second + " failed" );
             carto::io_error::keepExceptionPriority( e, excp, exct, excm );
           }
           tried.insert( ie->second );
@@ -242,4 +212,5 @@ namespace soma
 
 }
 
+#undef localMsg
 #endif

@@ -40,10 +40,10 @@
 #include <soma-io/reader/pythonreader.h>
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>
-//--- system -------------------------------------------------------------------
-//debug
-// #define CARTO_DEBUG_IO
-// #include <iostream>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATREADER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -81,8 +81,8 @@ PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
                                    const AllocatorContext & context, 
                                    Object options )
 {
-  // cout << "T* PythonFormatReader::createAndRead " << ds->url() << endl;
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
+  localMsg( "createAndRead " + ds->url() );
   SyntaxSet	synt;
   rc_ptr<SyntaxSet> rsynt;
   PythonReader::HelperSet	hs;
@@ -93,7 +93,7 @@ PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
       options->getProperty( "helpers", hs );
     }
   PythonReader	pr( ds, rsynt ? *rsynt : synt, hs );
-  // cout << "calling PythonReader\n";
+  localMsg( "calling PythonReader" );
   return pr.read();
 }
 
@@ -127,7 +127,7 @@ PythonFormatReader::createAndRead( Object, rc_ptr<DataSource> ds,
                                    const AllocatorContext &, 
                                    Object options )
 {
-  // cout << "T* PythonFormatReader::createAndRead " << ds->url() << endl;
+  localMsg( "createAndRead " + ds->url() );
   SyntaxSet synt;
   rc_ptr<SyntaxSet> rsynt;
   PythonReader::HelperSet hs;
@@ -138,7 +138,7 @@ PythonFormatReader::createAndRead( Object, rc_ptr<DataSource> ds,
       options->getProperty( "helpers", hs );
     }
   PythonReader  pr( ds, rsynt ? *rsynt : synt, hs );
-  // cout << "calling PythonReader\n";
+  localMsg( "calling PythonReader" );
   return pr.read();
 }
 
@@ -160,3 +160,4 @@ void PythonFormatReader::read( GenericObject & obj, Object /*header*/,
   pr.read( obj );
 }
 
+#undef localMsg

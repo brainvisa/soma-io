@@ -45,11 +45,9 @@
 #include <soma-io/reader/itemreader.h>                        // read + byteswap
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                          // header, options
-#include <cartobase/type/string_conversion.h>                 // conversion
 //--- system -------------------------------------------------------------------
 #include <memory>
 #include <vector>
-#include <iostream>
 //------------------------------------------------------------------------------
 
 namespace soma {
@@ -244,8 +242,8 @@ namespace soma {
     if( !open( DataSource::Read ) )
       throw carto::open_error( "data source not available", url() );
     
-    for( t=0; t<vt; ++t ) {
-      for( z=0; z<vz; ++z ) {
+    for( t=0; t<vt; ++t )
+      for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
           // we move in the file
           at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
@@ -255,8 +253,6 @@ namespace soma {
           if( readBlock(target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
-      }
-    }
   }
 }
 

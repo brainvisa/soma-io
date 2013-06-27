@@ -37,6 +37,10 @@
 #include <soma-io/utilities/minfXML2.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/allocator/allocator.h>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "XMLFORMATREADER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -107,7 +111,7 @@ void XMLFormatReader::read( GenericObject & obj, rc_ptr<DataSourceInfo> dsi,
                             const AllocatorContext & context, Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
-  // cout << "XMLFormatReader::read " << context.dataSource()->url() << endl;
+  localMsg( "read " + context.dataSource()->url() );
   Object  o( &obj );
   try
     {
@@ -143,7 +147,7 @@ void XMLFormatReader::read( GenericObject & obj, Object /*header*/,
                             const AllocatorContext & context, 
                             Object options )
 {
-  // cout << "XMLFormatReader::read " << context.dataSource()->url() << endl;
+  localMsg( "read " + context.dataSource()->url() );
   Object	o( &obj );
   try
     {
@@ -158,3 +162,4 @@ void XMLFormatReader::read( GenericObject & obj, Object /*header*/,
     }
 }
 
+#undef localMsg

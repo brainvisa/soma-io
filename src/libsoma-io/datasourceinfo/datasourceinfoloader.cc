@@ -47,9 +47,12 @@
 #include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
 #include <memory>
-#include <iostream>
 #include <map>
 #include <set>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "DSILOADER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -57,7 +60,7 @@ using namespace carto;
 using namespace std;
 
 //==============================================================================
-//    U S E F U L
+//    U T I L I T I E S
 //==============================================================================
 
 namespace
@@ -180,9 +183,7 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
 DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
                                             Object options )
 {
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: check()\n";
-  }
+  localMsg( "check()" );
   
   // If dsi already complete : returns it //////////////////////////////////////
   if( !dsi.header().isNone() 
@@ -214,13 +215,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   // find filename extension if it's a file ////////////////////////////////////
   string  ext;
   int     excp = 0;
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: filename: " << url << endl;
-  }
+  localMsg( "filename: " + url );
   ext = FileUtil::extension( url );
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: ext : " << ext << endl;
-  }
+  localMsg( "ext : " + ext );
 
   // Check compatible formats //////////////////////////////////////////////////
   set<string>            tried;
@@ -236,18 +233,14 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   //// Pass 1 : try every matching format until one works //////////////////////
   for( ie=iext.first; ie!=ee; ++ie )
     if( tried.find( ie->second ) == notyet ) {
-      if( carto::debugMessageLevel > 3 ) {
-        cout << "DSILOADER:: 1. trying " << (*ie).second << "...\n";
-      }
+      localMsg( "1. trying " + (*ie).second + "..." );
       reader = formatInfo( ie->second );
       if( reader ) {
         try {
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
-          if( carto::debugMessageLevel > 3 ) {
-            std::cout << "DSILOADER:: 1. failed : " << e.what() << std::endl;
-          }
+          localMsg( "1. failed : " + string( e.what() ) );
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );
@@ -257,26 +250,20 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     }
 
   //// Pass 2 : not found or none works: try readers with no extension /////////
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: not found yet... pass2...\n";
-  }
+  localMsg( "not found yet... pass2..." );
   if( !ext.empty() ) {
     iext = ps.extensions.equal_range( "" );
 
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
-        if( carto::debugMessageLevel > 3 ) {
-          cout << "DSILOADER:: 2. trying " << (*ie).second << "...\n";
-        }
+        localMsg( "2. trying " + (*ie).second + "..." );
         reader = formatInfo( ie->second );
         if( reader ) {
           try {
             d->state = Ok;
             return reader->check( dsi, *this, options );
           } catch( exception & e ) {
-            if( carto::debugMessageLevel > 3 ) {
-              std::cout << "DSILOADER:: 2. failed : " << e.what() << std::endl;
-            }
+            localMsg( "2. failed : " + string( e.what() ) );
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
             pds->at( dspos );
@@ -287,9 +274,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   }
 
   //// Pass 3 : still not found ? well, try EVERY format this time... //////////
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: not found yet... pass3...\n";
-  }
+  localMsg( "not found yet... pass3..." );
   iext.first = ps.extensions.begin();
   iext.second = ps.extensions.end();
 
@@ -297,16 +282,12 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     if( tried.find( ie->second ) == notyet ) {
       reader = formatInfo( ie->second );
       if( reader ) {
-        if( carto::debugMessageLevel > 3 ) {
-          cout << "DSILOADER:: 3. trying " << (*ie).second << "...\n";
-        }
+        localMsg( "3. trying " + (*ie).second + "..." );
         try {
           d->state = Ok;
           return reader->check( dsi, *this, options );
 	      } catch( exception & e ) {
-          if( carto::debugMessageLevel > 3 ) {
-              std::cout << "DSILOADER:: 3. failed : " << e.what() << std::endl;
-          }
+          localMsg( "3. failed : " + string( e.what() ) );
           d->state = Error;
           io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
           pds->at( dspos );
@@ -316,9 +297,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     }
 
   //// End : still not succeeded, it's hopeless... /////////////////////////////
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "DSILOADER:: not found at all, giving up\n";
-  }
+  localMsg( "not found at all, giving up" );
   d->state = Error;
   if( d->errorcode < 0 ) {
     d->errorcode = 0;
@@ -497,3 +476,5 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base )
   return minf;
 
 }
+
+#undef localMsg

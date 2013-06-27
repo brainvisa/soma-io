@@ -37,8 +37,10 @@
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/io/writer_d.h>
-//--- system -------------------------------------------------------------------
- #include <iostream>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATWRITER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -55,7 +57,7 @@ bool PythonFormatWriter::write( const GenericObject & obj,
   else
     ds = dsi->list().dataSource();
   
-  // cout << "PythonFormatWriter::write " << ds->url() << endl;
+  localMsg( "write " + ds->url() );
   SyntaxSet			synt;
   PythonWriter::HelperSet	hs;
   bool				writeinternals = false;
@@ -107,4 +109,4 @@ namespace
 
 template class Writer<GenericObject>;
 
-
+#undef localMsg

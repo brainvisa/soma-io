@@ -103,14 +103,14 @@ namespace carto
     static std::list<std::string>
         filenamesSplit( const std::string & filenames,
                         const std::string & separator );
-    
+
     //==========================================================================
     //   U R I
     //==========================================================================
     /// It is possible to treat an URI (Uniform Resource Identifier) instead of
     /// a simple path. It would have the following syntax : 
     /// "/my/path/file.ext?options1=this&option2=that"
-    
+
     /// Extracts the classical filename  from the URI :
     /// "/my/path/file.ext"
     static std::string uriFilename( const std::string & filein );
@@ -118,22 +118,7 @@ namespace carto
     /// of strings :
     /// ( "options1" => "this", "option2" => "that" )
     static Object uriOptions( const std::string & filein );
-    
-    //==========================================================================
-    //   U T I L I T I E S
-    //==========================================================================
-    /// Converts integer to string
-    static std::string itos( int number );
-    /// Converts string to integer
-    static int stoi( const std::string & number );
-    /// Does the string represent a valid integer ?
-    static bool isInt( const std::string & s );
-    /// Converts float to string
-    static std::string ftos( float number );
-    /// Converts string to float
-    static float stof( const std::string & number );
-    /// Does the string represent a valid float ?
-    static bool isFloat( const std::string & s );
+
   };
 
 }

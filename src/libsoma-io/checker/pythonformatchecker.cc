@@ -42,11 +42,13 @@
 //--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object.h>                             // function arg
 #include <cartobase/object/property.h>        // to manipulate header properties
-#include <cartobase/config/verbose.h>                         // verbosity level
 //--- system -------------------------------------------------------------------
-#include <iostream>
 #include <vector>
 #include <string>
+//--- debug --------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATCHECKER" )
+// localMsg must be undef at end of file
 //------------------------------------------------------------------------------
 
 using namespace soma;
@@ -82,9 +84,7 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   char  c;
   int   i, n = sign.length();
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "PYTHONFORMATCHECKER:: Reading minf header..." << ds->url() << endl;
-  }
+  localMsg( "Reading minf header... " + ds->url() );
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
     {
@@ -110,26 +110,20 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   // add header to datasourceinfo
   dsi.header() = hdr;
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "PYTHONFORMATCHECKER:: Building list..." << ds->url() << endl;
-  }
+  localMsg( "Building list... " + ds->url() );
   dsi.list().addDataSource( "minf", rc_ptr<DataSource>( ds ) );
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "PYTHONFORMATCHECKER:: Writing capabilities..." << ds->url() << endl;
-  }
+  localMsg( "Writing capabilities... " + ds->url() );
   dsi.capabilities().setMemoryMapping( false );
-  dsi.capabilities().setThreadSafe( false );
+  dsi.capabilities().setThreadSafe( false );  // TODO
   dsi.capabilities().setOrdered( false );
   dsi.capabilities().setSeekVoxel( false );
   dsi.capabilities().setSeekLine( false );
   dsi.capabilities().setSeekSlice( false );
   dsi.capabilities().setSeekVolume( false );
   
-  if( carto::debugMessageLevel > 3 ) {
-    cout << "PYTHONFORMATCHECKER:: Checking done " << ds->url() << endl;
-  }
+  localMsg( "Checking done " + ds->url() );
   return dsi;
 }
 
-
+#undef localMsg

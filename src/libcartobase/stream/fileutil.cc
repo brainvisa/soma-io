@@ -36,6 +36,7 @@
 #include <cartobase/config/paths.h>
 #include <cartobase/object/object.h>
 #include <cartobase/object/property.h>
+#include <cartobase/type/string_conversion.h>
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -377,6 +378,8 @@ string FileUtil::uriFilename( const string & filein )
 Object FileUtil::uriOptions( const string & filein )
 {
   Object options = none();
+  int intval;
+  float floatval;
   string::size_type epos = filein.rfind( '?' );
   if( epos == string::npos )
     return options;
@@ -396,11 +399,13 @@ Object FileUtil::uriOptions( const string & filein )
     if( currentopt != "" ) {
       if( !options.get() )
         options = Object::value( PropertySet() );
-      if( isInt( currentval ) )
-        options->setProperty( currentopt, stoi( currentval ) );
-      else if( isFloat( currentval ) )
-        options->setProperty( currentopt, stof( currentval ) );
-      else
+      if( isInt( currentval ) ) {
+        stringTo( currentval, intval );
+        options->setProperty( currentopt, intval );
+      } else if( isFloat( currentval ) ) {
+        stringTo( currentval, floatval );
+        options->setProperty( currentopt, floatval );
+      } else
         options->setProperty( currentopt, currentval );
     }
     if( epos == string::npos )
@@ -410,58 +415,4 @@ Object FileUtil::uriOptions( const string & filein )
   }
   
   return options;
-}
-
-//==============================================================================
-//   U T I L I T I E S
-//==============================================================================
-
-string FileUtil::itos( int number )
-{
-  std::ostringstream oss;
-  oss << number;
-  return oss.str();
-}
-
-int FileUtil::stoi( const string & number )
-{
-  return atoi( number.c_str() );
-}
-
-bool FileUtil::isInt( const string & s )
-{
-  if( s.empty() )
-    return false;
-  
-  char *end;
-  strtol( s.c_str(), &end, 10 );
-  
-  // if end doesn't point to last character of the string ('\0'), 
-  // it's not an int
-  return( *end == 0 );
-}
-
-string FileUtil::ftos( float number )
-{
-  std::ostringstream oss;
-  oss << number;
-  return oss.str();
-}
-
-float FileUtil::stof( const string & number )
-{
-  return (float) atof( number.c_str() );
-}
-
-bool FileUtil::isFloat( const string & s )
-{
-  if( s.empty() )
-    return false;
-  
-  char *end;
-  strtof( s.c_str(), &end );
-  
-  // if end doesn't point to last character of the string ('\0'), 
-  // it's not a float
-  return( *end == 0 );
 }
