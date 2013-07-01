@@ -37,21 +37,10 @@
 #ifndef CARTO_DEBUGMODE
 #define CARTO_DEBUGMODE "@CARTO_DEBUGMODE@"
 #endif
-#ifndef AIMS
-#define AIMS
-#endif
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
-#ifndef CARTO_USE_BLITZ
-#cmakedefine CARTO_USE_BLITZ
-#endif
-#ifndef CARTO_USE_KDTREE
-#define CARTO_USE_KDTREE
-#endif
 
 #endif
-
-
 
 
