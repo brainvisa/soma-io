@@ -31,19 +31,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/filedatasource.h>                // class defintion
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/stream/fileutil.h>                             // fileStat()
-//--- sys ----------------------------------------------------------------------
+#include <soma-io/datasource/filedatasource.h>              // class defintion
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/stream/fileutil.h>                           // fileStat()
+//--- sys --------------------------------------------------------------------
 #include <sys/types.h>
 #include <sys/stat.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <fcntl.h>
 #include <unistd.h>
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -182,5 +182,4 @@ bool FileDataSource::at( offset_t pos )
   return CStreamDataSource::at( pos + _offset );
 #endif
 }
-
 

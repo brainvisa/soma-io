@@ -33,37 +33,37 @@
 
 #ifndef SOMAIO_IO_READER_D_H
 #define SOMAIO_IO_READER_D_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfo.h>        // read(): format info
-#include <soma-io/datasourceinfo/datasourceinfoloader.h> // read(): format check
-#include <soma-io/datasource/datasourcelist.h>                         // member
-#include <soma-io/datasource/datasource.h>          // useful for none() pointer
-#include <soma-io/datasource/filedatasource.h>            // used by constructor
-#include <soma-io/datasource/streamdatasource.h>          // used by constructor
-#include <soma-io/io/formatdictionary.h>               // used by read() method
-#include <soma-io/io/reader.h>                              // class declaration
-#include <soma-io/reader/formatreader.h>                // used by read() method
-#include <soma-io/allocator/allocator.h>               // allocator management
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/exception/ioexcept.h>                    // launch exception
-#include <cartobase/object/object.h>                         // header & options
-#include <cartobase/object/property.h>                       // header & options
-#include <cartobase/stream/fileutil.h>                 // finding file extension
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasourceinfo/datasourceinfo.h>              // format info
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>       // format check
+#include <soma-io/datasource/datasourcelist.h>                       // member
+#include <soma-io/datasource/datasource.h>        // useful for none() pointer
+#include <soma-io/datasource/filedatasource.h>          // used by constructor
+#include <soma-io/datasource/streamdatasource.h>        // used by constructor
+#include <soma-io/io/formatdictionary.h>             // used by read() method
+#include <soma-io/io/reader.h>                            // class declaration
+#include <soma-io/reader/formatreader.h>              // used by read() method
+#include <soma-io/allocator/allocator.h>             // allocator management
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/exception/ioexcept.h>                  // launch exception
+#include <cartobase/object/object.h>                       // header & options
+#include <cartobase/object/property.h>                     // header & options
+#include <cartobase/stream/fileutil.h>               // finding file extension
+//--- system -----------------------------------------------------------------
 #include <set>
 #include <map>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "READER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   template<class T> Reader<T>::Reader()
   {
   }
@@ -96,9 +96,9 @@ namespace soma
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   A L L O C A T O R
-  //============================================================================
+  //==========================================================================
   template <typename T>
   void Reader<T>::setAllocatorContext( const AllocatorContext & ac )
   {
@@ -111,9 +111,9 @@ namespace soma
     return _alloccontext;
   }
 
-  //============================================================================
+  //==========================================================================
   //   O P T I O N S
-  //============================================================================
+  //==========================================================================
   template<class T>
   void Reader<T>::setOptions( carto::Object options )
   {
@@ -132,9 +132,9 @@ namespace soma
     return _options;
   }
 
-  //============================================================================
+  //==========================================================================
   //   D A T A S O U R C E
-  //============================================================================
+  //==========================================================================
   template<class T>
   void Reader<T>::attach( carto::rc_ptr<DataSource> ds )
   {
@@ -150,10 +150,10 @@ namespace soma
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
       _datasourceinfo->list().dataSource()
-          = carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) );
+        = carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) );
     } else {
       _datasourceinfo->list().addDataSource( "default", 
-          carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) ) );
+        carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) ) );
     }
   }
 
@@ -204,16 +204,16 @@ namespace soma
       _datasourceinfo->list().dataSource()->close();
   }
   
-  //============================================================================
+  //==========================================================================
   //   R E A D   M E T H O D S
-  //============================================================================
+  //==========================================================================
   
-  //--- useful typedef ---------------------------------------------------------
+  //--- useful typedef -------------------------------------------------------
   typedef std::multimap<std::string,std::string> multi_S;
   typedef std::set<std::string> set_S;
   typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   
   template<class T>
   bool Reader<T>::read( T & obj, carto::Object header )
@@ -228,7 +228,7 @@ namespace soma
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
     
-    //// Reading URI ///////////////////////////////////////////////////////////
+    //// Reading URI /////////////////////////////////////////////////////////
     std::string uri = _datasourceinfo->list().dataSource()->url();
     std::string filename = FileUtil::uriFilename( uri );
     carto::Object urioptions = FileUtil::uriOptions( uri );
@@ -238,7 +238,7 @@ namespace soma
       _options->copyProperties( urioptions );
     }
     
-    //// Checking format ///////////////////////////////////////////////////////
+    //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
     if( dsi.list().empty() )
@@ -254,13 +254,13 @@ namespace soma
     _alloccontext.setDataSourceInfo( _datasourceinfo );
     
     std::string	format;
-    if( !_options->getProperty( "format", format )  // user options first
-        && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
-      _datasourceinfo->header()->getProperty( "file_type", format ); // old style
+    if( !_options->getProperty( "format", format )
+        && !_datasourceinfo->header()->getProperty( "format", format ) )
+      _datasourceinfo->header()->getProperty( "file_type", format );
     
     localMsg( "format: " + format );
     
-    //// Reading data //////////////////////////////////////////////////////////
+    //// Reading data ////////////////////////////////////////////////////////
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
@@ -270,13 +270,14 @@ namespace soma
     int					 exct = -1;
     std::string	 excm;
 
-    //// Pass1 : priority to format hint ///////////////////////////////////////
+    //// Pass1 : priority to format hint /////////////////////////////////////
     if( !format.empty() ) {
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
           localMsg( "1. try reader " + format );
-          reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
+          reader->setupAndRead( obj, _datasourceinfo,
+                                _alloccontext, _options );
           localMsg( "1. " + format + " OK" );
           return true;
 	      } catch( std::exception & e ) {
@@ -295,14 +296,15 @@ namespace soma
     pair_cit_S	             iext = extensions.equal_range( ext );
     multi_S::const_iterator  ie, ee = iext.second;
 
-    //// Pass 2 : try every matching format until one works ////////////////////
+    //// Pass 2 : try every matching format until one works //////////////////
     for( ie=iext.first; ie!=ee; ++ie ) {
       if( tried.find( (*ie).second ) == notyet ) {
         reader = FormatDictionary<T>::readFormat( ie->second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
             localMsg( "2. try reader " + ie->second );
-            reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
+            reader->setupAndRead( obj, _datasourceinfo,
+                                  _alloccontext, _options );
             localMsg( "2. " + ie->second + " OK" );
             return true;
           } catch( std::exception & e ) {
@@ -315,7 +317,7 @@ namespace soma
       }
     }
     
-    //// Pass 3 : not found or none works: try readers with no extension ///////
+    //// Pass 3 : not found or none works: try readers with no extension /////
     if( !ext.empty() ) {
       iext = extensions.equal_range( "" );
       
@@ -325,7 +327,8 @@ namespace soma
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
               localMsg( "3. try reader " + ie->second );
-              reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
+              reader->setupAndRead( obj, _datasourceinfo,
+                                    _alloccontext, _options );
               localMsg( "3. " + ie->second + " OK" );
               return true;
             } catch( std::exception & e ) {
@@ -339,7 +342,7 @@ namespace soma
       }
     }
 
-    //// Pass 4 : still not found ? well, try EVERY format this time... ////////
+    //// Pass 4 : still not found ? well, try EVERY format this time... //////
     iext.first = extensions.begin();
     iext.second = extensions.end();
 
@@ -349,7 +352,8 @@ namespace soma
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
             localMsg( "4. try reader " + ie->second );
-            reader->setupAndRead( obj, _datasourceinfo, _alloccontext, _options );
+            reader->setupAndRead( obj, _datasourceinfo,
+                                  _alloccontext, _options );
             localMsg( "4. " + ie->second + " OK" );
             return true;
           } catch( std::exception & e ) {
@@ -362,8 +366,9 @@ namespace soma
       }
     }
 
-    //// End : still not succeeded, it's hopeless... ///////////////////////////
-    carto::io_error::launchExcept( exct, excm, filename + " : no matching format" );
+    //// End : still not succeeded, it's hopeless... /////////////////////////
+    carto::io_error::launchExcept( exct, excm,
+                                   filename + " : no matching format" );
     return false;
   }
 
@@ -380,7 +385,7 @@ namespace soma
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
     
-    //// Reading URI ///////////////////////////////////////////////////////////
+    //// Reading URI /////////////////////////////////////////////////////////
     std::string uri = _datasourceinfo->list().dataSource()->url();
     std::string filename = FileUtil::uriFilename( uri );
     carto::Object urioptions = FileUtil::uriOptions( uri );
@@ -390,7 +395,7 @@ namespace soma
       _options->copyProperties( urioptions );
     }
     
-    //// Checking format ///////////////////////////////////////////////////////
+    //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
     if( dsi.list().empty() )
@@ -401,13 +406,13 @@ namespace soma
     _alloccontext.setDataSourceInfo( _datasourceinfo );
     
     std::string format;
-    if( !_options->getProperty( "format", format )  // user options first
-        && !_datasourceinfo->header()->getProperty( "format", format ) ) // new style
-      _datasourceinfo->header()->getProperty( "file_type", format ); // old style
+    if( !_options->getProperty( "format", format )
+        && !_datasourceinfo->header()->getProperty( "format", format ) )
+      _datasourceinfo->header()->getProperty( "file_type", format );
     
     localMsg( "format: " + format );
 
-    //// Reading data //////////////////////////////////////////////////////////
+    //// Reading data ////////////////////////////////////////////////////////
     set_S                         tried;
     std::set<FormatReader<T> *>   triedf;
     FormatReader<T>			          *reader;
@@ -418,13 +423,14 @@ namespace soma
     int          exct = -1;
     std::string  excm;
 
-    //// Pass 1 : prioroty to format hint //////////////////////////////////////
+    //// Pass 1 : prioroty to format hint ////////////////////////////////////
     if( !format.empty() )	{
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
           localMsg( "1. try reader " + format );
-          obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
+          obj = reader->createAndRead( _datasourceinfo,
+                                       _alloccontext, _options );
           if( obj ) {
             localMsg( "1. " + format + " OK" );
             return obj;
@@ -445,14 +451,15 @@ namespace soma
     pair_cit_S               iext = extensions.equal_range( ext );
     multi_S::const_iterator  ie, ee = iext.second;
 
-    //// Pass 2 : try every matching format until one works ////////////////////
+    //// Pass 2 : try every matching format until one works //////////////////
     for( ie=iext.first; ie!=ee; ++ie ) {
       if( tried.find( (*ie).second ) == notyet ) {
         reader = FormatDictionary<T>::readFormat( (*ie).second );
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
             localMsg( "2. try reader " + ie->second );
-            obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
+            obj = reader->createAndRead( _datasourceinfo,
+                                         _alloccontext, _options );
             if( obj ) {
               localMsg( "2. " + ie->second + " OK" );
               return obj;
@@ -470,14 +477,15 @@ namespace soma
     if( !ext.empty() ) {
       iext = extensions.equal_range( "" );
 
-      //// Pass 3 : not found or none works: try readers with no extension /////
+      //// Pass 3 : not found or none works: try readers with no extension ///
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( (*ie).second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
               localMsg( "3. try reader " + ie->second );
-              obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
+              obj = reader->createAndRead( _datasourceinfo,
+                                           _alloccontext, _options );
               if( obj ) {
                 localMsg( "3. " + ie->second + " OK" );
                 return obj;
@@ -493,7 +501,7 @@ namespace soma
       }
     }
 
-    //// Pass 4 : still not found ? well, try EVERY format this time... ////////
+    //// Pass 4 : still not found ? well, try EVERY format this time... //////
     iext.first = extensions.begin();
     iext.second = extensions.end();
 
@@ -503,7 +511,8 @@ namespace soma
         if( reader && triedf.find( reader ) == notyetf ) {
           try {
             localMsg( "4. try reader " + ie->second );
-            obj = reader->createAndRead( _datasourceinfo, _alloccontext, _options );
+            obj = reader->createAndRead( _datasourceinfo,
+                                         _alloccontext, _options );
             if( obj ) {
               localMsg( "4. " + ie->second + " OK" );
               return obj;
@@ -518,8 +527,9 @@ namespace soma
       }
     }
 
-    //// End : still not succeeded, it's hopeless... ///////////////////////////
-    carto::io_error::launchExcept( exct, excm, filename + " : no matching format" );
+    //// End : still not succeeded, it's hopeless... /////////////////////////
+    carto::io_error::launchExcept( exct, excm,
+                                   filename + " : no matching format" );
     return 0;
   }
 

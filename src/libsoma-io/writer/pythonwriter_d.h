@@ -31,14 +31,14 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object_d.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
@@ -419,7 +419,10 @@ void listHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
 template<typename T> 
 void 
-PythonWriter::genericSequenceHelper( const GenericObject & obj, PythonWriter & w, int ind, bool writeInternals )
+PythonWriter::genericSequenceHelper( const GenericObject & obj,
+                                     PythonWriter & w,
+                                     int ind,
+                                     bool writeInternals )
 {
   DataSource    & ds = *w.dataSource();
   // using GenericObject:: avoids a bug in gcc-2.96

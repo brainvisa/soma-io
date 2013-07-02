@@ -32,12 +32,12 @@
  */
 #ifndef SOMAIO_CHECKER_XMLFORMATCHECKER_H
 #define SOMAIO_CHECKER_XMLFORMATCHECKER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/checker/formatchecker.h>                         // base class
-//--- cartobase ----------------------------------------------------------------
+#include <soma-io/checker/formatchecker.h>                       // base class
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -49,10 +49,10 @@ namespace soma
   public:
     virtual DataSourceInfo check( DataSourceInfo dsi, 
                                   DataSourceInfoLoader & f,
-                                  carto::Object options = carto::none() ) const;
+                                  carto::Object options = carto::none() )
+                                  const;
   };
 
 }
 
 #endif
-

@@ -31,52 +31,55 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_HSV_H
-#define SOMAIO_IMAGE_HSV_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelvalue_d.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_TYPE_HSV_H
+#define CARTOBASE_TYPE_HSV_H
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h>
+#include <cartobase/type/voxelvalue.h>
 #include <cartobase/exception/assert.h>
-//--- system -------------------------------------------------------------------
-//#define SOMA_IO_DEBUG_RGB
-#ifdef SOMA_IO_DEBUG_RGB
+//--- system -----------------------------------------------------------------
+//#define CARTO_DEBUG_RGB
+#ifdef CARTO_DEBUG_RGB
   #include <iostream>
 #endif
-//------------------------------------------------------------------------------
-
-namespace soma {
-  class VoxelHSV;
-}
+//----------------------------------------------------------------------------
 
 namespace carto {
-  template<> inline std::string DataTypeCode<soma::VoxelHSV>::dataType()
+
+  class VoxelHSV;
+
+  template<> inline std::string DataTypeCode<VoxelHSV>::dataType()
   {
     return "HSV";
   }
-}
 
-namespace soma {
-  
-  //============================================================================
+  //==========================================================================
   //   D E C L A R A T I O N
-  //============================================================================
+  //==========================================================================
 
-  class VoxelHSV : public soma::VoxelValue<uint8_t,3>
+  /// HSV Value
+  ///
+  /// This class replaces AimsHSV. \n
+  /// All previous operators are implemented. \n
+  /// Read/Write operators are implemented in
+  /// \c soma-io/utilities/asciidatasourcetraits.h so you need to include this
+  /// file for read/write operations.
+  class VoxelHSV : public VoxelValue<uint8_t,3>
   {
     public:
-      //=== CONSTRUCTORS =======================================================
+      //=== CONSTRUCTORS =====================================================
       VoxelHSV( const VoxelHSV &other );
-      VoxelHSV( const soma::VoxelValue<uint8_t,3> &other );
-      VoxelHSV( const uint8_t &h = 0, const uint8_t &s = 0, const uint8_t &v = 0 );
+      VoxelHSV( const VoxelValue<uint8_t,3> &other );
+      VoxelHSV( const uint8_t &h = 0,
+                const uint8_t &s = 0,
+                const uint8_t &v = 0 );
       ~VoxelHSV();
       
-      //=== AFFECTATION ========================================================
+      //=== AFFECTATION ======================================================
       VoxelHSV & operator = ( const VoxelHSV & other );
       VoxelHSV & operator = ( const uint8_t & val );
       
-      //=== OPERATORS ==========================================================
+      //=== OPERATORS ========================================================
       VoxelHSV & operator += ( const VoxelHSV & other );
       VoxelHSV & operator -= ( const VoxelHSV & other );
       VoxelHSV & operator += ( const uint8_t  & val );
@@ -97,7 +100,7 @@ namespace soma {
       VoxelHSV & operator *= ( const long     & val );
       VoxelHSV & operator /= ( const long     & val );
       
-      //=== ACCESSORS ==========================================================
+      //=== ACCESSORS ========================================================
       inline const uint8_t& hue        () const { return (*this)[0]; }
       inline const uint8_t& saturation () const { return (*this)[1]; }
       inline const uint8_t& value      () const { return (*this)[2]; }
@@ -132,41 +135,18 @@ namespace soma {
   VoxelHSV operator * (const VoxelHSV &aa, const long     &bb);
   VoxelHSV operator * (const long     &aa, const VoxelHSV &bb);
   VoxelHSV operator / (const VoxelHSV &aa, const long     &bb);
-  
-  //--- AsciiDataSourceTraits
-  
-  template <> inline
-  bool AsciiDataSourceTraits<VoxelHSV>::read( DataSource & ds, 
-                                              VoxelHSV & item )
-  {
-    return AsciiDataSourceTraits<VoxelValue<uint8_t,3> >::read( ds, item );
-  }
-  
-  template <> inline
-  bool AsciiDataSourceTraits<VoxelHSV>::write( DataSource & ds, 
-                                               const VoxelHSV & item )
-  {
-    return AsciiDataSourceTraits<VoxelValue<uint8_t,3> >::write( ds, item );
-  }
-  
-  inline DataSource & 
-  operator << ( DataSource & ds, const VoxelHSV & x )
-  {
-    AsciiDataSourceTraits<VoxelHSV>::write( ds, x );
-    return ds;
-  }
 
-  //============================================================================
+  //==========================================================================
   //   D E F I N I T I O N
-  //============================================================================
+  //==========================================================================
 
-  //=== CONSTRUCTORS =============================================================
+  //=== CONSTRUCTORS =========================================================
 
   inline
   VoxelHSV::VoxelHSV( const VoxelHSV &other )
   : VoxelValue<uint8_t,3>( other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: Constructor( HSV )" << std::endl;
     #endif
   }
@@ -175,7 +155,7 @@ namespace soma {
   VoxelHSV::VoxelHSV( const VoxelValue<uint8_t,3> &other )
   : VoxelValue<uint8_t,3>( other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: Constructor( VV<3> )" << std::endl;
     #endif
   }
@@ -183,7 +163,7 @@ namespace soma {
   inline
   VoxelHSV::VoxelHSV( const uint8_t &h, const uint8_t &s, const uint8_t &v )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: Constructor( h,s,v )" << std::endl;
     #endif
     hue()        = h;
@@ -194,17 +174,17 @@ namespace soma {
   inline
   VoxelHSV::~VoxelHSV()
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: Destructor" << std::endl;
     #endif
   }
 
-  //=== AFFECTATION ==============================================================
+  //=== AFFECTATION ==========================================================
 
   inline
   VoxelHSV::VoxelHSV & VoxelHSV::operator = ( const VoxelHSV & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator = ( HSV )" << std::endl;
     #endif
     hue()        = other.hue();
@@ -216,7 +196,7 @@ namespace soma {
   inline
   VoxelHSV::VoxelHSV & VoxelHSV::operator = ( const uint8_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator = ( uint8_t )" << std::endl;
     #endif
     hue()        = val;
@@ -225,12 +205,12 @@ namespace soma {
     return *this;
   }
 
-  //=== OPERATORS ================================================================
+  //=== OPERATORS ============================================================
 
   inline
   VoxelHSV & VoxelHSV::operator += ( const VoxelHSV & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator += ( HSV )" << std::endl;
     #endif
     hue()        += other.hue();
@@ -242,7 +222,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator -= ( const VoxelHSV & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator -= ( HSV )" << std::endl;
     #endif
     hue()        -= other.hue();
@@ -254,7 +234,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator += ( const uint8_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator += ( uint8_t )" << std::endl;
     #endif
     hue()        += val;
@@ -266,7 +246,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator -= ( const uint8_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator -= ( uint8_t )" << std::endl;
     #endif
     hue()        -= val;
@@ -278,7 +258,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const uint8_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint8_t )" << std::endl;
     #endif
     hue()        *= val;
@@ -290,7 +270,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const uint16_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint16_t )" << std::endl;
     #endif
     hue()        *= val;
@@ -301,7 +281,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const uint32_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint32_t )" << std::endl;
     #endif
     hue()        *= val;
@@ -312,7 +292,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const uint64_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint64_t )" << std::endl;
     #endif
     hue()        *= val;
@@ -323,7 +303,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const float & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( float )" << std::endl;
     #endif
     hue()        *= val;
@@ -334,7 +314,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator *= ( const double & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( double )" << std::endl;
     #endif
     hue()        *= val;
@@ -346,7 +326,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const uint8_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( uint8_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -359,7 +339,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const uint16_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( uint16_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -372,7 +352,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const uint32_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( uint32_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -385,7 +365,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const uint64_t & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( uint64_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -398,7 +378,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const float & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( float )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -411,7 +391,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const double & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( double )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -421,12 +401,12 @@ namespace soma {
     return *this;
   }
 
-  //=== EXTERN OPERATORS =========================================================
+  //=== EXTERN OPERATORS =====================================================
 
   inline
   VoxelHSV operator + (const VoxelHSV &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV + HSV" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -436,7 +416,7 @@ namespace soma {
   inline
   VoxelHSV operator + (const VoxelHSV &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV + uint8_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -446,7 +426,7 @@ namespace soma {
   inline
   VoxelHSV operator - (const VoxelHSV &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV - HSV" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -456,7 +436,7 @@ namespace soma {
   inline
   VoxelHSV operator - (const VoxelHSV &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV - uint8_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -466,7 +446,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * uint8_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -476,7 +456,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const uint16_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * uint16_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -486,7 +466,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const uint32_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * uint32_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -496,7 +476,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const uint64_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * uint64_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -506,7 +486,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const float &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * float" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -516,7 +496,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const double &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * double" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -526,7 +506,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const uint8_t &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: uint8_t * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -536,7 +516,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const uint16_t &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: uint16_t * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -546,7 +526,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const uint32_t &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: uint32_t * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -556,7 +536,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const uint64_t &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: uint64_t * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -566,7 +546,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const float &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: float * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -576,7 +556,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const double &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: double * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -586,7 +566,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / uint8_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -596,7 +576,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const uint16_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / uint16_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -606,7 +586,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const uint32_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / uint32_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -616,7 +596,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const uint64_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / uint64_t" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -626,7 +606,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const float &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / float" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -636,19 +616,19 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const double &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / double" << std::endl;
     #endif
     VoxelHSV result( aa );
     return result /= bb;
   }
   
-  //=== LONG INT OPERATORS =====================================================
+  //=== LONG INT OPERATORS ===================================================
   
   inline
   VoxelHSV & VoxelHSV::operator *= ( const long & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( long )" << std::endl;
     #endif
     hue()        *= val;
@@ -659,7 +639,7 @@ namespace soma {
   inline
   VoxelHSV & VoxelHSV::operator /= ( const long & val )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator /= ( long )" << std::endl;
     #endif
     ASSERT( val != 0 );
@@ -672,7 +652,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const long &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV * long" << std::endl;
     #endif
     VoxelHSV result( aa );
@@ -682,7 +662,7 @@ namespace soma {
   inline
   VoxelHSV operator * (const long &aa, const VoxelHSV &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: long * HSV" << std::endl;
     #endif
     VoxelHSV result( bb );
@@ -692,7 +672,7 @@ namespace soma {
   inline
   VoxelHSV operator / (const VoxelHSV &aa, const long &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: HSV / long" << std::endl;
     #endif
     VoxelHSV result( aa );

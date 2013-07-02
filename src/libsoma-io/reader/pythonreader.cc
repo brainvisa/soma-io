@@ -31,13 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/reader/itemreader.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>
 #include <soma-io/reader/pythonreader_d.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object_d.h>
 #include <cartobase/object/syntobject.h>
 #include <cartobase/exception/parse.h>
@@ -45,19 +45,20 @@
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/stream/attachable_cuifstream.h>
-//---- system ------------------------------------------------------------------
+//---- system ----------------------------------------------------------------
 #include <stdio.h>
 #include <vector>
 #include <iostream>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
 using namespace soma;
 
 
-GenericObject* PythonReader::propertySetHelper(GenericObject *, const string &, 
-                                         PythonReader & r)
+GenericObject* PythonReader::propertySetHelper(GenericObject *,
+                                               const string &,
+                                               PythonReader & r)
 {
   string                synt;
   DataSource    & ds = *r.dataSource();

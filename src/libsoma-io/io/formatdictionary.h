@@ -33,43 +33,42 @@
 
 #ifndef SOMAIO_IO_FORMATDICTIONARY_H
 #define SOMAIO_IO_FORMATDICTIONARY_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   template <typename T> class FormatReader;
   template <typename T> class FormatWriter;
 
-  /** \brief Formats holder for each format of Cartograph object, used by 
-      Reader and Writer
-
-      FormatDictionary is a plug-in mechanism to allow new formats to 
-      be registered.\n
-      It uses at lower level specific IO classes for each format (GisFormat 
-      for GIS, SpmReader for SPM, etc., and IO classes for 
-      other object types (meshes, buckets, textures, ...))
-
-      \par Adding new IO formats
-
-      The standard carto/aims libraries include a set of already compiled 
-      Readers and writers.
-
-      If you need to use other types, you'll have to include 
-      \c cartobase/io/reader_d.h and / or \c cartobase/io/writer_d.h in order 
-      to have the template functions definitions, \c cartobase/io/reader.h and 
-      \c cartobase/io/writer.h are only the class declarations.
-      In addition, you may want to specialize the registerBaseFormats() 
-      functions of specific FormatDictionary specializations.
-
-      \see Reader Writer DataSourceInfo Process
-  */
+  /// \brief Formats holder for each format of Cartograph object, used by
+  /// Reader and Writer
+  ///
+  /// FormatDictionary is a plug-in mechanism to allow new formats to
+  /// be registered.\n
+  /// It uses at lower level specific IO classes for each format (GisFormat
+  /// for GIS, SpmReader for SPM, etc., and IO classes for
+  /// other object types (meshes, buckets, textures, ...))
+  ///
+  /// \par Adding new IO formats
+  ///
+  /// The standard carto/aims libraries include a set of already compiled
+  /// Readers and writers.
+  ///
+  /// If you need to use other types, you'll have to include
+  /// \c cartobase/io/reader_d.h and / or \c cartobase/io/writer_d.h in order
+  /// to have the template functions definitions, \c cartobase/io/reader.h and
+  /// \c cartobase/io/writer.h are only the class declarations.
+  /// In addition, you may want to specialize the registerBaseFormats()
+  /// functions of specific FormatDictionary specializations.
+  ///
+  /// \see Reader Writer DataSourceInfo Process
   template<typename T>
   class FormatDictionary
   {
@@ -86,10 +85,9 @@ namespace soma
     static const std::multimap<std::string, std::string> & writeExtensions();
     static std::set<std::string> readFormats();
     static std::set<std::string> writeFormats();
-    /** builds base formats maps. 
-        The formats list is dynamically extensible, you can register your own 
-	whenever you want
-    */
+    /// builds base formats maps.
+    /// The formats list is dynamically extensible, you can register your own
+    /// whenever you want
     static void registerBaseFormats();
     static void init();
 
@@ -119,4 +117,3 @@ namespace soma
 }
 
 #endif
-

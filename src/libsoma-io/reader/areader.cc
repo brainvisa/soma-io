@@ -31,31 +31,31 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/reader/areader.h>
 #include <soma-io/reader/pythonreader.h>
 #include <soma-io/datasource/streamdatasource.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/parse.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/object/syntobject.h>
 //#include <cartobase/io/minfXML2.h> // not ready yet
 #include <cartobase/stream/attachable_cuifstream.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <vector>
 #include <assert.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
 using namespace soma;
 
-//=============================================================================
+//============================================================================
 //	F U N C T I O N S
-//=============================================================================
+//============================================================================
 
 namespace
 {
@@ -177,9 +177,9 @@ namespace
 
 }
 
-//=============================================================================
+//============================================================================
 //	M E T H O D S
-//=============================================================================
+//============================================================================
 
 AttributedReader::AttributedReader( const string& filename,
                                     const SyntaxSet& rules,
@@ -418,5 +418,4 @@ AttributedReader::readAttribute(GenericObject* object,
 	assert(object != 0);
 	readAttribute(*object, semantic);
 }
-
 

@@ -33,29 +33,36 @@
 
 #ifndef SOMAIO_DATASOURCEINFO_DATASOURCEINFO_H
 #define SOMAIO_DATASOURCEINFO_DATASOURCEINFO_H
-//--- somaio -------------------------------------------------------------------
+//--- somaio -----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourcecapabilities.h>             // member
-#include <soma-io/datasource/datasourcelist.h>                         // member
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                                   // member
-#include <cartobase/smart/rcptr.h>                                     // member
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasourceinfo/datasourcecapabilities.h>           // member
+#include <soma-io/datasource/datasourcelist.h>                       // member
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                                 // member
+#include <cartobase/smart/rcptr.h>                                   // member
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   class DataSource;
   
-  /// \brief Object assembling a header, a list of capabilities and a list of 
-  /// DataSource
+  /// Informative object used by IO system
   ///
-  /// It is returned by the DataSourceInfoLoader and the FormatChecker.
+  /// This object is used by FormatChecker, FormatReader or FormatWriter to
+  /// describe a DataSource. It contains a DataSourceList which contains
+  /// at first a single default DataSource, a Object header and a
+  /// DataSourceCapabilities.
+  ///  - The list is built by a FormatChecker and contains all the files
+  ///    involved in the reading/writing process (header, data, ...)
+  ///  - The header is built by a FormatChecker and contains meta information.
+  ///  - The DSC contains properties dependant of the format,
+  ///    the specific file, the reading process (partial reading), etc.
+  /// It is possible to fix some or all of these three objects so that
+  /// they are not recomputed by the FormatChecker.
   ///
-  /// \warning We allow large access to the members (It is used among other by 
-  /// plugin implementation of FormatChecker or FormatReader, be careful if you 
-  /// should write one for yourself)
+  /// \see DataSourceInfoLoader DataSourceList DataSourceCapabilities
   class DataSourceInfo
   {
     public:
@@ -65,41 +72,41 @@ namespace soma
                         cap = DataSourceCapabilities(),
                       const DataSourceList & 
                         dsl = DataSourceList());
-      /// Constructor from a datasource [+ dimensions (to build a header)]
-      /// DSList is set as containing only ds pointed by "default" key
-      /// Capabilities are set uninitialized
-      /// If dim is given, a header is built with keys size[X,Y,Z,T]
-      /// Else the header is none()
+      /// Constructor from a datasource [+ dimensions (to build a header)].
+      /// DSList is set as containing only ds pointed by "default" key.
+      /// Capabilities are set uninitialized.
+      /// If dim is given, a header is built with keys size[X,Y,Z,T].
+      /// Else the header is none().
       DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
                       const std::vector<int> & dim = std::vector<int>() );
+      /// Constructor from a datasource + header. It is useful with
+      /// ReaderAlgorithm.
       DataSourceInfo( const carto::rc_ptr<DataSource> & ds, 
                       carto::Object header );
-      /// Constructor from a filename
-      /// eases the checking in high end classes
+      /// Constructor from a filename.
+      /// Eases the checking in high end classes
       DataSourceInfo( const std::string & fname );
       // Constructor from a buffer
       //DataSourceInfo( char* buffer );
       /// Constructor by copy
       DataSourceInfo( const DataSourceInfo & );
       virtual ~DataSourceInfo();
-      
-      /* TODO
-       * should we return values or references ?
-       * do we allow users to modify the objects ? I'd say yes, so references
-       */
+
       const carto::Object & header() const { return _header; }
             carto::Object & header()       { return _header; }
-      const DataSourceCapabilities & capabilities() const { return _capabilities; }
-            DataSourceCapabilities & capabilities()       { return _capabilities; }
+      const DataSourceCapabilities & capabilities() const
+        { return _capabilities; }
+            DataSourceCapabilities & capabilities()
+        { return _capabilities; }
       const DataSourceList & list() const { return _datasourcelist; }
             DataSourceList & list()       { return _datasourcelist; }
-      
+
     protected:
       carto::Object           _header;
       DataSourceCapabilities  _capabilities;
       DataSourceList          _datasourcelist;
   };
-  
+
 }
 
 #endif

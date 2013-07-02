@@ -31,15 +31,15 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/io/formatdictionary_d.h>
 #include <soma-io/io/reader_d.h>
 #include <soma-io/reader/formatreader_d.h>
 #include <soma-io/utilities/creator.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/property.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -61,5 +61,3 @@ namespace soma
 template class Reader<GenericObject>;
 template class FormatReader<GenericObject>;
 template class FormatDictionary<GenericObject>;
-
-

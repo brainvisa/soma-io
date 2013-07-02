@@ -33,10 +33,10 @@
 
 #ifndef SOMAIO_DATASOURCE_BUFFERDATASOURCE_H
 #define SOMAIO_DATASOURCE_BUFFERDATASOURCE_H
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasource.h>                         // base class
-//------------------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>                       // base class
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -75,4 +75,3 @@ namespace soma
 }
 
 #endif
-

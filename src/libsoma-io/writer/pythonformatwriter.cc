@@ -31,17 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/writer/pythonformatwriter.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/io/writer_d.h>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATWRITER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;

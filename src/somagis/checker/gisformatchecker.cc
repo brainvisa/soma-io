@@ -366,7 +366,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
                                         Object /* options */) const
 {
   bool doread = dsi.header().isNone() ;
-  bool dolist = dsi.list().nbTypes() == 1 ;
+  bool dolist = dsi.list().typecount() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
   
   //--- read uri ---------------------------------------------------------------

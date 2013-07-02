@@ -31,28 +31,28 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma io ------------------------------------------------------------------
+//--- soma io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfo.h>          // class declaration
-#include <soma-io/datasourceinfo/datasourcecapabilities.h>             // member
-#include <soma-io/datasource/datasourcelist.h>                         // member
-#include <soma-io/datasource/datasource.h>             // constructor's argument
-#include <soma-io/datasource/filedatasource.h>   // used with string constructor
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                                   // member
-#include <cartobase/object/property.h>            // to manage header properties
-#include <cartobase/smart/rcptr.h>                        // used by constructor
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasourceinfo/datasourceinfo.h>        // class declaration
+#include <soma-io/datasourceinfo/datasourcecapabilities.h>           // member
+#include <soma-io/datasource/datasourcelist.h>                       // member
+#include <soma-io/datasource/datasource.h>           // constructor's argument
+#include <soma-io/datasource/filedatasource.h> // used with string constructor
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                                 // member
+#include <cartobase/object/property.h>          // to manage header properties
+#include <cartobase/smart/rcptr.h>                      // used by constructor
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
-//==============================================================================
+//============================================================================
 //   C O N S T R U C T O R S
-//==============================================================================
+//============================================================================
 DataSourceInfo::DataSourceInfo( const Object & header, 
                                 const DataSourceCapabilities & cap,
                                 const DataSourceList & dsl )
@@ -96,8 +96,8 @@ DataSourceInfo::~DataSourceInfo()
 {
 }
 
-//==============================================================================
+//============================================================================
 //   A C C E S S   T O   M E M B E R S
-//==============================================================================
+//============================================================================
 
 // already defined in header

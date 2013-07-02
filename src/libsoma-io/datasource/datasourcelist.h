@@ -33,17 +33,17 @@
 
 #ifndef SOMAIO_DATASOURCE_DATASOURCELIST_H
 #define SOMAIO_DATASOURCE_DATASOURCELIST_H
-//--- somaio -------------------------------------------------------------------
+//--- soma-io -----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasource.h>               // to declare rc_ptr of
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>                       // to declare vector of
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>             // to declare rc_ptr of
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>                     // to declare vector of
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -55,10 +55,10 @@ namespace soma
   /// and readers.
   /// \see FormatChecker FormatReader
   /// 
-  /// The only *global* keyword is "default" which is used to store the
+  /// The only *global* keyword is \c "default" which is used to store the
   /// DataSource defining (at construction) a reader.
   /// \see Reader
-  /// \note The "default" keyword always contains at least one entry, which 
+  /// \note The \c "default" keyword always contains at least one entry, which 
   /// may be empty. I haven't for now found any use to several "default" 
   /// entries.
   /// 
@@ -69,18 +69,18 @@ namespace soma
   class DataSourceList
   {
     public:
-      //========================================================================
+      //======================================================================
       //   C O N S T R U C T O R S
-      //========================================================================
+      //======================================================================
       /// Default constructor : 
-      /// Builds a map containing only ( "default", empty pointer )
+      /// Builds a map containing only ( \c "default", empty pointer )
       DataSourceList();
       /// Constructor : builds a 1-element map
       /// This allows to construct easily a 1 element list, useful when
       /// declaring a Reader which creator takes a source as parameter.
       /// \param ds   Element to insert
       /// \param type Category of the source
-      /// default key is "default" -> used at Reader construction
+      /// default key is \c "default" : used at Reader construction
       DataSourceList( const carto::rc_ptr<DataSource> & ds, 
                       const std::string & type = "default" );
       /// Copy constructor
@@ -88,20 +88,18 @@ namespace soma
       DataSourceList & operator = ( const DataSourceList & );
       virtual ~DataSourceList();
       
-      //========================================================================
+      //======================================================================
       //   A C C E S S O R S / M U T A T O R S
-      //========================================================================
+      //======================================================================
       bool operator == ( const DataSourceList & ) const;
       bool operator != ( const DataSourceList & ) const;
       /// Returns true only if no keyword inserted. 
       /// \warning May return false while no DataSource present 
-      /// (in theory but in practice, we do not allow deletion of a DS)
       bool  empty() const;
       /// Returns existing keywords.
       /// \warning There may be existing keywords with no DataSource
-      /// (in theory but in practice, we do not allow deletion of a DS)
       std::set<std::string> types() const;
-      int   nbTypes() const;
+      int   typecount() const;
       bool  exists( const std::string & ) const;
       bool  empty( const std::string & ) const;
       int   size( const std::string & ) const;
@@ -120,7 +118,8 @@ namespace soma
       dataSource( const std::string & s  ="default", int i = 0 );
       /// Adds an element to the dictionary
       /// If new keyword, creates it.
-      void addDataSource( const std::string &, const carto::rc_ptr<DataSource> &);
+      void addDataSource( const std::string &,
+                          const carto::rc_ptr<DataSource> &);
       /// sets the list and keywords empty.
       void reset();
       

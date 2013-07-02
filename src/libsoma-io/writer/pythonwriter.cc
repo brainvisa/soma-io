@@ -31,21 +31,21 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/writer/pythonwriter_d.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object_d.h>
 #include <cartobase/object/property.h>
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/ioexcept.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 // debug
 //#include <iostream>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;

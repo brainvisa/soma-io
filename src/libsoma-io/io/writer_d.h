@@ -33,25 +33,24 @@
 
 #ifndef SOMAIO_IO_WRITER_D_H
 #define SOMAIO_IO_WRITER_D_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/io/writer.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/writer/formatwriter.h>
 #include <soma-io/datasource/filedatasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/object/property.h>
 #include <cartobase/stream/fileutil.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <set>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "WRITER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
-
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -77,16 +76,16 @@ namespace soma
     return carto::DataTypeCode<T>::name();
   }
 
-  //============================================================================
+  //==========================================================================
   //   W R I T E   M E T H O D S
-  //============================================================================
+  //==========================================================================
   
-  //--- useful typedef ---------------------------------------------------------
+  //--- useful typedef -------------------------------------------------------
   typedef std::multimap<std::string,std::string> multi_S;
   typedef std::set<std::string> set_S;
   typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   
   template<class T>
   bool Writer<T>::write( const T & obj, carto::Object options )
@@ -103,7 +102,7 @@ namespace soma
     if( !options.get() )
       options = carto::Object::value( carto::PropertySet() );
     
-    //// Reading URI ///////////////////////////////////////////////////////////
+    //// Reading URI /////////////////////////////////////////////////////////
     std::string filename 
       = FileUtil::uriFilename( _datasourceinfo->list().dataSource()->url() );
     carto::Object urioptions 
@@ -118,7 +117,7 @@ namespace soma
     options->getProperty( "format", format );
     localMsg( "format: " + format );
 
-    //// priority to format hint ///////////////////////////////////////////////
+    //// priority to format hint /////////////////////////////////////////////
     if( !format.empty() ) {
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
@@ -136,12 +135,12 @@ namespace soma
       }
     }
 
-    std::string	            ext = carto::FileUtil::extension( filename );
-    const multi_S	&         extensions = FormatDictionary<T>::writeExtensions();
-    pair_cit_S              iext = extensions.equal_range( ext );
+    std::string	          ext = carto::FileUtil::extension( filename );
+    const multi_S	&       extensions = FormatDictionary<T>::writeExtensions();
+    pair_cit_S            iext = extensions.equal_range( ext );
     multi_S::const_iterator ie, ee = iext.second;
 
-    //// try every matching format until one works /////////////////////////////
+    //// try every matching format until one works ///////////////////////////
     for( ie=iext.first; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
         writer = FormatDictionary<T>::writeFormat( ie->second );
@@ -160,7 +159,7 @@ namespace soma
         }
       }
 
-    //// not found or none works: try writers with no extension ////////////////
+    //// not found or none works: try writers with no extension //////////////
     if( !ext.empty() ) {
       iext = extensions.equal_range( "" );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
@@ -182,7 +181,7 @@ namespace soma
         }
     }
 
-    //// still not found ? well, try EVERY format this time... /////////////////
+    //// still not found ? well, try EVERY format this time... ///////////////
     iext.first = extensions.begin();
     iext.second = extensions.end();
 
@@ -204,7 +203,7 @@ namespace soma
         }
       }
 
-    //// still not succeeded, it's hopeless... /////////////////////////////////
+    //// still not succeeded, it's hopeless... ///////////////////////////////
     carto::io_error::launchExcept( exct, excm, 
                                    filename + " : no matching format" );
     return false;

@@ -31,23 +31,24 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/checker/achecker.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/syntobject.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
 
-//=============================================================================
+//============================================================================
 //	M E T H O D S
-//=============================================================================
+//============================================================================
 
-AttributedChecker::AttributedChecker(const SyntaxSet& syntax) : _syntax(syntax)
+AttributedChecker::AttributedChecker(const SyntaxSet& syntax)
+  : _syntax(syntax)
 {
 }
 

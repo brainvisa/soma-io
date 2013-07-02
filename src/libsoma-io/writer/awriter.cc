@@ -31,20 +31,20 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/writer/awriter.h>
 #include <soma-io/checker/achecker.h>
 #include <soma-io/writer/pythonwriter.h>
 //#include <soma-io/utilities/minfXML2.h> // not ready yet
-//---- cartobase ---------------------------------------------------------------
+//---- cartobase -------------------------------------------------------------
 #include <cartobase/object/attributed.h>
 #include <cartobase/exception/file.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <vector>
 #include <iomanip>
 #include <assert.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -180,9 +180,9 @@ namespace
 
 }
 
-//=============================================================================
+//============================================================================
 //	M E T H O D S
-//=============================================================================
+//============================================================================
 
 AttributedWriter::AttributedWriter(const string& filename,
 			 const SyntaxSet& rules,

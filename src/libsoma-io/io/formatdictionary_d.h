@@ -33,19 +33,19 @@
 
 #ifndef SOMAIO_IO_FORMATDICTIONARY_D_H
 #define SOMAIO_IO_FORMATDICTIONARY_D_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/io/formatdictionary.h>                    // class declaration
-#include <soma-io/reader/formatreader.h>                               // map of
-#include <soma-io/writer/formatwriter.h>                               // map of
-//--- cartobase ----------------------------------------------------------------
+#include <soma-io/io/formatdictionary.h>                  // class declaration
+#include <soma-io/reader/formatreader.h>                             // map of
+#include <soma-io/writer/formatwriter.h>                             // map of
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h> // where is it used ?
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -216,4 +216,3 @@ namespace soma
 
 
 #endif
-

@@ -275,7 +275,7 @@ namespace soma {
                                                  carto::Object options )
   {
     //--- build datasourcelist -------------------------------------------------
-    bool dolist = dsi.list().nbTypes() == 1 ;
+    bool dolist = dsi.list().typecount() == 1 ;
     if( dolist ) {
       localMsg( "building DataSourceList..." );
       buildDSList( dsi.list(), options );

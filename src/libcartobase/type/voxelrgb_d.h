@@ -31,46 +31,60 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_RGB_H
-#define SOMAIO_IMAGE_RGB_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelvalue_d.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_TYPE_RGB_D_H
+#define CARTOBASE_TYPE_RGB_D_H
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/type/voxelvalue.h>
 #include <cartobase/type/types.h>
-//--- system -------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-namespace soma {
-  class VoxelRGBA;
-  class VoxelRGB;
-}
+/*****************************************************************************
+ * Even though declarations are here, this is NOT the file you want to
+ * include to use VoxelRGB.
+ * Since all methods are inline and for readability issues, declarations
+ * are contained in "_d.h" file and definitions in ".h" file.
+ ****************************************************************************/
 
 namespace carto {
-  template<> inline std::string DataTypeCode<soma::VoxelRGB>::dataType()
+
+  class VoxelRGBA;
+  class VoxelRGB;
+
+  template<> inline std::string DataTypeCode<VoxelRGB>::dataType()
   {
     return "RGB";
   }
-}
 
-namespace soma {
-
-  class VoxelRGB : public soma::VoxelValue<uint8_t,3>
+  /// RGB Value
+  ///
+  /// This class replaces AimsRGB. \n
+  /// All previous operators are implemented. \n
+  /// Read/Write operators are implemented in
+  /// \c soma-io/utilities/asciidatasourcetraits.h so you need to include this
+  /// file for read/write operations.
+  ///
+  /// \warning Even though declarations are contained in
+  /// \c cartobase/type/voxelrgb_d.h, you need to include
+  /// \c cartobase/type/voxelrgb.h in order to use this class
+  /// (all methods are inline).
+  class VoxelRGB : public VoxelValue<uint8_t,3>
   {
     public:
-      //=== CONSTRUCTORS =======================================================
+      //=== CONSTRUCTORS =====================================================
       VoxelRGB( const VoxelRGB &other );
       VoxelRGB( const VoxelRGBA &other );
-      VoxelRGB( const soma::VoxelValue<uint8_t,3> &other );
-      VoxelRGB( const uint8_t &r = 0, const uint8_t &g = 0, const uint8_t &b = 0 );
+      VoxelRGB( const VoxelValue<uint8_t,3> &other );
+      VoxelRGB( const uint8_t &r = 0,
+                const uint8_t &g = 0,
+                const uint8_t &b = 0 );
       ~VoxelRGB();
       
-      //=== AFFECTATION ========================================================
+      //=== AFFECTATION ======================================================
       VoxelRGB & operator = ( const VoxelRGB  & other );
       VoxelRGB & operator = ( const VoxelRGBA & other );
       VoxelRGB & operator = ( const uint8_t   & value );
       
-      //=== OPERATORS ==========================================================
+      //=== OPERATORS ========================================================
       VoxelRGB & operator += ( const VoxelRGB  & other );
       VoxelRGB & operator += ( const VoxelRGBA & other );
       VoxelRGB & operator -= ( const VoxelRGB  & other );
@@ -93,7 +107,7 @@ namespace soma {
       VoxelRGB & operator *= ( const long      & value );
       VoxelRGB & operator /= ( const long      & value );
       
-      //=== ACCESSORS ==========================================================
+      //=== ACCESSORS ========================================================
       inline const uint8_t& red  () const { return (*this)[0]; }
       inline const uint8_t& green() const { return (*this)[1]; }
       inline const uint8_t& blue () const { return (*this)[2]; }
@@ -128,29 +142,6 @@ namespace soma {
   VoxelRGB operator * (const VoxelRGB &aa, const long     &bb);
   VoxelRGB operator * (const long     &aa, const VoxelRGB &bb);
   VoxelRGB operator / (const VoxelRGB &aa, const long     &bb);
-  
-  //--- AsciiDataSourceTraits
-  
-  template <> inline
-  bool AsciiDataSourceTraits<VoxelRGB>::read( DataSource & ds, 
-                                              VoxelRGB & item )
-  {
-    return AsciiDataSourceTraits<VoxelValue<uint8_t,3> >::read( ds, item );
-  }
-  
-  template <> inline
-  bool AsciiDataSourceTraits<VoxelRGB>::write( DataSource & ds, 
-                                               const VoxelRGB & item )
-  {
-    return AsciiDataSourceTraits<VoxelValue<uint8_t,3> >::write( ds, item );
-  }
-  
-  inline DataSource & 
-  operator << ( DataSource & ds, const VoxelRGB & x )
-  {
-    AsciiDataSourceTraits<VoxelRGB>::write( ds, x );
-    return ds;
-  }
 
 }
 

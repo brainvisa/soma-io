@@ -46,7 +46,6 @@ set( _headers
    object/syntobject_d.h
    pattern/observable.h
    pattern/observer.h
-   plugin/plugin.h
    sigc++/cartosigcmacro.h
    sigc++/cartosigcmacroend.h
    sigc++/sigc++.h
@@ -96,6 +95,13 @@ set( _headers
    type/string_conversion.h
    type/types.h
    type/typetraits.h
+   type/voxelvalue.h
+   type/voxelvalue_d.h
+   type/voxelrgb.h
+   type/voxelrgb_d.h
+   type/voxelrgba.h
+   type/voxelrgba_d.h
+   type/voxelhsv.h
    uuid/uuid.h
    zoolib/atomiccount.h
    zoolib/ZAtomic.h
@@ -151,6 +157,7 @@ set( _headers
    io/writer_d.h
    io/xmlformatchecker.h
    io/xmlformatreader.h
+   plugin/plugin.h
 )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers cartobase headersTarget )
@@ -203,7 +210,8 @@ set( _cartobase_0_sources
   thread/thread.cc 
   type/byte_order.cc 
   type/converter.cc 
-  type/string_conversion.cc 
+  type/string_conversion.cc
+  type/voxelvalue.cc
   uuid/uuid.cc 
 )
 
@@ -245,7 +253,6 @@ set( _cartobase_sources
   object/object_rcptr_map.cc 
   object/object_rcptr_map_string_vector.cc 
   object/object_set.cc 
-  plugin/plugin.cc 
 )
 
 ## moved to soma-io
@@ -266,6 +273,7 @@ if( NOT USE_SOMA_IO )
     io/writer.cc 
     io/xmlformatchecker.cc 
     io/xmlformatreader.cc
+    plugin/plugin.cc 
   )
 endif()
 

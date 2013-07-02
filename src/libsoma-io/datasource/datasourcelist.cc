@@ -31,18 +31,18 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma io ------------------------------------------------------------------
+//--- soma io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasourcelist.h>               // class definition
-#include <soma-io/datasource/datasource.h>               // to declare rc_ptr of
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>                        // to declare vecor of
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/datasourcelist.h>             // class definition
+#include <soma-io/datasource/datasource.h>             // to declare rc_ptr of
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>                      // to declare vecor of
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -51,9 +51,9 @@ using namespace std;
 typedef vector<rc_ptr<DataSource> > vectorDSL;
 typedef map<string,vectorDSL>        mapDSL;
 
-//==============================================================================
+//============================================================================
 //   C O N S T R U C T O R S
-//==============================================================================
+//============================================================================
 
 DataSourceList::DataSourceList()
 : _dslist()
@@ -87,9 +87,9 @@ DataSourceList & DataSourceList::operator = ( const DataSourceList & other )
   return *this;
 }
 
-//==============================================================================
+//============================================================================
 //   A C C E S S O R S
-//==============================================================================
+//============================================================================
 
 bool DataSourceList::operator == ( const DataSourceList & other ) const
 {
@@ -104,7 +104,9 @@ bool DataSourceList::operator != ( const DataSourceList & other ) const
 set<string> DataSourceList::types() const
 {
   set<string> s;
-  for( mapDSL::const_iterator it = _dslist.begin(); it != _dslist.end(); ++it ) {
+  for( mapDSL::const_iterator it = _dslist.begin();
+       it != _dslist.end(); ++it )
+  {
     s.insert(it->first);
   }
   return s;
@@ -115,7 +117,7 @@ bool DataSourceList::empty() const
   return _dslist.empty();
 }
 
-int DataSourceList::nbTypes() const
+int DataSourceList::typecount() const
 {
   return _dslist.size();
 }
@@ -142,9 +144,9 @@ int DataSourceList::size( const string & type ) const
     return _dslist.find( type )->second.size();
 }
 
-//==============================================================================
+//============================================================================
 //   A C C E S S O R S [ ]
-//==============================================================================
+//============================================================================
 
 const rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type,
                                                         int i ) const
@@ -166,9 +168,9 @@ rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
 
 }
 
-//==============================================================================
+//============================================================================
 //   M U T A T O R S
-//==============================================================================
+//============================================================================
 
 void DataSourceList::addDataSource( const std::string & type, 
                                     const rc_ptr<DataSource> & ds)

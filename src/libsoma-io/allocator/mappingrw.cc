@@ -31,23 +31,23 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/allocator/mappingrw.h>                    // class declaration
+#include <soma-io/allocator/mappingrw.h>                  // class declaration
 #include <soma-io/datasource/filedatasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/exception/assert.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <iostream>
 #include <errno.h>
 #ifndef _WIN32
-  #include <sys/types.h>                                                  // sys
-  #include <sys/stat.h>                                                   // sys
-  #include <sys/mman.h>                                                   // sys
+  #include <sys/types.h>                                                // sys
+  #include <sys/stat.h>                                                 // sys
+  #include <sys/mman.h>                                                 // sys
   #include <unistd.h>
   #include <fcntl.h>
 #endif
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -242,5 +242,3 @@ std::ostream& soma::operator << ( ostream& os,
 
   return os;
 }
-
-

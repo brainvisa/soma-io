@@ -33,11 +33,11 @@
 
 #ifndef SOMAIO_UTILITIES_ALLOCATEDVECTOR_H
 #define SOMAIO_UTILITIES_ALLOCATEDVECTOR_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
 #include <soma-io/datasource/bufferdatasource.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace carto {
   template <typename T> class Volume;
@@ -101,9 +101,9 @@ namespace soma
       T *_items;
   };
 
-  //============================================================================
+  //==========================================================================
   //   I N L I N E   F U N C T I O N S
-  //============================================================================
+  //==========================================================================
 
   template<typename T> inline
   AllocatedVector<T>::AllocatedVector( size_type n, 
@@ -254,4 +254,3 @@ namespace soma
 }
 
 #endif
-

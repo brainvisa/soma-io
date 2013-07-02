@@ -33,22 +33,25 @@
 
 #ifndef SOMAIO_IMAGE_IMAGEWRITER_H
 #define SOMAIO_IMAGE_IMAGEWRITER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                            // to use none()
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasourceinfo/datasourceinfo.h>                   // member
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                          // to use none()
+//--- system -----------------------------------------------------------------
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   
-  /// ImageWriter is a low level Image/Volume writer.
+  /// ImageWriter is a low level Image writer.
   ///
-  /// Format-specific writers ( GIS, OpenSlide, ... ) are derived from it.
-  /// They allow ( if implemented ) partial writing (and multiresolution ? ).
+  /// ImageWriter is a base class for writers of data of type "volume of
+  /// voxels" ( 2D or 3D plus a temporal dimension ).\n
+  /// Format-specific writers ( GIS, Dicom, ... ) are derived from it.
+  /// They may allow partial reading if implemented, or any other specific
+  /// option (multiresolution, ...)..
   template<typename T>
   class ImageWriter
   {
@@ -57,9 +60,9 @@ namespace soma
       virtual ~ImageWriter();
       
       /// Reading a region of a Image/Volume at a given resolution to a 
-      /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If one 
-      /// or more of these dimensions are of no interest for the format, they
-      /// take the value 0 ( pos ) or 1 ( size )
+      /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If  
+      /// one or more of these dimensions are of no interest for the format, 
+      /// they take the value 0 ( pos ) or 1 ( size )
       /// \param source Buffer containing the region to write. It must be of
       ///               length size[0]*size[1]*size[2]*size[3]*sizeof(T)
       /// \param pos    Position of the first voxel of the region to write.
@@ -71,15 +74,16 @@ namespace soma
                           std::vector<int> & size,
                           carto::Object options = carto::none() );
       
-      /// Builds the DataSourceList
-      /// Checks whether the files need to be created and eventually does so.
-      /// (It is needed for partial writing)
+      /// This function is called before the actuel writing by a FormatWriter.
+      /// It builds dsi's DataSourceList and writes the header if any is
+      /// needed. It may also allocate file space for partial writing.
       virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
-                                          carto::Object options = carto::none() );
+                                          carto::Object options
+                                            = carto::none() );
       
-      /// Abstract : set specialized ImageReader's parameters.
+      /// Abstract : set specialized ImageWriter's parameters.
       virtual void updateParams( DataSourceInfo & dsi );
-      /// Abstract : empty specialized ImageReader's parameters.
+      /// Abstract : empty specialized ImageWriter's parameters.
       virtual void resetParams();
   };
   

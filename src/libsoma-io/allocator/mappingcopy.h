@@ -33,18 +33,18 @@
 
 #ifndef SOMAIO_ALLOCATOR_MAPPINGCOPY_H
 #define SOMAIO_ALLOCATOR_MAPPINGCOPY_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <map>
 #ifdef _WIN32
   #include <windows.h>
 #endif
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -83,4 +83,3 @@ namespace soma
 
 
 #endif
-

@@ -31,37 +31,37 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma io ------------------------------------------------------------------
+//--- soma io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>    // class declaration
-#include <soma-io/datasourceinfo/datasourceinfo.h>          // returned by check
-#include <soma-io/checker/formatchecker.h>                            // check()
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>  // class declaration
+#include <soma-io/datasourceinfo/datasourceinfo.h>        // returned by check
+#include <soma-io/checker/formatchecker.h>                          // check()
 #include <soma-io/datasource/filedatasource.h>
-#include <soma-io/io/reader.h>                // readMinf: reader<GenericObject>
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/exception/ioexcept.h>                   // launch exceptions
-#include <cartobase/exception/file.h>                       // launch exceptions
-#include <cartobase/object/property.h>                        // header, options
-#include <cartobase/plugin/plugin.h>                            // loads plugins
-#include <cartobase/stream/fileutil.h>                // used to find extensions
-#include <cartobase/config/verbose.h>                         // verbosity level
-//--- system -------------------------------------------------------------------
+#include <soma-io/io/reader.h>              // readMinf: reader<GenericObject>
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/exception/ioexcept.h>                 // launch exceptions
+#include <cartobase/exception/file.h>                     // launch exceptions
+#include <cartobase/object/property.h>                      // header, options
+#include <cartobase/plugin/plugin.h>                          // loads plugins
+#include <cartobase/stream/fileutil.h>              // used to find extensions
+#include <cartobase/config/verbose.h>                       // verbosity level
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <map>
 #include <set>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "DSILOADER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
-//==============================================================================
+//============================================================================
 //    U T I L I T I E S
-//==============================================================================
+//============================================================================
 
 namespace
 {
@@ -103,9 +103,9 @@ DataSourceInfoLoader::Private::Private()
 {
 }
 
-//==============================================================================
+//============================================================================
 //    C R E A T O R S
-//==============================================================================
+//============================================================================
 
 DataSourceInfoLoader::DataSourceInfoLoader()
   : d( new Private )
@@ -118,9 +118,9 @@ DataSourceInfoLoader::~DataSourceInfoLoader()
   delete d;
 }
 
-//==============================================================================
+//============================================================================
 //    M E T H O D S
-//==============================================================================
+//============================================================================
 
 DataSourceInfoLoader::State DataSourceInfoLoader::state() const
 {
@@ -169,29 +169,29 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
   return( i->second.get() );
 }
 
-//==============================================================================
+//============================================================================
 //    C H E C K I N G   F O R M A T
-//==============================================================================
+//============================================================================
 
-//--- useful typedef -----------------------------------------------------------
+//--- useful typedef ---------------------------------------------------------
   typedef std::multimap<std::string,std::string> multi_S;
   typedef std::set<std::string> set_S;
   typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
                                             Object options )
 {
   localMsg( "check()" );
   
-  // If dsi already complete : returns it //////////////////////////////////////
+  // If dsi already complete : returns it ////////////////////////////////////
   if( !dsi.header().isNone() 
       && dsi.capabilities().isInit() 
-      && dsi.list().nbTypes() > 1 )
+      && dsi.list().typecount() > 1 )
     return dsi;
   
-  // Init //////////////////////////////////////////////////////////////////////
+  // Init ////////////////////////////////////////////////////////////////////
   static bool plugs = false;
   if( !plugs ) {
     plugs = true;
@@ -212,14 +212,14 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   if( urioptions.get() )
     options->copyProperties( urioptions );
   
-  // find filename extension if it's a file ////////////////////////////////////
+  // find filename extension if it's a file //////////////////////////////////
   string  ext;
   int     excp = 0;
   localMsg( "filename: " + url );
   ext = FileUtil::extension( url );
   localMsg( "ext : " + ext );
 
-  // Check compatible formats //////////////////////////////////////////////////
+  // Check compatible formats ////////////////////////////////////////////////
   set<string>            tried;
   FormatChecker          *reader;
   set<string>::iterator  notyet = tried.end();
@@ -230,7 +230,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   DataSource*              pds = dsi.list().dataSource().get();
   soma::offset_t           dspos = pds->at();
 
-  //// Pass 1 : try every matching format until one works //////////////////////
+  //// Pass 1 : try every matching format until one works ////////////////////
   for( ie=iext.first; ie!=ee; ++ie )
     if( tried.find( ie->second ) == notyet ) {
       localMsg( "1. trying " + (*ie).second + "..." );
@@ -242,14 +242,15 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
 	      } catch( exception & e ) {
           localMsg( "1. failed : " + string( e.what() ) );
           d->state = Error;
-          io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
+          io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                           d->errormsg );
           pds->at( dspos );
 	      }
         tried.insert( ie->second );
       }
     }
 
-  //// Pass 2 : not found or none works: try readers with no extension /////////
+  //// Pass 2 : not found or none works: try readers with no extension ///////
   localMsg( "not found yet... pass2..." );
   if( !ext.empty() ) {
     iext = ps.extensions.equal_range( "" );
@@ -265,7 +266,8 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
           } catch( exception & e ) {
             localMsg( "2. failed : " + string( e.what() ) );
             d->state = Error;
-            io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
+            io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                             d->errormsg );
             pds->at( dspos );
           }
           tried.insert( ie->second );
@@ -273,7 +275,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
       }
   }
 
-  //// Pass 3 : still not found ? well, try EVERY format this time... //////////
+  //// Pass 3 : still not found ? well, try EVERY format this time... ////////
   localMsg( "not found yet... pass3..." );
   iext.first = ps.extensions.begin();
   iext.second = ps.extensions.end();
@@ -289,14 +291,15 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
 	      } catch( exception & e ) {
           localMsg( "3. failed : " + string( e.what() ) );
           d->state = Error;
-          io_error::keepExceptionPriority( e, excp, d->errorcode, d->errormsg );
+          io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                           d->errormsg );
           pds->at( dspos );
 	      }
         tried.insert( ie->second );
       }
     }
 
-  //// End : still not succeeded, it's hopeless... /////////////////////////////
+  //// End : still not succeeded, it's hopeless... ///////////////////////////
   localMsg( "not found at all, giving up" );
   d->state = Error;
   if( d->errorcode < 0 ) {
@@ -307,9 +310,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   launchException();
 }
 
-//==============================================================================
+//============================================================================
 //    R E A D I N G   M I N F
-//==============================================================================
+//============================================================================
 
 SyntaxSet & DataSourceInfoLoader::minfSyntax()
 {

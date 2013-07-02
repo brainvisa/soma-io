@@ -31,15 +31,15 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/io/formatdictionary.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace std;
@@ -98,5 +98,3 @@ bool IOObjectTypesDictionary::hasWriteType( const string & datatype )
     i = t.find( datatype );
   return( i != t.end() );
 }
-
-

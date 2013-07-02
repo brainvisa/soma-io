@@ -33,9 +33,9 @@
 
 #ifndef SOMAIO_READER_FORMATREADER_H
 #define SOMAIO_READER_FORMATREADER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace carto {
   template<typename T> class rc_ptr;
@@ -54,14 +54,15 @@ namespace soma
   /// is supposed te be already read, this is to say: the object header has 
   /// already been read (using DataSourceInfo).
   ///
-  /// This is a low-level format reader, which is not intended to be used alone: 
-  /// Reader will use it to achieve appropriate decoding, allocation, and reading.
+  /// This is a low-level format reader, which is not intended to be used 
+  /// alone: Reader will use it to achieve appropriate decoding, allocation,
+  /// and reading.
   ///
   /// The job of a reader can be decomposed into several steps:
   /// - (the header has already been read by a FormatChecker)
-  /// - determination of the correct allocator, matching with the stream decoder 
-  ///   characterstics: this means creating an AllocatorContext bound to the 
-  ///   specific DataSource decoder \note useful ?
+  /// - determination of the correct allocator, matching with the stream
+  ///   decoder characterstics: this means creating an AllocatorContext bound
+  ///   to the specific DataSource decoder.
   /// - allocation or setup (reallocation, resizing) of the object to be read, 
   ///   according to reading options (partial reading of an already allocated 
   ///   object may not require a reallocation...). This is performed using a 
@@ -69,54 +70,50 @@ namespace soma
   /// - reading of the data, or of a part of it, which can be done on demand, 
   ///   directly via the DataSource once it is setup and plugged
   ///
-  /// \warning Following sentence is not true anymore
-  /// As a summary, a FormatReader job is to create and bind alltogether an 
-  /// object to read, an allocation context, and a decoder DataSource.
-  ///
   /// \todo
   /// Needs to be added:
   /// - options description (mandatory / optional / unrecognized)
-  /// - generic options to allocate a new object corresponding to the datasource
-  ///   contents (allocate a volume with adhoc dimensions, with given borders...), 
-  ///   done by Creator
+  /// - generic options to allocate a new object corresponding to the
+  ///   datasource contents (allocate a volume with adhoc dimensions, with 
+  ///   given borders...), done by Creator
   template<typename T>
   class FormatReader
   {
   public:
     virtual ~FormatReader();
 
-    //==========================================================================
+    //========================================================================
     //   N E W   M E T H O D S
-    //==========================================================================
+    //========================================================================
     /// Full reading procedure, for an already existing object
     virtual void setupAndRead( T & obj, carto::rc_ptr<DataSourceInfo> dsi,
                                const AllocatorContext & context,
                                carto::Object options );
-    
+
     /// \brief Factory mode: creates an object and reads it.
     /// The returned object belongs to the calling layer and may be deleted by 
     /// the standard \c delete
     virtual T* createAndRead( carto::rc_ptr<DataSourceInfo> dsi,
                               const AllocatorContext & context,
                               carto::Object options );
-    
+
     /// \brief Reads part or all of the object \c obj.
     /// This read() method should be called after everything is setup and bound
     /// For objects supporting allocators, \c context should be the same as 
     /// the context bound to the object, and reading is just a matter of 
     /// calling the read methods of the DataSource bound to the context.
     /// \param obj     object to read into
-    /// \param dsi     DataSourceInfo containing pre-computed header, data source 
-    ///                list and capabilities.
+    /// \param dsi     DataSourceInfo containing pre-computed header, data
+    ///                source list and capabilities.
     /// \param options may specify a sub-object for partial reading
     virtual void read( T & obj, 
                        carto::rc_ptr<DataSourceInfo> dsi, 
                        const AllocatorContext & context, 
                        carto::Object options );
-    
-    //==========================================================================
+
+    //========================================================================
     //   S T I L L   U S E D
-    //==========================================================================
+    //========================================================================
     /// create the object to be read, bind the allocation context.
     /// Either create() or setup() will be called, depending if we are 
     /// working on an existing object or have to allocate a new one.
@@ -131,44 +128,41 @@ namespace soma
     virtual void setup( T & obj, carto::Object header, 
                         const AllocatorContext & context, 
                         carto::Object options );
-    
-    //==========================================================================
+
+    //========================================================================
     //   O L D   M E T H O D S
-    //==========================================================================
-    
-    // these methods are kept for compability. \deprecated
-    /// Full reading procedure, for an already existing object
-    virtual void setupAndRead( T & obj, carto::Object header, 
-                               carto::rc_ptr<DataSource> dsl, 
-                               const AllocatorContext & context, 
+    //========================================================================
+
+    /// \deprecated
+    virtual void setupAndRead( T & obj, carto::Object header,
+                               carto::rc_ptr<DataSource> dsl,
+                               const AllocatorContext & context,
                                carto::Object options );
-    /// \brief Factory mode: creates an object and reads it.
-    /// The returned object belongs to the calling layer and may be deleted by 
-    /// the standard \c delete
-    virtual T* createAndRead( carto::Object header, 
-                              carto::rc_ptr<DataSource> ds, 
-                              const AllocatorContext & context, 
+
+    /// \deprecated
+    virtual T* createAndRead( carto::Object header,
+                              carto::rc_ptr<DataSource> ds,
+                              const AllocatorContext & context,
                               carto::Object options );
 
-    /// setup an allocation context bound to the decoder DataSource.
-    /// The default implementation just binds the \c decoder with the 
-    /// \c basecontext
-    // still used ?
+    /// \deprecated
     virtual AllocatorContext 
     getAllocatorContext( carto::Object header, 
                          carto::rc_ptr<DataSource> decoder, 
                          const AllocatorContext & basecontext, 
                          carto::Object options );
-    
+
+    /// \deprecated
     virtual carto::rc_ptr<DataSource> 
     getDataSource( carto::Object header, 
                    carto::rc_ptr<DataSource> source, 
                    carto::Object options );
-    
+
+    /// \deprecated
     virtual void read( T & obj, carto::Object header, 
                        const AllocatorContext & context, 
                        carto::Object options );
-    
+
   };
 
 }

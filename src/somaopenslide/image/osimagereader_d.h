@@ -126,11 +126,13 @@ namespace soma {
       throw carto::open_error( "data source not available", fname );
     }
     
-    int64_t posx = pos[ 0 ] * _sizes[ 0 ][ 0 ] / _sizes[ level ][ 0 ];
-    int64_t posy = pos[ 1 ] * _sizes[ 0 ][ 1 ] / _sizes[ level ][ 1 ];
-    
+    int64_t posx = (int64_t) pos[ 0 ] * _sizes[ 0 ][ 0 ] / _sizes[ level ][ 0 ];
+    int64_t posy = (int64_t) pos[ 1 ] * _sizes[ 0 ][ 1 ] / _sizes[ level ][ 1 ];
+    int64_t sizex = (int64_t)size[ 0 ];
+    int64_t sizey = (int64_t)size[ 1 ];
+
     openslide_read_region( osimage, (uint32_t *) dest, posx, posy,
-                           level, size[ 0 ], size[ 1 ] );
+                           level, sizex, sizey );
     
     openslide_close( osimage );
   }

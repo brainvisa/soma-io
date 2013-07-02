@@ -31,31 +31,38 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_RGBA_D_H
-#define SOMAIO_IMAGE_RGBA_D_H
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelrgb.h>
-#include <soma-io/image/voxelrgba.h>
-//--- cartobase ----------------------------------------------------------------
+#ifndef CARTOBASE_TYPE_RGBA_H
+#define CARTOBASE_TYPE_RGBA_H
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h>
+#include <cartobase/type/voxelrgb_d.h>
+#include <cartobase/type/voxelrgba_d.h>
 #include <cartobase/exception/assert.h>
-//--- system -------------------------------------------------------------------
-//#define SOMA_IO_DEBUG_RGB
-#ifdef SOMA_IO_DEBUG_RGB
+//--- system -----------------------------------------------------------------
+//#define CARTO_DEBUG_RGB
+#ifdef CARTO_DEBUG_RGB
   #include <iostream>
 #endif
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-namespace soma {
+/*****************************************************************************
+ * Class and methods declarations are contained in
+ * cartobase/type/voxelrgba_d.h but since all methods are inline,
+ * this is the file to include to use VoxelRGBA.
+ *
+ * Read/Write methods are defined in soma-io/utilities/asciidatasourcetraits.h
+ * so you must include this file to read or write voxels as ASCII.
+ ****************************************************************************/
 
-  //=== CONSTRUCTORS ===========================================================
+namespace carto {
+
+  //=== CONSTRUCTORS =========================================================
 
   inline
   VoxelRGBA::VoxelRGBA( const VoxelRGBA &other )
   : VoxelValue<uint8_t,4>( other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: Constructor( RGBA )" << std::endl;
     #endif
   }
@@ -63,7 +70,7 @@ namespace soma {
   inline
   VoxelRGBA::VoxelRGBA( const VoxelRGB &other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: Constructor( RGB )" << std::endl;
     #endif
     red()   = other.red();
@@ -76,7 +83,7 @@ namespace soma {
   VoxelRGBA::VoxelRGBA( const VoxelValue<uint8_t,4> &other )
   : VoxelValue<uint8_t,4>( other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: Constructor( VV<4> )" << std::endl;
     #endif
   }
@@ -85,7 +92,7 @@ namespace soma {
   VoxelRGBA::VoxelRGBA( const uint8_t &r, const uint8_t &g, 
                         const uint8_t &b, const uint8_t &a )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: Constructor( r,g,b,a )" << std::endl;
     #endif
     red()   = r;
@@ -97,17 +104,17 @@ namespace soma {
   inline
   VoxelRGBA::~VoxelRGBA()
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: Destructor" << std::endl;
     #endif
   }
 
-  //=== AFFECTATION ============================================================
+  //=== AFFECTATION ==========================================================
 
   inline
   VoxelRGBA & VoxelRGBA::operator = ( const VoxelRGBA & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator = ( RGBA )" << std::endl;
     #endif
     red()   = other.red();
@@ -120,7 +127,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator = ( const VoxelRGB & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator = ( RGB )" << std::endl;
     #endif
     red()   = other.red();
@@ -133,7 +140,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator = ( const uint8_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator = ( uint8_t )" << std::endl;
     #endif
     red()   = value;
@@ -143,12 +150,12 @@ namespace soma {
     return *this;
   }
 
-  //=== OPERATORS ==============================================================
+  //=== OPERATORS ============================================================
 
   inline
   VoxelRGBA & VoxelRGBA::operator += ( const VoxelRGBA & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator += ( RGBA )" << std::endl;
     #endif
     if( other.alpha() == 0 ) {
@@ -179,7 +186,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator += ( const VoxelRGB & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator += ( RGB )" << std::endl;
     #endif
     if( alpha() == 0 ) {
@@ -198,7 +205,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator -= ( const VoxelRGBA & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator -= ( RGBA )" << std::endl;
     #endif
     if( other.alpha() == 0 ) {
@@ -227,7 +234,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator -= ( const VoxelRGB & other )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator -= ( RGB )" << std::endl;
     #endif
     if( alpha() == 0 ) {
@@ -245,7 +252,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator += ( const uint8_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator += ( uint8_t )" << std::endl;
     #endif
     if( alpha() == 0 ) {
@@ -264,7 +271,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator -= ( const uint8_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator -= ( uint8_t )" << std::endl;
     #endif
     if( alpha() == 0 ) {
@@ -283,7 +290,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const uint8_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint8_t )" << std::endl;
     #endif
     red()   *= value;
@@ -295,7 +302,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const uint16_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint16_t )" << std::endl;
     #endif
     red()   *= value;
@@ -307,7 +314,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const uint32_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint32_t )" << std::endl;
     #endif
     red()   *= value;
@@ -319,7 +326,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const uint64_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint64_t )" << std::endl;
     #endif
     red()   *= value;
@@ -331,7 +338,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const float & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( float )" << std::endl;
     #endif
     red()   *= value;
@@ -343,7 +350,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const double & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( double )" << std::endl;
     #endif
     red()   *= value;
@@ -355,7 +362,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const uint8_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( uint8_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -368,7 +375,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const uint16_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( uint16_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -381,7 +388,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const uint32_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( uint32_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -394,7 +401,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const uint64_t & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( uint64_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -407,7 +414,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const float & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( float )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -420,7 +427,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const double & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( double )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -430,12 +437,12 @@ namespace soma {
     return *this;
   }
 
-  //=== EXTERN OPERATORS =======================================================
+  //=== EXTERN OPERATORS =====================================================
 
   inline
   VoxelRGBA operator + (const VoxelRGBA &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA + RGBA" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -445,7 +452,7 @@ namespace soma {
   inline
   VoxelRGBA operator + (const VoxelRGBA &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA + uint8_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -455,7 +462,7 @@ namespace soma {
   inline
   VoxelRGBA operator - (const VoxelRGBA &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA - RGBA" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -465,7 +472,7 @@ namespace soma {
   inline
   VoxelRGBA operator - (const VoxelRGBA &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA - uint8_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -475,7 +482,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * uint8_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -485,7 +492,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint16_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * uint16_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -495,7 +502,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint32_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * uint32_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -505,7 +512,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint64_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * uint64_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -515,7 +522,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const float &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * float" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -525,7 +532,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const double &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * double" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -535,7 +542,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const uint8_t &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: uint8_t * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -545,7 +552,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const uint16_t &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: uint16_t * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -555,7 +562,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const uint32_t &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: uint32_t * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -565,7 +572,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const uint64_t &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: uint64_t * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -575,7 +582,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const float &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: float * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -585,7 +592,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const double &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: double * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -595,7 +602,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const uint8_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / uint8_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -605,7 +612,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const uint16_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / uint16_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -615,7 +622,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const uint32_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / uint32_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -625,7 +632,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const uint64_t &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / uint64_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -635,7 +642,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const float &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / float" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -645,19 +652,19 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const double &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / double" << std::endl;
     #endif
     VoxelRGBA result( aa );
     return result /= bb;
   }
   
-  //=== LONG INT OPERATORS =====================================================
+  //=== LONG INT OPERATORS ===================================================
   
   inline
   VoxelRGBA & VoxelRGBA::operator *= ( const long & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( long )" << std::endl;
     #endif
     red()   *= value;
@@ -668,7 +675,7 @@ namespace soma {
   inline
   VoxelRGBA & VoxelRGBA::operator /= ( const long & value )
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator /= ( long )" << std::endl;
     #endif
     ASSERT( value != 0 );
@@ -681,7 +688,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const long &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA * long" << std::endl;
     #endif
     VoxelRGBA result( aa );
@@ -691,7 +698,7 @@ namespace soma {
   inline
   VoxelRGBA operator * (const long &aa, const VoxelRGBA &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: long * RGBA" << std::endl;
     #endif
     VoxelRGBA result( bb );
@@ -701,7 +708,7 @@ namespace soma {
   inline
   VoxelRGBA operator / (const VoxelRGBA &aa, const long &bb)
   {
-    #ifdef SOMA_IO_DEBUG_RGB
+    #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: RGBA / long" << std::endl;
     #endif
     VoxelRGBA result( aa );

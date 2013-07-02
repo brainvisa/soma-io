@@ -33,19 +33,18 @@
 
 #ifndef SOMAIO_DATASOURCE_CSTREAMDATASOURCE_H
 #define SOMAIO_DATASOURCE_CSTREAMDATASOURCE_H
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasource.h>                         // base class
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>                       // base class
+//--- system -----------------------------------------------------------------
 #include <cstdio>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
 
-  /** C stream data source: base class for all sources based on a FILE* 
-      (stdio streams)
-  */
+  /// C stream data source: base class for all sources based on a FILE*
+  /// (stdio streams)
   class CStreamDataSource : public DataSource
   {
   public:
@@ -79,4 +78,3 @@ namespace soma
 }
 
 #endif
-

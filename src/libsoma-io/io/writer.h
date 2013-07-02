@@ -33,11 +33,11 @@
 
 #ifndef SOMAIO_IO_WRITER_H
 #define SOMAIO_IO_WRITER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -56,10 +56,11 @@ namespace soma
     ///	\brief Finds the correct format and writes the object
     ///
     /// Options can be passed to specify some writing parameters. The most 
-    /// important is the format (\c "format" property): if it is specified, this 
-    /// format is tried first, so you can use it to force the format, otherwise 
-    /// it will be determined from the filename extension (if available). If no 
-    /// extension and no format are given, the first working format will be used. 
+    /// important is the format (\c "format" property): if it is specified,  
+    /// this format is tried first, so you can use it to force the format,  
+    /// otherwise it will be determined from the filename extension (if 
+    /// available). If no extension and no format are given, the first
+    /// working format will be used. 
     template <typename T>
     bool write( const T & obj, carto::Object options = carto::none() );
 
@@ -99,12 +100,14 @@ namespace soma
 
     ///	\brief Finds the correct format and writes the object
     ///
-    /// Options can be passed to specify some writing parameters. The most 
-    /// important is the format (\c "format" property): if it is specified, this 
-    /// format is tried first, so you can use it to force the format, otherwise 
-    /// it will be determined from the filename extension (if available). If no 
-    /// extension and no format are given, the first working format will be used. 
-    virtual bool write( const T & obj, carto::Object options = carto::none() );
+    /// Options can be passed to specify some writing parameters. The most
+    /// important is the format (\c "format" property): if it is specified,
+    /// this format is tried first, so you can use it to force the format,
+    /// otherwise it will be determined from the filename extension (if
+    /// available). If no extension and no format are given, the first
+    /// working format will be used. 
+    virtual bool write( const T & obj,
+                        carto::Object options = carto::none() );
 
     virtual std::string writtenObjectType() const;
   };
@@ -131,4 +134,3 @@ operator << ( soma::Writer<T> & writer, const T & thing )
 
 
 #endif
-

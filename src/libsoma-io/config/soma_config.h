@@ -33,11 +33,9 @@
 #ifndef SOMAIO_CONFIG_SOMA_CONFIG_H
 #define SOMAIO_CONFIG_SOMA_CONFIG_H
 
-#ifdef USE_SOMA_IO
-  #define soma carto
-#endif
-
-#define SOMA_IO_DEBUG
+// As long as all namespaces aren't updated in calling project (aims, ...)
+// we use "carto" instead of "soma"
+#define soma carto
 
 #include <soma-io/config/config.h>
 

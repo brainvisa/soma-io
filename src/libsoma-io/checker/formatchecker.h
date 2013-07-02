@@ -32,18 +32,26 @@
  */
 #ifndef SOMAIO_CHECKER_FORMATCHECKER_H
 #define SOMAIO_CHECKER_FORMATCHECKER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   class DataSourceInfoLoader;
   class DataSourceInfo;
 
-  /// \todo doc
+  /// Format Checker
+  ///
+  /// Checks a file for a particular format, and if compatible, returns a
+  /// DataSourceInfo.
+  /// FormatChecker is used by DataSourceInfoLoader and never needs to be 
+  /// used alone.
+  ///
+  /// Format-specific FormatChecker are derived from this class and
+  /// registered into the DataSourceInfoLoader dictionary.
   class FormatChecker
   {
   public:
@@ -58,4 +66,3 @@ namespace soma
 }
 
 #endif
-

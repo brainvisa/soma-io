@@ -33,190 +33,187 @@
 
 #ifndef SOMAIO_IO_READERALGORITHM_H
 #define SOMAIO_IO_READERALGORITHM_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/algorithm/algorithm.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <cstdlib>
 #include <string>
 #include <map>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   class DataSourceInfo;
   class DataSource;
 
-  /*!	\brief Link mechanism between a data source or file and an algorithm 
-	operating on arbitrary data types
-
-	ReaderAlgorithm solves the data-type problem for any Cartograph 
-	commandline algorithm. It allows to hide both the file format 
-	of processed data (using DataSourceInfo) and the data type dependency.
-	ReaderAlgorithm allows to call an algorithm operation function 
-        depending on the correct data type given by its file info (using a 
-        functions map).
-
-	No type switching needs to be hard-coded anymore.
-	ReaderAlgorithm uses a plugin mechanism for new data types and the 
-        types list can be dynamically extended when needed.
-
-        Usage: The idea is to plug into a ReaderAlgorithm (generally a 
-        subclass) some pointers to type-specialized processing functions. 
-        These functions can be either external functions (generally template):
-	\code
-	template <typename T>
-	bool doMyReaderAlgorithm( ReaderAlgorithm & algo, 
-				  Object header, 
-				  rc_ptr<DataSource> source );
-	\endcode
-	or static member functions:
-	\code
-	template <typename T> static 
-	bool
-	MyReaderAlgorithm::doMyReaderAlgorithm( ReaderAlgorithm & algo, 
-						Object header, 
-						rc_ptr<DataSource> source );
-	\endcode
-	Instantiate such an algorothm class, and register every needed 
-	type with the registerAlgorithmType() function (you can do it in your 
-	algo constructor).
-	Then call the execute() function with the file name (or other 
-        DataSource) as an argument. The algo function registered for the 
-        correct data type will be called, if this type can be guessed by the 
-        DataSourceInfo, or an exception will be thrown if it fails.
-
-	In fact if your algo doesn't need other information (no data in 
-	your ReaderAlgorithm subclass), you don't even really need to subclass 
-	it: manually registering algo functions should be enough.
-
-	A small example:
-
-	\code
-	#include <cartobase/io/readingalgorithm.h>
-	#include <cartobase/io/datasourceinfo.h>
-	#include <cartobase/io/reader.h>
-	#include <cartodata/volume/volume.h>
-	#include <cartobase/getopt/getopt.h>
-	#include <aims/mesh/surface.h>
-	#include <aims/bucket/bucket.h>
-
-	using namespace carto;
-	using namespace std;
-
-	class MyAlgo : public ReaderAlgorithm
-	{
-	public:
-	  MyAlgo()
-	    : ReaderAlgorithm( "MyAlgo" )
-	  {
-	    // here are all types known by our algo
-	    registerAlgorithmType( "Volume of S16", &exec<Volume<short> > );
-	    registerAlgorithmType( "Volume of FLOAT", &exec<AimsData<float> > );
-	    // use for instance another function for meshes and buckets
-	    registerAlgorithmType( DataTypeCode<AimsSurfaceTriangle>::name(), 
-				   &exec2<AimsSufaceTriangle> );
-	    registerAlgorithmType( DataTypeCode<AimsBucket>::name(), 
-				   &exec2<AimsBucket> );
-	  }
-
-	private:
-	  // template processing function, used for some of the possible types
-	  template <typename T> static bool 
-	  exec( ReaderAlgorithm& a, Object hdr, rc_ptr<DataTypeCode> src )
-	  {
-	    MyAlgo	& ma = (MyAlgo &) a;
-	    // we are sure p is a MyReaderAlgorithm since this -private- 
-	    // function has been registered and called only within the 
-	    // MyReaderAlgorithm class if you're still not sure, use a 
-	    // dynamic_cast()...
-
-	    //	read it
-	    Reader<T>	r( src );
-	    // it is a good habit to hold object that must be destroyed in 
-	    // a smart pointer (auto_ptr, rc_ptr or scoped_ptr)
-	    auto_ptr<T> data;
-	    data = r.read( hdr );
-
-	    // now use your data as you like
-	    // ...
-	    ma.otherFunction( data );	// etc.
-
-	    return true;	// success
-	  }
-
-	  // another processing function that we use on some other types
-	  template <typename T> static bool
-	  exec2( ReaderAlgorithm &, Object hdr, rc_ptr<DataSource> src )
-	  {
-	    T		data;
-	    Reader<T>	r( src );
-	    auto_ptr<T> data;
-	    data = r.read( hdr );
-
-	    // other processing stuff
-	    // ...
-
-	    return true;
-	  }
-
-	};
-
-
-	// main function
-
-	int main( int argc, const char** argv )
-	{
-	  try
-	    {
-	      CartoApplication app( argc, argv, "MyAlgo" );
-	      string		fname;
-	      app.addOption( fname, "-i", "input data file" );
-
-	      app.initialize();
-
-	      MyAlgo		proc;
-	      if( !proc.execute( fname ) )
-	        {
-	          cerr << "couldn't process file " << fname << endl;
-	          return EXIT_FAILURE;
-	        }
-	      cout << "OK\n";
-	    }
-	  catch( user_interruption & )
-	    {
-	    }
-	  catch( exception & e )
-	    {
-	      cerr << e.what() << endl;
-	      return EXIT_FAILURE;
-	    }
-
-	  return EXIT_SUCCESS;
-	}
-	\endcode
-
-	\par Comments
-	The "trick" is that processing functions are "neutral" functions and 
-	do not have any mark of the data type in their signature (nor in their 
-	return type). However they can be template functions, one for each 
-	type, with identical parameters.
-
-	\par
-	This approach of binding IO to objects and corresponding algorithms 
-	requires to manually register every possible data type to process, 
-	but so has the advantage to allow compilation of algorithms only on 
-	these types, and not on others which might cause problems. For instance
-	you can use different algo functions for volumes of scalars 
-	(\c Volume of \c float or \c int) and on volumes of complex, and use 
-	specific operations for the former (ie ordering, comparisons 
-	operations or casting to \c float or \c double) which would not work 
-	on the latter.
-
-	\see DataSourceInfo FormatDictionary Reader Writer
-  */
+  ///	\brief Link mechanism between a data source or file and an algorithm
+  /// operating on arbitrary data types
+  ///
+  /// ReaderAlgorithm solves the data-type problem for any Cartograph
+  /// commandline algorithm. It allows to hide both the file format
+  /// of processed data (using DataSourceInfo) and the data type dependency.
+  /// ReaderAlgorithm allows to call an algorithm operation function
+  /// depending on the correct data type given by its file info (using a
+  /// functions map).
+  ///
+  /// No type switching needs to be hard-coded anymore.
+  /// ReaderAlgorithm uses a plugin mechanism for new data types and the
+  /// types list can be dynamically extended when needed.
+  ///
+  /// Usage: The idea is to plug into a ReaderAlgorithm (generally a
+  /// subclass) some pointers to type-specialized processing functions.
+  /// These functions can be either external functions (generally template):
+  /// \code
+  /// template <typename T>
+  /// bool doMyReaderAlgorithm( ReaderAlgorithm & algo,
+  ///                           Object header,
+  ///                           rc_ptr<DataSource> source );
+  /// \endcode
+  /// or static member functions:
+  /// \code
+  /// template <typename T> static bool
+  /// MyReaderAlgorithm::doMyReaderAlgorithm( ReaderAlgorithm & algo,
+  ///                                         Object header,
+  ///                                         rc_ptr<DataSource> source );
+  /// \endcode
+  /// Instantiate such an algorothm class, and register every needed
+  /// type with the registerAlgorithmType() function (you can do it in your
+  /// algo constructor).
+  /// Then call the execute() function with the file name (or other
+  /// DataSource) as an argument. The algo function registered for the
+  /// correct data type will be called, if this type can be guessed by the
+  /// DataSourceInfo, or an exception will be thrown if it fails.
+  ///
+  /// In fact if your algo doesn't need other information (no data in
+  /// your ReaderAlgorithm subclass), you don't even really need to subclass
+  /// it: manually registering algo functions should be enough.
+  ///
+  /// A small example:
+  ///
+  /// \code
+  /// #include <aims/mesh/surface.h>
+  /// #include <aims/bucket/bucket.h>
+  /// #include <cartodata/volume/volume.h>
+  /// #include <soma-io/io/readeralgorithm.h>
+  /// #include <soma-io/io/reader.h>
+  /// #include <cartobase/getopt/getopt.h>
+  ///
+  /// using namespace soma;
+  /// using namespace carto;
+  /// using namespace std;
+  ///
+  /// class MyAlgo : public ReaderAlgorithm
+  /// {
+  ///   public:
+  ///     MyAlgo() : ReaderAlgorithm( "MyAlgo" )
+  ///     {
+  ///       // here are all types known by our algo
+  ///       registerAlgorithmType( "Volume of S16", &exec<Volume<short> > );
+  ///       registerAlgorithmType( "Volume of FLOAT", &exec<AimsData<float> > );
+  ///       // use for instance another function for meshes and buckets
+  ///       registerAlgorithmType( DataTypeCode<AimsSurfaceTriangle>::name(),
+  ///                              &exec2<AimsSufaceTriangle> );
+  ///       registerAlgorithmType( DataTypeCode<AimsBucket>::name(),
+  ///                              &exec2<AimsBucket> );
+  ///     }
+  ///
+  ///   private:
+  ///     // template processing function, used for some of the possible types
+  ///     template <typename T> static bool
+  ///     exec( ReaderAlgorithm& a, Object hdr, rc_ptr<DataTypeCode> src )
+  ///     {
+  ///       MyAlgo  & ma = (MyAlgo &) a;
+  ///       // we are sure p is a MyReaderAlgorithm since this -private-
+  ///       // function has been registered and called only within the
+  ///       // MyReaderAlgorithm class if you're still not sure, use a
+  ///       // dynamic_cast()...
+  ///
+  ///       //	read it
+  ///       Reader<T>	r( src );
+  ///       // it is a good habit to hold object that must be destroyed in
+  ///       // a smart pointer (auto_ptr, rc_ptr or scoped_ptr)
+  ///       auto_ptr<T> data;
+  ///       data = r.read( hdr );
+  /// 
+  ///       // now use your data as you like
+  ///       // ...
+  ///       ma.otherFunction( data );	// etc.
+  /// 
+  ///       return true;  // success
+  ///     }
+  /// 
+  ///     // another processing function that we use on some other types
+  ///     template <typename T> static bool
+  ///     exec2( ReaderAlgorithm &, Object hdr, rc_ptr<DataSource> src )
+  ///     {
+  ///       T		data;
+  ///       Reader<T>	r( src );
+  ///       auto_ptr<T> data;
+  ///       data = r.read( hdr );
+  ///
+  ///       // other processing stuff
+  ///       // ...
+  /// 
+  ///       return true;
+  ///     }
+  ///
+  /// };
+  /// 
+  ///
+  /// // main function
+  /// 
+  /// int main( int argc, const char** argv )
+  /// {
+  ///   try
+  ///   {
+  ///     CartoApplication  app( argc, argv, "MyAlgo" );
+  ///     string            fname;
+  ///     app.addOption( fname, "-i", "input data file" );
+  ///
+  ///     app.initialize();
+  ///
+  ///     MyAlgo  proc;
+  ///     if( !proc.execute( fname ) )
+  ///     {
+  ///       cerr << "couldn't process file " << fname << endl;
+  ///       return EXIT_FAILURE;
+  ///     }
+  ///     cout << "OK\n";
+  ///   }
+  ///   catch( user_interruption & )
+  ///   {
+  ///   }
+  ///   catch( exception & e )
+  ///   {
+  ///     cerr << e.what() << endl;
+  ///     return EXIT_FAILURE;
+  ///   }
+  ///
+  ///   return EXIT_SUCCESS;
+  /// }
+  /// \endcode
+  ///
+  /// \par Comments
+  /// The "trick" is that processing functions are "neutral" functions and
+  /// do not have any mark of the data type in their signature (nor in their
+  /// return type). However they can be template functions, one for each
+  /// type, with identical parameters.
+  ///
+  /// \par
+  /// This approach of binding IO to objects and corresponding algorithms
+  /// requires to manually register every possible data type to process,
+  /// but so has the advantage to allow compilation of algorithms only on
+  /// these types, and not on others which might cause problems. For instance
+  /// you can use different algo functions for volumes of scalars
+  /// (\c Volume of \c float or \c int) and on volumes of complex, and use
+  /// specific operations for the former (ie ordering, comparisons
+  /// operations or casting to \c float or \c double) which would not work
+  /// on the latter.
+  ///
+  /// \see DataSourceInfo FormatDictionary Reader Writer
   class ReaderAlgorithm : public carto::Algorithm
   {
   public:
@@ -252,8 +249,8 @@ namespace soma
     ///	Same as above but the header has already been read (or hand-made to 
     /// fake it!)
     bool execute( carto::Object header, carto::rc_ptr<DataSource> source );
-    /// same as above but uses DataSourceInfo as input. Header may have already 
-    /// been read
+    /// same as above but uses DataSourceInfo as input. Header may have
+    /// already been read
     bool execute( carto::rc_ptr<DataSourceInfo> dsi );
     /// Query registered process types
     const std::map<std::string, ProcFunc> & algorithmTypes() const

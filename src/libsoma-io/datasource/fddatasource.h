@@ -33,17 +33,16 @@
 
 #ifndef SOMAIO_DATASOURCE_FDDATASOURCE_H
 #define SOMAIO_DATASOURCE_FDDATASOURCE_H
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasource.h>                         // base class
-//------------------------------------------------------------------------------
+#include <soma-io/datasource/datasource.h>                       // base class
+//----------------------------------------------------------------------------
 
 namespace soma
 {
 
-  /** File Descriptor data source: base class for all sources based on a 
-      file descriptor
-  */
+  /// File Descriptor data source: base class for all sources based on a
+  /// file descriptor
   class FDDataSource : public DataSource
   {
   public:
@@ -78,4 +77,3 @@ namespace soma
 }
 
 #endif
-

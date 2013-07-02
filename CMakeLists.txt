@@ -57,7 +57,7 @@ endif()
 
 ## Enabling of SOMA-IO
 ## /!\ It is then used by the whole aims project
-set( USE_SOMA_IO "False" CACHE BOOL "Enable/Disable use of new soma-io classes")
+set( USE_SOMA_IO "True" CACHE BOOL "Enable/Disable use of new soma-io classes")
 
 ## Flags definitions
 set( SOMA-IO_DEFINITIONS "-D_REENTRANT" )

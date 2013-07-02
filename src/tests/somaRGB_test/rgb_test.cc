@@ -31,15 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include <soma-io/image/voxelrgb_d.h>
-#include <soma-io/image/voxelrgba_d.h>
-#include <soma-io/image/voxelhsv.h>
-#include <soma-io/image/voxelvalue_d.h>
+#include <cartobase/type/voxelrgb.h>
+#include <cartobase/type/voxelrgba.h>
+#include <cartobase/type/voxelhsv.h>
+#include <cartobase/type/voxelvalue.h>
 #include <soma-io/datasource/streamdatasource.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
 #include <cartobase/exception/assert.h>
 #include <iostream>
 
 using namespace soma;
+using namespace carto;
 using namespace std;
 
 int main()

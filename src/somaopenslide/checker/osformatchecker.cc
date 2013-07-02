@@ -157,7 +157,7 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
 
 //==============================================================================
 //   P U B L I C   M E T H O D S
-//==============================================================================/
+//==============================================================================
 
 OSFormatChecker::~OSFormatChecker()
 {
@@ -168,7 +168,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
                                        Object options ) const
 {
   bool doread = dsi.header().isNone() ;
-  bool dolist = dsi.list().nbTypes() == 1 ;
+  bool dolist = dsi.list().typecount() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
   
   //--- read uri ---------------------------------------------------------------

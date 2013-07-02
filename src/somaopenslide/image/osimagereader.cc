@@ -31,13 +31,15 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
 #include <soma-io/image/osimagereader_d.h>
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelrgb_d.h>
-//------------------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/type/voxelrgba.h>
+//----------------------------------------------------------------------------
 
 using namespace soma;
+using namespace carto;
 
 template class OSImageReader<VoxelRGBA>;

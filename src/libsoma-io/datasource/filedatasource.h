@@ -37,16 +37,16 @@
 #ifndef _WIN32
   #define CARTO_FILEDS_AS_FD
 #endif
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #ifdef CARTO_FILEDS_AS_FD
-  #include <soma-io/datasource/fddatasource.h>                     // base class
+  #include <soma-io/datasource/fddatasource.h>                   // base class
 #else
-  #include <soma-io/datasource/cstreamdatasource.h>                // base class
+  #include <soma-io/datasource/cstreamdatasource.h>              // base class
 #endif
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -80,4 +80,3 @@ namespace soma
 }
 
 #endif
-

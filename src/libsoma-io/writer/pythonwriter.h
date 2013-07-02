@@ -33,16 +33,16 @@
 
 #ifndef SOMAIO_WRITER_PYTHONWRITER_H
 #define SOMAIO_WRITER_PYTHONWRITER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/object/syntax.h>
 #include <cartobase/object/object.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <fstream>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace carto
 {

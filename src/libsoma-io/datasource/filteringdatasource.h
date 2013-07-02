@@ -33,19 +33,18 @@
 
 #ifndef SOMAIO_DATASOURCE_FILTERINGDATASOURCE_H
 #define SOMAIO_DATASOURCE_FILTERINGDATASOURCE_H
-//--- somaio -------------------------------------------------------------------
+//--- somaio -----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/chaindatasource.h>                    // base class
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/chaindatasource.h>                  // base class
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
 
-  /** Filtering data source: filters out comments and/or counts lines in a 
-      ASCII stream
-  */
+  /// Filtering data source: filters out comments and/or counts lines in a
+  /// ASCII stream
   class FilteringDataSource : public ChainDataSource
   {
   public:
@@ -83,4 +82,3 @@ namespace soma
 }
 
 #endif
-

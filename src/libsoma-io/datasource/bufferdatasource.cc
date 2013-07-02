@@ -31,12 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/bufferdatasource.h>             // class definition
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/bufferdatasource.h>           // class definition
+//--- system -----------------------------------------------------------------
 #include <cstring>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace std;
@@ -188,5 +188,4 @@ char* BufferDataSource::buffer()
 {
   return _buffer;
 }
-
 

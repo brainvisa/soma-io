@@ -33,11 +33,11 @@
 
 #ifndef SOMAIO_WRITER_ITEMWRITER_H
 #define SOMAIO_WRITER_ITEMWRITER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 #include <iostream>
 
 namespace soma
@@ -179,4 +179,3 @@ namespace soma
 
 
 #endif
-

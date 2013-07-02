@@ -31,14 +31,14 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/chaindatasource.h>              // class definition
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>                              // argument type
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/chaindatasource.h>            // class definition
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>                            // argument type
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;

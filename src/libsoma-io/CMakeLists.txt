@@ -34,13 +34,6 @@ set( _headers
   image/imagereader_d.h
   image/imagewriter.h
   image/imagewriter_d.h
-  image/voxelvalue.h
-  image/voxelvalue_d.h
-  image/voxelrgb.h
-  image/voxelrgb_d.h
-  image/voxelrgba.h
-  image/voxelrgba_d.h
-  image/voxelhsv.h
   io/formatdictionary.h
   io/formatdictionary_d.h
   io/reader.h
@@ -48,6 +41,7 @@ set( _headers
   io/readeralgorithm.h
   io/writer.h
   io/writer_d.h
+  plugin/plugin.h
   reader/areader.h
   reader/formatreader.h
   reader/formatreader_d.h
@@ -94,11 +88,11 @@ set( _somaio_sources
   datasourceinfo/datasourceinfoloader.cc
   image/imagereader.cc
   image/imagewriter.cc
-  image/voxelvalue.cc
   io/formatdictionary.cc
   io/reader_object.cc
   io/readeralgorithm.cc
   io/writer.cc
+  plugin/plugin.cc
   reader/areader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc

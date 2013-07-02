@@ -33,24 +33,24 @@
 
 #ifndef SOMAIO_ALLOCATOR_ALLOCATOR_H
 #define SOMAIO_ALLOCATOR_ALLOCATOR_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/smart/rcptr.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
 
-  //============================================================================
+  //==========================================================================
   //   L O W   L E V E L   A L L O C A T O R
-  //============================================================================
+  //==========================================================================
   /// Abstract base class for actual allocators types
   ///
   /// All subclasses of LowLevelAllocator are singletons, which each provide 
@@ -71,9 +71,9 @@ namespace soma
   };
 
 
-  //============================================================================
+  //==========================================================================
   //   M E M O R Y   A L L O C A T O R
-  //============================================================================
+  //==========================================================================
   /// Normal allocation mode: allocation in main memory 
   class MemoryAllocator : public LowLevelAllocator
   {
@@ -94,13 +94,13 @@ namespace soma
   };
 
 
-  //============================================================================
+  //==========================================================================
   //   N U L L   A L L O C A T O R
-  //============================================================================
+  //==========================================================================
   /// This allocator doesn't allocate anything
   ///
-  /// NullAllocator is used to "fake" allocation and use data already allocated 
-  /// (and owned) by other structures
+  /// NullAllocator is used to "fake" allocation and use data already  
+  /// allocated (and owned) by other structures
   class NullAllocator : public LowLevelAllocator
   {
   public:
@@ -125,9 +125,9 @@ namespace soma
 
   class AllocatorContext;
 
-  //============================================================================
+  //==========================================================================
   //   A L L O C A T O R   S T R A T E G Y
-  //============================================================================
+  //==========================================================================
   /// Determination of the allocation type depending of the buffer size 
   /// to allocate and the disk format of data
   ///
@@ -206,7 +206,8 @@ namespace soma
 
     /// helper function, tells if memory mapping is directly possible
     static bool isMMapCompatible( bool ascii, int byteorder, 
-                                  bool scalefactored = false, int border = 0 );
+                                  bool scalefactored = false,
+                                  int border = 0 );
     /// same as above but uses a Header attributed object
     //static bool isMMapCompatible( const carto::AttributedObject & hdr );
 
@@ -227,19 +228,20 @@ namespace soma
   };
 
 
-  //============================================================================
+  //==========================================================================
   //   A L L O C A T O R   C O N T E X T
-  //============================================================================
+  //==========================================================================
   /// Allocation context
   ///
-  /// The allocators system is globally described on a separate \ref allocators 
-  /// page.
+  /// The allocators system is globally described on a separate 
+  /// \ref allocators page.
   ///
-  /// More specifically, AllocatorContext is the entry point to this allocation 
-  /// system: only this class has generally to be used by programmers. It 
-  /// handles a switch to the appropriate low-level allocator (LowLevelAllocator) 
-  /// according to the amount of memory available, the size of the data block to 
-  /// be allocated, and to what is intended to be done with it.
+  /// More specifically, AllocatorContext is the entry point to this  
+  /// allocation system: only this class has generally to be used by 
+  /// programmers. It handles a switch to the appropriate low-level allocator 
+  /// (LowLevelAllocator) according to the amount of memory available, the 
+  /// size of the data block to be allocated, and to what is intended to be
+  /// done with it.
   ///
   /// The switch mechanism is itself in large part deported to another class: 
   /// AllocatorStrategy which also provides some constant enums used by 
@@ -314,9 +316,9 @@ namespace soma
     mutable bool  _forced;
   };
   
-  //============================================================================
+  //==========================================================================
   //   A L L O C A T O R   C O N T E X T   :   I N L I N E
-  //============================================================================
+  //==========================================================================
 
   template<typename T>
   inline T* AllocatorContext::allocate( T*& ptr, size_t n ) const

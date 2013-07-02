@@ -31,28 +31,28 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/reader/pythonformatreader.h>              // class declaration
+#include <soma-io/reader/pythonformatreader.h>            // class declaration
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/allocator/allocator.h>
 #include <soma-io/reader/pythonreader.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATREADER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
-//==============================================================================
+//============================================================================
 //   I N I T
-//==============================================================================
+//============================================================================
 
 namespace
 {
@@ -72,9 +72,9 @@ namespace
 }
 
 
-//==============================================================================
+//============================================================================
 //   N E W   M E T H O D S
-//==============================================================================
+//============================================================================
 
 GenericObject* 
 PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
@@ -118,9 +118,9 @@ void PythonFormatReader::read( GenericObject & obj,
 }
 
 
-//==============================================================================
+//============================================================================
 //   O L D   M E T H O D S
-//==============================================================================
+//============================================================================
 
 GenericObject* 
 PythonFormatReader::createAndRead( Object, rc_ptr<DataSource> ds, 

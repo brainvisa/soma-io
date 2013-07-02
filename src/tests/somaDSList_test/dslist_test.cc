@@ -54,7 +54,7 @@ int main()
   ASSERT( dsl.dataSource( "default", 0 ).get() );
   dsl.addDataSource( "newkey", DataSource::none() );
   ASSERT( !dsl.empty() );
-  ASSERT( dsl.nbTypes() == 2 );
+  ASSERT( dsl.typecount() == 2 );
   ASSERT( dsl.exists( "default" ) );
   ASSERT( dsl.exists( "newkey" ) );
   ASSERT( !dsl.exists( "" ) );

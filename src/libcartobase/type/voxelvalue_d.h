@@ -31,26 +31,23 @@
 * knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef SOMAIO_IMAGE_VOXELVALUE_D_H
-#define SOMAIO_IMAGE_VOXELVALUE_D_H
+#ifndef CARTOBASE_TYPE_VOXELVALUE_D_H
+#define CARTOBASE_TYPE_VOXELVALUE_D_H
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelvalue.h>
-//--- cartobase ----------------------------------------------------------------
-//--- system -------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/type/voxelvalue.h>
+//----------------------------------------------------------------------------
 
-namespace soma {
+namespace carto {
   
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   
   template <typename T, unsigned int C>
   VoxelValue<T,C>::VoxelValue()
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: constructor()" << std::endl;
     #endif
   }
@@ -58,7 +55,7 @@ namespace soma {
   template <typename T, unsigned int C>
   VoxelValue<T,C>::VoxelValue( const VoxelValue<T,C> & other )
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: constructor( other )" << std::endl;
     #endif
     *this = other;
@@ -67,19 +64,19 @@ namespace soma {
   template <typename T, unsigned int C>
   VoxelValue<T,C>::~VoxelValue()
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: destructor()" << std::endl;
     #endif
   }
   
-  //============================================================================
+  //==========================================================================
   //   I N T E R N   O P E R A T O R S
-  //============================================================================
+  //==========================================================================
   
   template <typename T, unsigned int C> inline
   bool VoxelValue<T,C>::operator == ( const VoxelValue<T,C> &aa )
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == VV" << std::endl;
     #endif
     int i;
@@ -92,7 +89,7 @@ namespace soma {
   template <typename T, unsigned int C> inline
   bool VoxelValue<T,C>::operator != ( const VoxelValue<T,C> &aa )
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV != VV" << std::endl;
     #endif
     return !( (*this) == aa );
@@ -101,7 +98,7 @@ namespace soma {
   template <typename T, unsigned int C>
   bool VoxelValue<T,C>::operator == ( const T &bb )
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == const" << std::endl;
     #endif
     int i;
@@ -114,7 +111,7 @@ namespace soma {
   template <typename T, unsigned int C> inline
   bool VoxelValue<T,C>::operator != ( const T &bb )
   {
-    #ifdef SOMA_IO_DEBUG_VOXELVALUE
+    #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV != const" << std::endl;
     #endif
     return !( (*this) == bb );

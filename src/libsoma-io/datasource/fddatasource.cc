@@ -30,15 +30,15 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-//--- somaio -------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/fddatasource.h>                 // class definition
-//--- sys ----------------------------------------------------------------------
+#include <soma-io/datasource/fddatasource.h>               // class definition
+//--- sys --------------------------------------------------------------------
 #include <sys/types.h>
 #include <sys/stat.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <unistd.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace std;

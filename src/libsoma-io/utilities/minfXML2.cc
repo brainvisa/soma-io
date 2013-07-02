@@ -31,17 +31,17 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/utilities/minfXML2.h>
 //#include <soma-io/writer/pythonwriter.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/object/property.h>
 #include <cartobase/object/object_factory.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <libxml/xmlreader.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 
 using namespace std;
@@ -49,9 +49,9 @@ using namespace std;
 namespace soma {
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // XML tags and attributes
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 
 const std::string minfTag( "minf" );
@@ -73,7 +73,7 @@ const std::string objectTypeAttribute( "type" );
 const std::string identifierAttribute( "identifier" );
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 carto::Object readDictionaryMinfXML( const std::string &fileName, 
                                      carto::rc_ptr<carto::SyntaxSet> syntax )
 {
@@ -175,15 +175,15 @@ namespace
 } // namespace
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 ObjectListener::~ObjectListener() {}
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 MinfNodeExpander::~MinfNodeExpander() {}
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 MinfTreeExpander::MinfTreeExpander()
 {}
 
@@ -249,7 +249,7 @@ void MinfTreeExpander::reference( const std::string &identifier )
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 DefaultMinfNodeExpander::DefaultMinfNodeExpander( carto::rc_ptr< ObjectListener > ol, 
                                                   carto::rc_ptr<carto::SyntaxSet> syntax ) :
   _objectListener( ol ),
@@ -362,7 +362,7 @@ void DefaultMinfNodeExpander::reference( MinfTreeExpander &expander,
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 SingleDictionaryExpander::SingleDictionaryExpander( carto::Object dictionary, 
                                                     carto::rc_ptr<carto::SyntaxSet> syntax ) : 
   DefaultMinfNodeExpander( syntax ),
@@ -394,7 +394,7 @@ string SingleDictionaryExpander::startStructure( MinfTreeExpander &expander,
 
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 ListBuilder::ListBuilder()
 {
   result = carto::Object::value( vector< carto::Object >() );
@@ -435,7 +435,7 @@ void ListBuilder::noMoreObject()
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 DictionaryBuilder::DictionaryBuilder()
 {
   result = carto::Object::value( carto::PropertySet() );
@@ -482,7 +482,7 @@ void DictionaryBuilder::noMoreObject()
 
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 MinfXMLReader::MinfXMLReader( MinfTreeExpander &expander, carto::rc_ptr<carto::SyntaxSet> syntax ) :
   _expander( expander ),
   _syntax( syntax )
@@ -640,7 +640,7 @@ void MinfXMLReader::read( DataSource &ds )
 }
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // TestMinfTreeExpander::TestMinfTreeExpander() : _level( 0 ) {}
 // 
 // 

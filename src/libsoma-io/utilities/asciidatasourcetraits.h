@@ -33,20 +33,24 @@
 
 #ifndef SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
 #define SOMAIO_UTILITIES_ASCIIDATASOURCETRAITS_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h>
 #include <cartobase/exception/ioexcept.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/type/string_conversion.h>
 #include <cartobase/type/limits.h>
-//--- system -------------------------------------------------------------------
+#include <cartobase/type/voxelvalue.h>
+#include <cartobase/type/voxelrgb.h>
+#include <cartobase/type/voxelrgba.h>
+#include <cartobase/type/voxelhsv.h>
+//--- system -----------------------------------------------------------------
 #include <cstring>
 #include <iostream>
 #include <limits>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -634,7 +638,134 @@ namespace soma
     return ds;
   }
 
+  //=== VOXEL VALUE ==========================================================
+
+  template <typename T, unsigned int C>
+  class AsciiDataSourceTraits< carto::VoxelValue<T,C> >
+  {
+  public:
+    static bool read( DataSource &ds, carto::VoxelValue<T,C>  &item );
+    static bool write( DataSource &ds, const carto::VoxelValue<T,C>  &item );
+  };
+
+  template <typename T, unsigned int C> inline
+  bool AsciiDataSourceTraits<carto::VoxelValue<T,C> >::read( DataSource & ds,
+                                               carto::VoxelValue<T,C> & item )
+  {
+    int c, i;
+    carto::VoxelValue<T,C> result;
+
+    while( true ) {
+      c = ds.getch();
+      if( c != ' ' && c != '\t' && c != '\n' && c != '(' )
+        break;
+      if( c == '(' ) {
+        AsciiDataSourceTraits<T>::read( ds, result[0] );
+        c = ds.getch();
+        for( i=1; i<C; ++i )
+          if( c == ',' ) {
+            AsciiDataSourceTraits<T>::read( ds, result[i] );
+            c = ds.getch();
+          }
+        if( c == 0 || c == ')' ) {
+          item = result;
+          return true;
+        }
+        return false;
+      }
+    }
+    return false;
+  }
+
+  template <typename T, unsigned int C> inline
+  bool AsciiDataSourceTraits<carto::VoxelValue<T,C> >::write( DataSource & ds,
+                                                  const carto::VoxelValue<T,C>
+                                                    & item )
+  {
+    int i;
+    ds << '(';
+    for( i=0; i<C-1; ++i )
+      ds << (int) item[i] << ',';
+    ds << (int) item[C-1] << ')';
+    return true;
+  }
+
+  template<typename T, unsigned int C> inline DataSource &
+  operator << ( DataSource & ds, const carto::VoxelValue<T,C> & x )
+  {
+    AsciiDataSourceTraits<carto::VoxelValue<T,C> >::write( ds, x );
+    return ds;
+  }
+
+  //=== VOXEL RGB ============================================================
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelRGB>::read( DataSource & ds,
+                                                     carto::VoxelRGB & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,3> >::read( ds, item );
+  }
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelRGB>::write( DataSource & ds,
+                                                const carto::VoxelRGB & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,3> >::write( ds, item );
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const carto::VoxelRGB & x )
+  {
+    AsciiDataSourceTraits<carto::VoxelRGB>::write( ds, x );
+    return ds;
+  }
+
+  //=== VOXEL RGBA ===========================================================
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelRGBA>::read( DataSource & ds,
+                                                     carto::VoxelRGBA & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,4> >::read( ds, item );
+  }
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelRGBA>::write( DataSource & ds,
+                                                const carto::VoxelRGBA & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,4> >::write( ds, item );
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const carto::VoxelRGBA & x )
+  {
+    AsciiDataSourceTraits<carto::VoxelRGBA>::write( ds, x );
+    return ds;
+  }
+
+  //=== VOXEL HSV ============================================================
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelHSV>::read( DataSource & ds,
+                                              carto::VoxelHSV & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,3> >::read( ds, item );
+  }
+
+  template <> inline
+  bool AsciiDataSourceTraits<carto::VoxelHSV>::write( DataSource & ds,
+                                               const carto::VoxelHSV & item )
+  {
+    return AsciiDataSourceTraits<carto::VoxelValue<uint8_t,3> >::write( ds, item );
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const carto::VoxelHSV & x )
+  {
+    AsciiDataSourceTraits<carto::VoxelHSV>::write( ds, x );
+    return ds;
+  }
+
 } // namespace soma
 
 #endif
-

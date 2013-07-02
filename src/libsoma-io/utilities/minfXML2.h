@@ -33,21 +33,21 @@
 
 #ifndef SOMAIO_UTILITIES_MINFXML2_H
 #define SOMAIO_UTILITIES_MINFXML2_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/filedatasource.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
 #include <cartobase/object/syntax.h>
 #include <cartobase/type/string_conversion.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma {
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // XML tags and attributes
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 
 extern const std::string minfTag;
@@ -84,13 +84,13 @@ void readDictionaryMinfXML( DataSource &source,
                             carto::Object &dictionary, 
                             carto::rc_ptr<carto::SyntaxSet> syntax 
                               = carto::rc_ptr<carto::SyntaxSet>() );
-/** just to force initializing libxml2, needs to be called once from the
-    main thread in a multi-threaded environment. Called from PluginLoader::load
-*/
+/// just to force initializing libxml2, needs to be called once from the
+/// main thread in a multi-threaded environment.
+/// Called from PluginLoader::load
 void init_libXML();
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class ObjectListener : public virtual carto::RCObject
 {
 public:
@@ -101,7 +101,7 @@ public:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class MinfTreeExpander;
 class MinfNodeExpander : public virtual carto::RCObject
 {
@@ -120,7 +120,7 @@ public:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class MinfTreeExpander : public virtual carto::RCObject
 {
 public:
@@ -148,7 +148,7 @@ private:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class DefaultMinfNodeExpander : public MinfNodeExpander
 {
 public:
@@ -179,7 +179,7 @@ protected:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class SingleDictionaryExpander : public DefaultMinfNodeExpander
 {
 public:
@@ -200,7 +200,7 @@ private:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class ListBuilder : public ObjectListener
 {
 public:
@@ -220,7 +220,7 @@ private:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class DictionaryBuilder : public ObjectListener
 {
 public:
@@ -243,7 +243,7 @@ private:
 
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 class MinfXMLReader : public virtual carto::RCObject
 {
 public:
@@ -258,7 +258,7 @@ private:
 };
 
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // class TestMinfTreeExpander : public virtual MinfNodeExpander
 // {
 // public:

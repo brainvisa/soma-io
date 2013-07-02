@@ -33,15 +33,15 @@
 
 #ifndef SOMAIO_READER_PYTHONREADER_H
 #define SOMAIO_READER_PYTHONREADER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/object/object.h>
 #include <cartobase/object/syntax.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <iostream>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -104,38 +104,33 @@ namespace soma
     const carto::SyntaxSet & syntaxes() const;
     carto::SyntaxSet & syntaxes();
 
-    /** read characters not in s
-       @param s continue while characters outside s
-       @return accepted characters
-    */
+    /// read characters not in s
+    /// \param s continue while characters outside s
+    /// \return accepted characters
     std::string readUntil(const std::string& s);
-    /** skip characters not in s
-       @param s continue while characters outside s
-    */
+    /// skip characters not in s
+    /// \param s continue while characters outside s
     void skipUntil(const std::string& s);
-    /** read characters in s
-       @param s continue while characters in s
-       @return accepted characters
-    */
+    /// read characters in s
+    /// \param s continue while characters in s
+    /// \return accepted characters
     std::string readWhile(const std::string& s);
-    /** skip characters in s
-       \param s continue while characters in s
-       \return number of characters read
-    */
+    /// skip characters in s
+    /// \param s continue while characters in s
+    /// \return number of characters read
     unsigned skipWhile(const std::string& s);
     carto::GenericObject* read( carto::GenericObject *parent, 
                                 const std::string & semantic );
     std::string readVariableName();
-    /** attempts to read the syntax and general type of next element and fills 
-    \c syntax and \c type accordingly. \c type will be "dictionary" or 
-    "list".
-    \return false in case of failure (no syntax or not able to read it)
-    */
+    /// attempts to read the syntax and general type of next element and fills
+    /// \c syntax and \c type accordingly. \c type will be "dictionary" or 
+    /// "list".
+    /// \return false in case of failure (no syntax or not able to read it)
     bool readSyntax( std::string & syntax );
     std::string readString( char separator, unsigned & charsread );
 
-    /** utility function, dictionary helper (can be useful in more specialized 
-    readers) */
+    /// utility function, dictionary helper (can be useful in more specialized
+    /// readers)
     static carto::GenericObject* dictHelper( carto::GenericObject *, 
                                              const std::string&, 
                                              PythonReader & r );

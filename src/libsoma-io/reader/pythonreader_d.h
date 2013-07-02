@@ -31,13 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/reader/pythonreader.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object_d.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
@@ -81,7 +81,8 @@ namespace
 
   template<>
   GenericObject*
-  genericHelper<std::vector<int> >(GenericObject* o, const string & s, PythonReader & r )
+  genericHelper<std::vector<int> >(GenericObject* o, const string & s,
+                                   PythonReader & r )
   {
     return PythonReader::genericSequenceHelper<std::vector<int> >( o, s, r );
   }
@@ -157,7 +158,8 @@ namespace
     return( new ValueObject<string>( x ) );
   }
 
-  GenericObject* listHelper( GenericObject*, const string &, PythonReader & r )
+  GenericObject* listHelper( GenericObject*, const string &,
+                             PythonReader & r )
   {
     // cout << "list\n";
     bool        end = false;
@@ -315,8 +317,9 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*,
 }
 
 template<typename T>
-GenericObject* PythonReader::genericDictHelper( GenericObject *, const string &,
-                                         PythonReader & r )
+GenericObject* PythonReader::genericDictHelper( GenericObject *,
+                                                const string &,
+                                                PythonReader & r )
 {
   string                synt;
   DataSource    & ds = *r.dataSource();

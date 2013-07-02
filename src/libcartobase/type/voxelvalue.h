@@ -31,48 +31,59 @@
 * knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-#ifndef SOMAIO_IMAGE_VOXELVALUE_H
-#define SOMAIO_IMAGE_VOXELVALUE_H
+#ifndef CARTOBASE_TYPE_VOXELVALUE_H
+#define CARTOBASE_TYPE_VOXELVALUE_H
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/datasource.h>
-#include <soma-io/utilities/asciidatasourcetraits.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h>
 #include <cartobase/exception/assert.h>
-//--- system -------------------------------------------------------------------
-//#define SOMA_IO_DEBUG_VOXELVALUE
-#ifdef SOMA_IO_DEBUG_VOXELVALUE
+//--- system -----------------------------------------------------------------
+//#define CARTO_DEBUG_VOXELVALUE
+#ifdef CARTO_DEBUG_VOXELVALUE
   #include <iostream>
 #endif
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-namespace soma {
-  
+namespace carto {
+
+  /// Base class for any multichannel data (RGB, RGBA, HSV, ...)
+  ///
+  /// \tparam T  data type for channel value (uint8_t, ...)
+  /// \tparam C  number of channels
+  /// The voxel is stored as an array so that
+  /// <tt>sizeof( VoxelValue<T,C> ) = C * sizeof( T )</tt> \n
+  /// Only access, equality and stream operators are implemented here. All
+  /// math operators must be implemented in specific classes (RGB, HSB, ...)
   template <typename T, unsigned int C>
   class VoxelValue
   {
     public:
-      //=== CONSTRUCTORS =======================================================
+      typedef T ChannelType;
+
+      //=== CONSTRUCTORS =====================================================
       VoxelValue();
       VoxelValue( const VoxelValue<T,C> & other );
       ~VoxelValue();
-      
-      //=== OPERATORS ==========================================================
+
+      //=== OPERATORS ========================================================
       bool operator == ( const VoxelValue<T,C> & );
       bool operator != ( const VoxelValue<T,C> & );
       bool operator == ( const T & );
       bool operator != ( const T & );
-      
-      
-      //=== ACCESSORS ==========================================================
-      inline const T & operator[] ( unsigned int i ) const  { return _voxel[i]; }
-      inline       T & operator[] ( unsigned int i )        { return _voxel[i]; }
-      
+
+      //=== ACCESSORS ========================================================
+      inline
+      const T & operator[] ( unsigned int i ) const  { return _voxel[i]; }
+      inline
+            T & operator[] ( unsigned int i )        { return _voxel[i]; }
+
     protected:
       T _voxel[C];
   };
+
+  /***************************************************************************
+   * Old stream operators
+   **************************************************************************/
 
   template <typename T, unsigned int C> inline
   std::ostream& operator << ( std::ostream &out, const VoxelValue<T,C> &aa )
@@ -93,7 +104,8 @@ namespace soma {
     int i;
     VoxelValue<T,C> result;
     
-    while( in && ( in.peek() == ' ' || in.peek() == '\t' || in.peek() == '\n' ) )
+    while( in &&
+           ( in.peek() == ' ' || in.peek() == '\t' || in.peek() == '\n' ) )
       in >> ch;
     if ( in.peek () == '(' )
       in >> ch;
@@ -112,62 +124,6 @@ namespace soma {
       aa = result;
     
     return in;
-  }
-  
-  template <typename T, unsigned int C>
-  class AsciiDataSourceTraits< VoxelValue<T,C> >
-  {
-  public:
-    static bool read( DataSource & ds, VoxelValue<T,C>  & item );
-    static bool write( DataSource & ds, const VoxelValue<T,C>  & item );
-  };
-  
-  template <typename T, unsigned int C> inline
-  bool AsciiDataSourceTraits<VoxelValue<T,C> >::read( DataSource & ds, 
-                                                      VoxelValue<T,C> & item )
-  {
-    int c, i;
-    VoxelValue<T,C> result;
-
-    while( true ) {
-      c = ds.getch();
-      if( c != ' ' && c != '\t' && c != '\n' && c != '(' )
-        break;
-      if( c == '(' ) {
-        AsciiDataSourceTraits<T>::read( ds, result[0] );
-        c = ds.getch();
-        for( i=1; i<C; ++i )
-          if( c == ',' ) {
-            AsciiDataSourceTraits<T>::read( ds, result[i] );
-            c = ds.getch();
-          }
-        if( c == 0 || c == ')' ) {
-          item = result;
-          return true;
-        }
-        return false;
-      }
-    }
-    return false;
-  }
-
-  template <typename T, unsigned int C> inline
-  bool AsciiDataSourceTraits<VoxelValue<T,C> >::write( DataSource & ds, 
-                                                       const VoxelValue<T,C> & item )
-  {
-    int i;
-    ds << '(';
-    for( i=0; i<C-1; ++i )
-      ds << (int) item[i] << ',';
-    ds << (int) item[C-1] << ')';
-    return true;
-  }
-  
-  template<typename T, unsigned int C> inline DataSource & 
-  operator << ( DataSource & ds, const VoxelValue<T,C> & x )
-  {
-    AsciiDataSourceTraits<VoxelValue<T,C> >::write( ds, x );
-    return ds;
   }
 
 }

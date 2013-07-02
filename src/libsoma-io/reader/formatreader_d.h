@@ -33,33 +33,32 @@
 
 #ifndef SOMAIO_READER_FORMATREADER_D_H
 #define SOMAIO_READER_FORMATREADER_D_H
-//--- soma io ------------------------------------------------------------------
+//--- soma io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/reader/formatreader.h>                    // class declaration
-#include <soma-io/datasource/datasource.h>              // for templating rc_ptr
-#include <soma-io/utilities/creator.h>           // used by setup() and create()
+#include <soma-io/reader/formatreader.h>                  // class declaration
+#include <soma-io/datasource/datasource.h>            // for templating rc_ptr
+#include <soma-io/utilities/creator.h>         // used by setup() and create()
 #include <soma-io/allocator/allocator.h>                   // AllocatorContext
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-#include <cartobase/smart/rcptr.h>                 // reference counting pointer
-//--- system -------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+#include <cartobase/smart/rcptr.h>               // reference counting pointer
+//--- system -----------------------------------------------------------------
 #include <memory>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   template<typename T>
   FormatReader<T>::~FormatReader()
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   N E W   M E T H O D S
-  //============================================================================
-  //--- setupAndRead -----------------------------------------------------------
+  //==========================================================================
   template<typename T>
   void FormatReader<T>::setupAndRead( T & obj, 
                                       carto::rc_ptr<DataSourceInfo> dsi,
@@ -69,7 +68,7 @@ namespace soma
     setup( obj, dsi->header(), context, options );
     read( obj, dsi, context, options );
   }
-  //--- createAndRead ----------------------------------------------------------
+
   template<typename T>
   T* FormatReader<T>::createAndRead( carto::rc_ptr<DataSourceInfo> dsi,
                                      const AllocatorContext & context,
@@ -81,12 +80,12 @@ namespace soma
     objp.release();
     return obj;
   }
-  //--- read -------------------------------------------------------------------
-  /* This method is totally abstract and should be implemented in a format-
+
+  /*** read ******************************************************************
+   * This method is totally abstract and should be implemented in a format-
    * specific FormatReader.
    * This implem is only used for FormatReader<GenericObject>
-   */
-  
+   **************************************************************************/
   template<typename T>
   void FormatReader<T>::read( T & obj, 
                               carto::rc_ptr<DataSourceInfo> dsi, 
@@ -97,10 +96,10 @@ namespace soma
                                        context.dataSource() ? 
                                        context.dataSource()->url() : "" );
   }
-  
-  //============================================================================
+
+  //==========================================================================
   //   S T I L L   U S E D
-  //============================================================================
+  //==========================================================================
 
   template<typename T>
   T* FormatReader<T>::create( carto::Object header, 
@@ -110,7 +109,6 @@ namespace soma
     return Creator<T>::create( header, context, options );
   }
 
-
   template<typename T>
   void FormatReader<T>::setup( T & obj, carto::Object header, 
                                const AllocatorContext & context, 
@@ -118,11 +116,11 @@ namespace soma
   {
     Creator<T>::setup( obj, header, context, options );
   }
-  
-  //============================================================================
+
+  //==========================================================================
   //   O L D   M E T H O D S
-  //============================================================================
-  
+  //==========================================================================
+
   template<typename T>
   void FormatReader<T>::setupAndRead( T & obj, carto::Object header, 
                                       carto::rc_ptr<DataSource> ds, 
@@ -135,7 +133,6 @@ namespace soma
     setup( obj, header, ac, options );
     read( obj, header, ac, options );
   }
-
 
   template<typename T>
   T* FormatReader<T>::createAndRead( carto::Object header, 
@@ -153,7 +150,6 @@ namespace soma
     return obj;
   }
 
-
   template<typename T>
   carto::rc_ptr<DataSource> 
   FormatReader<T>::getDataSource( carto::Object, 
@@ -162,7 +158,6 @@ namespace soma
   {
     return source;
   }
-
 
   template<typename T>
   AllocatorContext 
@@ -176,13 +171,12 @@ namespace soma
     alloc.setAllowsMemoryMapping( decoder->allowsMemoryMapping() );
     return alloc;
   }
-  
-  //--- read -------------------------------------------------------------------
-  /* This method is totally abstract and should be implemented in a format-
+
+  /*** read ******************************************************************
+   * This method is totally abstract and should be implemented in a format-
    * specific FormatReader.
    * This implem is only used for FormatReader<GenericObject>
-   */
-  
+   **************************************************************************/
   template<typename T>
   void FormatReader<T>::read( T &, carto::Object, 
                               const AllocatorContext & context, 
@@ -196,4 +190,3 @@ namespace soma
 }
 
 #endif
-

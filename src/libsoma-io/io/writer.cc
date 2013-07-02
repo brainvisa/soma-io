@@ -31,13 +31,13 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/io/writer.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -125,5 +125,3 @@ void GenericWriter::attach( ostream & stream )
                           ( rc_ptr<DataSource>( new OStreamDataSource( stream ) ) )
                         );
 }
-
-

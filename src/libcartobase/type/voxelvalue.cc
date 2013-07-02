@@ -31,15 +31,11 @@
 * knowledge of the CeCILL-B license and that you accept its terms.
 */
 
-//--- soma-io ------------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/image/voxelvalue_d.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/type/voxelvalue_d.h>
 #include <cartobase/type/types.h>
-//--- system -------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
 using namespace std;
 

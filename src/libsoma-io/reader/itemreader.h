@@ -33,54 +33,53 @@
 
 #ifndef SOMAIO_READER_ITEMREADER_H
 #define SOMAIO_READER_ITEMREADER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//--- cartobase ----------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
 #include <cartobase/config/cartobase_config.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <algorithm>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
 
-  /**	Low-level "small item" reader, used by higher-level file readers. 
-	It can read either a single item, or an array of them. This 
-	template class is inherited by specific item readers, esp. by 
-	the DefaultItemReader classes.
-
-	Usage: you generally have to allocate two readers: one as a factory 
-	to use the correct item variant, and another one to switch on the 
-	reading-mode specific ItemReader:
-
-	\code
-	#include <soma-io/reader/defaultitemreader.h>
-	using namespace soma;
-	// Let's read a vector of signed 16 bits elements
-	short				shortarray[ 100 ];
-	DefaultItemReader<short>	ir1;
-	bool				binary;
-	bool				bswap;
-
-	// get binary and bswap from the header of the file to read
-	// ...
-	// now we assume it's done
-
-	ItemReader<short>	*ir = ir1.reader( binary, bswap );
-	// we use ir in the following, we can forget ir1 now.
-
-	FileDataSource	ds( "file.dat" );
-	if( !ds.open( DataSource::Read ) )
-	  return false; // fail
-	// read 100 elements
-	ir->read( ds, shortarray, 100 );
-	// don't forget to destroy the reader after use
-	// (or put it in a scoped_ptr)
-	delete ir;
-	\endcode
-  */
+  ///	Low-level "small item" reader, used by higher-level file readers.
+  /// It can read either a single item, or an array of them. This
+  /// template class is inherited by specific item readers, esp. by
+  /// the DefaultItemReader classes.
+  ///
+  /// Usage: you generally have to allocate two readers: one as a factory
+  /// to use the correct item variant, and another one to switch on the
+  /// reading-mode specific ItemReader:
+  ///
+  /// \code
+  /// #include <soma-io/reader/defaultitemreader.h>
+  /// using namespace soma;
+  /// // Let's read a vector of signed 16 bits elements
+  /// short                     shortarray[ 100 ];
+  /// DefaultItemReader<short>  ir1;
+  /// bool                      binary;
+  /// bool                      bswap;
+  ///
+  /// // get binary and bswap from the header of the file to read
+  /// // ...
+  /// // now we assume it's done
+  ///
+  /// ItemReader<short>	*ir = ir1.reader( binary, bswap );
+  /// // we use ir in the following, we can forget ir1 now.
+  ///
+  /// FileDataSource	ds( "file.dat" );
+  /// if( !ds.open( DataSource::Read ) )
+  ///   return false; // fail
+  /// // read 100 elements
+  /// ir->read( ds, shortarray, 100 );
+  /// // don't forget to destroy the reader after use
+  /// // (or put it in a scoped_ptr)
+  /// delete ir;
+  /// \endcode
   template<typename T>
   class ItemReader
   {
@@ -92,10 +91,10 @@ namespace soma
                                    bool bswap = false ) const = 0;
 
     /// Reading on an arbitrary DataSource
-    ///  \param ds source of data (file, buffer, socket...)
-    ///  \param pitem buffer to fill with read values
-    ///  \param n number of elements to read
-    ///  \return number of elements actually read
+    ///  \param ds     source of data (file, buffer, socket...)
+    ///  \param pitem  buffer to fill with read values
+    ///  \param n      number of elements to read
+    ///  \return       number of elements actually read
     virtual long read( DataSource & ds, T* pitem, size_t n = 1 ) const = 0;
   };
 
@@ -139,7 +138,9 @@ namespace soma
   };
 
 
-  // -----------
+  //==========================================================================
+  //   I M P L E M
+  //==========================================================================
 
   template <typename T>
   inline

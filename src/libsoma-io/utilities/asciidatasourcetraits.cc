@@ -31,12 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <stdio.h>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -192,5 +192,3 @@ bool StreamUtil::skip( istream & is, const string & s, bool ascii )
     }
   return !!is;
 }
-
-

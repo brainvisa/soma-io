@@ -31,10 +31,10 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/allocator/allocator.h>
-//--- system -------------------------------------------------------------------
+//--- system -----------------------------------------------------------------
 #include <cstdlib>
 #include <iostream>
 #include <cstdlib>
@@ -62,7 +62,7 @@
   #define _WIN32_WINNT 0x0500
   #include <windows.h>
 #endif
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
@@ -133,7 +133,7 @@ void AllocatorStrategy::memSizes( soma::offset_t & ram,
   freeram <<= 10;
   swap <<= 10;
 
-#else
+#else  // __linux
 #ifdef __sun
 
   ram = sysconf( _SC_PHYS_PAGES );
@@ -164,7 +164,7 @@ void AllocatorStrategy::memSizes( soma::offset_t & ram,
   delete sws;
   delete buf;
 
-#else
+#else  // __sun
 #ifdef __sgi
 
   off_t swapt = 0, swapf = 0, swapt2 = 0, swapr = 0, swapv = 0;
@@ -181,7 +181,7 @@ void AllocatorStrategy::memSizes( soma::offset_t & ram,
   freeram *= 512;
   swap *= 512;
 
-#else
+#else  // __sgi
 #ifdef _WIN32
 
   // Thanks Roro for this code...
@@ -196,10 +196,10 @@ void AllocatorStrategy::memSizes( soma::offset_t & ram,
   //memory.ullTotalPageFile;
   swap = memory.ullAvailPageFile;
 
-#endif
-#endif
-#endif
-#endif
+#endif // _WIN32
+#endif // __sgi
+#endif // __sun
+#endif // __linux
 
   /*
   cout << "RAM: " << ram << ", free: " << freeram << ", swap: " << swap 

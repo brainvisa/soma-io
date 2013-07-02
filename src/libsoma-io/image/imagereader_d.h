@@ -33,22 +33,22 @@
 
 #ifndef SOMAIO_IMAGE_IMAGEREADER_D_H
 #define SOMAIO_IMAGE_IMAGEREADER_D_H
-//--- soma io ------------------------------------------------------------------
+//--- soma io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                      // class declaration
-#include <soma-io/datasourceinfo/datasourceinfo.h>                     // member
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>         // updateParams(): to access header
-#include <cartobase/object/property.h>         // updateParams(): to read header
-//--- system -------------------------------------------------------------------
+#include <soma-io/image/imagereader.h>                    // class declaration
+#include <soma-io/datasourceinfo/datasourceinfo.h>                   // member
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>       // updateParams(): to access header
+#include <cartobase/object/property.h>       // updateParams(): to read header
+//--- system -----------------------------------------------------------------
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma {
   
-  //============================================================================
+  //==========================================================================
   //   U T I L I T I E S
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   void ImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
@@ -59,9 +59,9 @@ namespace soma {
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   template <typename T>
   ImageReader<T>::ImageReader()
   {
@@ -72,10 +72,10 @@ namespace soma {
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   M E T H O D S
-  //============================================================================
-  //--- read(...) --------------------------------------------------------------
+  //==========================================================================
+  //--- read(...) ------------------------------------------------------------
   /* This is an abstract method that is defined in format-specific readers
    * (like GisImageReader)
    */

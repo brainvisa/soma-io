@@ -33,13 +33,13 @@
 
 #ifndef SOMAIO_DATASOURCE_DATASOURCE_H
 #define SOMAIO_DATASOURCE_DATASOURCE_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/smart/rcptr.h>               // declares base class RCObject
-//--- system -------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/smart/rcptr.h>             // declares base class RCObject
+//--- system -----------------------------------------------------------------
 #include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
@@ -51,13 +51,11 @@ namespace soma
     typedef unsigned long long offset_t;
   #endif
 
-  /** 
-   * Abstraction layer for various data sources (file, 
-   * buffer, socket...).
-   *
-   * It can be seen as a stream, and is inspired by the QIODevice of 
-   * Trolltech's Qt library (http://doc.trolltech.com/3.3/qiodevice.html)
-   */
+  /// Abstraction layer for various data sources (file,
+  /// buffer, socket...).
+  ///
+  /// It can be seen as a stream, and is inspired by the QIODevice of
+  /// Trolltech's Qt library (http://doc.trolltech.com/3.3/qiodevice.html)
   class DataSource : public virtual carto::RCObject
   {
   public:
@@ -103,8 +101,8 @@ namespace soma
     virtual bool allowsMemoryMapping() const = 0;
     virtual std::string url() const;
 
-    /// An empty ref-counter that is more convenient than calling a constructor
-    /// of rc_ptr<DataSource> (useful when calling functions)
+    /// An empty ref-counter that is more convenient than calling a 
+    /// constructor of rc_ptr<DataSource> (useful when calling functions)
     static const carto::rc_ptr<DataSource> none();
   protected:
     int		_mode;
@@ -113,4 +111,3 @@ namespace soma
 }
 
 #endif
-
