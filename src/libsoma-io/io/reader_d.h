@@ -72,7 +72,7 @@ namespace soma
     : _datasourceinfo( new DataSourceInfo( ds ) )
   {
   }
-  
+
   template<class T> Reader<T>::Reader( carto::rc_ptr<DataSourceInfo> dsi )
     : _datasourceinfo( new DataSourceInfo( *dsi ) )
   {
@@ -95,7 +95,7 @@ namespace soma
   template<class T> Reader<T>::~Reader()
   {
   }
-  
+
   //==========================================================================
   //   A L L O C A T O R
   //==========================================================================
@@ -216,7 +216,8 @@ namespace soma
   //--------------------------------------------------------------------------
   
   template<class T>
-  bool Reader<T>::read( T & obj, carto::Object header )
+  bool Reader<T>::read( T & obj, carto::Object header,
+                        int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
     
@@ -240,7 +241,9 @@ namespace soma
     
     //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
+    DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options,
+                                            ( passbegin < 2 ? 1 : passbegin - 1 ),
+                                            passend - 1 );
     if( dsi.list().empty() )
       dsil.launchException();
     if( !dsi.header().get() )
@@ -271,7 +274,8 @@ namespace soma
     std::string	 excm;
 
     //// Pass1 : priority to format hint /////////////////////////////////////
-    if( !format.empty() ) {
+    if( passbegin <= 1 && passend >=1 && !format.empty() )
+    {
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
@@ -280,47 +284,49 @@ namespace soma
                                 _alloccontext, _options );
           localMsg( "1. " + format + " OK" );
           return true;
-	      } catch( std::exception & e ) {
+        } catch( std::exception & e ) {
           localMsg( "1. " + format + " failed" );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
-	      }
-	      tried.insert( format );
+        }
+        tried.insert( format );
         triedf.insert( reader );
       }
     }
 
     std::string	ext = carto::FileUtil::extension( filename );
-
     const multi_S	& extensions = FormatDictionary<T>::readExtensions();
-
-    pair_cit_S	             iext = extensions.equal_range( ext );
-    multi_S::const_iterator  ie, ee = iext.second;
+    pair_cit_S	             iext;
+    multi_S::const_iterator  ie, ee;
 
     //// Pass 2 : try every matching format until one works //////////////////
-    for( ie=iext.first; ie!=ee; ++ie ) {
-      if( tried.find( (*ie).second ) == notyet ) {
-        reader = FormatDictionary<T>::readFormat( ie->second );
-        if( reader && triedf.find( reader ) == notyetf ) {
-          try {
-            localMsg( "2. try reader " + ie->second );
-            reader->setupAndRead( obj, _datasourceinfo,
-                                  _alloccontext, _options );
-            localMsg( "2. " + ie->second + " OK" );
-            return true;
-          } catch( std::exception & e ) {
-            localMsg( "2. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+    if( passbegin <= 2 && passend >=2 )
+    {
+      iext = extensions.equal_range( ext );
+      for( ie=iext.first, ee = iext.second; ie!=ee; ++ie ) {
+        if( tried.find( (*ie).second ) == notyet ) {
+          reader = FormatDictionary<T>::readFormat( ie->second );
+          if( reader && triedf.find( reader ) == notyetf ) {
+            try {
+              localMsg( "2. try reader " + ie->second );
+              reader->setupAndRead( obj, _datasourceinfo,
+                                    _alloccontext, _options );
+              localMsg( "2. " + ie->second + " OK" );
+              return true;
+            } catch( std::exception & e ) {
+              localMsg( "2. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            }
+            tried.insert( ie->second );
+            triedf.insert( reader );
           }
-          tried.insert( ie->second );
-          triedf.insert( reader );
         }
       }
     }
-    
+
     //// Pass 3 : not found or none works: try readers with no extension /////
-    if( !ext.empty() ) {
+    if( passbegin <= 3 && passend >= 3 && !ext.empty())
+    {
       iext = extensions.equal_range( "" );
-      
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( ie->second );
@@ -343,25 +349,27 @@ namespace soma
     }
 
     //// Pass 4 : still not found ? well, try EVERY format this time... //////
-    iext.first = extensions.begin();
-    iext.second = extensions.end();
-
-    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-      if( tried.find( (*ie).second ) == notyet ) {
-        reader = FormatDictionary<T>::readFormat( ie->second );
-        if( reader && triedf.find( reader ) == notyetf ) {
-          try {
-            localMsg( "4. try reader " + ie->second );
-            reader->setupAndRead( obj, _datasourceinfo,
-                                  _alloccontext, _options );
-            localMsg( "4. " + ie->second + " OK" );
-            return true;
-          } catch( std::exception & e ) {
-            localMsg( "4. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+    if( passbegin <= 4 && passend >= 4 )
+    {
+      iext.first = extensions.begin();
+      iext.second = extensions.end();
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
+        if( tried.find( (*ie).second ) == notyet ) {
+          reader = FormatDictionary<T>::readFormat( ie->second );
+          if( reader && triedf.find( reader ) == notyetf ) {
+            try {
+              localMsg( "4. try reader " + ie->second );
+              reader->setupAndRead( obj, _datasourceinfo,
+                                    _alloccontext, _options );
+              localMsg( "4. " + ie->second + " OK" );
+              return true;
+            } catch( std::exception & e ) {
+              localMsg( "4. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            }
+            tried.insert( ie->second );
+            triedf.insert( reader );
           }
-          tried.insert( ie->second );
-          triedf.insert( reader );
         }
       }
     }
@@ -373,7 +381,7 @@ namespace soma
   }
 
   template<class T>
-  T* Reader<T>::read( carto::Object header )
+  T* Reader<T>::read( carto::Object header, int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
     
@@ -424,7 +432,7 @@ namespace soma
     std::string  excm;
 
     //// Pass 1 : prioroty to format hint ////////////////////////////////////
-    if( !format.empty() )	{
+    if( passbegin <= 1 && passend >= 1 && !format.empty() )	{
       reader = FormatDictionary<T>::readFormat( format );
       if( reader ) {
         try {
@@ -448,36 +456,40 @@ namespace soma
 
     const multi_S &  extensions = FormatDictionary<T>::readExtensions();
 
-    pair_cit_S               iext = extensions.equal_range( ext );
-    multi_S::const_iterator  ie, ee = iext.second;
+    pair_cit_S               iext;
+    multi_S::const_iterator  ie, ee;
 
     //// Pass 2 : try every matching format until one works //////////////////
-    for( ie=iext.first; ie!=ee; ++ie ) {
-      if( tried.find( (*ie).second ) == notyet ) {
-        reader = FormatDictionary<T>::readFormat( (*ie).second );
-        if( reader && triedf.find( reader ) == notyetf ) {
-          try {
-            localMsg( "2. try reader " + ie->second );
-            obj = reader->createAndRead( _datasourceinfo,
-                                         _alloccontext, _options );
-            if( obj ) {
-              localMsg( "2. " + ie->second + " OK" );
-              return obj;
+    if( passbegin <= 2 && passend >= 2 )
+    {
+      iext = extensions.equal_range( ext );
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
+        if( tried.find( (*ie).second ) == notyet ) {
+          reader = FormatDictionary<T>::readFormat( (*ie).second );
+          if( reader && triedf.find( reader ) == notyetf ) {
+            try {
+              localMsg( "2. try reader " + ie->second );
+              obj = reader->createAndRead( _datasourceinfo,
+                                          _alloccontext, _options );
+              if( obj ) {
+                localMsg( "2. " + ie->second + " OK" );
+                return obj;
+              }
+            } catch( std::exception & e ) {
+              localMsg( "2. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
-          } catch( std::exception & e ) {
-            localMsg( "2. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            tried.insert( ie->second );
+            triedf.insert( reader );
           }
-          tried.insert( ie->second );
-          triedf.insert( reader );
         }
       }
     }
 
-    if( !ext.empty() ) {
+    //// Pass 3 : not found or none works: try readers with no extension /////
+    if( passbegin <= 3 && passend >= 3 && !ext.empty() )
+    {
       iext = extensions.equal_range( "" );
-
-      //// Pass 3 : not found or none works: try readers with no extension ///
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( (*ie).second );
@@ -502,27 +514,29 @@ namespace soma
     }
 
     //// Pass 4 : still not found ? well, try EVERY format this time... //////
-    iext.first = extensions.begin();
-    iext.second = extensions.end();
-
-    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-      if( tried.find( (*ie).second ) == notyet ) {
-        reader = FormatDictionary<T>::readFormat( ie->second );
-        if( reader && triedf.find( reader ) == notyetf ) {
-          try {
-            localMsg( "4. try reader " + ie->second );
-            obj = reader->createAndRead( _datasourceinfo,
-                                         _alloccontext, _options );
-            if( obj ) {
-              localMsg( "4. " + ie->second + " OK" );
-              return obj;
+    if( passbegin <= 4 && passend >= 4 )
+    {
+      iext.first = extensions.begin();
+      iext.second = extensions.end();
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
+        if( tried.find( (*ie).second ) == notyet ) {
+          reader = FormatDictionary<T>::readFormat( ie->second );
+          if( reader && triedf.find( reader ) == notyetf ) {
+            try {
+              localMsg( "4. try reader " + ie->second );
+              obj = reader->createAndRead( _datasourceinfo,
+                                          _alloccontext, _options );
+              if( obj ) {
+                localMsg( "4. " + ie->second + " OK" );
+                return obj;
+              }
+            } catch( std::exception & e ) {
+              localMsg( "4. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
-          } catch( std::exception & e ) {
-            localMsg( "4. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            tried.insert( ie->second );
+            triedf.insert( reader );
           }
-          tried.insert( ie->second );
-          triedf.insert( reader );
         }
       }
     }

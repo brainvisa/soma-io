@@ -36,13 +36,25 @@
 #include <cartobase/object/object.h>
 #include <cartobase/object/property.h>
 #include <cartobase/exception/assert.h>
+#include <cartobase/getopt/getopt.h>
+#include <cartobase/config/verbose.h>
+
+#define verbMsg( message ) if( verbose ) std::cout << message << std::endl;
 
 using namespace carto;
 using namespace std;
 
 
-int main( int argc, char *argv[] )
+int main( int argc, const char **argv )
 {
+  //=== APPLICATION ==========================================================
+  CartoApplication  app( argc, argv, "Test for uri parser" );
+  app.alias( "-v", "--verbose" );
+  app.alias( "-d", "--debugLevel" );
+
+  app.initialize();
+
+  //=== STRINGS TO TEST ======================================================
   string uri1 = "/this/is/my/path/file.ext?option1=this&option2=that";
   string uri2 = "this/is/my/path/?option1=1.2";
   string uri3 = "file.ext";
@@ -51,105 +63,107 @@ int main( int argc, char *argv[] )
   string uri6 = "/home/Petri/base/TD201210_Aperio/3399.svs?bx=5&by=5&resolution_level=2";
   string filename;
   Object options;
-  
-  cout << "parsing uri : " << uri1 << endl;
+
+  //=== PROCESSING ===========================================================
+  //--- test #1 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri1 );
   filename = FileUtil::uriFilename( uri1 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "/this/is/my/path/file.ext" );
   options = FileUtil::uriOptions( uri1 );
   ASSERT( options.get() != 0 );
   try {
-    cout << " -> option1 : " << options->getProperty( "option1" )->getString() << endl;
+    verbMsg( " -> option1 : \t" + options->getProperty( "option1" )->getString() );
   } catch( ... ) {
-    cout << "!!! option1 failed" << endl;
+    verbMsg( "!!! option1 failed" );
   }
   ASSERT( options->getProperty( "option1" )->getString() == "this" );
   try {
-    cout << " -> option2 : " << options->getProperty( "option2" )->getString() << endl;
+    verbMsg( " -> option2 : \t" + options->getProperty( "option2" )->getString() );
   } catch( ... ) {
-    cout << "!!! option2 failed" << endl;
+    verbMsg( "!!! option2 failed" );
   }
   ASSERT( options->getProperty( "option2" )->getString() == "that" );
-  cout << endl;
-  
-  
-  cout << "parsing uri : " << uri2 << endl;
+  verbMsg( "" );
+
+  //--- test #2 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri2 );
   filename = FileUtil::uriFilename( uri2 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "this/is/my/path/" );
   options = FileUtil::uriOptions( uri2 );
   ASSERT( options.get() != 0 );
   try {
-    cout << " -> option1 : " << options->getProperty( "option1" )->getScalar() << endl;
+    verbMsg( " -> option1 : \t" + options->getProperty( "option1" )->getString() );
   } catch( ... ) {
-    cout << "!!! option1 failed" << endl;
+    verbMsg( "!!! option1 failed" );
   }
-  ASSERT( options->getProperty( "option1" )->getScalar() == 1.2 );
-  cout << endl;
-  
-  
-  cout << "parsing uri : " << uri3 << endl;
+  ASSERT( options->getProperty( "option1" )->getScalar() == (float)1.2 );
+  verbMsg( "" );
+
+  //--- test #3 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri3 );
   filename = FileUtil::uriFilename( uri3 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "file.ext" );
   options = FileUtil::uriOptions( uri3 );
   ASSERT( options.get() == 0 );
-  cout << endl;
-  
-  
-  cout << "parsing uri : " << uri4 << endl;
+  verbMsg( "" );
+
+  //--- test #4 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri4 );
   filename = FileUtil::uriFilename( uri4 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "file.ext" );
   options = FileUtil::uriOptions( uri4 );
   ASSERT( options.get() == 0 );
-  cout << endl;
-  
-  
-  cout << "parsing uri : " << uri5 << endl;
+  verbMsg( "" );
+
+  //--- test #5 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri5 );
   filename = FileUtil::uriFilename( uri5 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "file.ext" );
   options = FileUtil::uriOptions( uri5 );
   ASSERT( options.get() != 0 );
   try {
-    cout << " -> option1 : " << options->getProperty( "option1" )->getString() << endl;
+    verbMsg( " -> option1 : \t" + options->getProperty( "option1" )->getString() );
   } catch( ... ) {
-    cout << "!!! option1 failed" << endl;
+    verbMsg( "!!! option1 failed" );
   }
   ASSERT( options->getProperty( "option1" )->getString() == "this" );
   try {
-    cout << " -> option2 : " << options->getProperty( "option2" )->getScalar() << endl;
+    verbMsg( " -> option2 : \t" + options->getProperty( "option2" )->getString() );
   } catch( ... ) {
-    cout << "!!! option2 failed" << endl;
+    verbMsg( "!!! option2 failed" );
   }
   ASSERT( options->getProperty( "option2" )->getScalar() == 1 );
-  cout << endl;
-  
-  
-  cout << "parsing uri : " << uri6 << endl;
+  verbMsg( "" );
+
+  //--- test #6 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri6 );
   filename = FileUtil::uriFilename( uri6 );
-  cout << " -> " << filename << endl;
+  verbMsg( " -> filename : \t" + filename );
   ASSERT( filename == "/home/Petri/base/TD201210_Aperio/3399.svs" );
   options = FileUtil::uriOptions( uri6 );
   ASSERT( options.get() != 0 );
   try {
-    cout << " -> bx : " << options->getProperty( "bx" )->getScalar() << endl;
+    verbMsg( " -> bx : \t" + options->getProperty( "bx" )->getString() );
   } catch( ... ) {
-    cout << "!!! bx failed" << endl;
+    verbMsg( "!!! bx failed" );
   }
   ASSERT( options->getProperty( "bx" )->getScalar() == 5 );
   try {
-    cout << " -> by : " << options->getProperty( "by" )->getScalar() << endl;
+    verbMsg( " -> by : \t" + options->getProperty( "by" )->getString() );
   } catch( ... ) {
-    cout << "!!! by failed" << endl;
+    verbMsg( "!!! by failed" );
   }
   ASSERT( options->getProperty( "by" )->getScalar() == 5 );
   try {
-    cout << " -> resolution_level : " << options->getProperty( "resolution_level" )->getScalar() << endl;
+    verbMsg( " -> resolution_level : \t" + options->getProperty( "resolution_level" )->getString() );
   } catch( ... ) {
-    cout << "!!! resolution_level failed" << endl;
+    verbMsg( "!!! resolution_level failed" );
   }
   ASSERT( options->getProperty( "resolution_level" )->getScalar() == 2 );
-  cout << endl;
+  verbMsg( "" );
 }

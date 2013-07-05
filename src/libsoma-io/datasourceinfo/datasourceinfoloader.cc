@@ -181,7 +181,8 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
 //----------------------------------------------------------------------------
 
 DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
-                                            Object options )
+                                            Object options,
+                                            int passbegin, int passend )
 {
   localMsg( "check()" );
   
@@ -225,36 +226,40 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   set<string>::iterator  notyet = tried.end();
   Private_Static         &ps = getstatic();
 
-  pair_cit_S               iext = ps.extensions.equal_range( ext );
-  multi_S::const_iterator  ie, ee = iext.second;
+  pair_cit_S               iext;
+  multi_S::const_iterator  ie, ee;
   DataSource*              pds = dsi.list().dataSource().get();
   soma::offset_t           dspos = pds->at();
 
   //// Pass 1 : try every matching format until one works ////////////////////
-  for( ie=iext.first; ie!=ee; ++ie )
-    if( tried.find( ie->second ) == notyet ) {
-      localMsg( "1. trying " + (*ie).second + "..." );
-      reader = formatInfo( ie->second );
-      if( reader ) {
-        try {
-          d->state = Ok;
-          return reader->check( dsi, *this, options );
-	      } catch( exception & e ) {
-          localMsg( "1. failed : " + string( e.what() ) );
-          d->state = Error;
-          io_error::keepExceptionPriority( e, excp, d->errorcode,
-                                           d->errormsg );
-          pds->at( dspos );
-	      }
-        tried.insert( ie->second );
+  if( passbegin <= 1 && passend >= 1 )
+  {
+    iext = ps.extensions.equal_range( ext );
+    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+      if( tried.find( ie->second ) == notyet ) {
+        localMsg( "1. trying " + (*ie).second + "..." );
+        reader = formatInfo( ie->second );
+        if( reader ) {
+          try {
+            d->state = Ok;
+            return reader->check( dsi, *this, options );
+          } catch( exception & e ) {
+            localMsg( "1. failed : " + string( e.what() ) );
+            d->state = Error;
+            io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                            d->errormsg );
+            pds->at( dspos );
+          }
+          tried.insert( ie->second );
+        }
       }
-    }
+  }
 
   //// Pass 2 : not found or none works: try readers with no extension ///////
-  localMsg( "not found yet... pass2..." );
-  if( !ext.empty() ) {
+  if( passbegin <= 2 && passend >= 2 && !ext.empty() )
+  {
+    localMsg( "not found yet... pass2..." );
     iext = ps.extensions.equal_range( "" );
-
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       if( tried.find( ie->second ) == notyet ) {
         localMsg( "2. trying " + (*ie).second + "..." );
@@ -276,28 +281,30 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   }
 
   //// Pass 3 : still not found ? well, try EVERY format this time... ////////
-  localMsg( "not found yet... pass3..." );
-  iext.first = ps.extensions.begin();
-  iext.second = ps.extensions.end();
-
-  for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-    if( tried.find( ie->second ) == notyet ) {
-      reader = formatInfo( ie->second );
-      if( reader ) {
-        localMsg( "3. trying " + (*ie).second + "..." );
-        try {
-          d->state = Ok;
-          return reader->check( dsi, *this, options );
-	      } catch( exception & e ) {
-          localMsg( "3. failed : " + string( e.what() ) );
-          d->state = Error;
-          io_error::keepExceptionPriority( e, excp, d->errorcode,
-                                           d->errormsg );
-          pds->at( dspos );
-	      }
-        tried.insert( ie->second );
+  if( passbegin <= 3 && passend >= 3 )
+  {
+    localMsg( "not found yet... pass3..." );
+    iext.first = ps.extensions.begin();
+    iext.second = ps.extensions.end();
+    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+      if( tried.find( ie->second ) == notyet ) {
+        reader = formatInfo( ie->second );
+        if( reader ) {
+          localMsg( "3. trying " + (*ie).second + "..." );
+          try {
+            d->state = Ok;
+            return reader->check( dsi, *this, options );
+          } catch( exception & e ) {
+            localMsg( "3. failed : " + string( e.what() ) );
+            d->state = Error;
+            io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                            d->errormsg );
+            pds->at( dspos );
+          }
+          tried.insert( ie->second );
+        }
       }
-    }
+  }
 
   //// End : still not succeeded, it's hopeless... ///////////////////////////
   localMsg( "not found at all, giving up" );

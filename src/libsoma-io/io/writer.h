@@ -105,9 +105,16 @@ namespace soma
     /// this format is tried first, so you can use it to force the format,
     /// otherwise it will be determined from the filename extension (if
     /// available). If no extension and no format are given, the first
-    /// working format will be used. 
+    /// working format will be used. \\
+    /// It is possible to specify wich passes to process through
+    /// \c passbegin and \c passend.
+    /// - pass 1 : format hint
+    /// - pass 2 : extension
+    /// - pass 3 : empty extension
+    /// - pass 4 : all writers
     virtual bool write( const T & obj,
-                        carto::Object options = carto::none() );
+                        carto::Object options = carto::none(),
+                        int passbegin = 1 , int passend = 4 );
 
     virtual std::string writtenObjectType() const;
   };

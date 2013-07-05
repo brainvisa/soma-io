@@ -111,7 +111,7 @@ void XMLFormatReader::read( GenericObject & obj, rc_ptr<DataSourceInfo> dsi,
                             const AllocatorContext & context, Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
-  localMsg( "read " + context.dataSource()->url() );
+  localMsg( "read " + ds->url() );
   Object  o( &obj );
   try
     {

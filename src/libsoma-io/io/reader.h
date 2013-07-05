@@ -45,7 +45,7 @@
 
 namespace soma
 {
-  
+
   /// Generic reader for *every* format of Cartograph object.
   /// Still a template class, the data type must be switched at upper-level 
   /// (see DataSourceInfoLoader or ReaderAlgorithm).\n
@@ -81,16 +81,23 @@ namespace soma
     Reader( carto::rc_ptr<DataSourceInfo> dsi );
     Reader( std::istream & stream );
     virtual ~Reader();
-    
+
     //========================================================================
     //   R E A D I N G
     //========================================================================
     /// \brief Finds the correct format and reads the object. 
     /// if \c format is specified, this format is tried first, so you can use
     /// it as a hint if you already know it (from the DataSourceInfoLoader
-    /// check ).
-    virtual bool read( T & obj, carto::Object header = carto::none() );
-    
+    /// check ).\\
+    /// It is possible to specify wich passes to process through
+    /// \c passbegin and \c passend.
+    /// - pass 1 : format hint
+    /// - pass 2 : extension
+    /// - pass 3 : empty extension
+    /// - pass 4 : all readers
+    virtual bool read( T & obj, carto::Object header = carto::none(),
+                       int passbegin = 1, int passend = 4 );
+
     /// \brief Creates and reads an object. 
     /// This function differs from the read( T&, ... ) function in the way 
     /// that it creates the object and does not just fill it. This enables 
@@ -98,9 +105,16 @@ namespace soma
     /// allow subclasses. The object is created by \c new and can be deleted. 
     /// The default is just to create a T and call the read( T&, ... )
     /// function, but some specialized low-level readers may behave
-    /// differently.
-    virtual T* read( carto::Object header = carto::none() );
-    
+    /// differently.\\
+    /// It is possible to specify wich passes to process through
+    /// \c passbegin and \c passend.
+    /// - pass 1 : format hint
+    /// - pass 2 : extension
+    /// - pass 3 : empty extension
+    /// - pass 4 : all readers
+    virtual T* read( carto::Object header = carto::none(),
+                     int passbegin = 1, int passend = 4 );
+
     //========================================================================
     //   D A T A S O U R C E I N F O
     //========================================================================
@@ -108,20 +122,20 @@ namespace soma
             { return _datasourceinfo; }
           carto::rc_ptr<DataSourceInfo> & dataSourceInfo()
             { return _datasourceinfo; }
-    
+
     //========================================================================
     //   A L L O C A T O R
     //========================================================================
     void setAllocatorContext( const AllocatorContext & ac );
     const AllocatorContext & allocatorContext() const;
-    
+
     //========================================================================
     //   O P T I O N S
     //========================================================================
     void setOptions( carto::Object options );
     carto::Object   options() const;
     carto::Object & options();
-    
+
     //========================================================================
     //   D A T A S O U R C E
     //========================================================================
@@ -132,7 +146,7 @@ namespace soma
     void attach( carto::rc_ptr<DataSource> ds );
     void attach( const std::string & filename, offset_t offset = 0 );
     void attach( std::istream & stream );
-    
+
     //========================================================================
     //   C O N T R O L
     //========================================================================
@@ -140,13 +154,13 @@ namespace soma
     void close();
     // void flushAll();
     // void closeAll();
-    
+
     //========================================================================
     //   U T I L I T I E S
     //========================================================================
     // is it actually used or implemented somewhere ?
     static std::string extension( const std::string & filename );
-    
+
   protected:
     carto::rc_ptr<DataSourceInfo>  _datasourceinfo;
     AllocatorContext               _alloccontext;

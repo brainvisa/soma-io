@@ -88,7 +88,8 @@ namespace soma
   //--------------------------------------------------------------------------
   
   template<class T>
-  bool Writer<T>::write( const T & obj, carto::Object options )
+  bool Writer<T>::write( const T & obj, carto::Object options,
+                         int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
     
@@ -118,7 +119,8 @@ namespace soma
     localMsg( "format: " + format );
 
     //// priority to format hint /////////////////////////////////////////////
-    if( !format.empty() ) {
+    if( passbegin <= 1 && passend >= 1 && !format.empty() )
+    {
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
         try {
@@ -137,30 +139,35 @@ namespace soma
 
     std::string	          ext = carto::FileUtil::extension( filename );
     const multi_S	&       extensions = FormatDictionary<T>::writeExtensions();
-    pair_cit_S            iext = extensions.equal_range( ext );
-    multi_S::const_iterator ie, ee = iext.second;
+    pair_cit_S            iext;
+    multi_S::const_iterator ie, ee;
 
     //// try every matching format until one works ///////////////////////////
-    for( ie=iext.first; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet ) {
-        writer = FormatDictionary<T>::writeFormat( ie->second );
-        if( writer ) {
-          try {
-            localMsg( "2. try writer " + ie->second );
-            if( writer->write( obj, _datasourceinfo, options ) ) {
-              localMsg( "2. " + ie->second + " OK" );
-              return true;
+    if( passbegin <= 2 && passend >= 2 )
+    {
+      iext = extensions.equal_range( ext );
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+        if( tried.find( ie->second ) == notyet ) {
+          writer = FormatDictionary<T>::writeFormat( ie->second );
+          if( writer ) {
+            try {
+              localMsg( "2. try writer " + ie->second );
+              if( writer->write( obj, _datasourceinfo, options ) ) {
+                localMsg( "2. " + ie->second + " OK" );
+                return true;
+              }
+            } catch( std::exception & e ) {
+              localMsg( " 2. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
-          } catch( std::exception & e ) {
-            localMsg( " 2. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            tried.insert( ie->second );
           }
-          tried.insert( ie->second );
         }
-      }
+    }
 
     //// not found or none works: try writers with no extension //////////////
-    if( !ext.empty() ) {
+    if( passbegin <= 3 && passend >= 3 && !ext.empty() )
+    {
       iext = extensions.equal_range( "" );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
@@ -182,26 +189,28 @@ namespace soma
     }
 
     //// still not found ? well, try EVERY format this time... ///////////////
-    iext.first = extensions.begin();
-    iext.second = extensions.end();
-
-    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet ) {
-        writer = FormatDictionary<T>::writeFormat( ie->second );
-        if( writer ) {
-          try {
-            localMsg( "4. try writer " + ie->second );
-            if( writer->write( obj, _datasourceinfo, options ) ) {
-              localMsg( "4. " + ie->second + " OK" );
-              return true;
+    if( passbegin <= 4 && passend >= 4 )
+    {
+      iext.first = extensions.begin();
+      iext.second = extensions.end();
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+        if( tried.find( ie->second ) == notyet ) {
+          writer = FormatDictionary<T>::writeFormat( ie->second );
+          if( writer ) {
+            try {
+              localMsg( "4. try writer " + ie->second );
+              if( writer->write( obj, _datasourceinfo, options ) ) {
+                localMsg( "4. " + ie->second + " OK" );
+                return true;
+              }
+            } catch( std::exception & e ) {
+              localMsg( "4. " + ie->second + " failed" );
+              carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
-          } catch( std::exception & e ) {
-            localMsg( "4. " + ie->second + " failed" );
-            carto::io_error::keepExceptionPriority( e, excp, exct, excm );
+            tried.insert( ie->second );
           }
-          tried.insert( ie->second );
         }
-      }
+    }
 
     //// still not succeeded, it's hopeless... ///////////////////////////////
     carto::io_error::launchExcept( exct, excm, 

@@ -239,6 +239,7 @@ namespace carto {
     red()   *= value;
     green() *= value;
     blue()  *= value;
+    return *this;
   }
 
   inline
@@ -250,6 +251,7 @@ namespace carto {
     red()   *= value;
     green() *= value;
     blue()  *= value;
+    return *this;
   }
 
   inline
@@ -261,6 +263,7 @@ namespace carto {
     red()   *= value;
     green() *= value;
     blue()  *= value;
+    return *this;
   }
 
   inline
@@ -272,6 +275,7 @@ namespace carto {
     red()   *= value;
     green() *= value;
     blue()  *= value;
+    return *this;
   }
 
   inline
@@ -597,6 +601,7 @@ namespace carto {
     red()   *= value;
     green() *= value;
     blue()  *= value;
+    return *this;
   }
   
   inline

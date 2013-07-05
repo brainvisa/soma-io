@@ -37,6 +37,7 @@
 #include <soma-io/config/soma_config.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>
+#include <cartobase/config/verbose.h>
 //----------------------------------------------------------------------------
 
 namespace soma
@@ -75,6 +76,7 @@ namespace soma
   T* Creator<T>::create( carto::Object, const AllocatorContext &, 
                          carto::Object )
   {
+    cartoCondMsg( 4, "create", "CREATOR" );
     return new T;
   }
 
@@ -84,6 +86,7 @@ namespace soma
   void Creator<T>::setup( T &, carto::Object, const AllocatorContext &, 
                           carto::Object )
   {
+    cartoCondMsg( 4, "setup", "CREATOR" );
   }
 
 }

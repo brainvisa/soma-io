@@ -132,10 +132,16 @@ namespace soma
       ///                 any use to the checker, but soma are
       ///                 ( \c resolution_level ).
       /// \return  A DataSourceInfo object containing a header, a list of
-      ///          DataSource and a list of Capabilities.
+      ///          DataSource and a list of Capabilities. \\
+      /// It is possible to specify wich passes to process through
+      /// \c passbegin and \c passend.
+      /// - pass 1 : extension
+      /// - pass 2 : empty extension
+      /// - pass 3 : all writers
       /// \see DataSourceInfo DataSourceList DataSourceCapabilities
       DataSourceInfo check( DataSourceInfo dsi, 
-                            carto::Object options = carto::none() );
+                            carto::Object options = carto::none(),
+                            int passbegin = 1, int passend = 3 );
 
       State state() const;
       std::string errorMessage() const;

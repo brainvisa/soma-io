@@ -276,6 +276,7 @@ namespace carto {
     hue()        *= val;
     saturation() *= val;
     value()      *= val;
+    return *this;
   }
 
   inline
@@ -287,6 +288,7 @@ namespace carto {
     hue()        *= val;
     saturation() *= val;
     value()      *= val;
+    return *this;
   }
 
   inline
@@ -298,6 +300,7 @@ namespace carto {
     hue()        *= val;
     saturation() *= val;
     value()      *= val;
+    return *this;
   }
 
   inline
@@ -309,6 +312,7 @@ namespace carto {
     hue()        *= val;
     saturation() *= val;
     value()      *= val;
+    return *this;
   }
 
   inline
@@ -634,6 +638,7 @@ namespace carto {
     hue()        *= val;
     saturation() *= val;
     value()      *= val;
+    return *this;
   }
   
   inline
