@@ -121,6 +121,7 @@ namespace soma
     //// priority to format hint /////////////////////////////////////////////
     if( passbegin <= 1 && passend >= 1 && !format.empty() )
     {
+      localMsg( "Pass 1..." );
       writer = FormatDictionary<T>::writeFormat( format );
       if( writer ) {
         try {
@@ -141,10 +142,12 @@ namespace soma
     const multi_S	&       extensions = FormatDictionary<T>::writeExtensions();
     pair_cit_S            iext;
     multi_S::const_iterator ie, ee;
+    localMsg( "extension: " + carto::toString( ext ) );
 
     //// try every matching format until one works ///////////////////////////
     if( passbegin <= 2 && passend >= 2 )
     {
+      localMsg( "Pass 2..." );
       iext = extensions.equal_range( ext );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
@@ -168,6 +171,7 @@ namespace soma
     //// not found or none works: try writers with no extension //////////////
     if( passbegin <= 3 && passend >= 3 && !ext.empty() )
     {
+      localMsg( "Pass 3..." );
       iext = extensions.equal_range( "" );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
@@ -191,6 +195,7 @@ namespace soma
     //// still not found ? well, try EVERY format this time... ///////////////
     if( passbegin <= 4 && passend >= 4 )
     {
+      localMsg( "Pass 4..." );
       iext.first = extensions.begin();
       iext.second = extensions.end();
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )

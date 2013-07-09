@@ -31,8 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef CARTOBASE_TYPE_RGB_D_H
-#define CARTOBASE_TYPE_RGB_D_H
+#ifndef CARTOBASE_TYPE_RGB_DECL_H
+#define CARTOBASE_TYPE_RGB_DECL_H
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/type/voxelvalue.h>
 #include <cartobase/type/types.h>
@@ -42,7 +42,8 @@
  * Even though declarations are here, this is NOT the file you want to
  * include to use VoxelRGB.
  * Since all methods are inline and for readability issues, declarations
- * are contained in "_d.h" file and definitions in ".h" file.
+ * are contained in "_decl.h" file and definitions in "_def.h" file.
+ * You should include ".h" file which binds all necessary headers.
  ****************************************************************************/
 
 namespace carto {
@@ -64,7 +65,7 @@ namespace carto {
   /// file for read/write operations.
   ///
   /// \warning Even though declarations are contained in
-  /// \c cartobase/type/voxelrgb_d.h, you need to include
+  /// \c cartobase/type/voxelrgb_decl.h, you need to include
   /// \c cartobase/type/voxelrgb.h in order to use this class
   /// (all methods are inline).
   class VoxelRGB : public VoxelValue<uint8_t,3>

@@ -98,9 +98,11 @@ set( _headers
    type/voxelvalue.h
    type/voxelvalue_d.h
    type/voxelrgb.h
-   type/voxelrgb_d.h
+   type/voxelrgb_decl.h
+   type/voxelrgb_def.h
    type/voxelrgba.h
-   type/voxelrgba_d.h
+   type/voxelrgba_decl.h
+   type/voxelrgba_def.h
    type/voxelhsv.h
    uuid/uuid.h
    zoolib/atomiccount.h
