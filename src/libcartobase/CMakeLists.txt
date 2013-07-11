@@ -1,3 +1,6 @@
+################################################################################
+## libCartobase
+
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" 
                    DESTINATION "include/cartobase/config" 
@@ -7,26 +10,14 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h"
                    DESTINATION "include/cartobase/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
+## still in cartobase
 set( _headers
    algorithm/algorithm.h
-   allocator/allocator.h
-   allocator/mappingcopy.h
-   allocator/mappingro.h
-   allocator/mappingrw.h
    config/cartobase_config.h
    config/info.h
    config/paths.h
    config/verbose.h
-   containers/allocatedvector.h
    containers/block.h
-   datasource/bufferdatasource.h
-   datasource/chaindatasource.h
-   datasource/cstreamdatasource.h
-   datasource/datasource.h
-   datasource/fddatasource.h
-   datasource/filedatasource.h
-   datasource/filteringdatasource.h
-   datasource/streamdatasource.h
    doc/cartobase_doc.h
    doc/getopt_doc.h
    doc/io_doc.h
@@ -38,10 +29,7 @@ set( _headers
    exception/ioexcept.h
    exception/parse.h
    getopt/getopt.h
-   object/achecker.h
-   object/areader.h
    object/attributed.h
-   object/awriter.h
    object/headered.h
    object/lexicon.h
    object/object.h
@@ -50,10 +38,6 @@ set( _headers
    object/object_internal.h
    object/property.h
    object/propertyfilter.h
-   object/pythonreader.h
-   object/pythonreader_d.h
-   object/pythonwriter.h
-   object/pythonwriter_d.h
    object/sprinter.h
    object/sreader.h
    object/swriter.h
@@ -62,7 +46,6 @@ set( _headers
    object/syntobject_d.h
    pattern/observable.h
    pattern/observer.h
-   plugin/plugin.h
    sigc++/cartosigcmacro.h
    sigc++/cartosigcmacroend.h
    sigc++/sigc++.h
@@ -112,7 +95,47 @@ set( _headers
    type/string_conversion.h
    type/types.h
    type/typetraits.h
+   type/voxelvalue.h
+   type/voxelvalue_d.h
+   type/voxelrgb.h
+   type/voxelrgb_decl.h
+   type/voxelrgb_def.h
+   type/voxelrgba.h
+   type/voxelrgba_decl.h
+   type/voxelrgba_def.h
+   type/voxelhsv.h
    uuid/uuid.h
+   zoolib/atomiccount.h
+   zoolib/ZAtomic.h
+   zoolib/zconfig.h
+   zoolib/zconfigd.h
+   zoolib/zconfigtest.h
+   zoolib/ZDebug.h
+)
+
+## moved to soma-io
+set( _headers
+  "${_headers}"
+   allocator/allocator.h
+   allocator/mappingcopy.h
+   allocator/mappingro.h
+   allocator/mappingrw.h
+   containers/allocatedvector.h
+   datasource/bufferdatasource.h
+   datasource/chaindatasource.h
+   datasource/cstreamdatasource.h
+   datasource/datasource.h
+   datasource/fddatasource.h
+   datasource/filedatasource.h
+   datasource/filteringdatasource.h
+   datasource/streamdatasource.h
+   object/achecker.h
+   object/areader.h
+   object/awriter.h
+   object/pythonreader.h
+   object/pythonreader_d.h
+   object/pythonwriter.h
+   object/pythonwriter_d.h
    io/asciidatasourcetraits.h
    io/creator.h
    io/datasourceinfo.h
@@ -136,40 +159,22 @@ set( _headers
    io/writer_d.h
    io/xmlformatchecker.h
    io/xmlformatreader.h
-   zoolib/atomiccount.h
-   zoolib/ZAtomic.h
-   zoolib/zconfig.h
-   zoolib/zconfigd.h
-   zoolib/zconfigtest.h
-   zoolib/ZDebug.h
+   plugin/plugin.h
 )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers cartobase headersTarget )
 
+## still in cartobase
 set( _cartobase_0_sources
   algorithm/algorithm.cc 
-  allocator/allocator.cc 
-  allocator/mappingcopy.cc 
-  allocator/mappingro.cc 
-  allocator/mappingrw.cc 
-  allocator/meminfo.cc 
   config/paths.cc 
   config/verbose.cc 
   config/version.cc 
-  datasource/bufferdatasource.cc 
-  datasource/chaindatasource.cc 
-  datasource/cstreamdatasource.cc 
-  datasource/datasource.cc 
-  datasource/fddatasource.cc 
-  datasource/filedatasource.cc 
-  datasource/filteringdatasource.cc 
-  datasource/streamdatasource.cc 
   exception/assert.cc 
   exception/errno.cc 
   exception/file.cc 
   exception/format.cc 
   exception/ioexcept.cc 
-  object/achecker.cc 
   object/headered.cc 
   object/object.cc 
   object/object_usual.cc 
@@ -207,41 +212,72 @@ set( _cartobase_0_sources
   thread/thread.cc 
   type/byte_order.cc 
   type/converter.cc 
-  type/string_conversion.cc 
+  type/string_conversion.cc
+  type/voxelvalue.cc
   uuid/uuid.cc 
-  io/asciidatasourcetraits.cc 
-  io/formatdictionary.cc 
 )
 
+## moved to soma-io
+if( NOT USE_SOMA_IO )
+  set( _cartobase_0_sources
+    "${_cartobase_0_sources}"
+    allocator/allocator.cc 
+    allocator/mappingcopy.cc 
+    allocator/mappingro.cc 
+    allocator/mappingrw.cc 
+    allocator/meminfo.cc 
+    datasource/bufferdatasource.cc 
+    datasource/chaindatasource.cc 
+    datasource/cstreamdatasource.cc 
+    datasource/datasource.cc 
+    datasource/fddatasource.cc 
+    datasource/filedatasource.cc 
+    datasource/filteringdatasource.cc 
+    datasource/streamdatasource.cc 
+    object/achecker.cc 
+    io/asciidatasourcetraits.cc 
+    io/formatdictionary.cc 
+  )
+endif()
+
+## still in cartobase
 set( _cartobase_1_sources
   object/object_map.cc
   object/object_vector.cc
 )
 
+## still in cartobase
 set( _cartobase_sources
   config/info.cc 
   getopt/getopt.cc 
-  object/areader.cc 
-  object/awriter.cc 
   object/object_factory.cc 
   object/object_map_string_vector.cc 
   object/object_rcptr_map.cc 
   object/object_rcptr_map_string_vector.cc 
   object/object_set.cc 
-  object/pythonreader.cc 
-  object/pythonwriter.cc 
-  plugin/plugin.cc 
-  io/datasourceinfo.cc 
-  io/minfXML2.cc 
-  io/pythonformatchecker.cc 
-  io/pythonformatreader.cc 
-  io/pythonformatwriter.cc 
-  io/reader_object.cc 
-  io/readeralgorithm.cc 
-  io/writer.cc 
-  io/xmlformatchecker.cc 
-  io/xmlformatreader.cc
 )
+
+## moved to soma-io
+if( NOT USE_SOMA_IO )
+  set( _cartobase_sources
+    "${_cartobase_sources}"
+    object/areader.cc 
+    object/awriter.cc 
+    object/pythonreader.cc 
+    object/pythonwriter.cc 
+    io/datasourceinfo.cc 
+    io/minfXML2.cc 
+    io/pythonformatchecker.cc 
+    io/pythonformatreader.cc 
+    io/pythonformatwriter.cc 
+    io/reader_object.cc 
+    io/readeralgorithm.cc 
+    io/writer.cc 
+    io/xmlformatchecker.cc 
+    io/xmlformatreader.cc
+    plugin/plugin.cc 
+  )
+endif()
 
 add_library( cartobase_0 SHARED ${_cartobase_0_sources} )
 add_dependencies( cartobase_0 ${headersTarget} )
@@ -260,9 +296,8 @@ if(APPLE)
   target_link_libraries( cartobase_0 "-framework CoreServices" )
 endif(APPLE)
 BRAINVISA_INSTALL( TARGETS cartobase_0
-              DESTINATION lib
-              COMPONENT ${PROJECT_NAME} )
-
+                   DESTINATION lib
+                   COMPONENT ${PROJECT_NAME} )
 
 add_library( cartobase_1 SHARED ${_cartobase_1_sources} )
 set_property( TARGET cartobase_1 PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
@@ -271,10 +306,9 @@ if(UNIX)
   target_link_libraries( cartobase_1 "pthread" )
 endif(UNIX)
 BRAINVISA_INSTALL( TARGETS cartobase_1
-              DESTINATION lib
-              COMPONENT ${PROJECT_NAME} )
+                   DESTINATION lib
+                   COMPONENT ${PROJECT_NAME} )
 
-              
 add_library( cartobase SHARED ${_cartobase_sources} )
 set_property( TARGET cartobase PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( cartobase "cartobase_1" "cartobase_0" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
@@ -282,10 +316,9 @@ if(UNIX)
   target_link_libraries( cartobase "pthread" )
 endif(UNIX)
 BRAINVISA_INSTALL( TARGETS cartobase
-              DESTINATION lib
-              COMPONENT ${PROJECT_NAME} )
+                   DESTINATION lib
+                   COMPONENT ${PROJECT_NAME} )
 
-              
 IF ( DOXYGEN_FOUND )
   SET(component_name "cartobase")
   set( DOXYFILE_PREDEFINED "${AIMS_DEFINITIONS}")

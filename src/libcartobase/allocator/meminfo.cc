@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cstdlib>
 #include <cartobase/allocator/allocator.h>
@@ -202,3 +203,5 @@ void AllocatorStrategy::memSizes( carto::offset_t & ram,
        << endl;
   */
 }
+
+#endif // USE_SOMA_IO

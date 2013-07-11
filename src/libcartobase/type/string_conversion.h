@@ -97,6 +97,12 @@ std::string stringUpper( const std::string & );
 */
 std::string stringStrip(const std::string& str, char c = ' ');
 
+/// Does the string represent a valid integer ?
+bool isInt( const std::string & s );
+
+/// Does the string represent a valid float ?
+bool isFloat( const std::string & s );
+
 ////////////////////////////////
 //  toString< unsigned char > //
 ////////////////////////////////

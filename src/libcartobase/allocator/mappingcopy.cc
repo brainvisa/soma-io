@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/allocator/mappingcopy.h>
 #include <cartobase/exception/assert.h>
@@ -138,14 +139,14 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 		}
 	    }
 	  close( fildest );
-	  /* Ici on ne peut faire un throw car il est trappé comme une erreur 
+	  /* Ici on ne peut faire un throw car il est trappÃ© comme une erreur 
              de format. */
 	  cerr << "truncate failed on  " << fileName << " !" << endl;
 	  return 0; // this error is not managed by caller... !!
 	}
       else 
 	{
-	  /* Ici on ne peut faire un throw car il est trappé comme une erreur 
+	  /* Ici on ne peut faire un throw car il est trappÃ© comme une erreur 
              de format. */
 	  cerr << "unable to open " << fileName << " !" << endl;    
 	}
@@ -220,4 +221,4 @@ std::ostream& carto::operator << ( ostream& os,
   return os;
 }
 
-
+#endif // USE_SOMA_IO

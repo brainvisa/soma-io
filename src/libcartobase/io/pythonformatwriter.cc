@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/io/pythonformatwriter.h>
 #include <cartobase/io/formatdictionary.h>
@@ -97,3 +98,4 @@ namespace
 template class Writer<GenericObject>;
 
 
+#endif // USE_SOMA_IO

@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/io/readeralgorithm.h>
 #include <cartobase/io/datasourceinfo.h>
@@ -124,3 +125,4 @@ return ip->second( *this, header, source );
 }
 
 
+#endif // USE_SOMA_IO

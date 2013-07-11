@@ -146,48 +146,50 @@ list<PluginLoader::PluginFile> & PluginLoader::pluginFiles()
 #ifndef CARTO_NO_DLOPEN
 static bool loadlib2( const string & lname, int verbose )
 {
-#ifdef _WIN32
-  HANDLE	hl = GetModuleHandle( lname.c_str() );
-  if( hl )
-    {
+  #ifdef _WIN32
+    HANDLE	hl = GetModuleHandle( lname.c_str() );
+    if( hl ) {
       // already loaded
       CloseHandle( hl );
-      //cout << "DLL " << lname << " alreay loaded\n";
+      if( verbose > 1 )
+        cout << "PLUGINLOADER:: DLL " << lname << " alreay loaded.\n";
       return true;
     }
-  //cout << "loading DLL " << lname << endl;
-  HMODULE	h = LoadLibrary( lname.c_str() );
-#else
+    if( verbose > 1 )
+      cout << "PLUGINLOADER:: loading DLL " << lname << endl;
+    HMODULE	h = LoadLibrary( lname.c_str() );
+  #else
 
-  static set<string>	libbase;
+    static set<string>	libbase;
 
-  if( libbase.find( lname ) != libbase.end() )
-    return true;	// already loaded
-  libbase.insert( lname );
-
-  void	*h = dlopen( lname.c_str(), RTLD_GLOBAL|RTLD_NOW );
-
-#endif
-
-  if( !h )
-    {
-      if( verbose > 0 )
-	{
-	  cerr << lname << ": ";
-#ifdef _WIN32
-          const string	msg = string( "Could not load DLL " ) + lname;
-          const char *er = msg.c_str();
-#else
-	  const char *er = dlerror();
-#endif
-	  if( er )
-	    cerr << er << endl;
-	  cerr << endl;
-	}
-      return false;
+    if( libbase.find( lname ) != libbase.end() )  {
+      if( verbose > 1 )
+          cout << "PLUGINLOADER:: library " << lname << " alreay loaded.\n";
+      return true;	// already loaded
     }
+    libbase.insert( lname );
+
+    void	*h = dlopen( lname.c_str(), RTLD_GLOBAL|RTLD_NOW );
+
+  #endif
+
+  if( !h ) {
+    if( verbose > 0 ) {
+      cerr << lname << ": ";
+      #ifdef _WIN32
+        const string	msg = string( "Could not load DLL " ) + lname;
+        const char *er = msg.c_str();
+      #else
+        const char *er = dlerror();
+      #endif
+      if( er )
+        cerr << er;
+      cerr << endl;
+    }
+    return false;
+  }
   if( verbose > 1 )
-    cout << "library " << lname << " successfully loaded.\n";
+    cout << "PLUGINLOADER:: library " << lname << " successfully loaded.\n";
 
   return true;
 }
@@ -219,29 +221,27 @@ static bool loadlib( const string & libname, const std::string & ver,
 
   if( !ver.empty() && sopos == lname.length() - 3 )
   {
-#ifdef _WIN32
-    lname.replace( sopos, 3, ".dll" );
-#endif
+    #ifdef _WIN32
+      lname.replace( sopos, 3, ".dll" );
+    #endif
     // lname += string( "." ) + ver;
     for( iv=vers.begin(); iv!=ev; ++iv )
       liblist.push_back( lname + *iv );
-#ifdef __APPLE__
-    lname = libname.substr( 0, sopos );
-    for( iv=vers.begin(); iv!=ev; ++iv )
-      liblist.push_back( lname + *iv + ".so" );
-#endif
+    #ifdef __APPLE__
+      lname = libname.substr( 0, sopos );
+      for( iv=vers.begin(); iv!=ev; ++iv )
+        liblist.push_back( lname + *iv + ".so" );
+    #endif
   }
-#ifdef _WIN32
-  else
-  {
-    sopos = lname.rfind( ".so." );
-    if( sopos != string::npos )
+  #ifdef _WIN32
+    else
     {
-      lname.replace( sopos, 4, ".dll." );
+      sopos = lname.rfind( ".so." );
+      if( sopos != string::npos )
+        lname.replace( sopos, 4, ".dll." );
+      liblist.push_back( lname );
     }
-    liblist.push_back( lname );
-  }
-#endif
+  #endif
 
   list<string>::iterator il, el = liblist.end();
   for( il=liblist.begin(); il!=el; ++il )
@@ -297,12 +297,16 @@ void PluginLoader::load( int verbose, bool forcereload )
     verbose = carto::debugMessageLevel;
   list<PluginFile>		& plugins = pluginFiles();
   list<PluginFile>::iterator	ip;
-  for( ip=plugins.begin(); ip!=plugins.end(); ++ip )
-    if( !ip->loaded || forcereload )
-    {
+  for( ip=plugins.begin(); ip!=plugins.end(); ++ip ) {
+    if( !ip->loaded || forcereload ) {
+      if( verbose > 1 )
+        cout << "PLUGINLOADER:: loading plugin file " << ip->filename << endl;
       loadPluginFile( ip->filename, ip->version, verbose );
       ip->loaded = true;
+      //if( verbose > 1 )
+      //  cout << "plugin file " << ip->filename << " loaded" << endl;
     }
+  }
   _pluginMutex.unlock();
 }
 
@@ -310,8 +314,6 @@ void PluginLoader::load( int verbose, bool forcereload )
 void PluginLoader::loadPluginFile( const std::string & p, 
                                    const std::string & ver, int verbose )
 {
-  // cout << "Plugin file: " << p << endl;
-
   ValueObject<Dictionary>	plugins;
   Object			modep;
 

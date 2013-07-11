@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/utilities/allocatedvector.h>
+#else
 
 #ifndef CARTOBASE_VECTOR_ALLOCATEDVECTOR_H
 #define CARTOBASE_VECTOR_ALLOCATEDVECTOR_H
@@ -249,5 +252,6 @@ namespace carto
 
 }
 
-#endif
+#endif // CARTOBASE_VECTOR_ALLOCATEDVECTOR_H
 
+#endif // USE_SOMA_IO

@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 // #define CARTO_DEBUG_IO
 #include <cartobase/io/pythonformatreader.h>
@@ -100,3 +101,4 @@ namespace
 }
 
 
+#endif // USE_SOMA_IO

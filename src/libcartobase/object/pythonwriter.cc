@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/object/pythonwriter_d.h>
 #include <cartobase/object/object_d.h>
@@ -483,3 +484,5 @@ SyntaxSet & PythonWriter::syntaxes()
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonWriter::Helper )
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonWriter::HelperSet )
+
+#endif // USE_SOMA_IO

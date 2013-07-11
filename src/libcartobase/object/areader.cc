@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 //=============================================================================
 //	H E A D E R  F I L E S
@@ -42,15 +43,14 @@
 #include <cartobase/object/syntobject.h>
 #include <cartobase/object/pythonreader.h>
 //#include <cartobase/io/minfXML2.h> // not ready yet
-#include <cartobase/io/asciidatasourcetraits.h>
-#include <cartobase/datasource/streamdatasource.h>
 #include <cartobase/stream/attachable_cuifstream.h>
+#include <cartobase/datasource/streamdatasource.h>
+#include <cartobase/io/asciidatasourcetraits.h>
 #include <vector>
 #include <assert.h>
 
 using namespace std;
 using namespace carto;
-
 
 //=============================================================================
 //	F U N C T I O N S
@@ -419,3 +419,4 @@ AttributedReader::readAttribute(GenericObject* object,
 }
 
 
+#endif // USE_SOMA_IO

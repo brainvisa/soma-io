@@ -37,10 +37,8 @@
 #include <cartobase/config/cartobase_config.h>
 
 #ifdef CARTO_DEBUG
-
-#include <cartobase/type/string_conversion.h>
-#include <iostream>
-
+  #include <cartobase/type/string_conversion.h>
+  #include <iostream>
 #endif
 
 namespace carto {
@@ -60,6 +58,8 @@ extern int debugMessageLevel;
 
 #define cartoDbgVarVerb( level, variable ) if ( (level) <= ::carto::debugMessageLevel ) ::std::cerr << "!! " << __FILE__ << " (" << __LINE__ << ")" << ::std::endl << "  " #variable " = " << toString( variable ) << ::std::endl;
 
+#define cartoMsg( level, message, space ) if( (level) <= ::carto::debugMessageLevel ) ::std::cout << (space) << ":: " << (message) << ::std::endl;
+
 /* conditional debug output: only active if CARTO_DEBUG is defined */
 
 #ifdef CARTO_DEBUG
@@ -72,6 +72,8 @@ extern int debugMessageLevel;
 
 #define cartoCondDbgVarVerb( level, variable ) cartoDbgVarVerb( level, variable )
 
+#define cartoCondMsg( level, message, space ) cartoMsg( level, message, space )
+
 #else
 
 #define cartoCondDbgMsg( level, message )
@@ -81,6 +83,8 @@ extern int debugMessageLevel;
 #define cartoCondDbgVar( level, message )
 
 #define cartoCondDbgVarVerb( level, message )
+
+#define cartoCondMsg( level, message, space )
 
 #endif
 

@@ -30,7 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
+//--- cartobase ----------------------------------------------------------------
 #include <cartobase/object/object_d.h>
 #include <cartobase/object/pythonreader_d.h>
 #include <cartobase/object/syntobject.h>
@@ -42,9 +44,11 @@
 #include <cartobase/io/itemreader.h>
 #include <cartobase/datasource/filedatasource.h>
 #include <cartobase/datasource/streamdatasource.h>
+//---- system ------------------------------------------------------------------
 #include <stdio.h>
 #include <vector>
 #include <iostream>
+//------------------------------------------------------------------------------
 
 using namespace std;
 using namespace carto;
@@ -1231,3 +1235,5 @@ SyntaxSet & PythonReader::syntaxes()
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::Helper )
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::HelperSet )
+
+#endif // USE_SOMA_IO

@@ -26,6 +26,7 @@ find_package( Doxygen )
 find_package( Sigc++2 REQUIRED )
 find_package( LibXml2 REQUIRED )
 find_package( Boost REQUIRED )
+find_package( OpenSlide )
 
 # Bla
 set( @PROJECT_NAME_UPPER@_DEFINITIONS @SOMA-IO_DEFINITIONS@ )
@@ -34,7 +35,6 @@ set( @PROJECT_NAME_UPPER@_INCLUDE_DIRS
      ${Sigc++2_INCLUDE_DIRS} 
      "${LIBXML2_INCLUDE_DIR}"
      ${Boost_INCLUDE_DIRS} )
-
 
 if( @PROJECT_NAME@_IS_BEING_COMPILED )
   set( SOMA_CARTOBASE_LIB cartobase )

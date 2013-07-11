@@ -34,7 +34,11 @@
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
 #include <cartobase/config/paths.h>
+#include <cartobase/object/object.h>
+#include <cartobase/object/property.h>
+#include <cartobase/type/string_conversion.h>
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -358,3 +362,66 @@ list<string> FileUtil::filenamesSplit( const string & fnames,
   return names;
 }
 
+//==============================================================================
+//   U R I
+//==============================================================================
+
+string FileUtil::uriFilename( const string & filein )
+{
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return filein;
+  
+  return filein.substr( 0, epos );
+}
+
+string FileUtil::uriCopyOptions( const string & filein )
+{
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return "";
+
+  return filein.substr( epos );
+}
+
+Object FileUtil::uriOptions( const string & filein )
+{
+  Object options = none();
+  int intval;
+  float floatval;
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return options;
+  
+  string opt = filein.substr( epos + 1, filein.length() - epos - 1 );
+  string::size_type spos;
+  string currentopt, currentval;
+  while( !opt.empty() ) {
+    epos = opt.find( '&' );
+    string currentopt = opt.substr( 0, epos );
+    spos = currentopt.find( '=' );
+    if( spos == string::npos )
+      currentval = "1";
+    else
+      currentval = currentopt.substr( spos + 1, currentopt.length() - spos - 1 );
+    currentopt = currentopt.substr( 0, spos );
+    if( currentopt != "" ) {
+      if( !options.get() )
+        options = Object::value( PropertySet() );
+      if( isInt( currentval ) ) {
+        stringTo( currentval, intval );
+        options->setProperty( currentopt, intval );
+      } else if( isFloat( currentval ) ) {
+        stringTo( currentval, floatval );
+        options->setProperty( currentopt, floatval );
+      } else
+        options->setProperty( currentopt, currentval );
+    }
+    if( epos == string::npos )
+      opt = "";
+    else
+      opt = opt.substr( epos + 1, opt.length() - epos - 1 );
+  }
+  
+  return options;
+}

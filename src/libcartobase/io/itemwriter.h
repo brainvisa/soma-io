@@ -30,6 +30,9 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifdef USE_SOMA_IO
+  #include <soma-io/writer/itemwriter.h>
+#else
 
 #ifndef CARTOBASE_IO_ITEMWRITER_H
 #define CARTOBASE_IO_ITEMWRITER_H
@@ -141,8 +144,10 @@ namespace carto
     std::vector<uint8_t>	pd( n * sizeof( T ) );
     const uint8_t	*ps = (uint8_t *) pitem;
     for( size_t k=0; k<n*sizeof(T); k+=sizeof(T) )
-      for( size_t b=0; b<sizeof(T)/2; ++b )
-	pd[k+b] = ps[k+sizeof(T)-1-b];
+      for( size_t b=0; b<sizeof(T)/2; ++b ) {
+        pd[k+b] = ps[k+sizeof(T)-1-b];
+        pd[k+sizeof(T)-1-b] = ps[k+b];
+      }
     return ds.writeBlock( (const char *) &pd[0], sizeof(T) * n ) / sizeof(T);
   }
 
@@ -174,5 +179,6 @@ namespace carto
 }
 
 
-#endif
+#endif // CARTOBASE_IO_ITEMWRITER_H
 
+#endif // USE_SOMA_IO

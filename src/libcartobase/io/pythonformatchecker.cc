@@ -30,6 +30,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
+#ifndef USE_SOMA_IO
 
 #include <cartobase/io/pythonformatchecker.h>
 #include <cartobase/io/datasourceinfo.h>
@@ -101,3 +102,4 @@ Object PythonFormatChecker::check( DataSource & ds, DataSourceInfo & ) const
 }
 
 
+#endif // USE_SOMA_IO
