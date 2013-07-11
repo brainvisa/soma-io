@@ -375,6 +375,15 @@ string FileUtil::uriFilename( const string & filein )
   return filein.substr( 0, epos );
 }
 
+string FileUtil::uriCopyOptions( const string & filein )
+{
+  string::size_type epos = filein.rfind( '?' );
+  if( epos == string::npos )
+    return "";
+
+  return filein.substr( epos );
+}
+
 Object FileUtil::uriOptions( const string & filein )
 {
   Object options = none();

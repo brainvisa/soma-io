@@ -118,6 +118,9 @@ namespace carto
     /// of strings :
     /// ( "options1" => "this", "option2" => "that" )
     static Object uriOptions( const std::string & filein );
+    /// Extracts the options from the URI and returns them as a string :
+    /// "?options1=this&option2=that"
+    static std::string uriCopyOptions( const std::string & filein );
 
   };
 
