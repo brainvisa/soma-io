@@ -182,7 +182,7 @@ namespace carto {
   //=== AFFECTATION ==========================================================
 
   inline
-  VoxelHSV::VoxelHSV & VoxelHSV::operator = ( const VoxelHSV & other )
+  VoxelHSV & VoxelHSV::operator = ( const VoxelHSV & other )
   {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator = ( HSV )" << std::endl;
@@ -194,7 +194,7 @@ namespace carto {
   }
 
   inline
-  VoxelHSV::VoxelHSV & VoxelHSV::operator = ( const uint8_t & val )
+  VoxelHSV & VoxelHSV::operator = ( const uint8_t & val )
   {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator = ( uint8_t )" << std::endl;

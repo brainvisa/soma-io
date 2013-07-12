@@ -107,7 +107,7 @@ namespace carto {
   //=== AFFECTATION ==========================================================
 
   inline
-  VoxelRGB::VoxelRGB & VoxelRGB::operator = ( const VoxelRGB & other )
+  VoxelRGB & VoxelRGB::operator = ( const VoxelRGB & other )
   {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator = ( RGB )" << std::endl;
@@ -119,7 +119,7 @@ namespace carto {
   }
 
   inline
-  VoxelRGB::VoxelRGB & VoxelRGB::operator = ( const VoxelRGBA & other )
+  VoxelRGB & VoxelRGB::operator = ( const VoxelRGBA & other )
   {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator = ( RGBA )" << std::endl;
@@ -131,7 +131,7 @@ namespace carto {
   }
 
   inline
-  VoxelRGB::VoxelRGB & VoxelRGB::operator = ( const uint8_t & value )
+  VoxelRGB & VoxelRGB::operator = ( const uint8_t & value )
   {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator = ( uint8_t )" << std::endl;
