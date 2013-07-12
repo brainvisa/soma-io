@@ -291,9 +291,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint8_t )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -303,9 +303,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint16_t )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -315,9 +315,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint32_t )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -327,9 +327,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( uint64_t )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -339,9 +339,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( float )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -351,9 +351,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( double )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
 
@@ -364,9 +364,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( uint8_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -377,9 +377,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( uint16_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -390,9 +390,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( uint32_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -403,9 +403,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( uint64_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -416,9 +416,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( float )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -429,9 +429,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( double )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
 
@@ -665,9 +665,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: operator *= ( long )" << std::endl;
     #endif
-    red()   *= value;
-    green() *= value;
-    blue()  *= value;
+    red()   *= (uint8_t) value;
+    green() *= (uint8_t) value;
+    blue()  *= (uint8_t) value;
     return *this;
   }
   
@@ -678,9 +678,9 @@ namespace carto {
       std::cout << "RGBA:: operator /= ( long )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= value;
-    green() /= value;
-    blue()  /= value;
+    red()   /= (uint8_t) value;
+    green() /= (uint8_t) value;
+    blue()  /= (uint8_t) value;
     return *this;
   }
   
