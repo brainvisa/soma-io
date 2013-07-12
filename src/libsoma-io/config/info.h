@@ -31,12 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifdef USE_SOMA_IO
-  #include <soma-io/config/info.h>
-#else
-
-#ifndef CARTOBASE_CONFIG_INFO_H
-#define CARTOBASE_CONFIG_INFO_H
+#ifndef SOMAIO_CONFIG_INFO_H
+#define SOMAIO_CONFIG_INFO_H
 
 #include <string>
 #include <iostream>
@@ -79,8 +75,6 @@ namespace carto
   };
 
 }
-
-#endif
 
 #endif
 

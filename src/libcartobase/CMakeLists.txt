@@ -14,7 +14,6 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h"
 set( _headers
    algorithm/algorithm.h
    config/cartobase_config.h
-   config/info.h
    config/paths.h
    config/verbose.h
    containers/block.h
@@ -28,7 +27,6 @@ set( _headers
    exception/format.h
    exception/ioexcept.h
    exception/parse.h
-   getopt/getopt.h
    object/attributed.h
    object/headered.h
    object/lexicon.h
@@ -120,6 +118,7 @@ set( _headers
    allocator/mappingcopy.h
    allocator/mappingro.h
    allocator/mappingrw.h
+   config/info.h
    containers/allocatedvector.h
    datasource/bufferdatasource.h
    datasource/chaindatasource.h
@@ -129,6 +128,7 @@ set( _headers
    datasource/filedatasource.h
    datasource/filteringdatasource.h
    datasource/streamdatasource.h
+   getopt/getopt.h
    object/achecker.h
    object/areader.h
    object/awriter.h
@@ -248,8 +248,6 @@ set( _cartobase_1_sources
 
 ## still in cartobase
 set( _cartobase_sources
-  config/info.cc 
-  getopt/getopt.cc 
   object/object_factory.cc 
   object/object_map_string_vector.cc 
   object/object_rcptr_map.cc 
@@ -261,6 +259,8 @@ set( _cartobase_sources
 if( NOT USE_SOMA_IO )
   set( _cartobase_sources
     "${_cartobase_sources}"
+    config/info.cc 
+    getopt/getopt.cc 
     object/areader.cc 
     object/awriter.cc 
     object/pythonreader.cc 

@@ -17,6 +17,7 @@ set( _headers
   checker/formatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
+  config/info.h
   config/soma_config.h
   datasource/bufferdatasource.h
   datasource/chaindatasource.h
@@ -30,6 +31,7 @@ set( _headers
   datasourceinfo/datasourcecapabilities.h
   datasourceinfo/datasourceinfo.h
   datasourceinfo/datasourceinfoloader.h
+  getopt/getopt.h
   image/imagereader.h
   image/imagereader_d.h
   image/imagewriter.h
@@ -72,8 +74,9 @@ set( _somaio_sources
   checker/achecker.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
-  config/version.cc
+  config/info.cc
   config/plugins.cc
+  config/version.cc
   datasource/bufferdatasource.cc
   datasource/chaindatasource.cc
   datasource/cstreamdatasource.cc
@@ -86,6 +89,7 @@ set( _somaio_sources
   datasourceinfo/datasourcecapabilities.cc
   datasourceinfo/datasourceinfo.cc
   datasourceinfo/datasourceinfoloader.cc
+  getopt/getopt.cc
   image/imagereader.cc
   image/imagewriter.cc
   io/formatdictionary.cc
