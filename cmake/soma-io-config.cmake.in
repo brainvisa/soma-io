@@ -38,10 +38,33 @@ set( @PROJECT_NAME_UPPER@_INCLUDE_DIRS
 
 if( @PROJECT_NAME@_IS_BEING_COMPILED )
   set( SOMA_CARTOBASE_LIB cartobase )
+  set( SOMA_CARTOBASE_LIBRARIES "cartobase" "cartobase_1" "cartobase_0" 
+    ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
+  if(UNIX)
+    set( SOMA_CARTOBASE_LIBRARIES ${SOMA_CARTOBASE_LIBRARIES} "m" "pthread" )
+  endif(UNIX)
+  if( WIN32 )
+    set( SOMA_CARTOBASE_LIBRARIES ${SOMA_CARTOBASE_LIBRARIES} "wsock32" )
+  endif( WIN32 )
+  set( @PROJECT_NAME_UPPER@_LIBRARIES "soma-io" ${SOMA_CARTOBASE_LIBRARIES} )
+
 else( @PROJECT_NAME@_IS_BEING_COMPILED )
   find_library( SOMA_CARTOBASE_LIB cartobase "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
+  find_library( _cartobase1_lib cartobase1 "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
+  find_library( _cartobase0_lib cartobase0 "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
+  find_library( _somaio_lib "soma-io" "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
+
+  set( SOMA_CARTOBASE_LIBRARIES "${SOMA_CARTOBASE_LIB}" "${_cartobase1_lib}" "${_cartobase0_lib}" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
+  if(UNIX)
+    set( SOMA_CARTOBASE_LIBRARIES ${SOMA_CARTOBASE_LIBRARIES} "m" "pthread" )
+  endif(UNIX)
+  if( WIN32 )
+    set( SOMA_CARTOBASE_LIBRARIES ${SOMA_CARTOBASE_LIBRARIES} "wsock32" )
+  endif( WIN32 )
+
+  set( @PROJECT_NAME_UPPER@_LIBRARIES "${_somaio_lib}" ${SOMA_CARTOBASE_LIBRARIES} )
+
 endif( @PROJECT_NAME@_IS_BEING_COMPILED )
-set( @PROJECT_NAME_UPPER@_LIBRARIES "${SOMA_CARTOBASE_LIB}" "${LIBXML2_LIBRARIES}" )
 
 set( @PROJECT_NAME_UPPER@_FOUND true )
 
