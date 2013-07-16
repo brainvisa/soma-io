@@ -114,12 +114,6 @@ add_library( soma-io SHARED ${_somaio_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( soma-io ${SOMA_CARTOBASE_LIBRARIES} )
-if( WIN32 AND CMAKE_CROSSCOMPILING )
-  target_link_libraries( soma-io ws2_32 ole32 )
-endif( WIN32 AND CMAKE_CROSSCOMPILING )
-if(APPLE)
-  target_link_libraries( soma-io "-framework CoreServices" )
-endif(APPLE)
 BRAINVISA_INSTALL( TARGETS soma-io
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
