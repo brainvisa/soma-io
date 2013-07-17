@@ -340,8 +340,10 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   hdr->setProperty( "sizeT", sizet );
   hdr->setProperty( "format", string( "GIS" ) );
   hdr->setProperty( "voxel_size", vs );
-  if( !type.empty() )
-    hdr->setProperty( "object_type", string( "Volume of " ) + type );
+  // the following shape is more logical, but incompatible with AIMS.
+  // hdr->setProperty( "object_type", string( "Volume of " ) + type );
+  hdr->setProperty( "object_type", string( "Volume" ) );
+  hdr->setProperty( "data_type", type );
   bool  ascii = ( binar == "ascii" );
   hdr->setProperty( "ascii", (int) ascii );
   if( !ascii )
@@ -398,10 +400,13 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     
     localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
+    string dtype;
+    dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
     dsi.header()->setProperty( "object_type", obtype );
-    
+    if( !dtype.empty() )
+      dsi.header()->setProperty( "data_type", dtype );
   }
   //--- write capabilities -----------------------------------------------------
   if( docapa ) {

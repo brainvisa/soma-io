@@ -82,10 +82,10 @@ set( SOMA-IO_INCLUDE_DIRS
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 
 ## Libraries
-set( SOMA-IO_LIBRARIES cartobase "${LIBXML2_LIBRARIES}" )
-if( USE_SOMA_IO )
-  set( SOMA-IO_LIBRARIES soma-io "${SOMA-IO_LIBRARIES}" )
-endif()
+# set( SOMA-IO_LIBRARIES cartobase "${LIBXML2_LIBRARIES}" )
+# if( USE_SOMA_IO )
+#   set( SOMA-IO_LIBRARIES soma-io "${SOMA-IO_LIBRARIES}" )
+# endif()
 
 ## Subdirectories
 add_subdirectory( src/libcartobase )
