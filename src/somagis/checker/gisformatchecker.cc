@@ -31,41 +31,41 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/checker/gisformatchecker.h>               // class declaration
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/checker/gisformatchecker.h>             // class declaration
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasource/datasourcelist.h>
-#include <soma-io/datasource/filedatasource.h>    // because we use file sources
-#include <soma-io/reader/itemreader.h>                 // to read in the file
-#include <soma-io/utilities/asciidatasourcetraits.h>       // to read datasource
+#include <soma-io/datasource/filedatasource.h>  // because we use file sources
+#include <soma-io/reader/itemreader.h>                  // to read in the file
+#include <soma-io/utilities/asciidatasourcetraits.h>     // to read datasource
 #include <soma-io/writer/pythonwriter.h>
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                                   // header
-#include <cartobase/object/property.h>                                 // header
-#include <cartobase/stream/fileutil.h>               // to manipulate file names
-//--- system -------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                                 // header
+#include <cartobase/object/property.h>                               // header
+#include <cartobase/stream/fileutil.h>             // to manipulate file names
+//--- system -----------------------------------------------------------------
 #include <stdio.h>
-#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byte swapping
-//--- debug --------------------------------------------------------------------
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "GISFORMATCHECKER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
-//==============================================================================
+//============================================================================
 //   U T I L I T I E S
-//==============================================================================
+//============================================================================
 namespace
 {
-  
-  //--- helper for reading attributes ------------------------------------------
+
+  //--- helper for reading attributes ----------------------------------------
   template<typename T> 
   static void inHelper( Object & object, const string & semantic, 
                         DataSource & ds )
@@ -77,7 +77,7 @@ namespace
     ds >> i;
     object->setProperty( semantic, i );
   }
-  
+
   template<typename T> 
   static void inVecHelper( Object & object, const string & semantic, 
                            DataSource & ds )
@@ -105,17 +105,17 @@ namespace
 
 }
 
-//==============================================================================
+//============================================================================
 //   P R I V A T E   M E T H O D S
-//==============================================================================
-/*** BUILDING DATASOURCELIST ***************************************************
+//============================================================================
+/*** BUILDING DATASOURCELIST *************************************************
  * This method builds a DataSourceList from the initial datasource.
  * It tries to find .dim, .ima and .minf files
  * If one or several of those files doesn't exist, it writes the initial
  * DataSource instead. Thus, the list returned contains at least one ds for
  * each of the following keywords : "dim", "ima", "minf", "default", but
  * in the worst case they can all be the initial ds.
- ******************************************************************************/
+ ****************************************************************************/
 void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
@@ -188,14 +188,14 @@ void GisFormatChecker::_buildDSList( DataSourceList & dsl ) const
   localMsg( "minf: " + dsl.dataSource( "minf" )->url() );
 }
 
-/*** BUILDING HEADER ***********************************************************
+/*** BUILDING HEADER *********************************************************
  * This method builds a header from a .dim DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
  * However, since the DSList is constructed even if no .dim file is found,
  * it can be an absolutely different format. In this case, the method should 
  * launch an exception at one point which should be caught by DSILoader, 
  * thus knowing this checker cannot read the entry file.
- ******************************************************************************/
+ ****************************************************************************/
 Object GisFormatChecker::_buildHeader( DataSource* hds ) const
 {
   FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
@@ -216,7 +216,7 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   int            c;
   vector<float>  vs(4, 1.);
 
-  // reading sizex, sizey, sizez, sizet ////////////////////////////////////////
+  //--- reading sizex, sizey, sizez, sizet -----------------------------------
   if( !StreamUtil::skip( *hds, " \t\n\r" ) )
     throw wrong_format_error( fname );
   if( iir.read( *hds, &sizex ) != 1 )
@@ -248,7 +248,7 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
 
   const Syntax  &sx = DataSourceInfoLoader::minfSyntax()[ "__generic__" ];
 
-  // reading tokens ////////////////////////////////////////////////////////////
+  //--- reading tokens -------------------------------------------------------
   while( hds->isOpen() ) {
     if( !StreamUtil::skip( *hds, " \t\n\r" ) )
       break;
@@ -355,9 +355,9 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   return hdr;
 }
 
-//==============================================================================
+//============================================================================
 //   P U B L I C   M E T H O D S
-//==============================================================================/
+//============================================================================
 
 GisFormatChecker::~GisFormatChecker()
 {
@@ -371,7 +371,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   bool dolist = dsi.list().typecount() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
   
-  //--- read uri ---------------------------------------------------------------
+  //--- read uri -------------------------------------------------------------
   // we don't use any options right now, but we may later ?
   // then, uncomment the following lines to get options from the uri.
 //   std::string uri = dsi.list().dataSource( "default", 0 )->url();
@@ -380,19 +380,19 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
 //     options->copyProperties( urioptions );
 //   }
   
-  //--- test header format -----------------------------------------------------
+  //--- test header format ---------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
         || dsi.header()->getProperty( "format" )->getString() != "GIS" )
       throw wrong_format_error( "Not a GIS header", 
                                 dsi.list().dataSource()->url() );
   
-  //--- build datasourcelist ---------------------------------------------------
+  //--- build datasourcelist -------------------------------------------------
   if( dolist ) {
     localMsg( "Building list..." );
     _buildDSList( dsi.list() );
   }
-  //--- build header -----------------------------------------------------------
+  //--- build header ---------------------------------------------------------
   if( doread ) {
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "dim" ).get();
@@ -408,7 +408,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );
   }
-  //--- write capabilities -----------------------------------------------------
+  //--- write capabilities ---------------------------------------------------
   if( docapa ) {
     localMsg ("Writing capabilities..." );
     dsi.capabilities().setMemoryMapping( false );
@@ -425,7 +425,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
   }
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   localMsg( "Checking done" );
   return dsi;
 }

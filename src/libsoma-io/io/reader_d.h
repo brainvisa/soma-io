@@ -255,23 +255,22 @@ namespace soma
     } catch( ... ) {
     }
     _alloccontext.setDataSourceInfo( _datasourceinfo );
-    
+
     std::string	format;
     if( !_options->getProperty( "format", format )
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
-    
     localMsg( "format: " + format );
-    
+
     //// Reading data ////////////////////////////////////////////////////////
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
     set_S::iterator	             notyet = tried.end();
     typename std::set<FormatReader<T> *>::iterator	notyetf = triedf.end();
-    int					 excp = 0;
-    int					 exct = -1;
-    std::string	 excm;
+    int          excp = 0;
+    int          exct = -1;
+    std::string  excm;
 
     //// Pass1 : priority to format hint /////////////////////////////////////
     if( passbegin <= 1 && passend >=1 && !format.empty() )

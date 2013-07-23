@@ -33,51 +33,49 @@
 
 #ifndef SOMAIO_IMAGE_GISIMAGEREADER_H
 #define SOMAIO_IMAGE_GISIMAGEREADER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                               // heritage
-#include <soma-io/datasource/chaindatasource.h>                      // heritage
-#include <soma-io/reader/itemreader.h>                        // read + byteswap
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-//--- system -------------------------------------------------------------------
+#include <soma-io/image/imagereader.h>                             // heritage
+#include <soma-io/datasource/chaindatasource.h>                    // heritage
+#include <soma-io/reader/itemreader.h>                      // read + byteswap
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma
 {
   class DataSourceInfo;
-  
-  /**
-   * \todo doc ?
-   */
+
+  /// ImageReader for GIS files.
   template<typename T>
   class GisImageReader : public ImageReader<T>, protected ChainDataSource
   {
     public:
-      //========================================================================
+      //======================================================================
       //   C O N S T R U C T O R S
-      //========================================================================
+      //======================================================================
       GisImageReader();
       virtual ~GisImageReader();
-      
-      //========================================================================
+
+      //======================================================================
       //   I M A G E R E A D E R
-      //========================================================================
+      //======================================================================
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,
                          std::vector<int> & size,
                          std::vector<int> & stride,
                          carto::Object options = carto::none() );
-      
+
       virtual void updateParams( DataSourceInfo & dsi );
       virtual void resetParams();
-      
+
     protected:
-      //========================================================================
+      //======================================================================
       //   D A T A S O U R C E
-      //========================================================================
+      //======================================================================
       virtual DataSource* clone() const;
       virtual int iterateMode() const;
       virtual offset_t size() const;
@@ -90,14 +88,14 @@ namespace soma
       virtual bool ungetch( int ch );
       virtual bool allowsMemoryMapping() const;
       virtual bool setpos( int x, int y = 0, int z = 0, int t = 0 );
-      
+
     protected:
       std::auto_ptr<ItemReader<T> > _itemr;
       std::vector<std::vector<int> >  _sizes;
       bool  _binary;
       bool  _byteswap;
   };
-  
+
 }
 
 #endif

@@ -33,36 +33,36 @@
 
 #ifndef SOMAIO_IMAGE_OSIMAGEREADER_H
 #define SOMAIO_IMAGE_OSIMAGEREADER_H
-//--- soma-io ------------------------------------------------------------------
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                               // heritage
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-//--- system -------------------------------------------------------------------
+#include <soma-io/image/imagereader.h>                             // heritage
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+extern "C" { typedef struct _openslide openslide_t; }
 
 namespace soma
 {
   class DataSourceInfo;
   
-  /**
-   * \todo doc ?
-   */
+  /// ImageReader for virtual microscopy images using OpenSlide
   template<typename T>
   class OSImageReader : public ImageReader<T>
   {
     public:
-      //========================================================================
+      //======================================================================
       //   C O N S T R U C T O R S
-      //========================================================================
+      //======================================================================
       OSImageReader();
       virtual ~OSImageReader();
       
-      //========================================================================
+      //======================================================================
       //   I M A G E R E A D E R
-      //========================================================================
+      //======================================================================
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,
                          std::vector<int> & size,
@@ -74,6 +74,7 @@ namespace soma
       
     protected:
       std::vector<std::vector<int> >  _sizes;
+      openslide_t * _osimage;
   };
   
 }

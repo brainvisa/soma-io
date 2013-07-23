@@ -33,33 +33,33 @@
 
 #ifndef SOMAIO_IMAGE_OSIMAGEREADER_D_H
 #define SOMAIO_IMAGE_OSIMAGEREADER_D_H
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/image/osimagereader.h>                    // class declaration
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/image/osimagereader.h>                  // class declaration
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                               // heritage
-#include <soma-io/datasourceinfo/datasourceinfo.h>        // function's argument
-#include <soma-io/datasource/filedatasource.h>                // used by clone()
+#include <soma-io/image/imagereader.h>                             // heritage
+#include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
+#include <soma-io/datasource/filedatasource.h>              // used by clone()
 #include <soma-io/datasource/datasource.h>
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-#include <cartobase/config/verbose.h>                         // verbosity level
-//--- system -------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+#include <cartobase/config/verbose.h>                       // verbosity level
+//--- system -----------------------------------------------------------------
 #include <openslide.h>
 #include <memory>
 #include <vector>
 #include <string>
-//--- debug --------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "OSIMAGEWRITER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma {
   
-  //============================================================================
+  //==========================================================================
   //   U S E F U L
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   void OSImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
@@ -77,17 +77,24 @@ namespace soma {
                                    ->getArrayItem( i )
                                    ->getArrayItem( j )
                                    ->getScalar();
+    
+    std::string fname = dsi.list().dataSource( "ima", 0 )->url();
+    if( !( _osimage = openslide_open( fname.c_str() ) ) ) {
+      localMsg( "can't open file." );
+      throw carto::open_error( "data source not available", fname );
+    }
   }
   
   template <typename T> 
   void OSImageReader<T>::resetParams()
   {
     _sizes = std::vector< std::vector<int> >();
+    openslide_close( _osimage );
   }
   
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   
   template <typename T>
   OSImageReader<T>::OSImageReader() : ImageReader<T>()
@@ -99,9 +106,9 @@ namespace soma {
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
-  //============================================================================
+  //==========================================================================
   template <typename T>
   void OSImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                std::vector<int> & pos,
@@ -111,30 +118,21 @@ namespace soma {
   {
     if( _sizes.empty() )
       updateParams( dsi );
-    
+
     int32_t level = 0;
     try {
       if( options.get() )
         level = options->getProperty( "resolution_level" )->getScalar();
     } catch( ... ) {
     }
-    
-    std::string fname = dsi.list().dataSource( "ima", 0 )->url();
-    openslide_t *osimage;
-    if( !( osimage = openslide_open( fname.c_str() ) ) ) {
-      localMsg( "can't open file." );
-      throw carto::open_error( "data source not available", fname );
-    }
-    
-    int64_t posx = (int64_t) pos[ 0 ] * _sizes[ 0 ][ 0 ] / _sizes[ level ][ 0 ];
-    int64_t posy = (int64_t) pos[ 1 ] * _sizes[ 0 ][ 1 ] / _sizes[ level ][ 1 ];
-    int64_t sizex = (int64_t)size[ 0 ];
-    int64_t sizey = (int64_t)size[ 1 ];
 
-    openslide_read_region( osimage, (uint32_t *) dest, posx, posy,
+    int64_t posx = (int64_t) pos[0] * _sizes[0][0] / _sizes[ level ][0];
+    int64_t posy = (int64_t) pos[1] * _sizes[0][1] / _sizes[ level ][1];
+    int64_t sizex = (int64_t) size[0];
+    int64_t sizey = (int64_t) size[1];
+
+    openslide_read_region( _osimage, (uint32_t *) dest, posx, posy,
                            level, sizex, sizey );
-    
-    openslide_close( osimage );
   }
 }
 

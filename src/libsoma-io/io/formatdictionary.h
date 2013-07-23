@@ -62,9 +62,9 @@ namespace soma
   /// Readers and writers.
   ///
   /// If you need to use other types, you'll have to include
-  /// \c cartobase/io/reader_d.h and / or \c cartobase/io/writer_d.h in order
-  /// to have the template functions definitions, \c cartobase/io/reader.h and
-  /// \c cartobase/io/writer.h are only the class declarations.
+  /// \c soma-io/io/reader_d.h and / or \c soma-io/io/writer_d.h in order
+  /// to have the template functions definitions, \c soma-io/io/reader.h and
+  /// \c soma-io/io/writer.h are only the class declarations.
   /// In addition, you may want to specialize the registerBaseFormats()
   /// functions of specific FormatDictionary specializations.
   ///
@@ -74,11 +74,11 @@ namespace soma
   {
   public:
     static void registerFormat( const std::string & formatID, 
-				FormatReader<T>* format, 
-				const std::vector<std::string> & extensions );
+                                FormatReader<T>* format,
+                                const std::vector<std::string> & extensions );
     static void registerFormat( const std::string & formatID, 
-				FormatWriter<T>* format, 
-				const std::vector<std::string> & extensions );
+                                FormatWriter<T>* format,
+                                const std::vector<std::string> & extensions );
     static FormatReader<T>* readFormat( const std::string & format );
     static FormatWriter<T>* writeFormat( const std::string & format );
     static const std::multimap<std::string, std::string> & readExtensions();
@@ -92,10 +92,10 @@ namespace soma
     static void init();
 
   private:
-    static std::map<std::string, FormatReader<T>*>	& _readformats();
-    static std::map<std::string, FormatWriter<T>*>	& _writeformats();
-    static std::multimap<std::string, std::string>	& _readextensions();
-    static std::multimap<std::string, std::string>	& _writeextensions();
+    static std::map<std::string, FormatReader<T>*>  & _readformats();
+    static std::map<std::string, FormatWriter<T>*>  & _writeformats();
+    static std::multimap<std::string, std::string>  & _readextensions();
+    static std::multimap<std::string, std::string>  & _writeextensions();
   };
 
 

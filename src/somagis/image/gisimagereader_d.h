@@ -33,28 +33,32 @@
 
 #ifndef SOMAIO_IMAGE_GISIMAGEREADER_D_H
 #define SOMAIO_IMAGE_GISIMAGEREADER_D_H
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/image/gisimagereader.h>                   // class declaration
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/image/gisimagereader.h>                 // class declaration
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                               // heritage
-#include <soma-io/datasourceinfo/datasourceinfo.h>        // function's argument
-#include <soma-io/datasource/filedatasource.h>                // used by clone()
+#include <soma-io/image/imagereader.h>                             // heritage
+#include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
+#include <soma-io/datasource/filedatasource.h>              // used by clone()
 #include <soma-io/datasource/datasource.h>
-#include <soma-io/datasource/chaindatasource.h>                      // heritage
-#include <soma-io/reader/itemreader.h>                        // read + byteswap
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/chaindatasource.h>                    // heritage
+#include <soma-io/reader/itemreader.h>                      // read + byteswap
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
-//------------------------------------------------------------------------------
+//--- debug ------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "GISIMAGEREADER" )
+// localMsg must be undef at end of file
+//----------------------------------------------------------------------------
 
 namespace soma {
   
-  //============================================================================
+  //==========================================================================
   //   U S E F U L
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   void GisImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
@@ -92,9 +96,9 @@ namespace soma {
     _sizes = std::vector< std::vector<int> >();
   }
   
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
+  //==========================================================================
   /* base constructors usage :
    * - FileDataSource( rc_ptr<DataSource> ds, const string & url = string() );
    * - /!\ no copy constructor
@@ -115,9 +119,9 @@ namespace soma {
   {
   }
   
-  //============================================================================
+  //==========================================================================
   //   C H A I N D A T A S O U R C E   M E T H O D S
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   DataSource* GisImageReader<T>::clone() const
   {
@@ -205,9 +209,9 @@ namespace soma {
                          ( x + y * lin + z * sli + t * vol ) );
   }
   
-  //============================================================================
+  //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
-  //============================================================================
+  //==========================================================================
   template <typename T>
   void GisImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
@@ -238,6 +242,7 @@ namespace soma {
     int  y, z, t;
     // region line size
     offset_t  len = vx * sizeof( T );
+    long readout;
     
     if( !open( DataSource::Read ) )
       throw carto::open_error( "data source not available", url() );
@@ -250,10 +255,18 @@ namespace soma {
                             + y + oy ) + ox ) * sizeof(T) );
           // we move in the buffer
           char * target = (char *) dest + len * ( vy * ( vz * t + z ) + y );
-          if( readBlock(target, len ) != (long) len )
+          if( ( readout = readBlock( target, len ) ) != (long) len ) {
+            localMsg( "readBlock( failed at ( " +
+                      carto::toString( y ) + ", " +
+                      carto::toString( z ) + ", " +
+                      carto::toString( t ) + " ) : " +
+                      carto::toString( readout / sizeof(T) ) + " != " +
+                      carto::toString( (long) len / sizeof( T ) ) );
             throw carto::eof_error( url() );
+          }
         }
   }
 }
 
+#undef localMsg
 #endif

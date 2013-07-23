@@ -33,39 +33,39 @@
 
 #ifndef SOMAIO_IMAGE_GISIMAGEWRITER_D_H
 #define SOMAIO_IMAGE_GISIMAGEWRITER_D_H
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/image/gisimagewriter.h>                   // class declaration
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/image/gisimagewriter.h>                 // class declaration
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagewriter.h>                               // heritage
-#include <soma-io/io/writer.h>                                  // to write minf
-#include <soma-io/datasourceinfo/datasourceinfo.h>        // function's argument
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>  // for partial writing
-#include <soma-io/datasource/filedatasource.h>                // used by clone()
-#include <soma-io/datasource/streamdatasource.h>        // used by writeHeader()
+#include <soma-io/image/imagewriter.h>                             // heritage
+#include <soma-io/io/writer.h>                                // to write minf
+#include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>    // partial writing
+#include <soma-io/datasource/filedatasource.h>              // used by clone()
+#include <soma-io/datasource/streamdatasource.h>      // used by writeHeader()
 #include <soma-io/datasource/datasource.h>
-#include <soma-io/datasource/chaindatasource.h>                      // heritage
-#include <soma-io/writer/itemwriter.h>                       // write + byteswap
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                          // header, options
-#include <cartobase/object/property.h>                        // header, options
-#include <cartobase/type/types.h>                             // to write header
-#include <cartobase/stream/fileutil.h>                            // utilitaires
-//--- system -------------------------------------------------------------------
+#include <soma-io/datasource/chaindatasource.h>                    // heritage
+#include <soma-io/writer/itemwriter.h>                     // write + byteswap
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+#include <cartobase/object/property.h>                      // header, options
+#include <cartobase/type/types.h>                           // to write header
+#include <cartobase/stream/fileutil.h>                          // utilitaires
+//--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
-#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii- > used for byte swapping
-//--- debug --------------------------------------------------------------------
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii- > used for byteswap
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "GISIMAGEWRITER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 namespace soma {
   
-  //============================================================================
+  //==========================================================================
   //   U S E F U L
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   void GisImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
@@ -103,16 +103,9 @@ namespace soma {
     _sizes = std::vector< std::vector<int> >();
   }
   
-  //============================================================================
+  //==========================================================================
   //   C O N S T R U C T O R S
-  //============================================================================
-  /* base constructors usage :
-   * - FileDataSource( rc_ptr<DataSource> ds, const string & url = string() );
-   * - /!\ no copy constructor
-   * - ImageReader( DataSourceInfo & dsi = 0, bool threadsafe = false );
-   * - ImageReader( const ImageReader<T> & );
-   */
-  
+  //==========================================================================
   template <typename T>
   GisImageWriter<T>::GisImageWriter() :
     ImageWriter<T>(),
@@ -120,15 +113,15 @@ namespace soma {
     _itemw()
   {
   }
-  
+
   template <typename T>
   GisImageWriter<T>::~GisImageWriter()
   {
   }
-  
-  //============================================================================
+
+  //==========================================================================
   //   C H A I N D A T A S O U R C E   M E T H O D S
-  //============================================================================
+  //==========================================================================
   template <typename T> 
   DataSource* GisImageWriter<T>::clone() const
   {
@@ -218,9 +211,9 @@ namespace soma {
                          ( x + y * lin + z * sli + t * vol ) );
   }
   
-  //============================================================================
+  //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
-  //============================================================================
+  //==========================================================================
   template <typename T>
   void GisImageWriter<T>::write( T * source, DataSourceInfo & dsi,
                                  std::vector<int> & pos,
@@ -274,13 +267,13 @@ namespace soma {
   DataSourceInfo GisImageWriter<T>::writeHeader( DataSourceInfo dsi, 
                                                  carto::Object options )
   {
-    //--- build datasourcelist -------------------------------------------------
+    //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1 ;
     if( dolist ) {
       localMsg( "building DataSourceList..." );
       buildDSList( dsi.list(), options );
     }
-    //--- set header -----------------------------------------------------------
+    //--- set header ---------------------------------------------------------
     localMsg( "setting Header..." );
     if( options->hasProperty( "partial_writing" ) ) {
       DataSourceInfoLoader  dsil;
@@ -299,7 +292,7 @@ namespace soma {
       else
         dsi.header()->setProperty( "ascii", false );
     }
-    //--- write header ---------------------------------------------------------
+    //--- write header -------------------------------------------------------
     localMsg( "writing Header..." );
     ChainDataSource::setSource( dsi.list().dataSource( "dim" ), 
                                 dsi.list().dataSource( "dim" )->url() );
@@ -350,7 +343,7 @@ namespace soma {
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
         << "\n";
     close();
-    //--- write minf -----------------------------------------------------------
+    //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
     carto::Object minf = carto::Object::value( carto::PropertySet() );
     minf->setProperty( "file_type", std::string( "GIS" ) );
@@ -367,7 +360,7 @@ namespace soma {
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
-    //--- partial-io case ------------------------------------------------------
+    //--- partial-io case ----------------------------------------------------
     if( options->hasProperty( "unallocated" ) ) {
       localMsg( "building file for partial writing..." );
       if( _sizes.empty() )
@@ -382,14 +375,14 @@ namespace soma {
             throw carto::eof_error( url() );
     }
 
-    //--------------------------------------------------------------------------
+    //------------------------------------------------------------------------
     localMsg( "done writing header." );
     return dsi;
   }
   
-  //============================================================================
+  //==========================================================================
   //   U T I L I T I E S
-  //============================================================================
+  //==========================================================================
   template <typename T>
   void GisImageWriter<T>::buildDSList( DataSourceList & dsl, 
                                        carto::Object /*options*/ ) const

@@ -44,7 +44,7 @@
 
 namespace soma
 {
-  
+
   /// ImageReader is a low level Image reader.
   ///
   /// ImageReader is a base class for readers of data of type "volume of
@@ -58,7 +58,7 @@ namespace soma
     public:
       ImageReader();
       virtual ~ImageReader();
-      
+
       /// Reading a region of a Image/Volume at a given resolution to a 
       /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If  
       /// one or more of these dimensions are of no interest for the format, 
@@ -80,17 +80,18 @@ namespace soma
                          std::vector<int> & size,
                          std::vector<int> & stride,
                          carto::Object options = carto::none() );
-      
+
       /// Abstract : set specialized ImageReader's parameters.
       /// Since read() may be called several times for a sole volume (for
       /// example if the data is not contiguous on memory), it is useful
       /// to initialize only once file-specific parameters (as the size of the
-      /// full volume)
+      /// full volume) or to open only once the file in cases where
+      /// opening may be expensive.
       virtual void updateParams( DataSourceInfo & dsi );
       /// Abstract : empty specialized ImageReader's parameters.
       virtual void resetParams();
   };
-  
+
 }
 
 #endif

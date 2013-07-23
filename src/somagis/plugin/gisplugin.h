@@ -39,7 +39,13 @@
 
 namespace soma
 {
-
+  /// Plugin for GIS images
+  ///
+  /// This plugin does not require any external library. You can use it
+  /// as an example when implementing any other i/o plugin.\n
+  /// GIS files store uncompressed 4D volumes as two files : a \c dim ASCII
+  /// header and a \c ima binary or ascii data file. Additional meta
+  /// information can be stored into an additional \c minf file.
   class GisPlugin : public carto::Plugin
   {
   public:

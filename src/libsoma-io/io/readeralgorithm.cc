@@ -151,11 +151,11 @@ bool ReaderAlgorithm::execute( rc_ptr<DataSourceInfo> dsi )
       }
       if( i == n )
       {
-        throw datatype_format_error( string( "unsupported object type " ) 
+      throw datatype_format_error( string( "unsupported object type " )
                                      + otype, dsi->list().dataSource()->url()
                                    );
-        return false;
-      }
+      return false;
+    }
   }
 
   //  execute algo function

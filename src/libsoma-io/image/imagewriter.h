@@ -44,7 +44,7 @@
 
 namespace soma
 {
-  
+
   /// ImageWriter is a low level Image writer.
   ///
   /// ImageWriter is a base class for writers of data of type "volume of
@@ -58,7 +58,7 @@ namespace soma
     public:
       ImageWriter();
       virtual ~ImageWriter();
-      
+
       /// Reading a region of a Image/Volume at a given resolution to a 
       /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If  
       /// one or more of these dimensions are of no interest for the format, 
@@ -73,20 +73,20 @@ namespace soma
                           std::vector<int> & pos,
                           std::vector<int> & size,
                           carto::Object options = carto::none() );
-      
+
       /// This function is called before the actuel writing by a FormatWriter.
       /// It builds dsi's DataSourceList and writes the header if any is
       /// needed. It may also allocate file space for partial writing.
       virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
                                           carto::Object options
                                             = carto::none() );
-      
+
       /// Abstract : set specialized ImageWriter's parameters.
       virtual void updateParams( DataSourceInfo & dsi );
       /// Abstract : empty specialized ImageWriter's parameters.
       virtual void resetParams();
   };
-  
+
 }
 
 #endif

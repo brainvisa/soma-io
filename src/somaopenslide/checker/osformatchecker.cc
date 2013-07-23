@@ -31,40 +31,40 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/checker/osformatchecker.h>                // class declaration
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/checker/osformatchecker.h>              // class declaration
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasource/datasourcelist.h>
-#include <soma-io/datasource/filedatasource.h>    // because we use file sources
-#include <soma-io/reader/itemreader.h>                 // to read in the file
-#include <soma-io/utilities/asciidatasourcetraits.h>       // to read datasource
+#include <soma-io/datasource/filedatasource.h>  // because we use file sources
+#include <soma-io/reader/itemreader.h>               // to read in the file
+#include <soma-io/utilities/asciidatasourcetraits.h>     // to read datasource
 #include <soma-io/writer/pythonwriter.h>
-//--- cartobase ----------------------------------------------------------------
-#include <cartobase/object/object.h>                                   // header
-#include <cartobase/object/property.h>                                 // header
-#include <cartobase/stream/fileutil.h>               // to manipulate file names
-#include <cartobase/config/verbose.h>                         // verbosity level
-//--- system -------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                                 // header
+#include <cartobase/object/property.h>                               // header
+#include <cartobase/stream/fileutil.h>             // to manipulate file names
+#include <cartobase/config/verbose.h>                       // verbosity level
+//--- system -----------------------------------------------------------------
 #include <openslide.h>
-#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byte swapping
-//--- debug --------------------------------------------------------------------
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
+//--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #include <cartobase/type/string_conversion.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "OSFORMATCHECKER" )
 // localMsg must be undef at end of file
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
 using namespace std;
 
-//==============================================================================
+//============================================================================
 //   P R I V A T E   M E T H O D S
-//==============================================================================
-//--- BUILDING DATASOURCELIST --------------------------------------------------
+//============================================================================
+//--- BUILDING DATASOURCELIST ------------------------------------------------
 void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
@@ -92,7 +92,7 @@ void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
     localMsg( "minf: " + dsl.dataSource( "minf" )->url() );
 }
 
-//--- BUILDING HEADER ----------------------------------------------------------
+//--- BUILDING HEADER --------------------------------------------------------
 Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
 {
   string  fname = hds->url();
@@ -156,9 +156,9 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   return hdr;
 }
 
-//==============================================================================
+//============================================================================
 //   P U B L I C   M E T H O D S
-//==============================================================================
+//============================================================================
 
 OSFormatChecker::~OSFormatChecker()
 {
@@ -172,26 +172,26 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
   bool dolist = dsi.list().typecount() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
   
-  //--- read uri ---------------------------------------------------------------
+  //--- read uri -------------------------------------------------------------
   std::string uri = dsi.list().dataSource()->url();
   carto::Object urioptions = FileUtil::uriOptions( uri );
   if( urioptions.get() ) {
     options->copyProperties( urioptions );
   }
   
-  //--- test header format -----------------------------------------------------
+  //--- test header format ---------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
         || dsi.header()->getProperty( "format" )->getString() != "OpenSlide" )
       throw wrong_format_error( "Not a OpenSlide header", 
                                 dsi.list().dataSource()->url() );
   
-  //--- build datasourcelist ---------------------------------------------------
+  //--- build datasourcelist -------------------------------------------------
   if( dolist ) {
     localMsg( "Building list..." );
     _buildDSList( dsi.list() );
   }
-  //--- build header -----------------------------------------------------------
+  //--- build header ---------------------------------------------------------
   if( doread ) {
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "ima" ).get();
@@ -206,7 +206,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     }
     
   }
-  //--- write capabilities -----------------------------------------------------
+  //--- write capabilities ---------------------------------------------------
   if( docapa ) {
     localMsg( "Writing capabilities..." );
     dsi.capabilities().setMemoryMapping( false );
@@ -218,7 +218,7 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
   }
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
   localMsg( "Checking done" );
   return dsi;
 }
