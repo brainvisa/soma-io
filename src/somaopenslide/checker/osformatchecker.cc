@@ -131,11 +131,11 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   const char *mppx = openslide_get_property_value( osimage, "openslide.mpp-x" );
   const char *mppy = openslide_get_property_value( osimage, "openslide.mpp-y" );
   if( mppx )
-    vs[0] = atof( mppx )/1000/ds;
+    vs[0] = atof( mppx )/1000*ds;
   else
     vs[0] = 1;
   if( mppy )
-    vs[1] = atof( mppy )/1000/ds;
+    vs[1] = atof( mppy )/1000*ds;
   else
     vs[1] = 1;
   

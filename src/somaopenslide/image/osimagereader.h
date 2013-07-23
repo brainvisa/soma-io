@@ -73,6 +73,7 @@ namespace soma
       virtual void resetParams();
       
     protected:
+      void swapVoxels( T* buffer, int64_t size, const bool & byteswap );
       std::vector<std::vector<int> >  _sizes;
       openslide_t * _osimage;
   };

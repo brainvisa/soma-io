@@ -49,6 +49,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "OSIMAGEWRITER" )
@@ -56,14 +57,14 @@
 //----------------------------------------------------------------------------
 
 namespace soma {
-  
+
   //==========================================================================
   //   U S E F U L
   //==========================================================================
   template <typename T> 
   void OSImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
-    
+
     int rcount = 1;
     try {
       rcount = dsi.header()->getProperty( "resolutions_dimension" )->size();
@@ -77,35 +78,61 @@ namespace soma {
                                    ->getArrayItem( i )
                                    ->getArrayItem( j )
                                    ->getScalar();
-    
+
     std::string fname = dsi.list().dataSource( "ima", 0 )->url();
     if( !( _osimage = openslide_open( fname.c_str() ) ) ) {
       localMsg( "can't open file." );
       throw carto::open_error( "data source not available", fname );
     }
   }
-  
+
   template <typename T> 
   void OSImageReader<T>::resetParams()
   {
     _sizes = std::vector< std::vector<int> >();
     openslide_close( _osimage );
   }
-  
+
+  template <typename T> 
+  void OSImageReader<T>::swapVoxels( T* buffer, int64_t size,
+                                     const bool & byteswap )
+  {
+    int64_t i;
+    uint8_t *ptr8;
+    uint32_t *ptr32;
+
+    for( i=0; i<size; ++i )
+    {
+      // byte swapping if necessary
+      ptr8 = (uint8_t*) ( buffer + i );
+      ptr32 = (uint32_t*) ( buffer + i );
+      if( byteswap )
+      {
+        for( size_t b=0; b<sizeof(T)/2; ++b )
+          std::swap( ptr8[b], ptr8[sizeof(T)-1-b] );
+      }
+      // transform ARGB -> RGBA
+      if( byteswap )
+        *ptr32 = ( ( *ptr32 >> 8 ) | 0x11000000 );
+      else
+        *ptr32 = ( ( *ptr32 << 8 ) | 0x00000011 );
+    }
+  }
+
   //==========================================================================
   //   C O N S T R U C T O R S
   //==========================================================================
-  
+
   template <typename T>
   OSImageReader<T>::OSImageReader() : ImageReader<T>()
   {
   }
-  
+
   template <typename T>
   OSImageReader<T>::~OSImageReader()
   {
   }
-  
+
   //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
@@ -133,6 +160,11 @@ namespace soma {
 
     openslide_read_region( _osimage, (uint32_t *) dest, posx, posy,
                            level, sizex, sizey );
+
+    uint32_t bo = SOMAIO_BYTE_ORDER;
+    std::string byte_order( (char*) &bo );
+//     localMsg( "swapVoxels( " + carto::toString( byte_order != "ABCD" ) + " )" );
+    swapVoxels( dest, sizex*sizey, byte_order != "ABCD" );
   }
 }
 
