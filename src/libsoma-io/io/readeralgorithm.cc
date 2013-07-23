@@ -109,32 +109,55 @@ bool ReaderAlgorithm::execute( rc_ptr<DataSourceInfo> dsi )
   dsi->header()->getProperty( "object_type", otype );
 
   map<string, ProcFunc>::const_iterator ip = _execs.find( otype );
-  if( ip == _execs.end() ) {
+  if( ip == _execs.end() )
+  {
     // Try alternate data types
     vector<string>  posstypes;
-    try {
+    try
+    {
       dsi->header()->getProperty( "possible_types", posstypes );
-    } catch( ... ) {
     }
-    
+    catch( ... )
+    {
+    }
+
+    // try AIMS style object_type/data_type and possible_data_types
+    string dtype;
+    if( dsi->header()->getProperty( "data_type", dtype ) )
+      posstypes.push_back( otype + " of " + dtype );
+
+    vector<string> possdtypes;
+    if( dsi->header()->getProperty( "possible_data_types", possdtypes ) )
+    {
+      vector<string>::const_iterator idt, edt = possdtypes.end();
+      for( idt=possdtypes.begin(); idt!=edt; ++idt )
+        posstypes.push_back( otype + " of " + *idt );
+    }
+
     unsigned    i, n = posstypes.size();
-    
+
     for( i=0; i<n; ++i )
-      if( posstypes[i] != otype ) {
+      if( posstypes[i] != otype )
+      {
         ip = _execs.find( posstypes[i] );
-        if( ip != _execs.end() ) {
+        if( ip != _execs.end() )
+        {
           // force new datatype into header
           dsi->header()->setProperty( "object_type", posstypes[i] );
+          if( dsi->header()->hasProperty( "data_type" ) )
+            dsi->header()->removeProperty( "data_type" );
           break;
         }
       }
-      if( i == n ) {
+      if( i == n )
+      {
         throw datatype_format_error( string( "unsupported object type " ) 
-                                     + otype, dsi->list().dataSource()->url() );
+                                     + otype, dsi->list().dataSource()->url()
+                                   );
         return false;
       }
   }
-  
+
   //  execute algo function
   return ip->second( *this, dsi->header(), dsi->list().dataSource() );
 }
