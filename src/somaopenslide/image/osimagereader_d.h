@@ -113,9 +113,9 @@ namespace soma {
       }
       // transform ARGB -> RGBA
       if( byteswap )
-        *ptr32 = ( ( *ptr32 >> 8 ) | 0x11000000 );
+        *ptr32 = ( ( *ptr32 >> 8 ) | 0xff000000 );
       else
-        *ptr32 = ( ( *ptr32 << 8 ) | 0x00000011 );
+        *ptr32 = ( ( *ptr32 << 8 ) | 0x000000ff );
     }
   }
 
