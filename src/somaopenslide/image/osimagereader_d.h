@@ -37,6 +37,7 @@
 #include <soma-io/image/osimagereader.h>                  // class declaration
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+#include <soma-io/config/os_config.h>
 #include <soma-io/image/imagereader.h>                             // heritage
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
 #include <soma-io/datasource/filedatasource.h>              // used by clone()
@@ -45,7 +46,6 @@
 #include <cartobase/object/object.h>                        // header, options
 #include <cartobase/config/verbose.h>                       // verbosity level
 //--- system -----------------------------------------------------------------
-#include <openslide.h>
 #include <memory>
 #include <vector>
 #include <string>

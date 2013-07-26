@@ -1,3 +1,8 @@
+configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/osversion.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h" @ONLY )
+BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h"
+                   DESTINATION "include/soma-io/config"
+                   COMPONENT ${PROJECT_NAME}-dev )
+                   
 BRAINVISA_GET_FILE_LIST_FROM_PRO(  ${CMAKE_CURRENT_SOURCE_DIR}/openslide.pro "HEADERS" _headers "SOURCES" _sources )
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMAOPENSLIDE_HEADERS ${_headers} PARENT_SCOPE)

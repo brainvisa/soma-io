@@ -48,7 +48,7 @@
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/config/verbose.h>                       // verbosity level
 //--- system -----------------------------------------------------------------
-#include <openslide.h>
+#include <soma-io/config/os_config.h>
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>

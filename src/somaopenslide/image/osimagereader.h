@@ -35,6 +35,7 @@
 #define SOMAIO_IMAGE_OSIMAGEREADER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+#include <soma-io/config/os_config.h>
 #include <soma-io/image/imagereader.h>                             // heritage
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
@@ -42,8 +43,6 @@
 #include <memory>
 #include <vector>
 //----------------------------------------------------------------------------
-
-extern "C" { typedef struct _openslide openslide_t; }
 
 namespace soma
 {
