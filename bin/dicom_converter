@@ -8,6 +8,7 @@ import dicom
 import numpy as np
 import soma
 from soma.path import split_path
+from soma.path import which
 from soma import argparse, aims, dicomaggregator
 
 def get_mcverter():
@@ -78,6 +79,18 @@ def get_start_and_duration_times( serie ):
 
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
+def check_transfer_syntax_uid(dicomFile):
+    ds = dicom.read_file(dicomFile)
+    if not ds.is_big_endian:
+        return
+    check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+
+def check_jpeg(dicomFile):
+    ds = dicom.read_file(dicomFile)
+    if not "JPEG" in ds.file_meta.TransferSyntaxUID.name:
+        return
+    check_call([which("dcmdjpeg"), dicomFile, dicomFile])
+
 def convert_to_nifti( serie, mergeDynSeries = True ):
     modality = ""
     uuid = None
@@ -92,7 +105,16 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         tempfile = mkstemp()[1]
         tempfiles.append( tempfile )
 
-        ds = dicom.read_file( f )
+        shutil.copy(f, tempfile)
+        os.chmod(tempfile, 0777)
+        
+        try:
+            check_transfer_syntax_uid(tempfile)
+            check_jpeg(tempfile)
+        except OSError:
+            print "The DICOM converter needs DCMTK binaries to convert", f
+        
+        ds = dicom.read_file(tempfile)
 
         if modality == "":
             try:
@@ -135,7 +157,10 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             if modality == 'PT' and \
                ds.Units == 'CNTS' and \
                ds.Manufacturer == 'Philips Medical Systems':
-                scale_factor = ds[ 0x7053,0x1009 ].value
+                if args.suv:
+                    scale_factor = ds[ 0x7053,0x1000 ].value
+                else:
+                    scale_factor = ds[ 0x7053,0x1009 ].value
         except:
             pass
 
@@ -148,7 +173,8 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         try:
             ds.RescaleSlope = 1
             ds.RescaleIntercept = 0
-            ds[ 0x7053,0x1009 ].value = 1
+            ds[ 0x7053,0x1000 ].value = "1"
+            ds[ 0x7053,0x1009 ].value = "1"
         except:
             pass
 
@@ -197,11 +223,9 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
           outfilesByTime.update({-1:[outfile]})
         else:
           tIdx = 0
-          print "outfile",outfile
           for t in sorted(convfilesByTime.keys()):
             f = convfilesByTime[t]
             outf = outfile+'_t'+str(tIdx)+'.nii'
-            print "outf",outf
             outfilesByTime.update({t:[outf]})
             shutil.move(f, outf )
             tIdx = tIdx+1
@@ -222,11 +246,8 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
         os.remove( f )
 
     # Apply pixel value rescale parameters
-    print "outfilesByTime",outfilesByTime
     for fileTime, outfiles in outfilesByTime.items():
-      print "outfiles", outfiles
       for outfile in outfiles:
-        print "outfile",outfile
         aims_file = aims.read( outfile )
         aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
         aims_float_file = aims_conv( aims_file )
@@ -404,6 +425,7 @@ Convert input DICOM files into NIfTI files
     parser.add_argument( '-o', '--output', help='output directory' )
     parser.add_argument( '-s', '--split4DSeries', help='do NOT merge the 4D series', action="store_false", dest="merge4DSeries")
     parser.add_argument( '-m', '--merge4DSeries', help='Merge the 4D series [default]', action="store_true", dest="merge4DSeries", default = True)
+    parser.add_argument( '--suv', help='Apply SUV factor (for now, only for Philips manufacturer)', action="store_true", dest="suv", default = False)
 
     args = parser.parse_args()
 
