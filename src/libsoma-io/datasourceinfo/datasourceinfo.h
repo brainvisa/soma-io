@@ -100,6 +100,7 @@ namespace soma
         { return _capabilities; }
       const DataSourceList & list() const { return _datasourcelist; }
             DataSourceList & list()       { return _datasourcelist; }
+      std::string url() const { return _datasourcelist.dataSource()->url(); }
 
     protected:
       carto::Object           _header;
