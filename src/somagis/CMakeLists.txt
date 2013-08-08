@@ -10,7 +10,7 @@ if( NOT APPLE )
 else()
   set_property( TARGET somagis PROPERTY OUTPUT_NAME somagis.${${PROJECT_NAME}_VERSION} )
 endif()
-target_link_libraries( somagis ${SOMA-IO_LIBRARIES} )
+target_link_libraries( somagis soma-io cartobase )
 BRAINVISA_INSTALL( TARGETS somagis
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
