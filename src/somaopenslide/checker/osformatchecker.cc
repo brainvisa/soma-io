@@ -151,7 +151,8 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   hdr->setProperty( "resolutions_dimension", rsizes );
   hdr->setProperty( "format", string( "OpenSlide" ) );
   hdr->setProperty( "voxel_size", vs );
-  hdr->setProperty( "object_type", string( "Volume of " ) + type );
+  hdr->setProperty( "object_type", "Volume" );
+  hdr->setProperty( "data_type", type );
   
   return hdr;
 }
