@@ -652,7 +652,7 @@ namespace soma
   bool AsciiDataSourceTraits<carto::VoxelValue<T,C> >::read( DataSource & ds,
                                                carto::VoxelValue<T,C> & item )
   {
-    int c, i;
+    int c;
     carto::VoxelValue<T,C> result;
 
     while( true ) {
@@ -662,7 +662,7 @@ namespace soma
       if( c == '(' ) {
         AsciiDataSourceTraits<T>::read( ds, result[0] );
         c = ds.getch();
-        for( i=1; i<C; ++i )
+        for( unsigned int i=1; i<C; ++i )
           if( c == ',' ) {
             AsciiDataSourceTraits<T>::read( ds, result[i] );
             c = ds.getch();
@@ -682,9 +682,8 @@ namespace soma
                                                   const carto::VoxelValue<T,C>
                                                     & item )
   {
-    int i;
     ds << '(';
-    for( i=0; i<C-1; ++i )
+    for( unsigned int i=0; i<C-1; ++i )
       ds << (int) item[i] << ',';
     ds << (int) item[C-1] << ')';
     return true;
