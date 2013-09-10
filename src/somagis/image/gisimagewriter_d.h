@@ -281,6 +281,10 @@ namespace soma {
       dimdsi = dsil.check( dimdsi );
       dsi.header()->setProperty( "byte_swapping", dimdsi.header()->getProperty( "byte_swapping" ) );
       dsi.header()->setProperty( "ascii", dimdsi.header()->getProperty( "ascii" ) );
+      dsi.header()->setProperty( "sizeX", dimdsi.header()->getProperty( "sizeX" ) );
+      dsi.header()->setProperty( "sizeY", dimdsi.header()->getProperty( "sizeY" ) );
+      dsi.header()->setProperty( "sizeZ", dimdsi.header()->getProperty( "sizeZ" ) );
+      dsi.header()->setProperty( "sizeT", dimdsi.header()->getProperty( "sizeT" ) );
       return dsi;
     } else {
       if( options->hasProperty( "byte_swapping" ) )
