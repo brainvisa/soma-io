@@ -44,6 +44,11 @@ namespace carto
   Cartograph - base package: support classes that don't deal with image 
   processing.
 
+  Note: In version 4.4, a new IO library, soma-io, has been designed, and
+  some of the contents of the former cartobase library have moved to soma-io.
+  It mainly deals with the IO system, but not only: allocators, options
+  parsing, plugins and other utilities are now in soma-io.
+
 
   \section cartobase_provides Provided libraries and commands:
 
@@ -63,11 +68,7 @@ namespace carto
 
   \section cartobase_building Building:
 
-  The use of our build system (build-config, configure, maker) is not mandatory
-  but strongly encouraged, because it takes care of dependencies between 
-  projects and libraries. Setting up the Makefiles by hand is quite a huge 
-  work. For a little documentation on the build system, see our 
-  web site: http://brainvisa.info/compilation.html
+  Use <a href="http://www.cmake.org/">CMake</a>, a cross-platform and open-source build system. More information on <a href="https://bioproj.extra.cea.fr/redmine/projects/brainvisa-devel/wiki/How_to_compile_BrainVISA_projects">this wiki page on Bioproj</a>, our Redmine based projects platform. To know more about Bioproj, see <a href="http://brainvisa.info/repository.html">this page on BrainVISA website</a>.
 
 
   \section cartobase_maincontents Main contents:
@@ -81,28 +82,15 @@ namespace carto
     See the \ref genericobject
   - exceptions: \link carto::io_error io_error\endlink, 
     \link carto::errno_error errno_error\endlink and families.
-  - commandline options parsing system: \link carto::CartoApplication 
-    CartoApplication\endlink, \link carto::OptionsParser OptionsParser\endlink
   - reference counters and other smart pointers: 
     \link carto::rc_ptr rc_ptr\endlink, std::auto_ptr, 
     \link carto::weak_ptr weak_ptr\endlink, 
     \link carto::scoped_ptr scoped_ptr\endlink
-  - <b>\ref carto_io</b> (currently under development): 
-    \link carto::DataSource DataSource\endlink, 
-    \link carto::Reader Reader\endlink, \link carto::Writer Writer\endlink, 
-    \link carto::DataSourceInfo DataSourceInfo\endlink
-    \link carto::ReaderAlgorithm ReaderAlgorithm\endlink
   - other portable filename / file / directory utilities: 
     \link carto::FileUtil FileUtil\endlink, 
     \link carto::Directory Directory\endlink
-  - <b>\ref allocators</b>
   - STL-like containers:
-    - vectors using extended allocators: 
-      \link carto::AllocatedVector AllocatedVector\endlink
     - \link carto::block block\endlink (buffers of fixed size)
-  - plugins system: \link carto::Plugin Plugin\endlink, 
-    \link carto::PluginManager PluginManager\endlink, 
-    \link carto::PluginLoader PluginLoader\endlink
   - portable threads: \link carto::Thread Thread\endlink, 
     \link carto::Mutex Mutex\endlink, 
     \link carto::ThreadedLoop ThreadedLoop\endlink etc.
@@ -126,14 +114,13 @@ namespace carto
       \link carto::stringUpper stringUpper\endlink...
   - other general utility classes, functions and macros:
     - debug messages printing: ::dbgMsg, 
-    - libraries information printing: \link carto::Info Info\endlink
 
 
   \section cartobase_programming Other programming rules and notes:
 
   - \ref porting
 
-  - <b><a href="changelog.html">Change Log</a></b>
+  - <b><a href="../aimsdata/html/en/changelog.html">Change Log</a></b>
 
 */
 

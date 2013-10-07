@@ -18,8 +18,6 @@ set( _headers
    config/verbose.h
    containers/block.h
    doc/cartobase_doc.h
-   doc/getopt_doc.h
-   doc/io_doc.h
    doc/object_doc.h
    exception/assert.h
    exception/errno.h
@@ -321,8 +319,10 @@ BRAINVISA_INSTALL( TARGETS cartobase
 
 IF ( DOXYGEN_FOUND )
   SET(component_name "cartobase")
-  set( DOXYFILE_PREDEFINED "${AIMS_DEFINITIONS}")
-  BRAINVISA_GENERATE_DOXYGEN_DOC( _headers 
-                                  INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/${component_name}"
-                                  COMPONENT "${component_name}")
+  set( DOXYFILE_PREDEFINED "${SOMA-IO_DEFINITIONS}")
+  set( _doxyheaders ${_headers} "config/config.h" ) # add config.h file
+  BRAINVISA_GENERATE_DOXYGEN_DOC(
+    _doxyheaders
+    INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/${component_name}"
+    COMPONENT "${component_name}" )
 ENDIF ( DOXYGEN_FOUND )

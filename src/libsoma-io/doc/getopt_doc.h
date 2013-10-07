@@ -34,16 +34,16 @@
 // This file is only here for Doxygen (doc generation tool)
 // Nothing to do with the code, in fact...
 
-namespace carto
+namespace soma
 {
 
   /*! \class CartoApplication
 
-  CartoApplication is normally the entry point of the options parsing system. 
+  carto::CartoApplication is normally the entry point of the options parsing system. 
   It inherits OptionsParser to benefit from its addOption(), addOptionSeries() 
   and alias() methods, and parsing is triggered by the initialize() function.
 
-  CartoApplication adds the commandline description, and some standard 
+  carto::CartoApplication adds the commandline description, and some standard 
   common options which all cartograph commands will provide:
   - \c -h / \c --help prints the commandline and its parameters descriptions
   - \c --verbose sets the verbosity level of the commandline (more messages 
@@ -54,18 +54,19 @@ namespace carto
     list, supported IO formats and objects types, versions, external shared 
     data paths, etc.
 
-  CartoApplication may be subclassed in upper-level libraries which may add 
+  carto::CartoApplication may be subclassed in upper-level libraries which may add 
   some other common options. For instance, AIMS programs will use 
-  AimsApplication instead of CartoApplication.
+  AimsApplication instead of carto::CartoApplication.
 
   A normal Cartograph program will generally have a main() function looking 
   like the following example:
 
   \code
-#include <cstdlib>
-  #include <cartobase/getopt/getopt.h>
+  #include <cstdlib>
+  #include <soma-io/getopt/getopt.h>
   #include <iostream>
 
+  using namespace soma;
   using namespace carto;
   using namespace std;
 

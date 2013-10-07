@@ -31,6 +31,9 @@ set( _headers
   datasourceinfo/datasourcecapabilities.h
   datasourceinfo/datasourceinfo.h
   datasourceinfo/datasourceinfoloader.h
+  doc/getopt_doc.h
+  doc/io_doc.h
+  doc/somaio_doc.h
   getopt/getopt.h
   image/imagereader.h
   image/imagereader_d.h
@@ -120,8 +123,15 @@ BRAINVISA_INSTALL( TARGETS soma-io
 
 IF ( DOXYGEN_FOUND )
   SET(component_name "soma-io")
-  set( DOXYFILE_PREDEFINED "${AIMS_DEFINITIONS}")
-  BRAINVISA_GENERATE_DOXYGEN_DOC( _headers 
-                                  INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/${component_name}"
-                                  COMPONENT "${component_name}")
+  set( DOXYFILE_PREDEFINED "${SOMA-IO_DEFINITIONS}")
+  set(_somaio_version
+    "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}")
+  set( DOXYFILE_TAGFILES
+    "${CMAKE_BINARY_DIR}/share/doc/cartobase-${_somaio_version}/doxygen/cartobase.tag=../../cartobase-${_somaio_version}/doxygen" )
+  set( _doxyheaders ${_headers} "config/config.h" ) # add config.h file
+  BRAINVISA_GENERATE_DOXYGEN_DOC(
+    _doxyheaders
+    INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/${component_name}"
+    COMPONENT "${component_name}" )
+  add_dependencies( ${component_name}-doxygen cartobase-doxygen)
 ENDIF ( DOXYGEN_FOUND )
