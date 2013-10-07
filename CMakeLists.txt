@@ -14,6 +14,8 @@ BRAINVISA_DEPENDENCY( DEV DEPENDS libxml2 DEV )
 find_package( Boost REQUIRED )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libboost DEV )
 
+find_package( Doxygen )
+
 find_package( OpenSlide )
 if( OPENSLIDE_FOUND )
   BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )

@@ -34,14 +34,14 @@
 // This file is only here for Doxygen (doc generation tool)
 // Nothing to do with the code, in fact...
 
-namespace carto
+namespace soma
 {
 
-/*! \page carto_io IO system
+/*! \page soma_io IO system
 
 \section datasource DataSource
 
-In Cartograph, many objects loading and saving may be done not only on files, 
+In Soma-IO, many objects loading and saving may be done not only on files,
 but in memory, or across a network, or across special transforming streams 
 (compressed streams for instance).
 
