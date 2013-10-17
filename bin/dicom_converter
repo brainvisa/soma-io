@@ -409,6 +409,23 @@ def convert_to_nifti_NM( serie ):
     except:
         pass
 
+    uuid = None
+    if "FrameofReferenceUID" in ds:
+        uuid = hashlib.md5(ds.FrameofReferenceUID).hexdigest()
+        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])
+    header = aims.read(outfile).header()
+    minf = os.path.join(outfile + '.minf')
+    fd = open(minf, 'w')
+    if uuid != None:
+        newattributes = {'referentials': [uuid],
+                         'modality': ds.Modality,
+                         'series_instance_uid': ds.SeriesInstanceUID}
+    else:
+        newattributes = {'modality': ds.Modality,
+                         'series_instance_uid': ds.SeriesInstanceUID}
+    header.update(newattributes)
+    print >> fd, "attributes = ", header
+    fd.close()
 
 if __name__ == '__main__':
 
