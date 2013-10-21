@@ -44,12 +44,12 @@ using namespace std;
 
 Mutex mutex;
 
-#ifdef _WIN32
-void sleep( unsigned ns )
-{
-  _sleep( ns * 1000 );
-}
-#endif
+// #ifdef _WIN32
+// void sleep( unsigned ns )
+// {
+  // _sleep( ns * 1000 );
+// }
+// #endif
 
 class MyThread : public Thread
 {

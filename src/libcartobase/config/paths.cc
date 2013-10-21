@@ -146,12 +146,13 @@ const string & Paths::tempDir()
 const string & Paths::globalShared()
 {
   static string	_shared;
-
+  
   if( _shared.empty() )
   {
     list<string> plist;
     list<string> pbvshare;
     const char *env_path = getenv( "BRAINVISA_SHARE" );
+    
     if( env_path )
       plist.push_back( env_path );
     env_path = getenv( "SHFJ_SHARED_PATH" );
@@ -218,15 +219,15 @@ const string & Paths::globalShared()
 #endif
           ) )
           p = ip->substr( 0, ip->length() - 4 );
-        else if( ip->length() >= 19
-                && ( ip->substr( ip->length()-19, 19 )
-                  == "/bin/commands-links"
+        else if( ip->length() >= 13
+                && ( ip->substr( ip->length()-13, 13 )
+                  == "/bin/real-bin"
 #ifdef _WIN32
-                || ip->substr( ip->length()-19, 19 )
-                  == "\\bin\\commands-links"
+                || ip->substr( ip->length()-13, 13 )
+                  == "\\bin\\real-bin"
 #endif
                 ) )
-          p = ip->substr( 0, ip->length() - 19 );
+          p = ip->substr( 0, ip->length() - 13 );
   
         if( p.empty() )
           p = "/";

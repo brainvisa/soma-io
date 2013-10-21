@@ -323,9 +323,15 @@ list<string> FileUtil::filenamesSplit( const string & fnames,
       cur += c;
     else
     {
+#if !WIN32
+// Windows command line has no suitable escape character sequence
+// and the \ character is reserved as path separator so the following test 
+// could cause some misunderstanding
       if( c == '\\' )
         esc = true;
-      else if( ( quote && c == quotec )
+      else 
+#endif
+      if( ( quote && c == quotec )
                  || ( !quote && ( c == '"' || c == '\'' ) ) )
       {
         quotec = c;

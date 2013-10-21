@@ -211,7 +211,6 @@ static bool loadlib( const string & libname, const std::string & ver,
   string::size_type	sopos = lname.rfind( ".so" );
   list<string>  liblist;
   list<string>  vers;
-  list<string>::iterator iv, ev = vers.end();
 
   if( !ver.empty() )
   {
@@ -226,26 +225,33 @@ static bool loadlib( const string & libname, const std::string & ver,
 
   if( !ver.empty() && sopos == lname.length() - 3 )
   {
-    #ifdef _WIN32
-      lname.replace( sopos, 3, ".dll" );
-    #endif
-    // lname += string( "." ) + ver;
+  #ifdef _WIN32
+    lname.replace( sopos, 3, ".dll" );
+    
+    // Use a reverse iterator to start search using
+    // library without version in the name
+    list<string>::reverse_iterator iv, ev = vers.rend();
+    for( iv=vers.rbegin(); iv!=ev; ++iv )
+  #else
+    list<string>::iterator iv, ev = vers.end();
     for( iv=vers.begin(); iv!=ev; ++iv )
+  #endif
       liblist.push_back( lname + *iv );
-    #ifdef __APPLE__
-      lname = libname.substr( 0, sopos );
-      for( iv=vers.begin(); iv!=ev; ++iv )
-        liblist.push_back( lname + *iv + ".so" );
-    #endif
+      
+  #ifdef __APPLE__
+    lname = libname.substr( 0, sopos );
+    for( iv=vers.begin(); iv!=ev; ++iv )
+      liblist.push_back( lname + *iv + ".so" );
+  #endif
   }
   #ifdef _WIN32
-    else
-    {
-      sopos = lname.rfind( ".so." );
-      if( sopos != string::npos )
-        lname.replace( sopos, 4, ".dll." );
-      liblist.push_back( lname );
-    }
+  else
+  {
+    sopos = lname.rfind( ".so." );
+    if( sopos != string::npos )
+      lname.replace( sopos, 4, ".dll." );
+    liblist.push_back( lname );
+  }
   #endif
 
   list<string>::iterator il, el = liblist.end();
