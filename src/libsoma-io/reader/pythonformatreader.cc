@@ -118,6 +118,11 @@ void PythonFormatReader::read( GenericObject & obj,
 }
 
 
+FormatReader<GenericObject>* PythonFormatReader::clone() const
+{
+  return new PythonFormatReader;
+}
+
 //============================================================================
 //   O L D   M E T H O D S
 //============================================================================

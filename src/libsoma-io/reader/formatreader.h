@@ -111,6 +111,15 @@ namespace soma
                        const AllocatorContext & context, 
                        carto::Object options );
 
+    /// Duplicate the FormatReader.
+    /// Some FormatReader can contain data describing the data source or
+    /// storage buffer, so must be cloned for each read.
+    /// Note that, for now, the cloned instance does not need to have the same
+    /// bound internal data, since it is cloned precisely to work on a
+    /// different source/buffer. It just needs to be another instance of the
+    /// same exact type.
+    virtual FormatReader<T>* clone() const = 0;
+
     //========================================================================
     //   S T I L L   U S E D
     //========================================================================

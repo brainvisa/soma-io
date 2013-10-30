@@ -71,6 +71,7 @@ namespace soma
 
       virtual void updateParams( DataSourceInfo & dsi );
       virtual void resetParams();
+      virtual ImageReader<T>* cloneReader() const;
 
     protected:
       //======================================================================

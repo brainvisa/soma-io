@@ -127,6 +127,12 @@ void XMLFormatReader::read( GenericObject & obj, rc_ptr<DataSourceInfo> dsi,
 }
 
 
+FormatReader<GenericObject>* XMLFormatReader::clone() const
+{
+  return new XMLFormatReader;
+}
+
+
 //============================================================================
 //   O L D   M E T H O D S
 //============================================================================

@@ -166,6 +166,14 @@ namespace soma {
 //     localMsg( "swapVoxels( " + carto::toString( byte_order != "ABCD" ) + " )" );
     swapVoxels( dest, sizex*sizey, byte_order != "ABCD" );
   }
+
+
+  template <typename T>
+  ImageReader<T>* OSImageReader<T>::cloneReader() const
+  {
+    return new OSImageReader;
+  }
+
 }
 
 #undef localMsg

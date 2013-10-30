@@ -266,6 +266,7 @@ namespace soma
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
+    std::auto_ptr<FormatReader<T> >   readerc;
     set_S::iterator	             notyet = tried.end();
     typename std::set<FormatReader<T> *>::iterator	notyetf = triedf.end();
     int          excp = 0;
@@ -276,14 +277,17 @@ namespace soma
     if( passbegin <= 1 && passend >=1 && !format.empty() )
     {
       reader = FormatDictionary<T>::readFormat( format );
-      if( reader ) {
+      if( reader )
+      {
         try {
           localMsg( "1. try reader " + format );
-          reader->setupAndRead( obj, _datasourceinfo,
+          readerc.reset( reader->clone() );
+          readerc->setupAndRead( obj, _datasourceinfo,
                                 _alloccontext, _options );
           localMsg( "1. " + format + " OK" );
           return true;
-        } catch( std::exception & e ) {
+        }
+        catch( std::exception & e ) {
           localMsg( "1. " + format + " failed" );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
         }
@@ -302,16 +306,19 @@ namespace soma
     {
       iext = extensions.equal_range( ext );
       for( ie=iext.first, ee = iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
+        if( tried.find( (*ie).second ) == notyet )
+        {
           reader = FormatDictionary<T>::readFormat( ie->second );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
               localMsg( "2. try reader " + ie->second );
-              reader->setupAndRead( obj, _datasourceinfo,
+              readerc.reset( reader->clone() );
+              readerc->setupAndRead( obj, _datasourceinfo,
                                     _alloccontext, _options );
               localMsg( "2. " + ie->second + " OK" );
               return true;
-            } catch( std::exception & e ) {
+            }
+            catch( std::exception & e ) {
               localMsg( "2. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
@@ -329,14 +336,17 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( ie->second );
-          if( reader && triedf.find( reader ) == notyetf ) {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
             try {
               localMsg( "3. try reader " + ie->second );
-              reader->setupAndRead( obj, _datasourceinfo,
+              readerc.reset( reader->clone() );
+              readerc->setupAndRead( obj, _datasourceinfo,
                                     _alloccontext, _options );
               localMsg( "3. " + ie->second + " OK" );
               return true;
-            } catch( std::exception & e ) {
+            }
+            catch( std::exception & e ) {
               localMsg( "3. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
@@ -355,14 +365,17 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( ie->second );
-          if( reader && triedf.find( reader ) == notyetf ) {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
             try {
               localMsg( "4. try reader " + ie->second );
-              reader->setupAndRead( obj, _datasourceinfo,
+              readerc.reset( reader->clone() );
+              readerc->setupAndRead( obj, _datasourceinfo,
                                     _alloccontext, _options );
               localMsg( "4. " + ie->second + " OK" );
               return true;
-            } catch( std::exception & e ) {
+            }
+            catch( std::exception & e ) {
               localMsg( "4. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
@@ -422,7 +435,8 @@ namespace soma
     //// Reading data ////////////////////////////////////////////////////////
     set_S                         tried;
     std::set<FormatReader<T> *>   triedf;
-    FormatReader<T>			          *reader;
+    FormatReader<T>               *reader;
+    std::auto_ptr<FormatReader<T> >    readerc;
     set_S::iterator               notyet = tried.end();
     typename std::set<FormatReader<T> *>::iterator  notyetf = triedf.end();
     T            *obj;
@@ -436,7 +450,8 @@ namespace soma
       if( reader ) {
         try {
           localMsg( "1. try reader " + format );
-          obj = reader->createAndRead( _datasourceinfo,
+          readerc.reset( reader->clone() );
+          obj = readerc->createAndRead( _datasourceinfo,
                                        _alloccontext, _options );
           if( obj ) {
             localMsg( "1. " + format + " OK" );
@@ -468,7 +483,8 @@ namespace soma
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
               localMsg( "2. try reader " + ie->second );
-              obj = reader->createAndRead( _datasourceinfo,
+              readerc.reset( reader->clone() );
+              obj = readerc->createAndRead( _datasourceinfo,
                                           _alloccontext, _options );
               if( obj ) {
                 localMsg( "2. " + ie->second + " OK" );
@@ -492,10 +508,12 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( (*ie).second );
-          if( reader && triedf.find( reader ) == notyetf ) {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
             try {
               localMsg( "3. try reader " + ie->second );
-              obj = reader->createAndRead( _datasourceinfo,
+              readerc.reset( reader->clone() );
+              obj = readerc->createAndRead( _datasourceinfo,
                                            _alloccontext, _options );
               if( obj ) {
                 localMsg( "3. " + ie->second + " OK" );
@@ -520,10 +538,12 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
         if( tried.find( (*ie).second ) == notyet ) {
           reader = FormatDictionary<T>::readFormat( ie->second );
-          if( reader && triedf.find( reader ) == notyetf ) {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
             try {
               localMsg( "4. try reader " + ie->second );
-              obj = reader->createAndRead( _datasourceinfo,
+              readerc.reset( reader->clone() );
+              obj = readerc->createAndRead( _datasourceinfo,
                                           _alloccontext, _options );
               if( obj ) {
                 localMsg( "4. " + ie->second + " OK" );

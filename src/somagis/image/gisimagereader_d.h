@@ -266,6 +266,14 @@ namespace soma {
           }
         }
   }
+
+
+  template <typename T>
+  ImageReader<T>* GisImageReader<T>::cloneReader() const
+  {
+    return new GisImageReader;
+  }
+
 }
 
 #undef localMsg
