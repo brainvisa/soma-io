@@ -61,7 +61,8 @@ namespace soma
                        carto::rc_ptr<DataSourceInfo> dsi, 
                        const AllocatorContext & context, 
                        carto::Object options );
-    
+    virtual FormatReader<carto::GenericObject>* clone() const;
+
     //========================================================================
     //   O L D   M E T H O D S
     //========================================================================

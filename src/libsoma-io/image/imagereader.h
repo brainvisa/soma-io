@@ -90,6 +90,7 @@ namespace soma
       virtual void updateParams( DataSourceInfo & dsi );
       /// Abstract : empty specialized ImageReader's parameters.
       virtual void resetParams();
+      virtual ImageReader<T>* cloneReader() const = 0;
   };
 
 }
