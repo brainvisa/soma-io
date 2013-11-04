@@ -370,7 +370,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
   bool doread = dsi.header().isNone() ;
   bool dolist = dsi.list().typecount() == 1 ;
   bool docapa = !dsi.capabilities().isInit();
-  
+
   //--- read uri -------------------------------------------------------------
   // we don't use any options right now, but we may later ?
   // then, uncomment the following lines to get options from the uri.
@@ -418,7 +418,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
         dsi.capabilities().setMemoryMapping( true );
     } catch( ... ) {}
     dsi.capabilities().setDataSource( dsi.list().dataSource( "ima" ) );
-    dsi.capabilities().setThreadSafe( false ); /* TODO */
+    dsi.capabilities().setThreadSafe( true ); /* TODO */
     dsi.capabilities().setOrdered( true );
     dsi.capabilities().setSeekVoxel( true );
     dsi.capabilities().setSeekLine( true );

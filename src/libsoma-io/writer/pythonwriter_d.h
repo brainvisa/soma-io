@@ -31,6 +31,9 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#ifndef SOMAIO_WRITER_PYTHONWRITER_D_H
+#define SOMAIO_WRITER_PYTHONWRITER_D_H
+
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
@@ -40,119 +43,115 @@
 #include <cartobase/object/object_d.h>
 //----------------------------------------------------------------------------
 
-using namespace std;
-using namespace carto;
-using namespace soma;
-
 namespace {
 
 template<typename T> 
 void 
-genericHelper( const GenericObject & obj, PythonWriter & w, int, bool )
+genericHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  // using GenericObject:: avoids a bug in gcc-2.96
+  soma::DataSource	& ds = *w.dataSource();
+  // using carto::GenericObject:: avoids a bug in gcc-2.96
   const T	& x = obj.GenericObject::value<T>();
-  AsciiDataSourceTraits<T>::write( ds, x );
+  soma::AsciiDataSourceTraits<T>::write( ds, x );
 }
 
 
 template<>
-void genericHelper<char>( const GenericObject & obj, PythonWriter & w, int, 
+void genericHelper<char>( const carto::GenericObject & obj, soma::PythonWriter & w, int,
                           bool )
 {
-  DataSource	& ds = *w.dataSource();
-  // using GenericObject:: avoids a bug in gcc-2.96
+  soma::DataSource	& ds = *w.dataSource();
+  // using carto::GenericObject:: avoids a bug in gcc-2.96
   const char	& x = obj.GenericObject::value<char>();
-  AsciiDataSourceTraits<int>::write( ds, x );
+  soma::AsciiDataSourceTraits<int>::write( ds, x );
 }
 
 
 template<>
-void genericHelper<unsigned char>( const GenericObject & obj, 
-                                   PythonWriter & w, int, bool )
+void genericHelper<unsigned char>( const carto::GenericObject & obj,
+                                   soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  // using GenericObject:: avoids a bug in gcc-2.96
+  soma::DataSource	& ds = *w.dataSource();
+  // using carto::GenericObject:: avoids a bug in gcc-2.96
   const unsigned char	& x = obj.GenericObject::value<unsigned char>();
-  AsciiDataSourceTraits<unsigned>::write( ds, x );
+  soma::AsciiDataSourceTraits<unsigned>::write( ds, x );
 }
 
 
 template<>
-void genericHelper<string>( const GenericObject & obj, 
-                            PythonWriter & w, int, bool )
+void genericHelper<std::string>( const carto::GenericObject & obj,
+                                 soma::PythonWriter & w, int, bool )
 {
   w.writeString( *w.dataSource(), obj.getString() );
 }
 
 
 template<>
-void genericHelper<double>( const GenericObject & obj, 
-                            PythonWriter & w, int, bool )
+void genericHelper<double>( const carto::GenericObject & obj,
+                            soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<double>::write( ds, obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<double>::write( ds, obj.getScalar() );
 }
 
 
 template<>
-void genericHelper<float>( const GenericObject & obj,
-                           PythonWriter & w, int, bool )
+void genericHelper<float>( const carto::GenericObject & obj,
+                           soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<float>::write( ds, (float) obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<float>::write( ds, (float) obj.getScalar() );
 }
 
 
 template<>
-void genericHelper<int16_t>( const GenericObject & obj,
-                             PythonWriter & w, int, bool )
+void genericHelper<int16_t>( const carto::GenericObject & obj,
+                             soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<int16_t>::write( ds, (int16_t) obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<int16_t>::write( ds, (int16_t) obj.getScalar() );
 }
 
 
 template<>
-void genericHelper<uint16_t>( const GenericObject & obj,
-                              PythonWriter & w, int, bool )
+void genericHelper<uint16_t>( const carto::GenericObject & obj,
+                              soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<uint16_t>::write( ds, (uint16_t) obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<uint16_t>::write( ds, (uint16_t) obj.getScalar() );
 }
 
 
 template<>
-void genericHelper<int32_t>( const GenericObject & obj,
-                             PythonWriter & w, int, bool )
+void genericHelper<int32_t>( const carto::GenericObject & obj,
+                             soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<int32_t>::write( ds, (int32_t) obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<int32_t>::write( ds, (int32_t) obj.getScalar() );
 }
 
 
 template<>
-void genericHelper<uint32_t>( const GenericObject & obj,
-                              PythonWriter & w, int, bool )
+void genericHelper<uint32_t>( const carto::GenericObject & obj,
+                              soma::PythonWriter & w, int, bool )
 {
-  DataSource	& ds = *w.dataSource();
-  AsciiDataSourceTraits<uint32_t>::write( ds, (uint32_t) obj.getScalar() );
+  soma::DataSource	& ds = *w.dataSource();
+  soma::AsciiDataSourceTraits<uint32_t>::write( ds, (uint32_t) obj.getScalar() );
 }
 
 
 template<typename T> 
-void dictHelper( const GenericObject & obj, PythonWriter & w, int indent, 
+void dictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int indent,
 		 bool writeInternals )
 {
   // cout << "dictHelper<" << DataTypeCode<T>::name() << ">\n";
 
-  DataSource				& ds = *w.dataSource();
-  const map<T, Object> 
-    & x = obj.GenericObject::value<map<T, Object> >();
-  typename map<T, Object>::const_iterator	im, em = x.end();
+  soma::DataSource				& ds = *w.dataSource();
+  const std::map<T, carto::Object>
+    & x = obj.GenericObject::value<std::map<T, carto::Object> >();
+  typename std::map<T, carto::Object>::const_iterator	im, em = x.end();
   bool					first = true, hassyntax = false;
-  string				ind, ind2;
+  std::string				ind, ind2;
   int					i;
   char					sep = '\n';
 
@@ -170,11 +169,11 @@ void dictHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
   ds.putch( '{' );
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
 
-  string	synt;
-  const SyntaxedInterface *si 
-    = obj.GenericObject::getInterface<SyntaxedInterface>();
+  std::string	synt;
+  const carto::SyntaxedInterface *si
+    = obj.GenericObject::getInterface<carto::SyntaxedInterface>();
   if( si && si->hasSyntax() )
     {
       synt = si->getSyntax();
@@ -184,10 +183,10 @@ void dictHelper( const GenericObject & obj, PythonWriter & w, int indent,
     {
       try
         {
-          Object	sx = obj.getProperty( "__syntax__" );
+          carto::Object	sx = obj.getProperty( "__syntax__" );
           if( sx.get() )
             {
-              synt = sx->GenericObject::value<string>();
+              synt = sx->GenericObject::value<std::string>();
               hassyntax = true;
             }
         }
@@ -198,7 +197,7 @@ void dictHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
   if( hassyntax )
     {
-      AsciiDataSourceTraits<string>::write( ds, "'__syntax__' : " );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, "'__syntax__' : " );
       w.writeString( ds, synt );
       first = false;
     }
@@ -211,31 +210,31 @@ void dictHelper( const GenericObject & obj, PythonWriter & w, int indent,
         {
           ds.putch( ',' );
           ds.putch( sep );
-          AsciiDataSourceTraits<string>::write( ds, ind );
+          soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
         }
       // const_cast: just to avoid referencing a const T
-      Object key = Object::reference( const_cast<T &>( im->first ) );
+      carto::Object key = carto::Object::reference( const_cast<T &>( im->first ) );
       w.write( *key, indent, "", "", writeInternals );
-      AsciiDataSourceTraits<string>::write( ds, " : " );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
       w.write( *im->second, indent, "", "", writeInternals );
     }
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
   ds.putch( '}' );
 }
 
 
 template<> 
-void dictHelper<string>( const GenericObject & obj, PythonWriter & w, 
-			 int indent, bool writeInternals )
+void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWriter & w,
+			      int indent, bool writeInternals )
 {
-  DataSource				& ds = *w.dataSource();
-  const IterableInterface 
-    & y = *obj.getInterface<IterableInterface>();
-  Object				im;
+  soma::DataSource				& ds = *w.dataSource();
+  const carto::IterableInterface 
+    & y = *obj.getInterface<carto::IterableInterface>();
+  carto::Object				im;
 
   bool					first = true, hassyntax = false;
-  string				ind, ind2;
+  std::string				ind, ind2;
   int					i;
   char					sep = '\n';
 
@@ -253,10 +252,10 @@ void dictHelper<string>( const GenericObject & obj, PythonWriter & w,
 
   ds.putch( '{' );
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
 
-  string	synt;
-  const SyntaxedInterface	*si = obj.getInterface<SyntaxedInterface>();
+  std::string	synt;
+  const carto::SyntaxedInterface	*si = obj.getInterface<carto::SyntaxedInterface>();
   if( si && si->hasSyntax() )
     {
       synt = si->getSyntax();
@@ -266,10 +265,10 @@ void dictHelper<string>( const GenericObject & obj, PythonWriter & w,
     {
       try
         {
-          Object	sx = obj.getProperty( "__syntax__" );
+          carto::Object	sx = obj.getProperty( "__syntax__" );
           if( sx.get() )
             {
-              synt = sx->GenericObject::value<string>();
+              synt = sx->GenericObject::value<std::string>();
               hassyntax = true;
             }
         }
@@ -280,12 +279,12 @@ void dictHelper<string>( const GenericObject & obj, PythonWriter & w,
 
   if( hassyntax )
     {
-      AsciiDataSourceTraits<string>::write( ds, "'__syntax__' : " );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, "'__syntax__' : " );
       w.writeString( ds, synt );
       first = false;
     }
 
-  string	key;
+  std::string	key;
   im=y.objectIterator();
   while( im->isValid() )
     {
@@ -299,30 +298,30 @@ void dictHelper<string>( const GenericObject & obj, PythonWriter & w,
             {
               ds.putch( ',' );
               ds.putch( sep );
-              AsciiDataSourceTraits<string>::write( ds, ind );
+              soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
             }
           w.writeString( ds, key );
-          AsciiDataSourceTraits<string>::write( ds, " : " );
+          soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
           w.write( *im->currentValue(), indent, "", key, writeInternals );
         }
       im->next();
     }
 
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind2 );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind2 );
   ds.putch( '}' );
 }
 
 
-void rcDictHelper( const GenericObject & obj, PythonWriter & w, int indent, 
+void rcDictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int indent,
 		   bool writeInternals )
 {
-  DataSource				& ds = *w.dataSource();
-  const map<Object, Object>	& x 
-    = obj.value<map<Object, Object> >();
-  map<Object, Object>::const_iterator	im, em = x.end();
+  soma::DataSource				& ds = *w.dataSource();
+  const std::map<carto::Object, carto::Object>	& x
+    = obj.value<std::map<carto::Object, carto::Object> >();
+  std::map<carto::Object, carto::Object>::const_iterator	im, em = x.end();
   bool					first = true, hassyntax = false;
-  string				ind, ind2;
+  std::string				ind, ind2;
   int					i;
   char					sep = '\n';
 
@@ -340,10 +339,10 @@ void rcDictHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
   ds.putch( '{' );
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
 
-  string	synt;
-  const SyntaxedInterface	*si = obj.getInterface<SyntaxedInterface>();
+  std::string	synt;
+  const carto::SyntaxedInterface	*si = obj.getInterface<carto::SyntaxedInterface>();
   if( si && si->hasSyntax() )
     {
       synt = si->getSyntax();
@@ -353,10 +352,10 @@ void rcDictHelper( const GenericObject & obj, PythonWriter & w, int indent,
     {
       try
         {
-          Object	sx = obj.getProperty( "__syntax__" );
+          carto::Object	sx = obj.getProperty( "__syntax__" );
           if( sx.get() )
             {
-              synt = sx->GenericObject::value<string>();
+              synt = sx->GenericObject::value<std::string>();
               hassyntax = true;
             }
         }
@@ -367,7 +366,7 @@ void rcDictHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
   if( hassyntax )
     {
-      AsciiDataSourceTraits<string>::write( ds, "'__syntax__' : " );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, "'__syntax__' : " );
       w.writeString( ds, synt );
       first = false;
     }
@@ -380,24 +379,24 @@ void rcDictHelper( const GenericObject & obj, PythonWriter & w, int indent,
         {
           ds.putch( ',' );
           ds.putch( sep );
-          AsciiDataSourceTraits<string>::write( ds, ind );
+          soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
         }
       w.write( *im->first, indent, "", "", writeInternals );
-      AsciiDataSourceTraits<string>::write( ds, " : " );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
       w.write( *im->second, indent, "", "", writeInternals );
     }
 
   ds.putch( sep );
-  AsciiDataSourceTraits<string>::write( ds, ind2 );
+  soma::AsciiDataSourceTraits<std::string>::write( ds, ind2 );
   ds.putch( '}' );
 }
 
 
-void listHelper( const GenericObject & obj, PythonWriter & w, int indent, 
+void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int indent,
 		 bool writeInternals )
 {
-  DataSource			& ds = *w.dataSource();
-  Object			it = obj.objectIterator();
+  soma::DataSource			& ds = *w.dataSource();
+  carto::Object			it = obj.objectIterator();
   bool				first = true;
 
   ds.putch( '[' );
@@ -419,12 +418,12 @@ void listHelper( const GenericObject & obj, PythonWriter & w, int indent,
 
 template<typename T> 
 void 
-PythonWriter::genericSequenceHelper( const GenericObject & obj,
-                                     PythonWriter & w,
-                                     int ind,
-                                     bool writeInternals )
+soma::PythonWriter::genericSequenceHelper( const carto::GenericObject & obj,
+                                           soma::PythonWriter & w,
+                                           int ind,
+                                           bool writeInternals )
 {
-  DataSource    & ds = *w.dataSource();
+  soma::DataSource    & ds = *w.dataSource();
   // using GenericObject:: avoids a bug in gcc-2.96
   const T   & x = obj.GenericObject::value<T>();
   typename T::const_iterator    ix;
@@ -451,3 +450,6 @@ PythonWriter::genericSequenceHelper( const GenericObject & obj,
   ds.putch( ' ' );
   ds.putch( ']' );
 }
+
+#endif
+

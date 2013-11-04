@@ -251,6 +251,8 @@ namespace soma
     *_datasourceinfo = dsi;
     try {
       if( (bool)_options->getProperty( "partial_reading" )->getScalar() )
+        /* disable mmap here because partial reading on an already allocated
+           volume is not compatible with mmap */
         _datasourceinfo->capabilities().setMemoryMapping( false );
     } catch( ... ) {
     }
@@ -396,7 +398,7 @@ namespace soma
   T* Reader<T>::read( carto::Object header, int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
-    
+
     if( !header.isNone() )
       _datasourceinfo->header() = header;
 
@@ -414,7 +416,7 @@ namespace soma
                              .reset( new FileDataSource( filename ) );
       _options->copyProperties( urioptions );
     }
-    
+
     //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options );
@@ -424,12 +426,12 @@ namespace soma
       dsil.launchException();
     *_datasourceinfo = dsi;
     _alloccontext.setDataSourceInfo( _datasourceinfo );
-    
+
     std::string format;
     if( !_options->getProperty( "format", format )
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
-    
+
     localMsg( "format: " + format );
 
     //// Reading data ////////////////////////////////////////////////////////

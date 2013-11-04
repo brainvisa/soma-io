@@ -31,6 +31,9 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#ifndef SOMAIO_READER_PYTHONREADER_D_H
+#define SOMAIO_READER_PYTHONREADER_D_H
+
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
@@ -39,13 +42,9 @@
 #include <cartobase/object/object_d.h>
 //----------------------------------------------------------------------------
 
-using namespace std;
-using namespace carto;
-using namespace soma;
-
-struct PythonReader::Private
+struct soma::PythonReader::Private
 {
-  Private( const SyntaxSet & r, rc_ptr<DataSource> ds )
+  Private( const SyntaxSet & r, carto::rc_ptr<soma::DataSource> ds )
   : rules( r ), datasource( ds ), eof( false )
   {}
 
@@ -54,7 +53,7 @@ struct PythonReader::Private
   {}
 
   SyntaxSet           rules;
-  rc_ptr<DataSource>  datasource;
+  carto::rc_ptr<soma::DataSource>  datasource;
   HelperSet           helpers;
   bool                eof;
 };
@@ -64,128 +63,132 @@ namespace
 {
 
   template<typename T>
-  GenericObject*
-  genericHelper( GenericObject*, const string &, PythonReader & r )
+  carto::GenericObject*
+  genericHelper( carto::GenericObject*, const std::string &,
+                 soma::PythonReader & r )
   {
     r.skipWhile( " \t\n\\\r" );
-    DataSource & ds = *r.dataSource();
+    soma::DataSource & ds = *r.dataSource();
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     T   x;
     *r.dataSource() >> x;
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
-    return( new ValueObject<T>( x ) );
+      carto::io_error::launchErrnoExcept( ds.url() );
+    return( new carto::ValueObject<T>( x ) );
   }
 
 
   template<>
-  GenericObject*
-  genericHelper<std::vector<int> >(GenericObject* o, const string & s,
-                                   PythonReader & r )
+  carto::GenericObject*
+  genericHelper<std::vector<int> >(carto::GenericObject* o, const std::string & s,
+                                   soma::PythonReader & r )
   {
-    return PythonReader::genericSequenceHelper<std::vector<int> >( o, s, r );
+    return soma::PythonReader::genericSequenceHelper<std::vector<int> >(
+      o, s, r );
   }
 
   template<>
-  GenericObject*
-  genericHelper<char>( GenericObject*, const string &, PythonReader & r )
+  carto::GenericObject*
+  genericHelper<char>( carto::GenericObject*, const std::string &,
+                       soma::PythonReader & r )
   {
     r.skipWhile( " \t\n\\\r" );
-    DataSource & ds = *r.dataSource();
+    soma::DataSource & ds = *r.dataSource();
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     int x;
     *r.dataSource() >> x;
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
-    //cout << "number: " << x << endl;
-    return( new ValueObject<char>( char( x ) ) );
+      carto::io_error::launchErrnoExcept( ds.url() );
+    //cout << "number: " << x << std::endl;
+    return( new carto::ValueObject<char>( char( x ) ) );
   }
 
 
   template<>
-  GenericObject*
-  genericHelper<unsigned char>( GenericObject*, const string &, 
-                                PythonReader & r )
+  carto::GenericObject*
+  genericHelper<unsigned char>( carto::GenericObject*, const std::string &,
+                                soma::PythonReader & r )
   {
     r.skipWhile( " \t\n\\\r" );
-    DataSource & ds = *r.dataSource();
+    soma::DataSource & ds = *r.dataSource();
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     unsigned    x;
     *r.dataSource() >> x;
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
-    //cout << "number: " << x << endl;
-    return( new ValueObject<unsigned char>( (unsigned char) x ) );
+      carto::io_error::launchErrnoExcept( ds.url() );
+    //cout << "number: " << x << std::endl;
+    return( new carto::ValueObject<unsigned char>( (unsigned char) x ) );
   }
 
 
   template<>
-  GenericObject* 
-  genericHelper<string>( GenericObject*, const string &, PythonReader & r )
+  carto::GenericObject* 
+  genericHelper<std::string>( carto::GenericObject*, const std::string &,
+                              soma::PythonReader & r )
   {
-    string  x;
+    std::string  x;
     char    quote;
-    DataSource  & ds = *r.dataSource();
+    soma::DataSource  & ds = *r.dataSource();
     if( !ds.isOpen() )
-      throw eof_error( string( "EOF: line" ) + r.lineString(), r.name() );
+      throw carto::eof_error( std::string( "EOF: line" ) + r.lineString(), r.name() );
 
     r.readWhile( " \t\n\\\r" );
     if( ds.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     quote = ds.getch();
     if( ds.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     if( quote == 'u' ) // unicode string
     {
       quote = ds.getch();
       if( ds.eof() )
-        io_error::launchErrnoExcept( ds.url() );
+        carto::io_error::launchErrnoExcept( ds.url() );
     }
     if( quote != '"' && quote != '\'' )
     {
-      cerr << "string reader: NOT a string: " << quote << endl;
+      std::cerr << "string reader: NOT a string: " << quote << std::endl;
       return 0; // not a string
     }
     unsigned    n = 0;
     x = r.readString( quote, n );
     if( ds.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
 
-    //cout << "string: " << x << endl;
-    return( new ValueObject<string>( x ) );
+    //cout << "string: " << x << std::endl;
+    return( new carto::ValueObject<std::string>( x ) );
   }
 
-  GenericObject* listHelper( GenericObject*, const string &,
-                             PythonReader & r )
+  carto::GenericObject* listHelper( carto::GenericObject*, const std::string &,
+                                    soma::PythonReader & r )
   {
     // cout << "list\n";
     bool        end = false;
-    string  id, type;
-    DataSource  & ds = *r.dataSource();
+    std::string  id, type;
+    soma::DataSource  & ds = *r.dataSource();
 
     if( !ds.isOpen() )
       return 0;
     r.skipWhile( " \t\n\\\r" );
     if( r.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     char    c = ds.getch(), mark;
     if( ds.eof() )
-      io_error::launchErrnoExcept( ds.url() );
+      carto::io_error::launchErrnoExcept( ds.url() );
     if( c == '(' )
       mark = ')';
     else if( c == '[' )
       mark = ']';
     else
       {
-        // cout << "char: " << c << endl;
-        throw runtime_error( string( "PythonReader: Not a list/tuple: " ) 
+        // cout << "char: " << c << std::endl;
+        throw std::runtime_error( std::string( "PythonReader: Not a list/tuple: " )
                              + r.name() + ", line " + r.lineString() );
       }
 
-    ValueObject<ObjectVector> *obj = new ValueObject<ObjectVector>;
+    carto::ValueObject<carto::ObjectVector> *obj = new carto::ValueObject<carto::ObjectVector>;
 
     try
       {
@@ -193,18 +196,18 @@ namespace
           {
             r.skipWhile( " \t\n\\\r" );
             if( r.eof() )
-              io_error::launchErrnoExcept( ds.url() );
+              carto::io_error::launchErrnoExcept( ds.url() );
             c = ds.getch();
             if( ds.eof() )
-              io_error::launchErrnoExcept( ds.url() );
+              carto::io_error::launchErrnoExcept( ds.url() );
             if( c == ',' )  // separator
               {
                 r.skipWhile( " \t\n\\\r" );
                 if( r.eof() )
-                  io_error::launchErrnoExcept( ds.url() );
+                  carto::io_error::launchErrnoExcept( ds.url() );
                 c = ds.getch();
                 if( ds.eof() )
-                  io_error::launchErrnoExcept( ds.url() );
+                  carto::io_error::launchErrnoExcept( ds.url() );
               }
             if( c == mark )
               {
@@ -218,7 +221,7 @@ namespace
 
         return( obj );
       }
-    catch( exception & e )
+    catch( std::exception & e )
       {
         delete obj;
         throw;
@@ -226,7 +229,8 @@ namespace
   }
 
 
-  GenericObject* noneHelper( GenericObject*, const string &, PythonReader & )
+  carto::GenericObject* noneHelper( carto::GenericObject*, const std::string &,
+                                    soma::PythonReader & )
   {
     return 0;
   }
@@ -234,37 +238,40 @@ namespace
 
 } // namespace (internal linkage)
 
+namespace soma
+{
+
 template<typename T>
-GenericObject* PythonReader::genericSequenceHelper( GenericObject*, 
-                                                    const string &,
+carto::GenericObject* PythonReader::genericSequenceHelper( carto::GenericObject*,
+                                                    const std::string &,
                                                     PythonReader & r )
 {
   bool        end = false;
-  string  id, type;
+  std::string  id, type;
   DataSource  & ds = *r.dataSource();
 
   if( !ds.isOpen() )
     return( 0 );
   r.skipWhile( " \t\n\\\r" );
   if( r.eof() )
-    io_error::launchErrnoExcept( ds.url() );
+    carto::io_error::launchErrnoExcept( ds.url() );
   char    c = ds.getch(), mark;
   if( r.eof() )
-    io_error::launchErrnoExcept( ds.url() );
+    carto::io_error::launchErrnoExcept( ds.url() );
   if( c == '(' )
     mark = ')';
   else if( c == '[' )
     mark = ']';
   else
     {
-      //cout << "char: " << c << endl;
-      throw runtime_error( string( "PythonReader: Not a list/tuple: " )
+      //cout << "char: " << c << std::endl;
+      throw std::runtime_error( std::string( "PythonReader: Not a list/tuple: " )
                             + r.name() + ", line " + r.lineString() );
     }
 
-  ValueObject<T> *obj = new ValueObject<T>;
-  GenericObject       *de;
-  ValueObject<typename T::value_type> *dev;
+  carto::ValueObject<T> *obj = new carto::ValueObject<T>;
+  carto::GenericObject       *de;
+  carto::ValueObject<typename T::value_type> *dev;
 
   try
     {
@@ -272,18 +279,18 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*,
         {
           r.skipWhile( " \t\n\\\r" );
           if( r.eof() )
-            io_error::launchErrnoExcept( ds.url() );
+            carto::io_error::launchErrnoExcept( ds.url() );
           c = ds.getch();
           if( ds.eof() )
-            io_error::launchErrnoExcept( ds.url() );
+            carto::io_error::launchErrnoExcept( ds.url() );
           if( c == ',' )  // separator
             {
               r.skipWhile( " \t\n\\\r" );
               if( r.eof() )
-                io_error::launchErrnoExcept( ds.url() );
+                carto::io_error::launchErrnoExcept( ds.url() );
               c = ds.getch();
               if( ds.eof() )
-                io_error::launchErrnoExcept( ds.url() );
+                carto::io_error::launchErrnoExcept( ds.url() );
             }
           if( c == mark )
             {
@@ -292,13 +299,13 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*,
             }
           ds.ungetch( c );
           de = genericHelper<typename T::value_type>( obj, "", r );
-          dev = dynamic_cast<ValueObject<typename T::value_type>*>( de );
+          dev = dynamic_cast<carto::ValueObject<typename T::value_type>*>( de );
           if( dev )
             obj->getValue().push_back( dev->getValue() );
           else
             {
               delete de;
-              throw runtime_error( string( "PythonReader: wrong type "
+              throw std::runtime_error( std::string( "PythonReader: wrong type "
                                             "inserted in homogen sequence: "
                                             )
                                     + r.name() + ", line " + r.lineString() );
@@ -309,7 +316,7 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*,
 
       return( obj );
     }
-  catch( exception & e )
+  catch( std::exception & e )
     {
       delete obj;
       throw;
@@ -317,35 +324,35 @@ GenericObject* PythonReader::genericSequenceHelper( GenericObject*,
 }
 
 template<typename T>
-GenericObject* PythonReader::genericDictHelper( GenericObject *,
-                                                const string &,
+carto::GenericObject* PythonReader::genericDictHelper( carto::GenericObject *,
+                                                const std::string &,
                                                 PythonReader & r )
 {
-  string                synt;
+  std::string                synt;
   DataSource    & ds = *r.dataSource();
   char      c;
 
   r.skipWhile( " \t\n\\\r" );
   if( r.eof() )
-    io_error::launchErrnoExcept( ds.url() );
+    carto::io_error::launchErrnoExcept( ds.url() );
   c = ds.getch();
   if( ds.eof() )
-    io_error::launchErrnoExcept( ds.url() );
+    carto::io_error::launchErrnoExcept( ds.url() );
   if ( c != '{' ) {
-    cerr << "Attempt to read a dictionary not starting with '{'" << endl;
+    std::cerr << "Attempt to read a dictionary not starting with '{'" << std::endl;
     return 0;
   }
   r.skipWhile( " \t\n\\\r" );
   if( r.eof() )
-    io_error::launchErrnoExcept( ds.url() );
+    carto::io_error::launchErrnoExcept( ds.url() );
 
-  ValueObject<T>   *obj = new ValueObject<T>;
+  carto::ValueObject<T>   *obj = new carto::ValueObject<T>;
 
   try
   {
     r.readDictionary2( *obj );
   }
-  catch( exception & e )
+  catch( std::exception & e )
   {
     delete obj;
     throw;
@@ -353,3 +360,8 @@ GenericObject* PythonReader::genericDictHelper( GenericObject *,
 
   return obj;
 }
+
+} // namespace soma
+
+#endif
+

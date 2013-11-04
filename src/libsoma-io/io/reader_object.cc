@@ -61,3 +61,6 @@ namespace soma
 template class Reader<GenericObject>;
 template class FormatReader<GenericObject>;
 template class FormatDictionary<GenericObject>;
+template class Reader<Object>;
+template class FormatReader<Object>;
+template class FormatDictionary<Object>;
