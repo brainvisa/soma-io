@@ -53,7 +53,7 @@ DataSourceCapabilities::DataSourceCapabilities() : _capabilities( 0 )
 
 DataSourceCapabilities::DataSourceCapabilities( const DataSourceCapabilities 
                                                 & other ) :
-  _capabilities( other._capabilities )
+  _capabilities( other._capabilities ), _mds( other._mds )
 {
 }
 
@@ -124,7 +124,7 @@ void DataSourceCapabilities::setInit( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 1;
   else
-    _capabilities = _capabilities & !1;
+    _capabilities = _capabilities & 254;
 }
 
 void DataSourceCapabilities::setMemoryMapping( const bool & boo )
@@ -132,7 +132,7 @@ void DataSourceCapabilities::setMemoryMapping( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 2;
   else
-    _capabilities = _capabilities & !2;
+    _capabilities = _capabilities & 253;
   setInit();
 }
 
@@ -141,7 +141,7 @@ void DataSourceCapabilities::setThreadSafe( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 4;
   else
-    _capabilities = _capabilities & !4;
+    _capabilities = _capabilities & (255 - 4);
   setInit();
 }
 
@@ -150,7 +150,7 @@ void DataSourceCapabilities::setOrdered( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 8;
   else
-    _capabilities = _capabilities & !8;
+    _capabilities = _capabilities & (255 - 8);
   setInit();
 }
 
@@ -159,7 +159,7 @@ void DataSourceCapabilities::setSeekVoxel( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 16;
   else
-    _capabilities = _capabilities | !16;
+    _capabilities = _capabilities | (255 - 16);
   setInit();
 }
 
@@ -168,7 +168,7 @@ void DataSourceCapabilities::setSeekLine( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 32;
   else
-    _capabilities = _capabilities & !32;
+    _capabilities = _capabilities & (255 - 32);
   setInit();
 }
 
@@ -177,7 +177,7 @@ void DataSourceCapabilities::setSeekSlice( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 64;
   else
-    _capabilities = _capabilities & !64;
+    _capabilities = _capabilities & (255 - 64);
   setInit();
 }
 
@@ -186,7 +186,7 @@ void DataSourceCapabilities::setSeekVolume( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 128;
   else
-    _capabilities = _capabilities & !128;
+    _capabilities = _capabilities & 127;
   setInit();
 }
 

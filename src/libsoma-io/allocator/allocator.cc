@@ -211,6 +211,8 @@ AllocatorStrategy::MappingMode AllocatorContext::allocatorType() const
     return AllocatorStrategy::Unallocated;
   if( _alloc == &MappingCopyAllocator::singleton() )
     return AllocatorStrategy::CopyMap;
+  if( _alloc == 0 )
+    return AllocatorStrategy::Unallocated;
   cerr << "Unknown allocation method\n";
   return AllocatorStrategy::CopyMap;
 }
