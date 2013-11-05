@@ -293,6 +293,7 @@ namespace carto
     return "U32";
   }
 
+#ifndef __LP64__
   // ### remove after everything has been moved to intN_t/uintN_t
   //---------------------------------------------------------------------------
   template<> inline std::string DataTypeCode<long>::dataType()
@@ -305,6 +306,19 @@ namespace carto
   template<> inline std::string DataTypeCode<unsigned long>::dataType()
   {
     return "ULONG";
+  }
+#endif
+
+  //---------------------------------------------------------------------------
+  template<> inline std::string DataTypeCode<int64_t>::dataType()
+  {
+    return "S64";
+  }
+
+  //---------------------------------------------------------------------------
+  template<> inline std::string DataTypeCode<uint64_t>::dataType()
+  {
+    return "U64";
   }
 
   //---------------------------------------------------------------------------
