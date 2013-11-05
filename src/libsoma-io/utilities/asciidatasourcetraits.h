@@ -298,6 +298,42 @@ namespace soma
     return internal::AsciiIntReadTraits<uint64_t>::write( ds, item );
   }
 
+#ifndef __LP64__
+  // these types are int64_t/uint64_t on 64 bit systems
+  template<>
+  inline
+  bool AsciiDataSourceTraits<long>::read( DataSource & ds, long & item )
+  {
+    return internal::AsciiIntReadTraits<long>::read( ds, item );
+  }
+
+  template<>
+  inline
+  bool AsciiDataSourceTraits<long>::write( DataSource & ds,
+                                           const long & item )
+  {
+    return internal::AsciiIntReadTraits<long>::write( ds, item );
+  }
+
+  template<>
+  inline
+  bool AsciiDataSourceTraits<unsigned long>::read( DataSource & ds,
+                                                   unsigned long & item )
+  {
+    return internal::AsciiIntReadTraits<unsigned long>::read( ds, item );
+  }
+
+  template<>
+  inline
+  bool
+  AsciiDataSourceTraits<unsigned long>::write( DataSource & ds,
+                                               const unsigned long & item )
+  {
+    return internal::AsciiIntReadTraits<unsigned long>::write( ds, item );
+  }
+
+#endif
+
   template<>
   inline
   bool AsciiDataSourceTraits<float>::read( DataSource & ds, float & item )
