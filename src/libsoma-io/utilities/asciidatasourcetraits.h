@@ -646,6 +646,23 @@ namespace soma
     return ds;
   }
 
+#ifndef __LP64__
+  // these types are int64_t/uint64_t on 64 bit systems
+  inline DataSource &
+  operator << ( DataSource & ds, const long & x )
+  {
+    AsciiDataSourceTraits<long>::write( ds, x );
+    return ds;
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const unsigned long & x )
+  {
+    AsciiDataSourceTraits<unsigned long>::write( ds, x );
+    return ds;
+  }
+#endif
+
   inline DataSource & 
   operator << ( DataSource & ds, const float & x )
   {

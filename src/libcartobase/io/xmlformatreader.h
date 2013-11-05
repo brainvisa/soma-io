@@ -30,33 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/reader/xmlformatreader.h>
-#else
-
-#ifndef CARTOBASE_IO_XMLFORMATREADER_H
-#define CARTOBASE_IO_XMLFORMATREADER_H
-
-#include <cartobase/io/formatreader.h>
-
-namespace carto
-{
-  class GenericObject;
-
-  class XMLFormatReader : public FormatReader<GenericObject>
-  {
-  public:
-    virtual GenericObject* createAndRead( Object header, 
-                                          rc_ptr<DataSource> ds, 
-                                          const AllocatorContext & context, 
-                                          Object options );
-
-    virtual void read( GenericObject & obj, Object header, 
-                       const AllocatorContext & context, Object options );
-  };
-
-}
-
-#endif // CARTOBASE_IO_XMLFORMATREADER_H
-
-#endif // USE_SOMA_IO
+#include <soma-io/reader/xmlformatreader.h>

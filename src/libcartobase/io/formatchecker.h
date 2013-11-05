@@ -30,35 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/checker/formatchecker.h>
-#else
-
-#ifndef CARTOBASE_IO_FORMATCHECKER_H
-#define CARTOBASE_IO_FORMATCHECKER_H
-
-namespace carto
-{
-  class Object;
-  class DataSourceInfo;
-  class DataSource;
-
-  /*!	\brief Format checker
-
-	Checks a file for a particular format, and if compatible, returns a 
-	header.
-        FormatChecker is used by DataSourceInfo and never needs to be used 
-        alone.
-  */
-  class FormatChecker
-  {
-  public:
-    virtual Object check( DataSource & ds, DataSourceInfo & f ) const = 0;
-    virtual ~FormatChecker() {}
-  };
-
-}
-
-#endif // CARTOBASE_IO_FORMATCHECKER_H
-
-#endif // USE_SOMA_IO
+#include <soma-io/checker/formatchecker.h>
