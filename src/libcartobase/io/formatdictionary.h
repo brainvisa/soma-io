@@ -61,10 +61,10 @@ namespace carto
       The standard carto/aims libraries include a set of already compiled 
       Readers and writers.
 
-      If you need to use other types, you'll have to include 
-      \c cartobase/io/reader_d.h and / or \c cartobase/io/writer_d.h in order 
-      to have the template functions definitions, \c cartobase/io/reader.h and 
-      \c cartobase/io/writer.h are only the class declarations.
+      If you need to use other types, you will have to include
+      \c soma-io/io/reader_d.h and / or \c soma-io/io/writer_d.h in order
+      to have the template functions definitions, \c soma-io/io/reader.h and
+      \c soma-io/io/writer.h are only the class declarations.
       In addition, you may want to specialize the registerBaseFormats() 
       functions of specific FormatDictionary specializations.
 

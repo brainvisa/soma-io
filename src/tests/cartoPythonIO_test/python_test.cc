@@ -33,12 +33,12 @@
  */
 
 #include <cstdlib>
-#include <cartobase/getopt/getopt.h>
-#include <cartobase/io/reader.h>
-#include <cartobase/io/writer.h>
+#include <soma-io/getopt/getopt.h>
+#include <soma-io/io/reader.h>
+#include <soma-io/io/writer.h>
 #include <cartobase/object/property.h>
 #include <cartobase/smart/rcptr.h>
-#include <cartobase/datasource/streamdatasource.h>
+#include <soma-io/datasource/streamdatasource.h>
 #include <iostream>
 
 using namespace std;
