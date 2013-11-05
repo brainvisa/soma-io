@@ -597,16 +597,16 @@ namespace soma
   }
 
   inline DataSource & 
-  operator << ( DataSource & ds, const long & x )
+  operator << ( DataSource & ds, const int64_t & x )
   {
-    AsciiDataSourceTraits<long>::write( ds, x );
+    AsciiDataSourceTraits<int64_t>::write( ds, x );
     return ds;
   }
 
   inline DataSource & 
-  operator << ( DataSource & ds, const unsigned long & x )
+  operator << ( DataSource & ds, const uint64_t & x )
   {
-    AsciiDataSourceTraits<unsigned long>::write( ds, x );
+    AsciiDataSourceTraits<uint64_t>::write( ds, x );
     return ds;
   }
 
