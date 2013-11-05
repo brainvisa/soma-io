@@ -268,34 +268,34 @@ namespace soma
 
   template<>
   inline
-  bool AsciiDataSourceTraits<long>::read( DataSource & ds, long & item )
+  bool AsciiDataSourceTraits<int64_t>::read( DataSource & ds, int64_t & item )
   {
-    return internal::AsciiIntReadTraits<long>::read( ds, item );
+    return internal::AsciiIntReadTraits<int64_t>::read( ds, item );
   }
 
   template<>
   inline
-  bool AsciiDataSourceTraits<long>::write( DataSource & ds, 
-                                           const long & item )
+  bool AsciiDataSourceTraits<int64_t>::write( DataSource & ds, 
+                                              const int64_t & item )
   {
-    return internal::AsciiIntReadTraits<long>::write( ds, item );
+    return internal::AsciiIntReadTraits<int64_t>::write( ds, item );
   }
 
   template<>
   inline
-  bool AsciiDataSourceTraits<unsigned long>::read( DataSource & ds, 
-                                                   unsigned long & item )
+  bool AsciiDataSourceTraits<uint64_t>::read( DataSource & ds, 
+                                              uint64_t & item )
   {
-    return internal::AsciiIntReadTraits<unsigned long>::read( ds, item );
+    return internal::AsciiIntReadTraits<uint64_t>::read( ds, item );
   }
 
   template<>
   inline
   bool 
-  AsciiDataSourceTraits<unsigned long>::write( DataSource & ds, 
-                                               const unsigned long & item )
+  AsciiDataSourceTraits<uint64_t>::write( DataSource & ds, 
+                                          const uint64_t & item )
   {
-    return internal::AsciiIntReadTraits<unsigned long>::write( ds, item );
+    return internal::AsciiIntReadTraits<uint64_t>::write( ds, item );
   }
 
   template<>
