@@ -42,7 +42,7 @@
 #include <cartobase/exception/parse.h>
 #include <cartobase/stream/sstream.h>
 #include <cartobase/object/syntobject.h>
-//#include <cartobase/io/minfXML2.h> // not ready yet
+//#include <soma-io/io/minfXML2.h> // not ready yet
 #include <cartobase/stream/attachable_cuifstream.h>
 //--- system -----------------------------------------------------------------
 #include <vector>

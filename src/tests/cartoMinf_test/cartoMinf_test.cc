@@ -32,8 +32,8 @@
  */
 
 #include <cstdlib>
-#include <cartobase/io/minfXML2.h>
-#include <cartobase/object/pythonwriter.h>
+#include <soma-io/utilities/minfXML2.h>
+#include <soma-io/writer/pythonwriter.h>
 
 using namespace carto;
 using namespace std;
