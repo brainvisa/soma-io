@@ -30,46 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/datasource/chaindatasource.h>
-#else
-
-#ifndef CARTODATA_IO_CHAINDATASOURCE_H
-#define CARTODATA_IO_CHAINDATASOURCE_H
-
-#include <cartobase/datasource/datasource.h>
-
-namespace carto
-{
-
-  /** Abstract base DataSource class to operate on another DataSource 
-      (to transform it) */
-  class ChainDataSource : public DataSource
-  {
-  public:
-    ChainDataSource( rc_ptr<DataSource> ds, 
-                     const std::string & url = std::string() );
-    virtual ~ChainDataSource();
-
-    void setSource( rc_ptr<DataSource> ds, 
-                    const std::string & url = std::string() );
-    rc_ptr<DataSource> source();
-    const rc_ptr<DataSource> source() const;
-    virtual bool isOpen() const;
-    virtual bool open( int mode );
-    virtual void close();
-    virtual std::string url() const;
-
-  protected:
-    rc_ptr<DataSource>	_source;
-
-  private:
-    std::string	_url;
-  };
-
-}
-
-#endif // CARTODATA_IO_CHAINDATASOURCE_H
-
-#endif // USE_SOMA_IO
-
+#include <soma-io/datasource/chaindatasource.h>

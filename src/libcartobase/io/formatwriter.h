@@ -30,33 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/writer/formatwriter.h>
-#else
-
-#ifndef CARTOBASE_IO_FORMATWRITER_H
-#define CARTOBASE_IO_FORMATWRITER_H
-
-#include <cartobase/smart/rcptr.h>
-
-namespace carto
-{
-  class DataSource;
-  class Object;
-
-  /** Low-level object IO writer specialized for a specific format
-  */
-  template<typename T>
-  class FormatWriter
-  {
-  public:
-    virtual ~FormatWriter() {}
-    virtual bool write( rc_ptr<DataSource> ds, const T & obj, 
-                        Object options ) = 0;
-  };
-
-}
-
-#endif // CARTOBASE_IO_FORMATWRITER_H
-
-#endif // USE_SOMA_IO
+#include <soma-io/writer/formatwriter.h>

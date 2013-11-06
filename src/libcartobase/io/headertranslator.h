@@ -30,38 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/utilities/headertranslator.h>
-#else
-
-#ifndef CARTOBASE_IO_HEADERTRANSLATOR_H
-#define CARTOBASE_IO_HEADERTRANSLATOR_H
-
-#include <cartobase/object/object.h>
-
-namespace carto
-{
-
-  /** Properties translator
-
-  The translator transforms some specific properties into others. It is useful 
-  for instance to transform Aims 2.x .minf headers or AimsFileInfo output 
-  to cartodata-style headers
-  */
-  class HeaderTranslator
-  {
-  public:
-    virtual ~HeaderTranslator() {}
-
-    /** if \c dstheader is given, \c srcheader is copied to \c dstheader while 
-        it is translated. If \c dstheader is left to \c none, \c srcheader is 
-        modified instead. */
-    virtual void translate( Object srcheader, 
-                            Object dstheader = none() ) const = 0;
-  };
-
-}
-
-#endif // CARTOBASE_IO_HEADERTRANSLATOR_H
-
-#endif // USE_SOMA_IO
+#include <soma-io/utilities/headertranslator.h>

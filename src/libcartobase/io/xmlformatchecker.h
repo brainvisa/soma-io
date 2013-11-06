@@ -30,26 +30,4 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-#ifdef USE_SOMA_IO
-  #include <soma-io/checker/xmlformatchecker.h>
-#else
-
-#ifndef CARTOBASE_IO_XMLFORMATCHECKER_H
-#define CARTOBASE_IO_XMLFORMATCHECKER_H
-
-#include <cartobase/io/formatchecker.h>
-
-namespace carto
-{
-
-  class XMLFormatChecker : public FormatChecker
-  {
-  public:
-    virtual Object check( DataSource & ds, DataSourceInfo & f ) const;
-  };
-
-}
-
-#endif // CARTOBASE_IO_XMLFORMATCHECKER_H
-
-#endif // USE_SOMA_IO
+#include <soma-io/checker/xmlformatchecker.h>

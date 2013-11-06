@@ -215,29 +215,6 @@ set( _cartobase_0_sources
   uuid/uuid.cc 
 )
 
-## moved to soma-io
-if( NOT USE_SOMA_IO )
-  set( _cartobase_0_sources
-    "${_cartobase_0_sources}"
-    allocator/allocator.cc 
-    allocator/mappingcopy.cc 
-    allocator/mappingro.cc 
-    allocator/mappingrw.cc 
-    allocator/meminfo.cc 
-    datasource/bufferdatasource.cc 
-    datasource/chaindatasource.cc 
-    datasource/cstreamdatasource.cc 
-    datasource/datasource.cc 
-    datasource/fddatasource.cc 
-    datasource/filedatasource.cc 
-    datasource/filteringdatasource.cc 
-    datasource/streamdatasource.cc 
-    object/achecker.cc 
-    io/asciidatasourcetraits.cc 
-    io/formatdictionary.cc 
-  )
-endif()
-
 ## still in cartobase
 set( _cartobase_1_sources
   object/object_map.cc
@@ -252,30 +229,6 @@ set( _cartobase_sources
   object/object_rcptr_map_string_vector.cc 
   object/object_set.cc 
 )
-
-## moved to soma-io
-if( NOT USE_SOMA_IO )
-  set( _cartobase_sources
-    "${_cartobase_sources}"
-    config/info.cc 
-    getopt/getopt.cc 
-    object/areader.cc 
-    object/awriter.cc 
-    object/pythonreader.cc 
-    object/pythonwriter.cc 
-    io/datasourceinfo.cc 
-    io/minfXML2.cc 
-    io/pythonformatchecker.cc 
-    io/pythonformatreader.cc 
-    io/pythonformatwriter.cc 
-    io/reader_object.cc 
-    io/readeralgorithm.cc 
-    io/writer.cc 
-    io/xmlformatchecker.cc 
-    io/xmlformatreader.cc
-    plugin/plugin.cc 
-  )
-endif()
 
 add_library( cartobase_0 SHARED ${_cartobase_0_sources} )
 add_dependencies( cartobase_0 ${headersTarget} )
