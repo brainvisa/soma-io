@@ -580,7 +580,7 @@ void io_error::keepExceptionPriority( exception & e, int & prio,
     corrupt_stream_error *te = dynamic_cast<corrupt_stream_error *>( &e );
     if( te )
       {
-	copy_except( 10+rp, 1, e, prio, type, message );
+	copy_except( 11+rp, 1, e, prio, type, message );
 	return;
       }
   }
@@ -719,7 +719,7 @@ void io_error::keepExceptionPriority( exception & e, int & prio,
     datatype_format_error *te = dynamic_cast<datatype_format_error *>( &e );
     if( te )
       {
-	copy_except( 9+rp, 20, e, prio, type, message );
+	copy_except( 10+rp, 20, e, prio, type, message );
 	return;
       }
   }
