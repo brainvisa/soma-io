@@ -156,6 +156,11 @@ using std::isinf;
 #define CARTO_BROKEN_EXTERN_TEMPLATES
 #endif
 
+// test if long is a different type from both int32_t and int64_t
+#if !defined( __LP64__ ) || defined( __APPLE__ )
+#define CARTO_LONG_IS_DISTINCT
+#endif
+
 #include <cartobase/config/config.h>
 
 #endif // CARTOBASE_CONFIG_CARTOBASE_CONFIG_H
