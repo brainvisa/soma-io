@@ -298,7 +298,7 @@ namespace soma
     return internal::AsciiIntReadTraits<uint64_t>::write( ds, item );
   }
 
-#ifndef __LP64__
+#ifdef CARTO_LONG_IS_DISTINCT
   // these types are int64_t/uint64_t on 64 bit systems
   template<>
   inline
@@ -646,7 +646,7 @@ namespace soma
     return ds;
   }
 
-#ifndef __LP64__
+#ifdef CARTO_LONG_IS_DISTINCT
   // these types are int64_t/uint64_t on 64 bit systems
   inline DataSource &
   operator << ( DataSource & ds, const long & x )

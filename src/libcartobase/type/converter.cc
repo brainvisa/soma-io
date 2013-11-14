@@ -167,7 +167,7 @@ namespace carto
   // These three specializations seem to be needed in order to compile
   // the AimsFileConvert command.
   template class DefaultedRescalerInfo<char, short>;
-#ifndef __LP64__
+#ifdef CARTO_LONG_IS_DISTINCT
   template class DefaultedRescalerInfo<unsigned long, short>;
   template class DefaultedRescalerInfo<long, short>;
 #endif

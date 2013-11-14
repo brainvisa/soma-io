@@ -293,7 +293,7 @@ namespace carto
     return "U32";
   }
 
-#ifndef __LP64__
+#ifdef CARTO_LONG_IS_DISTINCT
   // ### remove after everything has been moved to intN_t/uintN_t
   //---------------------------------------------------------------------------
   template<> inline std::string DataTypeCode<long>::dataType()
