@@ -242,6 +242,7 @@ namespace soma {
     int  y, z, t;
     // region line size
     offset_t  len = vx * sizeof( T );
+    offset_t offset;
     long readout;
     
     if( !open( DataSource::Read ) )
@@ -251,10 +252,12 @@ namespace soma {
       for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
           // we move in the file
-          at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
-                            + y + oy ) + ox ) * sizeof(T) );
+          setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
-          char * target = (char *) dest + len * ( vy * ( vz * t + z ) + y );
+          offset = ((offset_t)t) * vz + z;
+          offset = offset * vy + y;
+          offset = offset * len;
+          char * target = ((char *)dest) + offset;
           if( ( readout = readBlock( target, len ) ) != (long) len ) {
             localMsg( "readBlock( failed at ( " +
                       carto::toString( y ) + ", " +

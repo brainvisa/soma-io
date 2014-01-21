@@ -243,7 +243,8 @@ namespace soma {
     
     int  y, z, t;
     // region line size
-    offset_t  len = vx * sizeof( T );
+    offset_t  len = ((offset_t)vx) * sizeof( T );
+    offset_t offset;
     
     if( options->hasProperty( "partial_writing" ) && !open( DataSource::ReadWrite ) )
       throw carto::open_error( "data source not available", url() );
@@ -254,10 +255,14 @@ namespace soma {
       for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
           // we move in the file
-          at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
-                            + y + oy ) + ox ) * sizeof(T) );
+          //at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
+          //                  + y + oy ) + ox ) * sizeof(T) );
+          setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
-          char * target = (char *) source + len * ( vy * ( vz * t + z ) + y );
+          offset = ((offset_t)t) * vz + z;
+          offset = offset * vy + y;
+          offset = offset * len;
+          char * target = ((char *)source) + offset;
           if( writeBlock( target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
@@ -374,7 +379,8 @@ namespace soma {
       if( !open( DataSource::Write ) )
         throw carto::open_error( "data source not available", url() );
       T value[1] = {0};
-      at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
+      //at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
+      setpos( dim[0]-2, dim[1]-1, dim[2]-1, dim[3]-1);
       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
             throw carto::eof_error( url() );
     }
