@@ -164,6 +164,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
         if uuid == None and "FrameofReferenceUID" in ds:
             uuid = hashlib.md5( ds.FrameofReferenceUID ).hexdigest()
+
         time = -1
 
         # Check if the current file must be sorted by time
@@ -279,6 +280,9 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
     for f in tempfiles:
         os.remove( f )
 
+    if uuid != None:
+        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])
+
     # Apply pixel value rescale parameters
     for fileTime, outfiles in outfilesByTime.items():
       for outfile in outfiles:
@@ -305,8 +309,6 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
         # Add "referentials" to the minf file
         minf = os.path.join( outfile + '.minf' )
-        if uuid != None:
-            uuid = '-'.join( [ uuid[ 0:8 ], uuid[ 8:12 ], uuid[ 12:16 ], uuid[ 16:20 ], uuid[ 20:32 ] ] )
         header = aims.read(outfile).header()
         fd = open( minf, 'w' )
         if uuid != None:
