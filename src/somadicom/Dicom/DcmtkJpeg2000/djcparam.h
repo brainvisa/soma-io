@@ -2,7 +2,7 @@
 #define _DcmtkJpeg2000_djcparam_h_
 
 
-#include <Dicom/DcmtkJpeg2000/dj2kutil.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 
 #include <dcmtk/dcmdata/dccodec.h>
 

@@ -2,7 +2,7 @@
 #define _MultiFileReader_h_
 
 
-#include <Dicom/MultiSliceReader.h>
+#include <soma-io/Dicom/MultiSliceReader.h>
 
 
 class DcmDataset;

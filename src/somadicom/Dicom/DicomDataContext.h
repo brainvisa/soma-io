@@ -3,7 +3,7 @@
 
 
 #include <Thread/LoopContext.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Utils/StdInt.h>
 
 #include <string>
 #include <vector>

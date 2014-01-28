@@ -1,5 +1,5 @@
-#include <Transformation/PatientOrientation.h>
-#include <Container/Vector.h>
+#include <soma-io/Transformation/PatientOrientation.h>
+#include <soma-io/Container/Vector.h>
 
 #include <cmath>
 

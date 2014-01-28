@@ -2,8 +2,8 @@
 #define _GenericCTReader_h_
 
 
-#include <Dicom/CTImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/CTImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

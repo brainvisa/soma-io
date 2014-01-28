@@ -1,7 +1,7 @@
-#include <Dicom/DicomDatasetHeader.h>
-#include <Container/Data.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Container/Data.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>

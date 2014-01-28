@@ -1,8 +1,8 @@
-#include <Dicom/DicomDataContext.h>
-#include <Container/Data.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/DicomDataContext.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Pattern/Callback.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmimgle/dcmimage.h>

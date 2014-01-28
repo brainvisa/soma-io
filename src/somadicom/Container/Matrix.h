@@ -2,7 +2,7 @@
 #define _Matrix_h_
 
 
-#include <Container/Vector.h>
+#include <soma-io/Container/Vector.h>
 
 
 namespace soma

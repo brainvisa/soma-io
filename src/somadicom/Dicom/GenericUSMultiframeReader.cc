@@ -1,5 +1,5 @@
-#include <Dicom/GenericUSMultiframeReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericUSMultiframeReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericUSMultiframeReader::GenericUSMultiframeReader()

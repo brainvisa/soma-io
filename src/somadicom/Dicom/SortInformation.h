@@ -2,8 +2,8 @@
 #define _SortInformation_h_
 
 
-#include <Container/Vector.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Container/Vector.h>
+#include <soma-io/Utils/StdInt.h>
 
 #include <string>
 

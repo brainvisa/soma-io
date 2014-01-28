@@ -1,5 +1,5 @@
-#include <Transformation/DicomTransformation3d.h>
-#include <Container/Vector.h>
+#include <soma-io/Transformation/DicomTransformation3d.h>
+#include <soma-io/Container/Vector.h>
 
 
 soma::DicomTransformation3d::DicomTransformation3d()

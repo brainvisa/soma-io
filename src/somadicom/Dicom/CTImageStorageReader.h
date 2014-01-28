@@ -2,7 +2,7 @@
 #define _CTImageStorageReader_h_
 
 
-#include <Dicom/MultiFileReader.h>
+#include <soma-io/Dicom/MultiFileReader.h>
 
 
 namespace soma

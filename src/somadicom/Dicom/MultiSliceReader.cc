@@ -1,5 +1,5 @@
-#include <Dicom/MultiSliceReader.h>
-#include <Container/Data.h>
+#include <soma-io/Dicom/MultiSliceReader.h>
+#include <soma-io/Container/Data.h>
 
 #include <limits>
 

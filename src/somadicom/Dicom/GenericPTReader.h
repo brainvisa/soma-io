@@ -2,8 +2,8 @@
 #define _GenericPTReader_h_
 
 
-#include <Dicom/PTImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/PTImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

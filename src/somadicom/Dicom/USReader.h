@@ -2,7 +2,7 @@
 #define _USReader_h_
 
 
-#include <Dicom/DicomReader.h>
+#include <soma-io/Dicom/DicomReader.h>
 
 
 class DcmDataset;

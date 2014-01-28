@@ -1,5 +1,5 @@
-#include <Dicom/GenericCTReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericCTReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericCTReader::GenericCTReader()

@@ -1,5 +1,5 @@
-#include <Transformation/Transformation3d.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Transformation/Transformation3d.h>
+#include <soma-io/Utils/StdInt.h>
 
 #include <cassert>
 

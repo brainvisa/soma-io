@@ -2,9 +2,9 @@
 #define _PatientOrientation_h_
 
 
-#include <Transformation/AxialTransformation3d.h>
-#include <Transformation/DicomTransformation3d.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Transformation/AxialTransformation3d.h>
+#include <soma-io/Transformation/DicomTransformation3d.h>
+#include <soma-io/Utils/StdInt.h>
 
 
 namespace soma

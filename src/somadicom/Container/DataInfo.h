@@ -2,9 +2,9 @@
 #define _DataInfo_h_
 
 
-#include <Container/Vector.h>
-#include <Transformation/PatientOrientation.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Container/Vector.h>
+#include <soma-io/Transformation/PatientOrientation.h>
+#include <soma-io/Utils/StdInt.h>
 
 #include <vector>
 

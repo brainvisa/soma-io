@@ -1,7 +1,7 @@
-#include <Dicom/DicomReaderFactory.h>
-#include <Dicom/DicomReader.h>
-#include <System/Directory.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomReader.h>
+#include <soma-io/System/Directory.h>
+#include <soma-io/Pattern/Callback.h>
 
 #include <iostream>
 

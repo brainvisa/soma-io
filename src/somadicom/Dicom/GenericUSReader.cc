@@ -1,5 +1,5 @@
-#include <Dicom/GenericUSReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericUSReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericUSReader::GenericUSReader()

@@ -1,6 +1,6 @@
-#include <Dicom/DicomSortContext.h>
+#include <soma-io/Dicom/DicomSortContext.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 

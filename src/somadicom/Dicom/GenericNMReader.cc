@@ -1,5 +1,5 @@
-#include <Dicom/GenericNMReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericNMReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericNMReader::GenericNMReader()

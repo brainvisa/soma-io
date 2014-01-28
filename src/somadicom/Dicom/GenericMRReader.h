@@ -2,8 +2,8 @@
 #define _GenericMRReader_h_
 
 
-#include <Dicom/MRImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/MRImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

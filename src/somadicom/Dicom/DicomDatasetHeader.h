@@ -2,7 +2,7 @@
 #define _DicomDatasetHeader_h_
 
 
-#include <Utils/StdInt.h>
+#include <soma-io/Utils/StdInt.h>
 
 #include <map>
 #include <string>

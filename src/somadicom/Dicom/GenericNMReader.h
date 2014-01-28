@@ -2,8 +2,8 @@
 #define _GenericNMReader_h_
 
 
-#include <Dicom/NMImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/NMImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

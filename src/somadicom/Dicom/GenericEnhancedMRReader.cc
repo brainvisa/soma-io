@@ -1,5 +1,5 @@
-#include <Dicom/GenericEnhancedMRReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericEnhancedMRReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericEnhancedMRReader::GenericEnhancedMRReader()

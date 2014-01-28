@@ -2,7 +2,7 @@
 #define _DcmtkJpeg2000_dj2kutil_h_
 
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/ofstd/ofcond.h>
 #include <dcmtk/oflog/oflog.h>
 

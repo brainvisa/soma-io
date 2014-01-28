@@ -1,5 +1,5 @@
-#include <Dicom/GenericPTReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/GenericPTReader.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 
 
 soma::GenericPTReader::GenericPTReader()

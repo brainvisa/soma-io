@@ -1,5 +1,5 @@
-#include <Dicom/Siemens/Demosaicer.h>
-#include <Container/Data.h>
+#include <soma-io/Dicom/Siemens/Demosaicer.h>
+#include <soma-io/Container/Data.h>
 
 #include <cstring>
 

@@ -1,12 +1,12 @@
-#include <Dicom/MultiFileReader.h>
-#include <System/Directory.h>
-#include <Container/Data.h>
-#include <Dicom/DicomSortContext.h>
+#include <soma-io/Dicom/MultiFileReader.h>
+#include <soma-io/System/Directory.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Dicom/DicomSortContext.h>
 #include <Thread/ThreadedLoop.h>
-#include <Pattern/Callback.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Pattern/Callback.h>
+#include <soma-io/Utils/StdInt.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 

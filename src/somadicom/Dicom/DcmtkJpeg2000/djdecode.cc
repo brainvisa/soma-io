@@ -1,6 +1,6 @@
-#include <Dicom/DcmtkJpeg2000/djdecode.h>
-#include <Dicom/DcmtkJpeg2000/djcparam.h>
-#include <Dicom/DcmtkJpeg2000/dj2kcodd.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/dj2kcodd.h>
 
 #include <dcmtk/dcmdata/dccodec.h>
 #include <jasper/jas_version.h>

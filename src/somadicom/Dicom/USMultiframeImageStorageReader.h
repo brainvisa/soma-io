@@ -2,7 +2,7 @@
 #define _USMultiframeImageStorageReader_h_
 
 
-#include <Dicom/USReader.h>
+#include <soma-io/Dicom/USReader.h>
 
 
 class DcmDataset;

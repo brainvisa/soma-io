@@ -1,6 +1,6 @@
-#include <Dicom/MultiSliceContext.h>
-#include <Container/Data.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/MultiSliceContext.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Pattern/Callback.h>
 
 
 soma::MultiSliceContext::MultiSliceContext( 

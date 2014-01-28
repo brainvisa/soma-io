@@ -2,8 +2,8 @@
 #define _GenericUSMultiframeReader_h_
 
 
-#include <Dicom/USMultiframeImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/USMultiframeImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

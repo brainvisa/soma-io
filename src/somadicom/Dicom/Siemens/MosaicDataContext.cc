@@ -1,9 +1,9 @@
-#include <Dicom/Siemens/MosaicDataContext.h>
-#include <Dicom/Siemens/Demosaicer.h>
-#include <Container/Data.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/Siemens/MosaicDataContext.h>
+#include <soma-io/Dicom/Siemens/Demosaicer.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Pattern/Callback.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcpixel.h>

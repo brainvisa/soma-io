@@ -1,13 +1,13 @@
-#include <Dicom/Siemens/SiemensMRReader.h>
-#include <Dicom/Siemens/Demosaicer.h>
-#include <Dicom/Siemens/MosaicDataContext.h>
-#include <Dicom/DicomReaderFactory.h>
-#include <Container/Data.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/Siemens/SiemensMRReader.h>
+#include <soma-io/Dicom/Siemens/Demosaicer.h>
+#include <soma-io/Dicom/Siemens/MosaicDataContext.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Pattern/Callback.h>
 #include <Thread/ThreadedLoop.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Utils/StdInt.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>

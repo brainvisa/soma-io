@@ -23,6 +23,15 @@ if( OPENSLIDE_FOUND )
 endif()
 BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenslide DEV )
 
+find_package( DCMTK )
+find_package( Jasper )
+if( DCMTK_FOUND AND JASPER_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS dcmtk RUN )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS dcmtk DEV )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
+endif()
+
 # Python is required for the DICOM conversion script
 # It should be made optional
 find_package( python REQUIRED )
@@ -97,6 +106,10 @@ if( USE_SOMA_IO )
   add_subdirectory( src/somagis )
   if( OPENSLIDE_FOUND )
     add_subdirectory( src/somaopenslide )
+  endif()
+  if( DCMTK_FOUND AND JASPER_FOUND )
+    # uncomment this to enable compiling the DICOM plugin
+    # add_subdirectory( src/somadicom )
   endif()
 endif()
 add_subdirectory( src/tests )

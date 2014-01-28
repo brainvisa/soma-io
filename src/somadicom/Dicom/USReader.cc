@@ -1,7 +1,7 @@
-#include <Dicom/USReader.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Dicom/USReader.h>
+#include <soma-io/Utils/StdInt.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>

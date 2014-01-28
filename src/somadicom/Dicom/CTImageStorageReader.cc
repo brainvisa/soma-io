@@ -1,11 +1,11 @@
-#include <Dicom/CTImageStorageReader.h>
-#include <Container/Data.h>
-#include <Pattern/Callback.h>
-#include <Dicom/DicomDataContext.h>
+#include <soma-io/Dicom/CTImageStorageReader.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/Pattern/Callback.h>
+#include <soma-io/Dicom/DicomDataContext.h>
 #include <Thread/ThreadedLoop.h>
-#include <Utils/StdInt.h>
+#include <soma-io/Utils/StdInt.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 

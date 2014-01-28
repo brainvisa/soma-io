@@ -1,4 +1,4 @@
-#include <Dicom/SortInformation.h>
+#include <soma-io/Dicom/SortInformation.h>
 
 
 soma::SortInformation::SortInformation()

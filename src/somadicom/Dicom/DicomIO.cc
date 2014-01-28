@@ -1,11 +1,11 @@
-#include <Dicom/DicomIO.h>
-#include <Dicom/DicomReaderFactory.h>
-#include <Dicom/DcmtkJpeg2000/djdecode.h>
-#include <Container/Data.h>
-#include <System/Directory.h>
-#include <Pattern/Callback.h>
+#include <soma-io/Dicom/DicomIO.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
+#include <soma-io/Container/Data.h>
+#include <soma-io/System/Directory.h>
+#include <soma-io/Pattern/Callback.h>
 
-#include <dcmtk/config/osconfig.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcmetinf.h>
 #include <dcmtk/dcmdata/dcdeftag.h>

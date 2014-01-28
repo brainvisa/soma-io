@@ -1,5 +1,5 @@
-#include <Dicom/DcmtkJpeg2000/dj2kcodd.h>
-#include <Dicom/DcmtkJpeg2000/djcparam.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/dj2kcodd.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
 
 #include <dcmtk/ofstd/ofstream.h>
 #include <dcmtk/ofstd/ofcast.h>

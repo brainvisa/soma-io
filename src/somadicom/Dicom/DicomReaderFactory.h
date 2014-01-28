@@ -2,7 +2,7 @@
 #define _DicomReaderFactory_h_
 
 
-#include <Pattern/Singleton.h>
+#include <soma-io/Pattern/Singleton.h>
 
 #include <string>
 #include <map>

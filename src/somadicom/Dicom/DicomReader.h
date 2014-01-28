@@ -2,7 +2,7 @@
 #define _DicomReader_h_
 
 
-#include <Container/DataInfo.h>
+#include <soma-io/Container/DataInfo.h>
 
 #include <string>
 #include <vector>

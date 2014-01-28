@@ -2,8 +2,8 @@
 #define _GenericUSReader_h_
 
 
-#include <Dicom/USImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/USImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

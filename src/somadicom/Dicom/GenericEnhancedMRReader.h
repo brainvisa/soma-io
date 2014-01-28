@@ -2,8 +2,8 @@
 #define _GenericEnhancedMRReader_h_
 
 
-#include <Dicom/EnhancedMRImageStorageReader.h>
-#include <Pattern/Singleton.h>
+#include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
+#include <soma-io/Pattern/Singleton.h>
 
 
 namespace soma

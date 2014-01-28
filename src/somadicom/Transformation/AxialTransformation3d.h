@@ -2,8 +2,8 @@
 #define _AxialTransformation_h_
 
 
-#include <Transformation/Transformation3d.h>
-#include <Container/Vector.h>
+#include <soma-io/Transformation/Transformation3d.h>
+#include <soma-io/Container/Vector.h>
 
 
 namespace soma
