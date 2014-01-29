@@ -90,13 +90,6 @@ carto::LoopThread::~LoopThread()
 #endif
 
   delete d;
-}
-
-
-void carto::LoopThread::doStart()
-{
-
-  _parent->increaseWorkerCount();
 
 }
 
@@ -118,24 +111,12 @@ void carto::LoopThread::doRun()
         }
 
       // regular loop (one run)
-      while ( _parent->getStartIndexAndCount( startIndex, countIndex ) )
-        {
+      _parent->run();
 
-          _parent->getLoopContext()->doIt( startIndex, countIndex );
-
-        }
       if( !single )
         d->endsem->post(); // signal the loop I'm done
     }
   while( !single );
-
-}
-
-
-void carto::LoopThread::doStop()
-{
-
-  _parent->decreaseWorkerCount();
 
 }
 

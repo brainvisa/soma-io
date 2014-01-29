@@ -72,9 +72,7 @@ namespace carto
 
   protected:
 
-    virtual void doStart();
     virtual void doRun();
-    virtual void doStop();
 
     ThreadedLoop* _parent;
 

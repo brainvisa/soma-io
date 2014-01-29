@@ -220,10 +220,10 @@ bool testthread( int tpcpu )
   FooContext<rcptr> fooContext;
   ThreadedLoop
     threadedLoop( &fooContext,
-                  maxuse / (ncpu * tpcpu),  // iterations per thread
                   1,  // the start index of the global loop
                   maxuse-1, // the count to be done
-                  tpcpu   // 2 threads are launched on each CPU
+                  0, // number of threads to use (0=number of physical CPUs)
+                  (float)tpcpu   // 2 threads are launched on each CPU
                 );
   threadedLoop.setEndThreadsWhenDone( false );
 

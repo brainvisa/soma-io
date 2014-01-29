@@ -51,25 +51,18 @@ namespace carto
   public:
 
     ThreadedLoop( LoopContext* loopContext,
-                  int grain, int startIndex, int count,
-                  float threadsByCpu );
+                  int startIndex, int count, int maxThreadCount = 0,
+                  float threadsByCpu = 1.0f );
     virtual ~ThreadedLoop();
 
-    LoopContext* getLoopContext() const;
     /** This function is only useful in multiple run mode (endThreadsWhenDone 
         false). Call it only between two runs, from the control thread (the 
         thread running the loop).
     */
     void setLoopContext( LoopContext* );
-    bool getStartIndexAndCount( int& startIndex, int& count );
-
-    int getTodo() const;
-
-    void increaseWorkerCount();
-    void decreaseWorkerCount();
-    int getWorkerCount() const;
 
     bool launch( bool resetGauge = true, bool resetCancel = true );
+    void run();
 
     /** Warning: it's possibly not safe to change this value from false to true
         after launch() has been called */
@@ -98,12 +91,13 @@ namespace carto
     int _grain;
     int _startIndex;
     int _count;
+    int _maxThreadCount;
     float _threadsByCpu;
 
     int _currentIndex;
     int _todo;
+    int _remain;
 
-    int _currentWorkerCount;
   };
 
 }

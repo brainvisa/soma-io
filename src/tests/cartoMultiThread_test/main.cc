@@ -85,10 +85,10 @@ int main( int /*argc*/, char* /*argv*/[] )
   FooContext fooContext/* (my parameters for the algorithm )*/;
   ThreadedLoop
     threadedLoop( &fooContext,
-                  5,  // each thread does 5 iterations at once, if it can
                   3,  // the start index of the global loop
                   15, // the count to be done
-                  2   // 2 threads are launched on each CPU
+                  0, // number of threads to use (0=number of physical CPUs)
+                  2.0f   // 2 threads are launched on each CPU
                 );
 
   // That will give, for instance, on a single processor computer:

@@ -75,18 +75,19 @@ carto::ThreadedLoop::Private::~Private()
 
 
 carto::ThreadedLoop::ThreadedLoop( carto::LoopContext* loopContext,
-                                   int grain, int startIndex, int count,
+                                   int startIndex, int count,
+                                   int maxThreadCount,
                                    float threadsByCpu )
 
   : d( new Private ), 
     _loopContext( loopContext ),
-    _grain( grain ),
+    _grain( 0 ),
     _startIndex( startIndex ),
     _count( count ),
+    _maxThreadCount( maxThreadCount ),
     _threadsByCpu( threadsByCpu ),
-    _currentIndex( 0 ),
-    _todo( count ),
-    _currentWorkerCount( 0 )
+    _currentIndex( startIndex ),
+    _todo( count )
 {
 }
 
@@ -97,13 +98,6 @@ carto::ThreadedLoop::~ThreadedLoop()
 }
 
 
-carto::LoopContext* carto::ThreadedLoop::getLoopContext() const
-{
-
-  return _loopContext;
-
-}
-
 
 void carto::ThreadedLoop::setLoopContext( LoopContext* lc )
 {
@@ -113,99 +107,70 @@ void carto::ThreadedLoop::setLoopContext( LoopContext* lc )
 }
 
 
-bool carto::ThreadedLoop::getStartIndexAndCount( int& startIndex,
-                                                 int& count )
+void carto::ThreadedLoop::run()
 {
 
-  _loopContext->lock();
-
-  if ( _todo <= 0 || _loopContext->cancel() )
+  if ( _loopContext )
   {
 
-    _loopContext->unlock();
-    if ( _loopContext->cancel() )
-      std::cerr << "=========================> aborted by cancel" << std::endl;
+    _loopContext->lock();
+
+    if ( ( _todo <= 0 ) || ( _grain < 1 ) || _loopContext->cancel() )
+    {
+
+      _loopContext->unlock();
+      if ( _loopContext->cancel() )
+        std::cerr << "=========================> aborted by cancel" << std::endl;
 
 #ifdef CARTO_DEBUG
 
-  std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
-            << "return false" << std::endl;
+    std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+              << "return false" << std::endl;
 
 #endif
 
-    return false;
+    }
+    else
+    {
+
+      int startIndex = _currentIndex;
+      int count = _grain;
+
+      _todo -= _grain;
+
+      if ( _remain )
+      {
+
+        count++;
+        _todo--;
+        _remain--;
+
+      }
+
+      _currentIndex += count;
+
+#ifdef CARTO_DEBUG
+
+      std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+                << "{ start=" << startIndex << ", count=" << count << " }"
+	        << std::endl;
+
+#endif
+
+      _loopContext->gaugeAdd( count );
+      _loopContext->unlock();
+      _loopContext->doIt( startIndex, count );
+
+#ifdef CARTO_DEBUG
+
+      std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+                << "return true" << std::endl;
+
+#endif
+
+    }
 
   }
-
-  _todo -= _grain;
-  startIndex = _currentIndex;
-  count = _grain;
-  if ( _todo < 0 )
-  {
-
-    count += _todo;
-    _todo = 0;
-
-  }
-  _currentIndex += count;
-  startIndex += _startIndex;
-
-#ifdef CARTO_DEBUG
-
-  std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
-            << "{ start=" << startIndex << ", count=" << count << " }"
-	    << std::endl;
-
-#endif
-
-  _loopContext->gaugeAdd( count );
-
-  _loopContext->unlock();
-
-#ifdef CARTO_DEBUG
-
-  std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
-            << "return true" << std::endl;
-
-#endif
-
-  return true;
-
-}
-
-
-int carto::ThreadedLoop::getTodo() const
-{
-
-  return _todo;
-
-}
-
-
-void carto::ThreadedLoop::increaseWorkerCount()
-{
-
-  _loopContext->lock();
-  _currentWorkerCount ++;
-  _loopContext->unlock();
-
-}
-
-
-void carto::ThreadedLoop::decreaseWorkerCount()
-{
-
-  _loopContext->lock();
-  _currentWorkerCount --;
-  _loopContext->unlock();
-
-}
-
-
-int carto::ThreadedLoop::getWorkerCount() const
-{
-
-  return _currentWorkerCount;
 
 }
 
@@ -218,11 +183,14 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
   _loopContext->unlock();
   _loopContext->lock();
 
-  _currentIndex = 0;
-  _todo = _count;
-  _currentWorkerCount = 0;
-
   unsigned nCpu = cpuCount();
+
+  if ( ( _maxThreadCount >= 1 ) && ( _maxThreadCount < nCpu ) )
+  {
+
+    nCpu = _maxThreadCount;
+
+  }
 
 #ifdef CARTO_DEBUG
 
@@ -238,6 +206,11 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
   if( nth < 1 )
     nth = 1;
+
+  _currentIndex = _startIndex;
+  _todo = _count;
+  _grain = ( _count <= nth ) ? 1 : _count / nth;
+  _remain = ( _count <= nth ) ? 0 : _count % nth;
 
   for( i=nth; i<n; ++i )
     {
