@@ -233,7 +233,11 @@ namespace carto
         scale factor in the header (used for AimsData).
     */
     OUTP* operator () ( const INP &in ) const;
-    /// Converts INP into an existing OUTP object
+    /** Converts INP into an existing OUTP object. The output object must be
+        already allocated with correct size: its contents will be replaced,
+        but no reallocation or resizing will take place.
+        To actually trigger allocation, use the operator () instead.
+    */
     virtual void convert( const INP &in, OUTP & out ) const;
 
   protected:
