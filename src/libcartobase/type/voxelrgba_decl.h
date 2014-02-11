@@ -71,6 +71,9 @@ namespace carto {
   class VoxelRGBA : public VoxelValue<uint8_t,4>
   {
     public:
+      //=== TYPES =====================================================
+      typedef uint8_t ChannelType;
+      
       //=== CONSTRUCTORS =====================================================
       VoxelRGBA( const VoxelRGBA &other );
       VoxelRGBA( const VoxelRGB &other);
