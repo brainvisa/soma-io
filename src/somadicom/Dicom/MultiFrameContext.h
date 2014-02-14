@@ -2,9 +2,10 @@
 #define _MultiFrameContext_h_
 
 
-#include <Thread/LoopContext.h>
+#include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 
+#include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
 
 
@@ -16,7 +17,7 @@ class Data;
 class Callback;
 
 
-class MultiFrameContext : public LoopContext
+class MultiFrameContext : public carto::LoopContext
 {
 
   public:

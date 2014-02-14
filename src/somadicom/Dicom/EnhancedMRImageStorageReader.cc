@@ -2,7 +2,7 @@
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiSliceContext.h>
-#include <Thread/ThreadedLoop.h>
+#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
@@ -216,7 +216,7 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::Data& data,
         soma::MultiSliceContext context( dcmImage,
                                          data, 
                                          progress );
-        soma::ThreadedLoop threadedLoop( &context,
+        carto::ThreadedLoop threadedLoop( &context,
                                          0,
                                          m_dataInfo.m_slices );
 

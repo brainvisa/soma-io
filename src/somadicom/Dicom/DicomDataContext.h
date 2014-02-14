@@ -2,7 +2,7 @@
 #define _DicomDataContext_h_
 
 
-#include <Thread/LoopContext.h>
+#include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <string>
@@ -17,7 +17,7 @@ class Data;
 class Callback;
 
 
-class DicomDataContext : public LoopContext
+class DicomDataContext : public carto::LoopContext
 {
 
   public:

@@ -2,7 +2,7 @@
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
-#include <Thread/ThreadedLoop.h>
+#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
@@ -98,7 +98,7 @@ bool soma::NMImageStorageReader::readData( soma::Data& data,
         }
 
         soma::MultiFrameContext context( dcmImage, data, true, progress );
-        soma::ThreadedLoop threadedLoop( &context,
+        carto::ThreadedLoop threadedLoop( &context,
                                          0,
                                          data.m_info.m_slices );
 

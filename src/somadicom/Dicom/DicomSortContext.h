@@ -3,7 +3,7 @@
 
 
 #include <soma-io/Dicom/SortInformation.h>
-#include <Thread/LoopContext.h>
+#include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <string>
@@ -15,7 +15,7 @@ namespace soma
 {
 
 
-class DicomSortContext : public LoopContext
+class DicomSortContext : public carto::LoopContext
 {
 
   public:

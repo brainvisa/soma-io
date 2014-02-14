@@ -3,6 +3,7 @@
 
 
 #include <soma-io/Container/Vector.h>
+#include <soma-io/Container/DatasetHeader.h>
 #include <soma-io/Transformation/PatientOrientation.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -52,6 +53,9 @@ class DataInfo
     bool m_modalityLUTApplied;
     std::vector< double > m_slope;
     std::vector< double > m_intercept;
+
+    int32_t m_fileCount;
+    std::vector< DatasetHeader > m_datasetHeader;
 
     Vector m_rowVec;
     Vector m_colVec;

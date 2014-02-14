@@ -18,7 +18,7 @@ soma::DicomDataContext::DicomDataContext(
                                    soma::Data& data,
                                    bool applyModalityLUT,
                                    soma::Callback* progress )
-                      : soma::LoopContext(),
+                      : carto::LoopContext(),
                         m_files( files ),
                         m_data( data ),
                         m_progress( progress ),

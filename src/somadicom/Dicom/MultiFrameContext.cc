@@ -7,7 +7,7 @@ soma::MultiFrameContext::MultiFrameContext( DicomImage& dcmImage,
                                             soma::Data& data,
                                             bool fillSlices,
                                             soma::Callback* progress )
-                       : soma::LoopContext(),
+                       : carto::LoopContext(),
                          m_dcmImage( dcmImage ),
                          m_data( data ),
                          m_fillSlices( fillSlices ),

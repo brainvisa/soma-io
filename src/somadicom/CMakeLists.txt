@@ -3,6 +3,7 @@
 set( _headers
   Container/Data.h
   Container/DataInfo.h
+  Container/DatasetHeader.h
   Container/Matrix.h
   Container/Vector.h
   Dicom/CTImageStorageReader.h
@@ -56,6 +57,7 @@ set( _headers
 set( _sources
   Container/Data.cc
   Container/DataInfo.cc
+  Container/DatasetHeader.cc
   Container/Matrix.cc
   Container/Vector.cc
   Dicom/CTImageStorageReader.cc

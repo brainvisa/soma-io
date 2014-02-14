@@ -32,8 +32,8 @@
  */
 
 //--- plugin -------------------------------------------------------------------
-#include <soma-io/plugin/osplugin.h>
-#include <soma-io/checker/osformatchecker.h>
+#include <soma-io/plugin/dicomplugin.h>
+#include <soma-io/checker/dicomformatchecker.h>
 //--- soma-io ------------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>

@@ -17,7 +17,8 @@ soma::DataInfo::DataInfo()
                 m_pixelSpacingZ( 1.0 ),
                 m_spacingBetweenSlices( 1.0 ),
                 m_repetitionTime( 1.0 ),
-                m_modalityLUTApplied( true )
+                m_modalityLUTApplied( true ),
+                m_fileCount( 0 )
 {
 
   m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
@@ -44,6 +45,7 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 m_spacingBetweenSlices( other.m_spacingBetweenSlices ),
                 m_repetitionTime( other.m_repetitionTime ),
                 m_modalityLUTApplied( other.m_modalityLUTApplied ),
+                m_fileCount( other.m_fileCount ),
                 m_rowVec( other.m_rowVec ),
                 m_colVec( other.m_colVec ),
                 m_patientOrientation( other.m_patientOrientation )
@@ -82,8 +84,10 @@ void soma::DataInfo::clear()
   m_spacingBetweenSlices = 1.0;
   m_repetitionTime = 1.0;
   m_modalityLUTApplied = true;
+  m_fileCount = 0;
   m_slope.clear();
   m_intercept.clear();
+  m_datasetHeader.clear();
   m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
 
@@ -102,11 +106,14 @@ void soma::DataInfo::initialize()
 
   }
 
+  int32_t sliceCount = m_slices * m_frames;
+
   m_sliceSize = m_width * m_height;
   m_volumeSize = m_sliceSize * m_slices;
   m_datasetSize = m_volumeSize * m_frames;
-  m_slope.resize( m_slices * m_frames, 1.0 );
-  m_intercept.resize( m_slices * m_frames, 0.0 );
+  m_slope.resize( sliceCount, 1.0 );
+  m_intercept.resize( sliceCount, 0.0 );
+  m_datasetHeader.resize( m_fileCount, soma::DatasetHeader() );
   m_normVec = m_rowVec.cross( m_colVec );
 
 }

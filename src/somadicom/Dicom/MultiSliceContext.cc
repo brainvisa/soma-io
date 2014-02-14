@@ -7,7 +7,7 @@ soma::MultiSliceContext::MultiSliceContext(
                                    DicomImage& dcmImage, 
                                    soma::Data& data,
                                    soma::Callback* progress )
-                       : soma::LoopContext(),
+                       : carto::LoopContext(),
                          m_dcmImage( dcmImage ),
                          m_data( data ),
                          m_progress( progress ),

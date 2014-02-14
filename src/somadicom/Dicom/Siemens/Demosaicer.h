@@ -4,6 +4,7 @@
 
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Utils/StdInt.h>
+#include <soma-io/Dicom/soma_osconfig.h>
 
 #include <dcmtk/dcmimgle/dcmimage.h>
 

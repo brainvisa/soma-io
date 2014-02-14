@@ -2,7 +2,7 @@
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/DicomDataContext.h>
-#include <Thread/ThreadedLoop.h>
+#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
@@ -39,7 +39,7 @@ bool soma::CTImageStorageReader::readData( soma::Data& data,
                                     data, 
                                     false,
                                     progress );
-    soma::ThreadedLoop threadedLoop( &context,
+    carto::ThreadedLoop threadedLoop( &context,
                                      0,
                                      int32_t( m_slices.size() ) );
 

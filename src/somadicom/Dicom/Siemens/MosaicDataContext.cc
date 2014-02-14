@@ -16,7 +16,7 @@ soma::MosaicDataContext::MosaicDataContext(
                                    soma::Data& data,
                                    soma::Demosaicer& demosaicer,
                                    soma::Callback* progress )
-                       : soma::LoopContext(),
+                       : carto::LoopContext(),
                          m_files( files ),
                          m_data( data ),
                          m_demosaicer( demosaicer ),

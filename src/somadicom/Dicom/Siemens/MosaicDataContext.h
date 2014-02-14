@@ -2,7 +2,7 @@
 #define _MosaicDataContext_h_
 
 
-#include <Thread/LoopContext.h>
+#include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <string>
@@ -18,7 +18,7 @@ class Demosaicer;
 class Callback;
 
 
-class MosaicDataContext : public LoopContext
+class MosaicDataContext : public carto::LoopContext
 {
 
   public:

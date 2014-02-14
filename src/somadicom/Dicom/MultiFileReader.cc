@@ -2,7 +2,7 @@
 #include <soma-io/System/Directory.h>
 #include <soma-io/Container/Data.h>
 #include <soma-io/Dicom/DicomSortContext.h>
-#include <Thread/ThreadedLoop.h>
+#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -157,7 +157,7 @@ bool soma::MultiFileReader::sortFiles( soma::Directory& directory )
                                     directory.getFiles(),
                                     slices,
                                     selectedFileCount );
-    soma::ThreadedLoop threadedLoop( &context,
+    carto::ThreadedLoop threadedLoop( &context,
                                      0,
                                      nFiles );
 
