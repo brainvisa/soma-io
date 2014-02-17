@@ -109,7 +109,7 @@ if( USE_SOMA_IO )
   endif()
   if( DCMTK_FOUND AND JASPER_FOUND )
     # uncomment this to enable compiling the DICOM plugin
-    add_subdirectory( src/somadicom )
+    #add_subdirectory( src/somadicom )
   endif()
 endif()
 add_subdirectory( src/tests )
