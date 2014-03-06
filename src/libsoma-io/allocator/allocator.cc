@@ -86,8 +86,8 @@ AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
                                     rc_ptr<DataSource> datasource, 
                                     bool isDiskformatOK, 
                                     float usefactor )
-  : _alloc( 0 ), _datasource( datasource ), _access( mode ), _dsi(),
-    _diskcompat( isDiskformatOK ), _usefact( usefactor ), _allocated( false ), 
+  : _alloc( 0 ), _datasource( datasource ), _dsi(), _access( mode ),
+    _diskcompat( isDiskformatOK ), _usefact( usefactor ), _allocated( false ),
     _forced( false )
 {
   // cout << "AllocatorContext " << this << " with DS: " << datasource.get() 
@@ -97,8 +97,8 @@ AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
 AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
                                     rc_ptr<DataSourceInfo> datasourceinfo, 
                                     float usefactor )
-  : _alloc( 0 ), _datasource(), _access( mode ), _dsi( datasourceinfo ),
-    _diskcompat( false ), _usefact( usefactor ), _allocated( false ), 
+  : _alloc( 0 ), _datasource(), _dsi( datasourceinfo ), _access( mode ),
+    _diskcompat( false ), _usefact( usefactor ), _allocated( false ),
     _forced( false )
 {
   // cout << "AllocatorContext " << this << " with DS: " << datasource.get() 
