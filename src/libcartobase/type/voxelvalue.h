@@ -58,7 +58,11 @@ namespace carto {
   class VoxelValue
   {
     public:
+      //=== TYPES =====================================================
       typedef T ChannelType;
+      
+      //=== CONSTANTS =====================================================
+      static const unsigned int channelcount = C;
 
       //=== CONSTRUCTORS =====================================================
       VoxelValue();

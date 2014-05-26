@@ -85,6 +85,8 @@ set( _headers
    type/conversion.h
    type/converter_d.h
    type/converter.h
+   type/datatypetraits.h
+   type/datatypeinfo.h
    type/limits.h
    type/limits_gcc3.h
    type/select.h
@@ -210,6 +212,7 @@ set( _cartobase_0_sources
   thread/thread.cc 
   type/byte_order.cc 
   type/converter.cc 
+  type/datatypetraits.cc
   type/string_conversion.cc
   type/voxelvalue.cc
   uuid/uuid.cc 
