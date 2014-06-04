@@ -150,23 +150,25 @@ bool soma::MultiFileReader::sortFiles( soma::Directory& directory )
 
     m_slices.clear();
     m_positions.clear();
+    m_dataInfo.m_fileCount = 0;
 
     std::multimap< double, soma::SortInformation > slices;
-    int32_t selectedFileCount = 0;
     soma::DicomSortContext context( m_seriesInstanceUID, 
                                     directory.getFiles(),
                                     slices,
-                                    selectedFileCount );
+                                    m_dataInfo.m_rowVec,
+                                    m_dataInfo.m_colVec,
+                                    m_dataInfo.m_fileCount );
     carto::ThreadedLoop threadedLoop( &context,
                                      0,
                                      nFiles );
 
     threadedLoop.launch();
-    m_slices.resize( selectedFileCount );
-    m_positions.resize( selectedFileCount );
+    m_slices.resize( m_dataInfo.m_fileCount );
+    m_positions.resize( m_dataInfo.m_fileCount );
 
     m_dataInfo.m_frames = slices.count( slices.begin()->first );
-    m_dataInfo.m_slices = selectedFileCount / m_dataInfo.m_frames;
+    m_dataInfo.m_slices = m_dataInfo.m_fileCount / m_dataInfo.m_frames;
 
     std::multimap< double, soma::SortInformation >::iterator
       s = slices.begin(),

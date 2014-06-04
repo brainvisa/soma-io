@@ -11,12 +11,17 @@ soma::DicomSortContext::DicomSortContext(
                          const std::string& seriesInstanceUID,
                          const std::vector< std::string >& files,
                          std::multimap< double, soma::SortInformation >& slices,
+                         const soma::Vector& rowVector,
+                         const soma::Vector& columnVector,
                          int32_t& selectedFileCount )
                       : m_seriesInstanceUID( seriesInstanceUID ),
                         m_files( files ),
                         m_slices( slices ),
                         m_selectedFileCount( selectedFileCount )
 {
+
+  m_absNormal = rowVector.cross( columnVector ).mainDirection().abs();
+
 }
 
 
@@ -50,15 +55,6 @@ void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
 
           sortInfo.m_instanceNumber = int32_t( slices.size() );
           sortInfo.m_fileName = m_files[ i ];
-
-          Float64 tmpFloat;
-          if ( dataset->findAndGetFloat64( DCM_SliceLocation, 
-                                           tmpFloat ).good() )
-          {
-
-            index = double( tmpFloat );
-
-          }
           
           Sint32 tmpInt;
           if ( dataset->findAndGetSint32( DCM_InstanceNumber,
@@ -69,6 +65,7 @@ void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
 
           }
           
+          Float64 tmpFloat;
           if ( dataset->findAndGetFloat64( DCM_EchoTime,
                                            tmpFloat ).good() )
           {
@@ -97,6 +94,8 @@ void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
             iss >> sortInfo.m_imagePosition.x
                 >> sortInfo.m_imagePosition.y
                 >> sortInfo.m_imagePosition.z;
+
+            index = m_absNormal.dot( sortInfo.m_imagePosition );
 
           }
 

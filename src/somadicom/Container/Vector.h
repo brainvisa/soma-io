@@ -23,10 +23,12 @@ class Vector
     Vector& operator *= ( double value );
     Vector& operator /= ( double value );
 
-    Vector cross( const Vector& other );
+    Vector cross( const Vector& other ) const;
     double dot( const Vector& other );
     double getNorm();
     void normalize();
+    Vector mainDirection() const;
+    Vector abs() const;
 
     double x;
     double y;

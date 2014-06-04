@@ -77,7 +77,7 @@ soma::Vector& soma::Vector::operator /= ( double value )
 }
 
 
-soma::Vector soma::Vector::cross( const soma::Vector& other )
+soma::Vector soma::Vector::cross( const soma::Vector& other ) const
 {
 
   return soma::Vector( y * other.z - z * other.y,
@@ -108,6 +108,62 @@ void soma::Vector::normalize()
 
 
   operator /= ( getNorm() );
+
+}
+
+
+soma::Vector soma::Vector::mainDirection() const
+{
+
+  soma::Vector mainVector( 0.0, 0.0, 0.0 );
+  double absX = std::fabs( x );
+  double absY = std::fabs( y );
+  double absZ = std::fabs( z );
+
+  if ( absX > absY )
+  {
+
+    if ( absX > absZ )
+    {
+  
+      mainVector.x = x / absX;
+  
+    }
+    else
+    {
+  
+      mainVector.z = z / absZ;
+  
+    }
+
+  }
+  else
+  {
+
+    if ( absY > absZ )
+    {
+  
+      mainVector.y = y / absY;
+  
+    }
+    else
+    {
+   
+      mainVector.z = z / absZ;
+  
+    }
+
+  }
+
+  return mainVector;
+
+}
+
+
+soma::Vector soma::Vector::abs() const
+{
+
+  return soma::Vector( std::fabs( x ), std::fabs( y ), std::fabs( z ) );
 
 }
 

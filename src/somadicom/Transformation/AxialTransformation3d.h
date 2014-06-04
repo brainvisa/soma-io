@@ -23,10 +23,6 @@ class AxialTransformation3d : public Transformation3d
                            const Vector& columnCosine,
                            const Vector& normal );
 
-  private:
-
-    Vector changeToMainDirection( const Vector& vec ) const;
-
 };
 
 
