@@ -153,7 +153,8 @@ namespace soma
       /// \param base If given, the function keeps information from the base
       /// header and adds that from the minf file.
       static carto::Object readMinf( DataSource & ds, 
-                                     carto::Object base = carto::none() );
+                                     carto::Object base = carto::none(),
+                                     carto::Object options = carto::none() );
       /// Syntax for minf dictionaries
       static carto::SyntaxSet & minfSyntax();
 

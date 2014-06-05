@@ -34,9 +34,6 @@
 #ifndef CARTOBASE_CONFIG_CONFIG_H
 #define CARTOBASE_CONFIG_CONFIG_H
 
-#ifndef USE_SOMA_IO
-  #cmakedefine USE_SOMA_IO
-#endif
 #ifndef CARTO_DEBUGMODE
   #define CARTO_DEBUGMODE @CARTO_DEBUGMODE@
 #endif

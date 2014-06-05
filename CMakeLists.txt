@@ -67,15 +67,8 @@ else()
   endif()
 endif()
 
-## Enabling of SOMA-IO
-## /!\ It is then used by the whole aims project
-set( USE_SOMA_IO "True" CACHE BOOL "Enable/Disable use of new soma-io classes")
-
 ## Flags definitions
 set( SOMA-IO_DEFINITIONS "-D_REENTRANT" )
-if( USE_SOMA_IO )
-  set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DUSE_SOMA_IO" )
-endif()
 if( "${CARTO_DEBUGMODE}" STREQUAL "debug" )
   set( CARTO_DEBUG 1 )
   set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DCARTO_DEBUG" )
@@ -94,24 +87,17 @@ set( SOMA-IO_INCLUDE_DIRS
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 
 ## Libraries
-# set( SOMA-IO_LIBRARIES cartobase "${LIBXML2_LIBRARIES}" )
-# if( USE_SOMA_IO )
-#   set( SOMA-IO_LIBRARIES soma-io "${SOMA-IO_LIBRARIES}" )
-# endif()
 
 ## Subdirectories
 add_subdirectory( src/libcartobase )
-if( USE_SOMA_IO )
-  add_subdirectory( src/libsoma-io )
-  add_subdirectory( src/somagis )
-  if( OPENSLIDE_FOUND )
-    add_subdirectory( src/somaopenslide )
-  endif()
-  if( DCMTK_FOUND AND JASPER_FOUND )
-    # uncomment this to enable compiling the DICOM plugin
-    #add_subdirectory( src/somadicom )
-  endif()
+add_subdirectory( src/libsoma-io )
+add_subdirectory( src/somagis )
+if( OPENSLIDE_FOUND )
+  add_subdirectory( src/somaopenslide )
 endif()
-add_subdirectory( src/tests )
+if( DCMTK_FOUND AND JASPER_FOUND )
+  # uncomment this to enable compiling the DICOM plugin
+  #add_subdirectory( src/somadicom )
+endif()
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
