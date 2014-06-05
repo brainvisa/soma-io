@@ -42,6 +42,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <stdexcept>
 //----------------------------------------------------------------------------
 
 using namespace soma;
@@ -164,7 +165,7 @@ rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
       return _dslist.find( type )->second[ i ];
   else
     // launch exception
-    throw;
+    throw runtime_error( "datasource type not found" );
 
 }
 
