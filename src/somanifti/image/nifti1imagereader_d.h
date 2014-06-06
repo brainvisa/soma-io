@@ -70,9 +70,7 @@ namespace soma
     dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
     dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
 
-    dsi.header()->getProperty( "_nifti_structure", _nim );
-    if( dsi.header()->hasProperty( "_nifti_structure" ) )
-      dsi.header()->removeProperty( "_nifti_structure" );
+    dsi.privateIOData()->getProperty( "nifti_structure", _nim );
   }
 
   template <typename T>
@@ -120,6 +118,67 @@ namespace soma
 
     if( dt == "S16" )
       readType<int16_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "FLOAT" )
+      readType<float>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S8" )
+      readType<int8_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U8" )
+      readType<uint8_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U16" )
+      readType<uint16_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S32" )
+      readType<int32_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U32" )
+      readType<uint32_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "DOUBLE" )
+      readType<double>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+  // specialize RGB and RGBA
+
+  template <>
+  void Nifti1ImageReader<VoxelRGB>::read( VoxelRGB * dest,
+                                DataSourceInfo & dsi,
+                                std::vector<int> & pos,
+                                std::vector<int> & size,
+                                std::vector<int> & stride,
+                                carto::Object      options )
+  {
+    if( _sizes.empty() || _nim.isNull() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "RGB" )
+      readType<VoxelRGB>( dest, dsi, pos, size, stride, options );
+    else if( dt == "RGBA" )
+      readType<VoxelRGBA>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+
+  template <>
+  void Nifti1ImageReader<VoxelRGBA>::read( VoxelRGBA * dest,
+                                DataSourceInfo & dsi,
+                                std::vector<int> & pos,
+                                std::vector<int> & size,
+                                std::vector<int> & stride,
+                                carto::Object      options )
+  {
+    if( _sizes.empty() || _nim.isNull() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "RGB" )
+      readType<VoxelRGB>( dest, dsi, pos, size, stride, options );
+    else if( dt == "RGBA" )
+      readType<VoxelRGBA>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
   }
@@ -133,7 +192,6 @@ namespace soma
                                 std::vector<int> & /* stride */,
                                 carto::Object      /* options */ )
   {
-    std::cout << "Nifti1ImageReader.readType\n";
     // dest is supposed to be allocated
 
     // total volume size
@@ -152,11 +210,9 @@ namespace soma
     int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
     int  y, z, t;
-    // region line size
-    offset_t  len = vx * sizeof( T );
     offset_t offset;
-    long readout;
 
+//     std::cout << "readType, size: " << vx << ", " << vy << ", " << vz << std::endl;
     nifti_image *nim = _nim->nim;
 
     // fix erroneous null dimT
@@ -176,20 +232,23 @@ namespace soma
     std::string dt;
     hdr->getProperty( "disk_data_type", dt );
 
-    std::cout << "Nifti1ImageReader.readType 3\n";
-
-    Point3df pdims = m2s.transform( Point3df( sx, sy, sz ) )
+    Point3df pdims = m2s.transform( Point3df( vx, vy, vz ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
-    Point3df posf = m2s.transform( Point3df( ox, oy, oz ) )
-        - m2s.transform( Point3df( 0, 0, 0 ) );
+//     Point3df posf = m2s.transform( Point3df( ox, oy, oz ) )
+//         - m2s.transform( Point3df( 0, 0, 0 ) );
+    Point3df posf1 = m2s.transform( Point3df( ox, oy, oz ) );
+    Point3df posf2 = m2s.transform( Point3df( ox+vx-1, oy+vy-1, oz+vz-1 ) );
     int idims[3];
     idims[0] = (int) rint( fabs( pdims[0] ) );
     idims[1] = (int) rint( fabs( pdims[1] ) );
     idims[2] = (int) rint( fabs( pdims[2] ) );
     int ipos[3];
-    ipos[0] = (int) rint( fabs( posf[0] ) );
-    ipos[1] = (int) rint( fabs( posf[1] ) );
-    ipos[2] = (int) rint( fabs( posf[2] ) );
+//     ipos[0] = (int) rint( fabs( posf[0] ) );
+//     ipos[1] = (int) rint( fabs( posf[1] ) );
+//     ipos[2] = (int) rint( fabs( posf[2] ) );
+    ipos[0] = (int) rint( std::min( posf1[0], posf2[0] ) );
+    ipos[1] = (int) rint( std::min( posf1[1], posf2[1] ) );
+    ipos[2] = (int) rint( std::min( posf1[2], posf2[2] ) );
     Point3df incf = m2s.transform( Point3df( 1, 0, 0 ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
     int inc[3];
@@ -235,10 +294,10 @@ namespace soma
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
           {
-            d0f = m2s.transform( Point3df( 0, y, z ) );
-            d0[0] = int( rint( d0f[0] ) );
-            d0[1] = int( rint( d0f[1] ) );
-            d0[2] = int( rint( d0f[2] ) );
+            d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
+            d0[0] = int( rint( d0f[0] ) ) - ipos[0];
+            d0[1] = int( rint( d0f[1] ) ) - ipos[1];
+            d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
             psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
@@ -268,6 +327,9 @@ namespace soma
         t2 = t + ot;
 
         subbb0[3] = t2;
+//         std::cout << "subbb0: " << subbb0[0] << ", " << subbb0[1] << ", " << subbb0[2] << ", " << subbb0[3] << std::endl;
+//         std::cout << "subbb1: " << subbb1[0] << ", " << subbb1[1] << ", " << subbb1[2] << ", " << subbb1[3] << std::endl;
+//         std::cout << "nim dim: " << nim->dim[1] << ", " << nim->dim[2] << ", " << nim->dim[3] << ", " << nim->dim[4] << std::endl;
         ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
         if( ii < 0 || (size_t) ii < ntot )
           throw eof_error( dsi.url() );
@@ -275,10 +337,10 @@ namespace soma
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
           {
-            d0f = m2s.transform( Point3df( 0, y, z ) );
-            d0[0] = int( rint( d0f[0] ) );
-            d0[1] = int( rint( d0f[1] ) );
-            d0[2] = int( rint( d0f[2] ) );
+            d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
+            d0[0] = int( rint( d0f[0] ) ) - ipos[0];
+            d0[1] = int( rint( d0f[1] ) ) - ipos[1];
+            d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
             psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
@@ -287,6 +349,8 @@ namespace soma
             offset = offset * vy + y;
             offset = offset * vx;
             target = dest + offset;
+//             if( y == 0 )
+//               std::cout << "d0: " << d0[0] << ", " << d0[1] << ", " << d0[2] << std::endl;
 
             for( int x=0; x<vx; ++x, psrc += minc )
             {

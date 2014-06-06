@@ -56,13 +56,15 @@ using namespace std;
 DataSourceInfo::DataSourceInfo( const Object & header, 
                                 const DataSourceCapabilities & cap,
                                 const DataSourceList & dsl )
-: _header( header ), _capabilities( cap ), _datasourcelist( dsl )
+: _header( header ), _capabilities( cap ), _datasourcelist( dsl ),
+  _privateiodata( Object::value( PropertySet() ) )
 {
 }
 
 DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds,
                                 const std::vector<int> & dim )
-: _header( none() ), _capabilities(), _datasourcelist( ds )
+: _header( none() ), _capabilities(), _datasourcelist( ds ),
+  _privateiodata( Object::value( PropertySet() ) )
 {
   if( !dim.empty() ) {
     _header = Object::value( PropertySet() );
@@ -75,20 +77,23 @@ DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds,
 
 DataSourceInfo::DataSourceInfo( const rc_ptr<DataSource> & ds, 
                                 Object header )
-: _header( header ), _capabilities(), _datasourcelist( ds )
+: _header( header ), _capabilities(), _datasourcelist( ds ),
+  _privateiodata( Object::value( PropertySet() ) )
 {
 }
 
 DataSourceInfo::DataSourceInfo( const DataSourceInfo & other )
 : _header( other._header ), 
   _capabilities( other._capabilities ), 
-  _datasourcelist( other._datasourcelist )
+  _datasourcelist( other._datasourcelist ),
+  _privateiodata( other._privateiodata )
 {
 }
 
 DataSourceInfo::DataSourceInfo( const string & fname )
 : _header( none() ), _capabilities(),
-  _datasourcelist( carto::rc_ptr<DataSource>( new FileDataSource( fname ) ) )
+  _datasourcelist( carto::rc_ptr<DataSource>( new FileDataSource( fname ) ) ),
+  _privateiodata( Object::value( PropertySet() ) )
 {
 }
 

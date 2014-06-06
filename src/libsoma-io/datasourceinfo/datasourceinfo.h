@@ -47,7 +47,7 @@
 namespace soma
 {
   class DataSource;
-  
+
   /// Informative object used by IO system
   ///
   /// This object is used by FormatChecker, FormatReader or FormatWriter to
@@ -98,6 +98,15 @@ namespace soma
         { return _capabilities; }
             DataSourceCapabilities & capabilities()
         { return _capabilities; }
+      /** privateIOData is a generic object used for specific formats
+          readers/writers to store data which may be useful for them.
+          Typically, reading the header (by a FormatChecker) can allocate
+          data structures for underlying IO libraries. Such structure has to
+          be available in FormatReader and FormatWriter operations. Thus,
+          the FormatChecker can store such data in this object.
+      */
+      const carto::Object privateIOData() const { return _privateiodata; }
+            carto::Object privateIOData()       { return _privateiodata; }
       const DataSourceList & list() const { return _datasourcelist; }
             DataSourceList & list()       { return _datasourcelist; }
       std::string url() const { return _datasourcelist.dataSource()->url(); }
@@ -106,6 +115,7 @@ namespace soma
       carto::Object           _header;
       DataSourceCapabilities  _capabilities;
       DataSourceList          _datasourcelist;
+      carto::Object           _privateiodata;
   };
 
 }

@@ -39,9 +39,6 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasource/datasourcelist.h>
 #include <soma-io/datasource/filedatasource.h>  // because we use file sources
-#include <soma-io/reader/itemreader.h>                  // to read in the file
-#include <soma-io/utilities/asciidatasourcetraits.h>     // to read datasource
-#include <soma-io/writer/pythonwriter.h>
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
 #include <soma-io/checker/nifti1structwrapper.h>
 #include <soma-io/checker/transformation.h>
@@ -49,6 +46,8 @@
 #include <cartobase/object/object.h>                                 // header
 #include <cartobase/object/property.h>                               // header
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
+#include <cartobase/type/voxelrgb.h>
+#include <cartobase/type/voxelrgba.h>
 //--- system -----------------------------------------------------------------
 #include <stdio.h>
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
@@ -311,13 +310,9 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   // niftilib's global debug level for status reporting
   nifti_set_debug_level( 0 );
 
-  cout << "Nifti1FormatChecker. file: " << fname << endl;
-
   // check that given file is NIFTI and not ANALYZE
   if( is_nifti_file( fname.c_str() ) <= 0 )
     throw wrong_format_error( fname );
-
-  cout << "is_nifti_file: OK\n";
 
   // read header using niftilib without loading data
   nim = nifti_image_read( fname.c_str() , 0 );
@@ -707,18 +702,6 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   hdr->setProperty( "data_type", type );
   hdr->setProperty( "format", string( "NIFTI-1" ) );
 
-  PythonWriter pw;
-  pw.attach( cout );
-  try
-  {
-    pw.write( hdr );
-  }
-  catch( ... )
-  {
-  }
-  cout << "got up to here.\n";
-
-//   throw runtime_error( "not finished" );
   return hdr;
 }
 
@@ -778,6 +761,13 @@ DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
       return dsi;
 
     dsi.header() = _buildHeader( hds );
+    // move _nifti_structure to privateIOData
+    if( dsi.header()->hasProperty( "_nifti_structure" ) )
+    {
+      dsi.privateIOData()->setProperty( "nifti_structure",
+        dsi.header()->getProperty( "_nifti_structure" ) );
+      dsi.header()->removeProperty( "_nifti_structure" );
+    }
 
     localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
