@@ -38,6 +38,7 @@
 #include <soma-io/image/imagereader.h>                             // heritage
 #include <soma-io/datasource/chaindatasource.h>                    // heritage
 #include <soma-io/reader/itemreader.h>                      // read + byteswap
+#include <soma-io/checker/nifti1structwrapper.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 //--- system -----------------------------------------------------------------
@@ -49,9 +50,9 @@ namespace soma
 {
   class DataSourceInfo;
 
-  /// ImageReader for GIS files.
+  /// ImageReader for NIFTI-1 files.
   template<typename T>
-  class Nifti1ImageReader : public ImageReader<T>, protected ChainDataSource
+  class Nifti1ImageReader : public ImageReader<T>
   {
     public:
       //======================================================================
@@ -74,24 +75,14 @@ namespace soma
       virtual ImageReader<T>* cloneReader() const;
 
     protected:
-      //======================================================================
-      //   D A T A S O U R C E
-      //======================================================================
-      virtual DataSource* clone() const;
-      virtual int iterateMode() const;
-      virtual offset_t size() const;
-      virtual offset_t at() const;
-      virtual bool at( offset_t pos );
-      virtual long readBlock( char * data, unsigned long maxlen );
-      virtual long writeBlock( const char * data, unsigned long len );
-      virtual int getch();
-      virtual int putch( int ch );
-      virtual bool ungetch( int ch );
-      virtual bool allowsMemoryMapping() const;
-      virtual bool setpos( int x, int y = 0, int z = 0, int t = 0 );
-
-    protected:
+      template <typename U>
+      void readType( T * dest, DataSourceInfo & dsi,
+                     std::vector<int> & pos,
+                     std::vector<int> & size,
+                     std::vector<int> & stride,
+                     carto::Object options = carto::none() );
       std::vector<std::vector<int> >  _sizes;
+      carto::rc_ptr<Nifti1StructWrapper> _nim;
   };
 
 }

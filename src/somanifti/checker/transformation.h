@@ -34,6 +34,8 @@
 #ifndef SOMAIO_CHECKER_TRANSFORMATION_H
 #define SOMAIO_CHECKER_TRANSFORMATION_H
 
+#include <cartobase/object/object.h>
+#include <soma-io/config/soma_config.h>
 #include <vector>
 
 namespace soma
@@ -152,6 +154,26 @@ namespace soma
     const AffineTransformation3d& AffineTransformation3d1,
     const AffineTransformation3d& AffineTransformation3d2 );
 
+
+  //
+  inline Point3df
+  AffineTransformation3d::transform( const Point3df & p ) const
+  {
+    return transform( p[0], p[1], p[2] );
+  }
+
+
+  inline Point3df
+  AffineTransformation3d::transform( float x, float y, float z ) const
+  {
+    return Point3df( matrix[0] * x + matrix[4] * y
+                    + matrix[8] * z + matrix[12],
+                    matrix[1] * x + matrix[5] * y
+                    + matrix[9] * z + matrix[13],
+                    matrix[2] * x + matrix[6] * y
+                    + matrix[10] * z + matrix[14]
+                    );
+  }
 
 }
 

@@ -43,6 +43,7 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>         // inheritance
 #include <soma-io/reader/itemreader.h>                  // read + byteswap
+#include <soma-io/checker/transformation.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
 //--- system -----------------------------------------------------------------
@@ -69,8 +70,9 @@ namespace soma
     dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
     dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
 
-    ChainDataSource::setSource( dsi.list().dataSource( "nii", 0 ),
-                                dsi.list().dataSource( "nii", 0)->url() );
+    dsi.header()->getProperty( "_nifti_structure", _nim );
+    if( dsi.header()->hasProperty( "_nifti_structure" ) )
+      dsi.header()->removeProperty( "_nifti_structure" );
   }
 
   template <typename T>
@@ -91,8 +93,7 @@ namespace soma
 
   template <typename T>
   Nifti1ImageReader<T>::Nifti1ImageReader() :
-    ImageReader<T>(),
-    ChainDataSource( DataSource::none() )
+    ImageReader<T>()
   {
   }
 
@@ -102,101 +103,37 @@ namespace soma
   }
 
   //==========================================================================
-  //   C H A I N D A T A S O U R C E   M E T H O D S
-  //==========================================================================
-  template <typename T>
-  DataSource* Nifti1ImageReader<T>::clone() const
-  {
-    return new FileDataSource( ChainDataSource::url() );
-  }
-
-  template <typename T>
-  int Nifti1ImageReader<T>::iterateMode() const
-  {
-    int m = source()->iterateMode();
-    // direct access is not possible on compressed streams
-    // if( gzipped ) // FIXME
-      m &= SequentialAccess;
-    return m;
-  }
-
-  template <typename T>
-  offset_t Nifti1ImageReader<T>::size() const
-  {
-    return source() ? source()->size() : 0;
-  }
-
-  template <typename T>
-  offset_t Nifti1ImageReader<T>::at() const
-  {
-    return source()->at();
-  }
-
-  template <typename T>
-  bool Nifti1ImageReader<T>::at( offset_t pos )
-  {
-    return source()->at( pos );
-  }
-
-  template <typename T>
-  long Nifti1ImageReader<T>::readBlock( char * data, unsigned long maxlen )
-  {
-    // TODO
-  }
-
-  template <typename T>
-  long Nifti1ImageReader<T>::writeBlock( const char * data, unsigned long len )
-  {
-    return 0;
-  }
-
-  template <typename T>
-  int Nifti1ImageReader<T>::getch()
-  {
-    return source()->getch();
-  }
-
-  template <typename T>
-  int Nifti1ImageReader<T>::putch( int ch )
-  {
-    return source()->putch( ch );
-  }
-
-  template <typename T>
-  bool Nifti1ImageReader<T>::ungetch( int ch )
-  {
-    return source()->ungetch( ch );
-  }
-
-  template <typename T>
-  bool Nifti1ImageReader<T>::allowsMemoryMapping() const
-  {
-    return false; // FIXME
-  }
-
-  template <typename T>
-  bool Nifti1ImageReader<T>::setpos( int x, int y, int z, int t )
-  {
-    offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
-    offset_t  sli = lin * _sizes[ 0 ][ 1 ];
-    offset_t  vol = sli * _sizes[ 0 ][ 2 ];
-    return source()->at( ( (offset_t) sizeof(T) ) *
-                         ( x + y * lin + z * sli + t * vol ) );
-  }
-
-  //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
   template <typename T>
   void Nifti1ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
+                                std::vector<int> & stride,
+                                carto::Object      options )
+  {
+    if( _sizes.empty() || _nim.isNull() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "S16" )
+      readType<int16_t>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+
+  template <typename T>
+  template <typename U>
+  void Nifti1ImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
+                                std::vector<int> & pos,
+                                std::vector<int> & size,
                                 std::vector<int> & /* stride */,
                                 carto::Object      /* options */ )
   {
-    if( _sizes.empty() )
-      updateParams( dsi );
-
+    std::cout << "Nifti1ImageReader.readType\n";
     // dest is supposed to be allocated
 
     // total volume size
@@ -220,31 +157,154 @@ namespace soma
     offset_t offset;
     long readout;
 
-    if( !open( DataSource::Read ) )
-      throw carto::open_error( "data source not available", url() );
+    nifti_image *nim = _nim->nim;
 
-    for( t=0; t<vt; ++t )
-      for( z=0; z<vz; ++z )
-        for( y=0; y<vy; ++y )
-        {
-          // we move in the file
-          setpos(ox,y+oy,z+oz,t+ot);
-          // we move in the buffer
-          offset = ((offset_t)t) * vz + z;
-          offset = offset * vy + y;
-          offset = offset * len;
-          char * target = ((char *)dest) + offset;
-          if( ( readout = readBlock( target, len ) ) != (long) len )
+    // fix erroneous null dimT
+    if( nim->dim[4] == 0 )
+      nim->dim[4] = 1;
+
+    carto::Object hdr = dsi.header();
+    std::vector< float > storage_to_memory;
+    hdr->getProperty( "storage_to_memory", storage_to_memory );
+
+    AffineTransformation3d s2m( storage_to_memory );
+    AffineTransformation3d m2s = s2m.inverse();
+
+    std::vector<float> s(2);
+    hdr->getProperty( "scale_factor", s[0] );
+    hdr->getProperty( "scale_offset", s[1] );
+    std::string dt;
+    hdr->getProperty( "disk_data_type", dt );
+
+    std::cout << "Nifti1ImageReader.readType 3\n";
+
+    Point3df pdims = m2s.transform( Point3df( sx, sy, sz ) )
+        - m2s.transform( Point3df( 0, 0, 0 ) );
+    Point3df posf = m2s.transform( Point3df( ox, oy, oz ) )
+        - m2s.transform( Point3df( 0, 0, 0 ) );
+    int idims[3];
+    idims[0] = (int) rint( fabs( pdims[0] ) );
+    idims[1] = (int) rint( fabs( pdims[1] ) );
+    idims[2] = (int) rint( fabs( pdims[2] ) );
+    int ipos[3];
+    ipos[0] = (int) rint( fabs( posf[0] ) );
+    ipos[1] = (int) rint( fabs( posf[1] ) );
+    ipos[2] = (int) rint( fabs( posf[2] ) );
+    Point3df incf = m2s.transform( Point3df( 1, 0, 0 ) )
+        - m2s.transform( Point3df( 0, 0, 0 ) );
+    int inc[3];
+    inc[0] = int( rint( incf[0] ) );
+    inc[1] = int( rint( incf[1] ) );
+    inc[2] = int( rint( incf[2] ) );
+    Point3df d0f;
+    int d0[3];
+
+    std::vector<U> src( ((size_t)sx) * sy * sz );
+    T *target = 0;
+    void *buf = &src[0];
+    size_t ntot = ((size_t)vx) * vy * vz * sizeof(U);
+    long ii;
+    size_t yoff = idims[0];
+    size_t zoff = yoff * idims[1];
+    long minc;
+    U* psrc, *pmax = &src[src.size()], *pmin = &src[0];
+    bool fail = false;
+    int t2;
+    int subbb0[7] = { 0, 0, 0, 0, 0, 0, 0 },
+    subbb1[7] = { 0, 0, 0, 1, 1, 1, 1 };
+    subbb0[0] = ipos[0];
+    subbb0[1] = ipos[1];
+    subbb0[2] = ipos[2];
+    subbb1[0] = idims[0];
+    subbb1[1] = idims[1];
+    subbb1[2] = idims[2];
+
+    if (((carto::DataTypeCode<T>::name() == "FLOAT")
+      || (carto::DataTypeCode<T>::name() == "DOUBLE"))&& (s[0] != 0.0))
+    {
+      hdr->setProperty( "scale_factor_applied", true );
+      for( int t=0; t<vt; ++t )
+      {
+        t2 = t + ot;
+
+        subbb0[3] = t2;
+        ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
+        if( ii < 0 || (size_t) ii < ntot )
+          throw eof_error( dsi.url() );
+
+        for( int z=0; z<vz; ++z )
+          for( int y=0; y<vy; ++y )
           {
-            localMsg( "readBlock( failed at ( " +
-                      carto::toString( y ) + ", " +
-                      carto::toString( z ) + ", " +
-                      carto::toString( t ) + " ) : " +
-                      carto::toString( readout / sizeof(T) ) + " != " +
-                      carto::toString( (long) len / sizeof( T ) ) );
-            throw carto::eof_error( url() );
+            d0f = m2s.transform( Point3df( 0, y, z ) );
+            d0[0] = int( rint( d0f[0] ) );
+            d0[1] = int( rint( d0f[1] ) );
+            d0[2] = int( rint( d0f[2] ) );
+            // increment as pointer
+            minc = zoff * inc[2] + yoff * inc[1] + inc[0];
+            psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
+            // we move in the buffer
+            offset = ((offset_t)t2) * vz + z;
+            offset = offset * vy + y;
+            offset = offset * vx;
+            target = dest + offset;
+
+            for( int x=0; x<vx; ++x, psrc += minc )
+            {
+              if( psrc >= pmin && psrc < pmax )
+                *target++ = (T) ( ((T) *psrc ) * s[0] + s[1] );
+              else
+              {
+                *target++ = 0;
+                fail = true;
+              }
+            }
           }
-        }
+      }
+    }
+    else
+    {
+      for( int t=0; t<vt; ++t )
+      {
+        t2 = t + ot;
+
+        subbb0[3] = t2;
+        ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
+        if( ii < 0 || (size_t) ii < ntot )
+          throw eof_error( dsi.url() );
+
+        for( int z=0; z<vz; ++z )
+          for( int y=0; y<vy; ++y )
+          {
+            d0f = m2s.transform( Point3df( 0, y, z ) );
+            d0[0] = int( rint( d0f[0] ) );
+            d0[1] = int( rint( d0f[1] ) );
+            d0[2] = int( rint( d0f[2] ) );
+            // increment as pointer
+            minc = zoff * inc[2] + yoff * inc[1] + inc[0];
+            psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
+            // we move in the buffer
+            offset = ((offset_t)t2) * vz + z;
+            offset = offset * vy + y;
+            offset = offset * vx;
+            target = dest + offset;
+
+            for( int x=0; x<vx; ++x, psrc += minc )
+            {
+              if( psrc >= pmin && psrc < pmax )
+                *target++ = (T) *psrc;
+              else
+              {
+                *target++ = 0;
+                fail = true;
+              }
+            }
+          }
+      }
+    }
+    if( fail )
+      std::cerr << "Warning: storage_to_memory transformation in NIFTI1 file "
+          "seems to be wrong" << std::endl;
+//     throw carto::corrupt_stream_error( dsi.url() );
   }
 
 

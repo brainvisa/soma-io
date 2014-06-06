@@ -1,6 +1,7 @@
 attributes = {
   'release_plugins' : [
     'libsomaopenslide.so',
-    'libsomagis.so'
+    'libsomagis.so',
+#    'libsomanifti.so',
   ], 
 }

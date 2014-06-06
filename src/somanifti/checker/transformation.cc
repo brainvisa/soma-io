@@ -32,7 +32,16 @@
  */
 
 #include "transformation.h"
-#include "inversion_lu.cc" // FIXME
+
+namespace soma
+{
+
+//   float decompositionLU( Table<float> &a, Table<int32_t> &indx);
+//   void backSubstitutionLU( Table<float> &a, Table<int32_t> &indx,
+//                            Table<float> &b );
+  Table<float> inversionLU( const Table<float> &matrix );
+
+}
 
 using namespace soma;
 using namespace carto;
@@ -111,26 +120,6 @@ AffineTransformation3d& AffineTransformation3d::operator = ( const Object mat )
     iter->next();
   }
   return *this;
-}
-
-
-inline Point3df
-AffineTransformation3d::transform( float x, float y, float z ) const
-{
-  return Point3df( matrix[0] * x + matrix[4] * y
-                   + matrix[8] * z + matrix[12],
-                   matrix[1] * x + matrix[5] * y
-                   + matrix[9] * z + matrix[13],
-                   matrix[2] * x + matrix[6] * y
-                   + matrix[10] * z + matrix[14]
-                   );
-}
-
-
-inline Point3df
-AffineTransformation3d::transform( const Point3df & p ) const
-{
-  return transform( p[0], p[1], p[2] );
 }
 
 

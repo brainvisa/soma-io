@@ -43,6 +43,8 @@
 #include <soma-io/utilities/asciidatasourcetraits.h>     // to read datasource
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
+#include <soma-io/checker/nifti1structwrapper.h>
+#include <soma-io/checker/transformation.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                                 // header
 #include <cartobase/object/property.h>                               // header
@@ -59,8 +61,6 @@
 using namespace soma;
 using namespace carto;
 using namespace std;
-
-#include "transformation.cc" // FIXME
 
 //============================================================================
 //   U T I L I T I E S
@@ -163,7 +163,6 @@ string StandardReferentials::commonScannerBasedReferentialID()
   }
 
 }
-
 
 //============================================================================
 //   P R I V A T E   M E T H O D S
@@ -696,12 +695,11 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
     hdr->setProperty( "extdata", extdata );
   }
 
-  /* free the nifti structure */
-  nifti_image_free( nim );
-  nim = NULL;
-
-
-  cout << "got up to here.\n";
+  /* keep the nifti structur in the header, because it will be used during
+     reading. */
+  hdr->setProperty( "_nifti_structure",
+                    Object::value( rc_ptr<Nifti1StructWrapper>(
+                      new Nifti1StructWrapper( nim ) ) ) );
 
   // the following shape is more logical, but incompatible with AIMS.
   // hdr->setProperty( "object_type", string( "Volume of " ) + type );
@@ -711,7 +709,14 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
 
   PythonWriter pw;
   pw.attach( cout );
-  pw.write( hdr );
+  try
+  {
+    pw.write( hdr );
+  }
+  catch( ... )
+  {
+  }
+  cout << "got up to here.\n";
 
 //   throw runtime_error( "not finished" );
   return hdr;
@@ -809,4 +814,27 @@ DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
   return dsi;
 }
 
+
+//============================================================================
+// Nifti1StructWrapper
+//============================================================================
+/*** Instantiate Nifti1StructWrapper destructor
+ * and compile the corresponding generic object
+ ****************************************************************************/
+
+Nifti1StructWrapper::~Nifti1StructWrapper()
+{
+  /* free the nifti structure */
+  if( nim )
+  {
+    nifti_image_free( nim );
+    nim = 0;
+  }
+}
+
+#include <cartobase/object/object_d.h>
+
+INSTANTIATE_GENERIC_OBJECT_TYPE( carto::rc_ptr<Nifti1StructWrapper> )
+
 #undef localMsg
+

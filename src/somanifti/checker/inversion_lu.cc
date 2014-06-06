@@ -37,7 +37,7 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-namespace
+namespace soma
 {
 
 float
