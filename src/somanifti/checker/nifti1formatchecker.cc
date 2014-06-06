@@ -713,7 +713,7 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   pw.attach( cout );
   pw.write( hdr );
 
-  throw runtime_error( "not finished" );
+//   throw runtime_error( "not finished" );
   return hdr;
 }
 

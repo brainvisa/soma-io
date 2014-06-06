@@ -1,7 +1,7 @@
 set( _headers
   checker/nifti1formatchecker.h
-#   image/nifti1imagereader.h
-#   image/nifti1imagereader_d.h
+  image/nifti1imagereader.h
+  image/nifti1imagereader_d.h
 #   image/nifti1imagewriter.h
 #   image/nifti1imagewriter_d.h
   nifticlib/znzlib/znzlib.h
@@ -12,7 +12,7 @@ set( _headers
 
 set( _sources
   checker/nifti1formatchecker.cc
-#   image/nifti1imagereader.cc
+  image/nifti1imagereader.cc
 #   image/nifti1imagewriter.cc
   nifticlib/znzlib/znzlib.c
   nifticlib/niftilib/nifti1_io.c
