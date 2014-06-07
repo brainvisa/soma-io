@@ -113,7 +113,6 @@ namespace soma
     {
       if( &other == this )
         return *this;
-      resize( other.size() );
       ncols = other.ncols;
       this->std::vector<T>::operator = ( other );
       return *this;
