@@ -269,7 +269,7 @@ namespace soma {
   }
   
   template <typename T>
-  DataSourceInfo GisImageWriter<T>::writeHeader( DataSourceInfo dsi, 
+  DataSourceInfo GisImageWriter<T>::writeHeader( DataSourceInfo & dsi, 
                                                  carto::Object options )
   {
     //--- build datasourcelist -----------------------------------------------

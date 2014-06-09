@@ -74,10 +74,10 @@ namespace soma
                           std::vector<int> & size,
                           carto::Object options = carto::none() );
 
-      /// This function is called before the actuel writing by a FormatWriter.
+      /// This function is called before the actual writing by a FormatWriter.
       /// It builds dsi's DataSourceList and writes the header if any is
       /// needed. It may also allocate file space for partial writing.
-      virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
+      virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 
                                           carto::Object options
                                             = carto::none() );
 

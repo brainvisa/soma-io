@@ -139,6 +139,8 @@ namespace soma
     AffineTransformation3d &operator = ( const carto::Object mat );
     void setToIdentity() ;
 
+    bool operator == ( const AffineTransformation3d & );
+
     AffineTransformation3d inverse() const;
     std::vector<float> toVector() const;
 

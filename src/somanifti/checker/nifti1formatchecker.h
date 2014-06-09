@@ -62,6 +62,22 @@ namespace soma
       carto::Object _buildHeader( DataSource * hds ) const;
   };
 
+
+  class StandardReferentials
+  {
+  public:
+    static std::string mniTemplateReferential();
+    static std::string acPcReferential();
+    static std::string talairachReferential();
+    static std::string commonScannerBasedReferential();
+    static std::string mniTemplateReferentialID();
+    static std::string acPcReferentialID();
+    static std::string commonScannerBasedReferentialID();
+  };
+
+  std::string NiftiReferential( int xform_code );
+  int NiftiReferential( const std::string & ref );
+
 }
 
 #endif

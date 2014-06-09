@@ -64,21 +64,6 @@ using namespace std;
 //============================================================================
 //   U T I L I T I E S
 //============================================================================
-namespace
-{
-
-  class StandardReferentials
-  {
-  public:
-    static std::string mniTemplateReferential();
-    static std::string acPcReferential();
-    static std::string talairachReferential();
-    static std::string commonScannerBasedReferential();
-    static std::string mniTemplateReferentialID();
-    static std::string acPcReferentialID();
-    static std::string commonScannerBasedReferentialID();
-  };
-
 string StandardReferentials::mniTemplateReferential()
 {
   return "Talairach-MNI template-SPM";
@@ -120,9 +105,12 @@ string StandardReferentials::commonScannerBasedReferentialID()
   return "a397f441-a525-298a-c8f9-26011047eadf";
 }
 
-  string NiftiReferential(int xform_code)
+namespace soma
+{
+
+  string NiftiReferential( int xform_code )
   {
-    switch ( xform_code )
+    switch( xform_code )
     {
     case NIFTI_XFORM_UNKNOWN:
       // No transformation is provided, this should never be returned.
@@ -147,21 +135,22 @@ string StandardReferentials::commonScannerBasedReferentialID()
     }
   }
 
-  int NiftiReferential(string ref)
+  int NiftiReferential( const std::string&  ref )
   {
-    if (ref == "Scanner-based anatomical coordinates")
+    if( ref == "Scanner-based anatomical coordinates" )
       return NIFTI_XFORM_SCANNER_ANAT;
-    else if (ref == "Coordinates aligned to another file or to anatomical truth")
+    else if( ref 
+        == "Coordinates aligned to another file or to anatomical truth" )
       return NIFTI_XFORM_ALIGNED_ANAT;
-    else if (ref == StandardReferentials::acPcReferential())
+    else if( ref == StandardReferentials::acPcReferential() )
       return NIFTI_XFORM_TALAIRACH;
-    else if (ref == StandardReferentials::mniTemplateReferential())
+    else if( ref == StandardReferentials::mniTemplateReferential() )
       return NIFTI_XFORM_MNI_152;
     else
       return NIFTI_XFORM_UNKNOWN;
   }
-
 }
+
 
 //============================================================================
 //   P R I V A T E   M E T H O D S

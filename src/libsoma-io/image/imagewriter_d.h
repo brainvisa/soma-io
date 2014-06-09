@@ -92,7 +92,7 @@ namespace soma
   }
   
   template <typename T>
-  DataSourceInfo ImageWriter<T>::writeHeader( DataSourceInfo dsi, 
+  DataSourceInfo ImageWriter<T>::writeHeader( DataSourceInfo & dsi, 
                                               carto::Object /*options*/ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource();

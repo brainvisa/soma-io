@@ -46,8 +46,10 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-namespace soma {
-  namespace {
+namespace soma
+{
+  namespace
+  {
     bool initnifti()
     {
       new NiftiPlugin;

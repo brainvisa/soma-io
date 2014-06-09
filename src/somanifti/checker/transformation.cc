@@ -134,6 +134,30 @@ void AffineTransformation3d::setToIdentity()
 
 
 //-----------------------------------------------------------------------------
+bool AffineTransformation3d::operator == (
+  const AffineTransformation3d & other )
+{
+  static float eps = 1e-5;
+  return fabs( matrix[0] - other.matrix[0] ) < eps
+      && fabs( matrix[1] - other.matrix[1] ) < eps
+      && fabs( matrix[2] - other.matrix[2] ) < eps
+      && fabs( matrix[3] - other.matrix[3] ) < eps
+      && fabs( matrix[4] - other.matrix[4] ) < eps
+      && fabs( matrix[5] - other.matrix[5] ) < eps
+      && fabs( matrix[6] - other.matrix[6] ) < eps
+      && fabs( matrix[7] - other.matrix[7] ) < eps
+      && fabs( matrix[8] - other.matrix[8] ) < eps
+      && fabs( matrix[9] - other.matrix[9] ) < eps
+      && fabs( matrix[10] - other.matrix[10] ) < eps
+      && fabs( matrix[11] - other.matrix[11] ) < eps
+      && fabs( matrix[12] - other.matrix[12] ) < eps
+      && fabs( matrix[13] - other.matrix[13] ) < eps
+      && fabs( matrix[14] - other.matrix[14] ) < eps
+      && fabs( matrix[15] - other.matrix[15] ) < eps;
+}
+
+
+//-----------------------------------------------------------------------------
 AffineTransformation3d AffineTransformation3d::inverse() const
 {
   AffineTransformation3d AffineTransformation3d;

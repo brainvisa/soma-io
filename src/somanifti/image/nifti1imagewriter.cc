@@ -32,7 +32,8 @@
  */
 
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/image/gisimagewriter_d.h>
+#include <soma-io/image/nifti1imagewriter_d.h>
+#include <soma-io/checker/nifti1formatchecker.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 //--- cartobase --------------------------------------------------------------
@@ -44,16 +45,16 @@
 using namespace soma;
 using namespace carto;
 
-template class GisImageWriter<int8_t>;
-template class GisImageWriter<int16_t>;
-template class GisImageWriter<int32_t>;
-template class GisImageWriter<int64_t>;
-template class GisImageWriter<uint8_t>;
-template class GisImageWriter<uint16_t>;
-template class GisImageWriter<uint32_t>;
-template class GisImageWriter<uint64_t>;
-template class GisImageWriter<float>;
-template class GisImageWriter<double>;
-template class GisImageWriter<VoxelRGB>;
-template class GisImageWriter<VoxelRGBA>;
-template class GisImageWriter<VoxelHSV>;
+template class Nifti1ImageWriter<int8_t>;
+template class Nifti1ImageWriter<int16_t>;
+template class Nifti1ImageWriter<int32_t>;
+template class Nifti1ImageWriter<int64_t>;
+template class Nifti1ImageWriter<uint8_t>;
+template class Nifti1ImageWriter<uint16_t>;
+template class Nifti1ImageWriter<uint32_t>;
+template class Nifti1ImageWriter<uint64_t>;
+template class Nifti1ImageWriter<float>;
+template class Nifti1ImageWriter<double>;
+template class Nifti1ImageWriter<VoxelRGB>;
+template class Nifti1ImageWriter<VoxelRGBA>;
+template class Nifti1ImageWriter<VoxelHSV>;

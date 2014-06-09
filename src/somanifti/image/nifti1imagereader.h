@@ -35,14 +35,12 @@
 #define SOMAIO_IMAGE_NIFTI1IMAGEREADER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/image/imagereader.h>                             // heritage
-#include <soma-io/datasource/chaindatasource.h>                    // heritage
-#include <soma-io/reader/itemreader.h>                      // read + byteswap
+#include <soma-io/image/imagereader.h>
+#include <soma-io/datasource/chaindatasource.h>
 #include <soma-io/checker/nifti1structwrapper.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 //--- system -----------------------------------------------------------------
-#include <memory>
 #include <vector>
 //----------------------------------------------------------------------------
 

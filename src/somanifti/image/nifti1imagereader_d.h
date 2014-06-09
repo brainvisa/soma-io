@@ -41,11 +41,11 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
 #include <soma-io/datasource/filedatasource.h>          // used by clone()
 #include <soma-io/datasource/datasource.h>
-#include <soma-io/datasource/chaindatasource.h>         // inheritance
-#include <soma-io/reader/itemreader.h>                  // read + byteswap
 #include <soma-io/checker/transformation.h>
+#include <soma-io/nifticlib/niftilib/nifti1_io.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
+#include <cartobase/type/voxelrgb.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -139,7 +139,7 @@ namespace soma
   // specialize RGB and RGBA
 
   template <>
-  void Nifti1ImageReader<VoxelRGB>::read( VoxelRGB * dest,
+  void Nifti1ImageReader<carto::VoxelRGB>::read( carto::VoxelRGB * dest,
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
@@ -153,16 +153,16 @@ namespace soma
     dsi.header()->getProperty( "disk_data_type", dt );
 
     if( dt == "RGB" )
-      readType<VoxelRGB>( dest, dsi, pos, size, stride, options );
+      readType<carto::VoxelRGB>( dest, dsi, pos, size, stride, options );
     else if( dt == "RGBA" )
-      readType<VoxelRGBA>( dest, dsi, pos, size, stride, options );
+      readType<carto::VoxelRGBA>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
   }
 
 
   template <>
-  void Nifti1ImageReader<VoxelRGBA>::read( VoxelRGBA * dest,
+  void Nifti1ImageReader<carto::VoxelRGBA>::read( carto::VoxelRGBA * dest,
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
@@ -176,9 +176,9 @@ namespace soma
     dsi.header()->getProperty( "disk_data_type", dt );
 
     if( dt == "RGB" )
-      readType<VoxelRGB>( dest, dsi, pos, size, stride, options );
+      readType<carto::VoxelRGB>( dest, dsi, pos, size, stride, options );
     else if( dt == "RGBA" )
-      readType<VoxelRGBA>( dest, dsi, pos, size, stride, options );
+      readType<carto::VoxelRGBA>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
   }

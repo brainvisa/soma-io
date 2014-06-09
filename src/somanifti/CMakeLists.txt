@@ -4,8 +4,8 @@ set( _headers
   checker/transformation.h
   image/nifti1imagereader.h
   image/nifti1imagereader_d.h
-#   image/nifti1imagewriter.h
-#   image/nifti1imagewriter_d.h
+  image/nifti1imagewriter.h
+  image/nifti1imagewriter_d.h
   nifticlib/znzlib/znzlib.h
   nifticlib/niftilib/nifti1.h
   nifticlib/niftilib/nifti1_io.h
@@ -17,7 +17,7 @@ set( _sources
   checker/transformation.cc
   checker/inversion_lu.cc
   image/nifti1imagereader.cc
-#   image/nifti1imagewriter.cc
+  image/nifti1imagewriter.cc
   nifticlib/znzlib/znzlib.c
   nifticlib/niftilib/nifti1_io.c
   plugin/niftiplugin.cc
