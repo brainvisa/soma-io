@@ -485,7 +485,8 @@ SyntaxSet & DataSourceInfoLoader::minfSyntax()
 }
 
 
-Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base, Object options )
+Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base,
+                                       Object options )
 {
   Object  minf;
   if( base.get() )
@@ -507,8 +508,9 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base, Object opti
   else {
     localMsg( "Read minf using default options ..." );
     opts = Object::value( PropertySet() );
-    opts->setProperty( "syntaxset", minfSyntax() );
   }
+  if( !opts->hasProperty( "syntaxset" ) )
+    opts->setProperty( "syntaxset", minfSyntax() );
 
   try {
     Reader<GenericObject>	rg( filename );
