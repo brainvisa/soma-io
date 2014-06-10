@@ -32,6 +32,12 @@ if( DCMTK_FOUND AND JASPER_FOUND )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
 endif()
 
+find_package( ZLIB )
+if( ZLIB_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS zlib RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS zlib DEV )
+endif()
+
 # Python is required for the DICOM conversion script
 # It should be made optional
 find_package( python REQUIRED )
@@ -92,7 +98,9 @@ include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 add_subdirectory( src/libcartobase )
 add_subdirectory( src/libsoma-io )
 add_subdirectory( src/somagis )
-add_subdirectory( src/somanifti )
+if( ZLIB_FOUND )
+  add_subdirectory( src/somanifti )
+endif()
 if( OPENSLIDE_FOUND )
   add_subdirectory( src/somaopenslide )
 endif()

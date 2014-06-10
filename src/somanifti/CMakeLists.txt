@@ -31,7 +31,7 @@ set(SOMANIFTI_HEADERS ${_headers} PARENT_SCOPE)
 add_library( somanifti SHARED ${_sources} )
 add_dependencies( somanifti ${headersTarget} )
 set_property( TARGET somanifti PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( somanifti soma-io cartobase )
+target_link_libraries( somanifti soma-io cartobase ${ZLIB_LIBRARIES} )
 BRAINVISA_INSTALL( TARGETS somanifti
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
