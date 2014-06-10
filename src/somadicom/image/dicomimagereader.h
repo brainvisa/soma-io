@@ -31,61 +31,50 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/plugin/dicomplugin.h>
-#include <soma-io/checker/dicomformatchecker.h>
-//--- soma-io ------------------------------------------------------------------
+#ifndef SOMAIO_IMAGE_DICOMIMAGEREADER_H
+#define SOMAIO_IMAGE_DICOMIMAGEREADER_H
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>
-//--- system -------------------------------------------------------------------
+#include <soma-io/image/imagereader.h>                             // heritage
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>                        // header, options
+//--- system -----------------------------------------------------------------
+#include <memory>
 #include <vector>
-#include <string>
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-using namespace soma;
-using namespace carto;
-using namespace std;
-
-namespace soma {
-  namespace {
-    bool initDicom()
-    {
-      new DicomPlugin;
-      return true;
-    }
-    bool dicominit = initDicom();
-  }
-}
-
-DicomPlugin::DicomPlugin() : Plugin()
+namespace soma
 {
-    vector<string> exts( 3 );
-    exts[0]=".dcm";
-    exts[1]=".dic";
-    exts[2]="";
-    
-    ////////////////////////////////////////////////////////////////////////////
-    ////                          C H E C K E R                             ////
-    ////////////////////////////////////////////////////////////////////////////
-    
-    DataSourceInfoLoader::registerFormat( "DICOM", new DicomFormatChecker, exts );
-    
+  class DataSourceInfo;
+
+  /// ImageReader for GIS files.
+  template<typename T>
+  class DicomImageReader : public ImageReader<T>
+  {
+    public:
+      //======================================================================
+      //   C O N S T R U C T O R S
+      //======================================================================
+      DicomImageReader();
+      virtual ~DicomImageReader();
+
+      //======================================================================
+      //   I M A G E R E A D E R
+      //======================================================================
+      virtual void read( T * dest, DataSourceInfo & dsi,
+                         std::vector<int> & pos,
+                         std::vector<int> & size,
+                         std::vector<int> & stride,
+                         carto::Object options = carto::none() );
+
+      virtual void updateParams( DataSourceInfo & dsi );
+      virtual void resetParams();
+      virtual ImageReader<T>* cloneReader() const;
+
+    protected:
+      std::vector<std::vector<int> >  _sizes;
+  };
+
 }
 
-
-DicomPlugin::~DicomPlugin()
-{
-}
-
-
-string DicomPlugin::name() const
-{
-  return string("DICOM SOMA-IO");
-}
-
-
-bool DicomPlugin::noop()
-{
-  return true;
-}
-
+#endif

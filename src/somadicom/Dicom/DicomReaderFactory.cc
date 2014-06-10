@@ -59,11 +59,58 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
 }
 
 
-bool soma::DicomReaderFactory::read( std::string manufacturer,
-                                     std::string storageUID,
-                                     soma::Directory& directory,
-                                     soma::Data& data,
-                                     soma::Callback* progress )
+bool soma::DicomReaderFactory::check( std::string manufacturer,
+                                      std::string storageUID,
+                                      soma::DirectoryParser& directory,
+                                      std::vector< std::string >& fileList,
+                                      soma::DataInfo& dataInfo )
+{
+
+  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+
+  if ( reader )
+  {
+
+    fileList = reader->check( directory, dataInfo );
+
+    return true;
+
+  }
+
+  std::cout << "Reader for this dataset not supported yet" << std::endl;
+
+  return false;
+
+}
+
+
+bool soma::DicomReaderFactory::read( 
+                                    std::string manufacturer,
+                                    std::string storageUID,
+                                    const std::vector< std::string >& fileList,
+                                    soma::Data& data,
+                                    soma::Callback* progress )
+{
+
+  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+
+  if ( reader )
+  {
+
+    return reader->read( fileList, data, progress );
+
+  }
+
+  std::cout << "Reader for this dataset not supported yet" << std::endl;
+
+  return false;
+
+}
+
+
+soma::DicomReader* soma::DicomReaderFactory::getReader(
+                                                      std::string manufacturer,
+                                                      std::string storageUID )
 {
 
   std::map< std::string, std::map< std::string,
@@ -100,14 +147,12 @@ bool soma::DicomReaderFactory::read( std::string manufacturer,
     if ( r != m->second.end() )
     {
 
-      return r->second->read( directory, data, progress );
+      return r->second;
 
     }
 
   }
 
-  std::cout << "Reader for this dataset not supported yet" << std::endl;
-
-  return false;
+  return 0;
 
 }

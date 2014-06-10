@@ -135,6 +135,8 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
+    setOrientation( m_dataInfo );
+
     return true;
 
   }
@@ -149,7 +151,6 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::Data& data,
 {
 
   soma::DataInfo dataInfo( m_dataInfo );
-  setOrientation( dataInfo );
 
   if ( data.Create( dataInfo ) )
   {

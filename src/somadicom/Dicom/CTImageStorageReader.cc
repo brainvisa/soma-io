@@ -23,14 +23,21 @@ std::string soma::CTImageStorageReader::getStorageUID()
 }
 
 
-bool soma::CTImageStorageReader::readData( soma::Data& data,
-                                           soma::Callback* progress )
+bool soma::CTImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   m_dataInfo.m_slices = int32_t( m_slices.size() );
 
+  return soma::MultiFileReader::readHeader( dataset );
+
+}
+
+
+bool soma::CTImageStorageReader::readData( soma::Data& data,
+                                           soma::Callback* progress )
+{
+
   soma::DataInfo dataInfo( m_dataInfo );
-  setOrientation( dataInfo );
 
   if ( data.Create( dataInfo ) )
   {
@@ -40,8 +47,8 @@ bool soma::CTImageStorageReader::readData( soma::Data& data,
                                     false,
                                     progress );
     carto::ThreadedLoop threadedLoop( &context,
-                                     0,
-                                     int32_t( m_slices.size() ) );
+                                      0,
+                                      int32_t( m_slices.size() ) );
 
     threadedLoop.launch();
 

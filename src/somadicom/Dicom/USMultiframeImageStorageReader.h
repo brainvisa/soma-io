@@ -2,6 +2,7 @@
 #define _USMultiframeImageStorageReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/USReader.h>
 
 

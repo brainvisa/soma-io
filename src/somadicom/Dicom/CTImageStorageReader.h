@@ -2,6 +2,7 @@
 #define _CTImageStorageReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MultiFileReader.h>
 
 
@@ -20,6 +21,7 @@ class CTImageStorageReader : public MultiFileReader
 
     CTImageStorageReader();
 
+    virtual bool readHeader( DcmDataset* dataset );
     virtual bool readData( Data& data, Callback* progress = 0 );
 
 };

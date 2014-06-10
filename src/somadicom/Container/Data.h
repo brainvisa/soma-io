@@ -2,6 +2,7 @@
 #define _Data_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Container/DataInfo.h>
 
 #include <vector>
@@ -17,6 +18,7 @@ class Data
   public:
 
     Data();
+    Data( uint8_t* ptr );
     ~Data();
 
     bool Create( const DataInfo& info );
@@ -30,6 +32,7 @@ class Data
     DataInfo m_info;
 
     uint8_t* m_data;
+    bool m_dataOwner;
 
     std::vector< std::vector< std::vector< uint8_t* > > > m_lineAccess;
 

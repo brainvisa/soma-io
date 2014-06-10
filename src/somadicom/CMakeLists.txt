@@ -1,6 +1,5 @@
-# BRAINVISA_GET_FILE_LIST_FROM_PRO( ${CMAKE_CURRENT_SOURCE_DIR}/dicom.pro "HEADERS" _headers "SOURCES" _sources )
-
 set( _headers
+  checker/dicomformatchecker.h
   Container/Data.h
   Container/DataInfo.h
   Container/DatasetHeader.h
@@ -43,6 +42,8 @@ set( _headers
   Dicom/USImageStorageReader.h
   Dicom/USMultiframeImageStorageReader.h
   Dicom/USReader.h
+  image/dicomimagereader.h
+  image/dicomimagereader_d.h
   Pattern/Callback.h
   Pattern/Singleton.h
   plugin/dicomplugin.h
@@ -55,6 +56,7 @@ set( _headers
 )
 
 set( _sources
+  checker/dicomformatchecker.cc
   Container/Data.cc
   Container/DataInfo.cc
   Container/DatasetHeader.cc
@@ -99,6 +101,7 @@ set( _sources
   Dicom/USImageStorageReader.cc
   Dicom/USMultiframeImageStorageReader.cc
   Dicom/USReader.cc
+  image/dicomimagereader.cc
   Pattern/Callback.cc
   plugin/dicomplugin.cc
   System/Directory.cc
@@ -111,7 +114,7 @@ set( _sources
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMADICOM_HEADERS ${_headers} PARENT_SCOPE)
-add_library( somadicom MODULE ${_sources} )
+add_library( somadicom SHARED ${_sources} )
 add_dependencies( somadicom ${headersTarget} )
 if( NOT APPLE )
   # Setting VERSION or SOVERSION on a MODULE cause a link error on MacOS 10.5 with cmake 2.6:
@@ -120,7 +123,7 @@ if( NOT APPLE )
 else()
   set_property( TARGET somadicom PROPERTY OUTPUT_NAME somadicom.${${PROJECT_NAME}_VERSION} )
 endif()
-target_link_libraries( somadicom soma-io cartobase )
+target_link_libraries( somadicom soma-io cartobase ${DCMTK_LIBRARIES} ${JASPER_LIBRARIES} ${TIFF_LIBRARIES} ${PNG12_LIBRARIES})
 BRAINVISA_INSTALL( TARGETS somadicom
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )

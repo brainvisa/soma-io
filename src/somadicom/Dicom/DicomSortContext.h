@@ -2,6 +2,7 @@
 #define _DicomSortContext_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/SortInformation.h>
 #include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>

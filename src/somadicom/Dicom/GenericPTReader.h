@@ -2,6 +2,7 @@
 #define _GenericPTReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/PTImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
 

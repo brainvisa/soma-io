@@ -2,6 +2,7 @@
 #define _GenericMRReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MRImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
 

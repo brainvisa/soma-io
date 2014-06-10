@@ -2,6 +2,7 @@
 #define _GenericNMReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/NMImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
 

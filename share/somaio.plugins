@@ -3,5 +3,6 @@ attributes = {
     'libsomaopenslide.so',
     'libsomagis.so',
 #    'libsomanifti.so',
+#    'libsomadicom.so'
   ], 
 }

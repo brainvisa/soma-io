@@ -9,6 +9,7 @@
 #include <dcmtk/dcmdata/dcpixel.h>
 #include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
+#include <dcmtk/dcmimage/diregist.h>
 
 
 soma::MosaicDataContext::MosaicDataContext( 

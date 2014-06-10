@@ -5,7 +5,15 @@
 
 
 soma::Data::Data()
-          : m_data( 0 )
+          : m_data( 0 ),
+            m_dataOwner( true )
+{
+}
+
+
+soma::Data::Data( uint8_t* ptr )
+          : m_data( ptr ),
+            m_dataOwner( false )
 {
 }
 
@@ -24,7 +32,12 @@ bool soma::Data::Create( const soma::DataInfo& info )
   m_info = info;
   m_info.initialize();
 
-  m_data = new uint8_t[ m_info.m_datasetSize * m_info.m_bpp ];
+  if ( m_dataOwner )
+  {
+
+    m_data = new uint8_t[ m_info.m_datasetSize * m_info.m_bpp ];
+
+  }
 
   if ( !m_data )
   {
@@ -75,7 +88,12 @@ bool soma::Data::Create( const soma::DataInfo& info )
 void soma::Data::Destroy()
 {
 
-  delete[] m_data;
+  if ( m_dataOwner )
+  {
+
+    delete[] m_data;
+
+  }
 
   m_info.clear();
   m_lineAccess.clear();

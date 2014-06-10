@@ -2,6 +2,7 @@
 #define _PatientOrientation_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Transformation/AxialTransformation3d.h>
 #include <soma-io/Transformation/DicomTransformation3d.h>
 #include <soma-io/Utils/StdInt.h>

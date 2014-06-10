@@ -2,6 +2,7 @@
 #define _GenericUSMultiframeReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/USMultiframeImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
 

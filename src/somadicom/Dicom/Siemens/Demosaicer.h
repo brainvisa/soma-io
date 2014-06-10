@@ -2,11 +2,13 @@
 #define _Demosaicer_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Utils/StdInt.h>
 #include <soma-io/Dicom/soma_osconfig.h>
 
 #include <dcmtk/dcmimgle/dcmimage.h>
+#include <dcmtk/dcmimage/diregist.h>
 
 
 namespace soma

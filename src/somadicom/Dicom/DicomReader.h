@@ -2,6 +2,7 @@
 #define _DicomReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Container/DataInfo.h>
 
 #include <string>
@@ -15,7 +16,7 @@ namespace soma
 {
 
 
-class Directory;
+class DirectoryParser;
 class Data;
 class Callback;
 
@@ -31,7 +32,9 @@ class DicomReader
     virtual std::string getManufacturerName();
     virtual std::string getStorageUID() = 0;
 
-    virtual bool read( Directory& directory, 
+    virtual std::vector< std::string > check( DirectoryParser& directory,
+                                              DataInfo& dataInfo );
+    virtual bool read( const std::vector< std::string >& fileList, 
                        Data& data,
                        Callback* progress = 0 );
 

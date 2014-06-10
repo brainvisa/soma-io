@@ -8,6 +8,7 @@
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
+#include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcpixel.h>
 #include <dcmtk/dcmdata/dcxfer.h>
 
@@ -30,12 +31,39 @@ std::string soma::DicomReader::getManufacturerName()
 }
 
 
-bool soma::DicomReader::read( Directory& directory, 
+std::vector< std::string > soma::DicomReader::check( 
+                                                   soma::DirectoryParser& directory,
+                                                   soma::DataInfo& dataInfo )
+{
+
+  std::vector< std::string > fileList;
+  std::string selectedFile = directory.getSelectedFile();
+
+  if ( !selectedFile.empty() )
+  {
+
+    initialize();
+
+    if ( readHeader( selectedFile ) )
+    {
+
+      fileList.push_back( selectedFile );
+      dataInfo = m_dataInfo;
+      dataInfo.initialize();
+
+    }
+
+  }
+
+  return fileList;
+
+}
+
+
+bool soma::DicomReader::read( const std::vector< std::string >& fileList, 
                               soma::Data& data, 
                               soma::Callback* progress )
 {
-
-  initialize();
 
   if ( progress )
   {
@@ -44,44 +72,29 @@ bool soma::DicomReader::read( Directory& directory,
 
   }
 
-  std::string selectedFile = directory.getSelectedFile();
-
-  if ( !selectedFile.empty() )
+  if ( !fileList.empty() )
   {
 
-    m_slices.push_back( selectedFile );
+    m_slices.push_back( fileList.front() );
 
     if ( progress )
     {
 
-      progress->execute( 3 );
+      progress->execute( 6 );
 
     }
 
-    // read global information from selected image
-    if ( readHeader( selectedFile ) )
+    // read datset
+    bool status = readData( data, progress );
+
+    if ( progress )
     {
 
-      if ( progress )
-      {
-
-        progress->execute( 6 );
-
-      }
-
-      // read datset
-      bool status = readData( data, progress );
-
-      if ( progress )
-      {
-
-        progress->execute( 100 );
-
-      }
-
-      return status;
+      progress->execute( 100 );
 
     }
+
+    return status;
 
   }
 

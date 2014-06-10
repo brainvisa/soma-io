@@ -2,11 +2,13 @@
 #define _MultiSliceContext_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
+#include <dcmtk/dcmimage/diregist.h>
 
 
 namespace soma

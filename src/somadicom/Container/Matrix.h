@@ -2,6 +2,8 @@
 #define _Matrix_h_
 
 
+#include <soma-io/config/soma_config.h>
+
 #include <soma-io/Container/Vector.h>
 
 

@@ -32,7 +32,6 @@ bool soma::PTImageStorageReader::readData( soma::Data& data,
 {
 
   soma::DataInfo dataInfo( m_dataInfo );
-  setOrientation( dataInfo );
 
   if ( data.Create( dataInfo ) )
   {

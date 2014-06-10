@@ -12,6 +12,7 @@
 #include <dcmtk/dcmdata/dcrledrg.h>
 #include <dcmtk/dcmjpeg/djdecode.h>
 #include <dcmtk/dcmjpls/djdecode.h>
+#include <dcmtk/dcmimage/diregist.h>
 
 #include <sstream>
 #include <cmath>
@@ -24,7 +25,7 @@ soma::DicomIO::DicomIO()
 
   DcmRLEDecoderRegistration::registerCodecs();
   DJDecoderRegistration::registerCodecs();
-  DJLSDecoderRegistration::registerCodecs();
+  //DJLSDecoderRegistration::registerCodecs();
   DJ2KDecoderRegistration::registerCodecs();
 
 }
@@ -34,52 +35,105 @@ soma::DicomIO::~DicomIO()
 {
 
   DJ2KDecoderRegistration::cleanup();
-  DJLSDecoderRegistration::cleanup();
   DJDecoderRegistration::cleanup();
+  //DJLSDecoderRegistration::cleanup();
   DcmRLEDecoderRegistration::cleanup();
 
 }
 
 
-bool soma::DicomIO::read( const std::string& fileName, 
-                          soma::Data& data,
-                          soma::Callback* progress )
+std::vector< std::string > soma::DicomIO::check( const std::string& fileName,
+                                                 soma::DataInfo& dataInfo )
 {
 
-  soma::Directory directory( fileName );
+  soma::DirectoryParser directory( fileName );
   std::string selectedFile = directory.getSelectedFile();
+  std::vector< std::string > fileList;
 
   if ( !selectedFile.empty() )
   {
 
-    DcmFileFormat fileFormat;
+    std::string manufacturer;
+    std::string sopClassUid;
 
-    if ( fileFormat.loadFile( fileName.c_str() ).good() )
+    if ( getInfo( selectedFile, manufacturer, sopClassUid ) )
     {
 
-      OFString manufacturer;
-      OFString sopUID;
+      soma::DicomReaderFactory::getInstance().check( manufacturer,
+                                                     sopClassUid, 
+                                                     directory, 
+                                                     fileList,
+                                                     dataInfo );
 
-      if ( fileFormat.getDataset()->findAndGetOFString( DCM_Manufacturer, 
-                                                        manufacturer ).bad() )
-      {
+    }
 
-        manufacturer = "Generic";
+  }
 
-      }
+  return fileList;
 
-      if ( fileFormat.getDataset()->findAndGetOFString( DCM_SOPClassUID, 
-                                                        sopUID ).good() )
-      {
+}
 
-        return soma::DicomReaderFactory::getInstance().read( 
-                                                           manufacturer.c_str(),
-                                                           sopUID.c_str(), 
-                                                           directory, 
+
+bool soma::DicomIO::read( const std::vector< std::string >& fileList, 
+                          soma::Data& data,
+                          soma::Callback* progress )
+{
+
+  if ( !fileList.empty() )
+  {
+
+    std::string manufacturer;
+    std::string sopClassUid;
+
+    if ( getInfo( fileList.front(), manufacturer, sopClassUid ) )
+    {
+
+      return soma::DicomReaderFactory::getInstance().read( manufacturer,
+                                                           sopClassUid, 
+                                                           fileList, 
                                                            data,
                                                            progress );
 
-      }
+    }
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::DicomIO::getInfo( const std::string& filename, 
+                             std::string& manufacturer,
+                             std::string& sopClassUid )
+{
+
+  DcmFileFormat fileFormat;
+
+  manufacturer = "Generic";
+
+  if ( fileFormat.loadFile( filename.c_str() ).good() )
+  {
+
+    OFString manufacturerStr;
+    OFString sopUID;
+
+    if ( fileFormat.getDataset()->findAndGetOFString( 
+                                                     DCM_Manufacturer, 
+                                                     manufacturerStr ).good() )
+    {
+
+      manufacturer = manufacturerStr.c_str();
+
+    }
+
+    if ( fileFormat.getDataset()->findAndGetOFString( DCM_SOPClassUID, 
+                                                      sopUID ).good() )
+    {
+
+      sopClassUid = sopUID.c_str();
+
+      return true;
 
     }
 

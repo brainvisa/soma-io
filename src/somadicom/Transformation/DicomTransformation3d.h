@@ -2,6 +2,7 @@
 #define _DicomTransformation3d_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Transformation/Transformation3d.h>
 
 

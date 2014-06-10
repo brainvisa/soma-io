@@ -2,6 +2,7 @@
 #define _NMImageStorageReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/DicomReader.h>
 
 

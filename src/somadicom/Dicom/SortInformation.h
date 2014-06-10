@@ -2,6 +2,7 @@
 #define _SortInformation_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Utils/StdInt.h>
 

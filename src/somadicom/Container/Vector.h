@@ -2,6 +2,8 @@
 #define _Vector_h_
 
 
+#include <soma-io/config/soma_config.h>
+
 #include <iostream>
 
 

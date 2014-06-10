@@ -2,6 +2,7 @@
 #define _GenericCTReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/CTImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
 

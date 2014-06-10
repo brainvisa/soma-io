@@ -2,6 +2,8 @@
 #define _Directory_h_
 
 
+#include <soma-io/config/soma_config.h>
+
 #include <string>
 #include <vector>
 
@@ -10,12 +12,12 @@ namespace soma
 {
 
 
-class Directory
+class DirectoryParser
 {
 
   public:
 
-    Directory( const std::string& name );
+    DirectoryParser( const std::string& name );
 
     std::string& getSelectedFile();
     std::string& getSelectedDirectory();

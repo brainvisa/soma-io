@@ -31,61 +31,37 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/plugin/dicomplugin.h>
-#include <soma-io/checker/dicomformatchecker.h>
-//--- soma-io ------------------------------------------------------------------
+#ifndef SOMAIO_CHECKER_DICOMFORMATCHECKER_H
+#define SOMAIO_CHECKER_DICOMFORMATCHECKER_H
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>
-//--- system -------------------------------------------------------------------
-#include <vector>
-#include <string>
-//------------------------------------------------------------------------------
+#include <soma-io/checker/formatchecker.h>
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>
+//----------------------------------------------------------------------------
 
-using namespace soma;
-using namespace carto;
-using namespace std;
-
-namespace soma {
-  namespace {
-    bool initDicom()
-    {
-      new DicomPlugin;
-      return true;
-    }
-    bool dicominit = initDicom();
-  }
-}
-
-DicomPlugin::DicomPlugin() : Plugin()
+namespace soma
 {
-    vector<string> exts( 3 );
-    exts[0]=".dcm";
-    exts[1]=".dic";
-    exts[2]="";
-    
-    ////////////////////////////////////////////////////////////////////////////
-    ////                          C H E C K E R                             ////
-    ////////////////////////////////////////////////////////////////////////////
-    
-    DataSourceInfoLoader::registerFormat( "DICOM", new DicomFormatChecker, exts );
-    
+  class DataSource;
+  class DataSourceList;
+  class DataSourceInfoLoader;
+  class DataSourceInfo;
+
+  /// FormatChecker for DICOM files.
+  class DicomFormatChecker : public FormatChecker
+  {
+    public:
+      virtual DataSourceInfo check( DataSourceInfo dsi, 
+                                    DataSourceInfoLoader & f,
+                                    carto::Object options = carto::none() )
+                                    const;
+      virtual ~DicomFormatChecker();
+
+    protected:
+      carto::Object  _buildDSList( DataSourceList & dsl ) const;
+  };
+
 }
 
-
-DicomPlugin::~DicomPlugin()
-{
-}
-
-
-string DicomPlugin::name() const
-{
-  return string("DICOM SOMA-IO");
-}
-
-
-bool DicomPlugin::noop()
-{
-  return true;
-}
+#endif
 

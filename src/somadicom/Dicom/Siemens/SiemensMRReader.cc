@@ -16,9 +16,18 @@
 soma::SiemensMRReader::SiemensMRReader()
                      : soma::MRImageStorageReader(),
                        soma::Singleton< soma::SiemensMRReader >(),
+                       m_demosaicer( 0 ),
                        m_mosaic( false ),
                        m_sliceCount( 1 )
 {
+}
+
+
+soma::SiemensMRReader::~SiemensMRReader()
+{
+
+  delete m_demosaicer;
+
 }
 
 
@@ -62,6 +71,27 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 
     }
 
+    if ( m_demosaicer )
+    {
+
+      delete m_demosaicer;
+
+    }
+
+    m_demosaicer = new soma::Demosaicer( m_dataInfo.m_rowVec,
+                                         m_dataInfo.m_colVec,
+                                         m_dataInfo.m_width,
+                                         m_dataInfo.m_height,
+                                         m_dataInfo.m_slices,
+                                         m_sliceCount,
+                                         m_dataInfo.m_pixelSpacingX,
+                                         m_dataInfo.m_pixelSpacingY,
+                                         m_dataInfo.m_spacingBetweenSlices );
+
+    m_demosaicer->getSize( m_dataInfo.m_width, 
+                           m_dataInfo.m_height,
+                           m_dataInfo.m_slices );
+
     return soma::MRImageStorageReader::readHeader( dataset );
 
   }
@@ -82,39 +112,30 @@ bool soma::SiemensMRReader::readData( soma::Data& data,
 
   }
 
-  soma::DataInfo dataInfo( m_dataInfo );
-  soma::Demosaicer demosaicer( dataInfo.m_rowVec,
-                               dataInfo.m_colVec,
-                               dataInfo.m_width,
-                               dataInfo.m_height,
-                               dataInfo.m_slices,
-                               m_sliceCount,
-                               dataInfo.m_pixelSpacingX,
-                               dataInfo.m_pixelSpacingY,
-                               dataInfo.m_spacingBetweenSlices );
-
-  demosaicer.getSize( dataInfo.m_width, 
-                      dataInfo.m_height,
-                      dataInfo.m_slices );
-  setOrientation( dataInfo );
-
-  soma::Vector origin = demosaicer.demosaic( m_origin );
-  dataInfo.m_patientOrientation.setOrigin( origin );
-
-  if ( data.Create( dataInfo ) )
+  if ( m_demosaicer )
   {
 
-    soma::MosaicDataContext context( m_slices, 
-                                     data, 
-                                     demosaicer,
-                                     progress );
-    carto::ThreadedLoop threadedLoop( &context,
-                                     0,
-                                     int32_t( m_slices.size() ) );
+    soma::DataInfo dataInfo( m_dataInfo );
 
-    threadedLoop.launch();
+    soma::Vector origin = m_demosaicer->demosaic( m_origin );
+    dataInfo.m_patientOrientation.setOrigin( origin );
 
-    return true;
+    if ( data.Create( dataInfo ) )
+    {
+
+      soma::MosaicDataContext context( m_slices, 
+                                       data, 
+                                       *m_demosaicer,
+                                       progress );
+      carto::ThreadedLoop threadedLoop( &context,
+                                        0,
+                                        int32_t( m_slices.size() ) );
+
+      threadedLoop.launch();
+
+      return true;
+
+    }
 
   }
 

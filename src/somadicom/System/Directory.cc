@@ -7,9 +7,9 @@
 #include <unistd.h>
 
 
-soma::Directory::Directory( const std::string& name )
-               : m_selectedFile( "" ),
-                 m_selectedDir( "" )
+soma::DirectoryParser::DirectoryParser( const std::string& name )
+                     : m_selectedFile( "" ),
+                       m_selectedDir( "" )
 {
 
   struct stat file_stat;
@@ -40,13 +40,30 @@ soma::Directory::Directory( const std::string& name )
       }
 
     }
+    else
+    {
+
+      m_selectedDir = ".";
+
+      size_t pos = name.find_last_of( "/" );
+
+      if ( pos != std::string::npos )
+      {
+
+        m_selectedDir = name.substr( 0, pos );
+
+      }
+
+      parse( m_selectedDir );
+
+    }
 
   }
 
 }
 
 
-bool soma::Directory::parse()
+bool soma::DirectoryParser::parse()
 {
 
   if ( !m_selectedDir.empty() )
@@ -65,7 +82,7 @@ bool soma::Directory::parse()
 }
 
 
-void soma::Directory::parse( const std::string& dirName )
+void soma::DirectoryParser::parse( const std::string& dirName )
 {
 
   if ( !dirName.empty() )
@@ -110,7 +127,7 @@ void soma::Directory::parse( const std::string& dirName )
 }
 
 
-std::string& soma::Directory::getSelectedFile()
+std::string& soma::DirectoryParser::getSelectedFile()
 {
 
   return m_selectedFile;
@@ -118,7 +135,7 @@ std::string& soma::Directory::getSelectedFile()
 }
 
 
-std::string& soma::Directory::getSelectedDirectory()
+std::string& soma::DirectoryParser::getSelectedDirectory()
 {
 
   return m_selectedDir;
@@ -126,7 +143,7 @@ std::string& soma::Directory::getSelectedDirectory()
 }
 
 
-std::vector< std::string >& soma::Directory::getFiles()
+std::vector< std::string >& soma::DirectoryParser::getFiles()
 {
 
   return m_files;

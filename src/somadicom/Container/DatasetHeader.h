@@ -2,6 +2,8 @@
 #define _DatasetHeader_h_
 
 
+#include <soma-io/config/soma_config.h>
+
 #include <soma-io/Utils/StdInt.h>
 
 

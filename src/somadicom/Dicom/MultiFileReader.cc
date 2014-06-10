@@ -17,12 +17,39 @@ soma::MultiFileReader::MultiFileReader()
 }
 
 
-bool soma::MultiFileReader::read( Directory& directory, 
+std::vector< std::string > soma::MultiFileReader::check(
+                                                   soma::DirectoryParser& directory,
+                                                   soma::DataInfo& dataInfo )
+{
+
+  std::vector< std::string > fileList;
+  std::string selectedFile = directory.getSelectedFile();
+
+  if ( !selectedFile.empty() )
+  {
+
+    initialize();
+
+    if ( soma::DicomReader::readHeader( selectedFile ) )
+    {
+
+      fileList = sortFiles( directory );
+      dataInfo = m_dataInfo;
+      dataInfo.initialize();
+
+    }
+
+  }
+
+  return fileList;
+
+}
+
+
+bool soma::MultiFileReader::read( const std::vector< std::string >& fileList, 
                                   soma::Data& data, 
                                   soma::Callback* progress )
 {
-
-  initialize();
 
   if ( progress )
   {
@@ -31,55 +58,29 @@ bool soma::MultiFileReader::read( Directory& directory,
 
   }
 
-  std::string selectedFile = directory.getSelectedFile();
-
-  if ( !selectedFile.empty() )
+  if ( !fileList.empty() )
   {
+
+    m_slices = fileList;
 
     if ( progress )
     {
 
-      progress->execute( 2 );
+      progress->execute( 6 );
 
     }
 
-    // read global information from selected image
-    if ( soma::DicomReader::readHeader( selectedFile ) )
+    // read all slices in the serie
+    bool status = readData( data, progress );
+
+    if ( progress )
     {
 
-      if ( progress )
-      {
-
-        progress->execute( 4 );
-
-      }
-
-      // order files according to location and repetition
-      if ( sortFiles( directory ) )
-      {
-
-        if ( progress )
-        {
-
-          progress->execute( 6 );
-
-        }
-
-        // read all slices in the serie
-        bool status = readData( data, progress );
-
-        if ( progress )
-        {
-
-          progress->execute( 100 );
-
-        }
-
-        return status;
-
-      }
+      progress->execute( 100 );
 
     }
+
+    return status;
 
   }
 
@@ -131,10 +132,15 @@ bool soma::MultiFileReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::MultiFileReader::sortFiles( soma::Directory& directory )
+std::vector< std::string > soma::MultiFileReader::sortFiles( 
+                                                   soma::DirectoryParser& directory )
 {
 
   bool process = true;
+
+  m_slices.clear();
+  m_positions.clear();
+  m_dataInfo.m_fileCount = 0;
 
   if ( directory.getFiles().empty() )
   {
@@ -147,10 +153,6 @@ bool soma::MultiFileReader::sortFiles( soma::Directory& directory )
   {
 
     int32_t nFiles = int32_t( directory.getFiles().size() );
-
-    m_slices.clear();
-    m_positions.clear();
-    m_dataInfo.m_fileCount = 0;
 
     std::multimap< double, soma::SortInformation > slices;
     soma::DicomSortContext context( m_seriesInstanceUID, 
@@ -233,10 +235,10 @@ bool soma::MultiFileReader::sortFiles( soma::Directory& directory )
 
     }
 
-    return true;
+    setOrientation( m_dataInfo );
 
   }
 
-  return false;
+  return m_slices;
 
 }

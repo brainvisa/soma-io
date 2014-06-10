@@ -31,61 +31,20 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -------------------------------------------------------------------
-#include <soma-io/plugin/dicomplugin.h>
-#include <soma-io/checker/dicomformatchecker.h>
-//--- soma-io ------------------------------------------------------------------
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/image/dicomimagereader_d.h>
+//--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>
-//--- system -------------------------------------------------------------------
-#include <vector>
-#include <string>
-//------------------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/type/types.h>
+#include <cartobase/type/voxelrgb.h>
+//----------------------------------------------------------------------------
 
 using namespace soma;
 using namespace carto;
-using namespace std;
 
-namespace soma {
-  namespace {
-    bool initDicom()
-    {
-      new DicomPlugin;
-      return true;
-    }
-    bool dicominit = initDicom();
-  }
-}
-
-DicomPlugin::DicomPlugin() : Plugin()
-{
-    vector<string> exts( 3 );
-    exts[0]=".dcm";
-    exts[1]=".dic";
-    exts[2]="";
-    
-    ////////////////////////////////////////////////////////////////////////////
-    ////                          C H E C K E R                             ////
-    ////////////////////////////////////////////////////////////////////////////
-    
-    DataSourceInfoLoader::registerFormat( "DICOM", new DicomFormatChecker, exts );
-    
-}
-
-
-DicomPlugin::~DicomPlugin()
-{
-}
-
-
-string DicomPlugin::name() const
-{
-  return string("DICOM SOMA-IO");
-}
-
-
-bool DicomPlugin::noop()
-{
-  return true;
-}
+template class DicomImageReader<int16_t>;
+template class DicomImageReader<uint8_t>;
+template class DicomImageReader<uint16_t>;
+template class DicomImageReader<VoxelRGB>;
 

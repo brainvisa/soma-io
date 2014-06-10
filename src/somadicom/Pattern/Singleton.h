@@ -2,6 +2,9 @@
 #define _Singleton_h_
 
 
+#include <soma-io/config/soma_config.h>
+
+
 namespace soma
 {
 

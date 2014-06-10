@@ -2,6 +2,7 @@
 #define _MultiFileReader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MultiSliceReader.h>
 
 
@@ -12,7 +13,7 @@ namespace soma
 {
 
 
-class Directory;
+class DirectoryParser;
 
 
 class MultiFileReader : public MultiSliceReader
@@ -22,7 +23,9 @@ class MultiFileReader : public MultiSliceReader
 
     MultiFileReader();
 
-    bool read( Directory& directory, 
+    std::vector< std::string > check( DirectoryParser& directory,
+                                      DataInfo& dataInfo );
+    bool read( const std::vector< std::string >& fileList, 
                Data& data,
                Callback* progress = 0 );
 
@@ -30,7 +33,7 @@ class MultiFileReader : public MultiSliceReader
 
     virtual bool readHeader( DcmDataset* dataset );
 
-    bool sortFiles( Directory& directory );
+    std::vector< std::string > sortFiles( DirectoryParser& directory );
 
 };
 
