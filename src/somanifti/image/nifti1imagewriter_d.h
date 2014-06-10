@@ -205,13 +205,11 @@ namespace
                   const T* source, int tt, znzFile zfp, 
                   std::vector<long> & strides )
   {
-    std::cout << "in dataTOnim\n";
     soma::AffineTransformation3d m;
     try
     {
       carto::Object storage_to_memory;
       storage_to_memory = hdr->getProperty( "storage_to_memory" );
-      std::cout << "storage_to_memory present\n";
       m = storage_to_memory;
       /* adjust translations so that they fit (in case the vol size has
          changed) */
@@ -240,9 +238,7 @@ namespace
       m.matrix(1,1) = -1.0;
       m.matrix(2,2) = -1.0;
     }
-    std::cout << "set storage_to_memory\n";
     hdr->setProperty( "storage_to_memory", m.toVector() );
-    std::cout << "done.\n";
 
     int tmin, tmax;
     if(tt < 0)
@@ -256,11 +252,9 @@ namespace
       tmax = tt+1;
     }
 
-    std::cout << "calling expandNiftiScaleFactor\n";
     if( !expandNiftiScaleFactor( hdr, nim, m, source, tmin, tmax, zfp, 
       strides ) )
     {
-      std::cout << "not scale expanded\n";
       soma::Point3df d0f;
       std::vector<int> d0(4);
       soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
@@ -277,8 +271,6 @@ namespace
       size_t numbytes = nim->nx * sizeof( T ), ss;
       std::vector<T> buf( nim->nx );
       T *d = 0;
-      std::cout << "pinc: " << pinc << std::endl;
-      std::cout << "strides: " << strides[0] << ", " << strides[1] << ", " << strides[2] << ", " << strides[3] << std::endl;
 
       for( int t=tmin; t<tmax; ++t )
         for( int z=0; z<nim->nz; ++z )
@@ -291,8 +283,6 @@ namespace
             d0[3] = t;
             p0 = source + d0[3] * strides[3] + d0[2] * strides[2]
               + d0[1] * strides[1] + d0[0] * strides[0];
-            std::cout << "p0: " << p0 - source << std::endl;
-            std::cout << "d0: " << d0[0] << ", " << d0[1] << ", " << d0[2] << ", " << d0[3] << std::endl;
             d = &buf[0];
             for( int x=0; x<nim->nx; ++x, p0 += pinc )
               *d++ = *p0;
@@ -307,7 +297,6 @@ namespace
             }
           }
     }
-    std::cout << "dataTOnim done\n";
   }
 
 } // namespace {}
@@ -395,7 +384,6 @@ namespace soma
     std::string code = carto::DataTypeCode<T>().dataType();
     carto::Object hdr = dsi.header();
     nifti_image *nim = _nim->nim;
-    std::cout << "nifti struct: " << nim << std::endl;
 
 #if 0
     NiftiHeader hdr( thing.dimX(), thing.dimY(), thing.dimZ(), ntime,
@@ -488,24 +476,19 @@ namespace soma
       if( znz_isnull( zfp ) )
         ok = false;
 
-      std::cout << "ok? " << ok << std::endl;
       if( ok )
       {
-        std::cout << "calling dataTOnim\n";
         dataTOnim( nim, hdr, source, -1, zfp, strides );
-        std::cout << "done.\n";
 
         if( znz_isnull( zfp ) )
           ok = false;
         else
         {
-          std::cout << "closing stream\n";
           znzclose(zfp);
         }
       }
 
       // unload data in the nifti_image struct
-      std::cout << "unload image\n";
       nifti_image_unload( nim );
       std::cout << "done.\n";
     }
@@ -604,7 +587,7 @@ namespace soma
 
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
-    carto::Object minf = carto::Object::value( carto::PropertySet() );
+    carto::Object minf = dsi.header(); //carto::Object::value( carto::PropertySet() );
     minf->setProperty( "file_type", std::string( "NIFTI-1" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
