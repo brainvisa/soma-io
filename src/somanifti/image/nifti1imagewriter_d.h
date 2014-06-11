@@ -579,15 +579,13 @@ namespace soma
     }
     //--- write header -------------------------------------------------------
     localMsg( "writing Header..." );
-
-    // TODO
     bool allow4d = true;
     fillNiftiHeader( dsi, options, allow4d );
 
 
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
-    carto::Object minf = dsi.header(); //carto::Object::value( carto::PropertySet() );
+    carto::Object minf = dsi.header();
     minf->setProperty( "file_type", std::string( "NIFTI-1" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
