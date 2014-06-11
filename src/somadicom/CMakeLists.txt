@@ -1,3 +1,12 @@
+if (DCMTK_oflog_INCLUDE_DIR)
+  set(SOMA_DICOM_JPEG2000_SUPPORT 1)
+endif()
+
+configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/somadicom.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h" @ONLY )
+BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h"
+                   DESTINATION "include/soma-io/config"
+                   COMPONENT ${PROJECT_NAME}-dev )
+
 set( _headers
   checker/dicomformatchecker.h
   Container/Data.h
@@ -6,13 +15,6 @@ set( _headers
   Container/Matrix.h
   Container/Vector.h
   Dicom/CTImageStorageReader.h
-  Dicom/DcmtkJpeg2000/dj2kcodd.h
-  Dicom/DcmtkJpeg2000/dj2kcode.h
-  Dicom/DcmtkJpeg2000/dj2kutil.h
-  Dicom/DcmtkJpeg2000/djcparam.h
-  Dicom/DcmtkJpeg2000/djdecode.h
-  Dicom/DcmtkJpeg2000/djencode.h
-  Dicom/DcmtkJpeg2000/djrparam.h
   Dicom/DicomDataContext.h
   Dicom/DicomDatasetHeader.h
   Dicom/DicomIO.h
@@ -69,13 +71,6 @@ set( _sources
   Dicom/DicomReader.cc
   Dicom/DicomReaderFactory.cc
   Dicom/DicomSortContext.cc
-  Dicom/DcmtkJpeg2000/dj2kcodd.cc
-  Dicom/DcmtkJpeg2000/dj2kcode.cc
-  Dicom/DcmtkJpeg2000/dj2kutil.cc
-  Dicom/DcmtkJpeg2000/djcparam.cc
-  Dicom/DcmtkJpeg2000/djdecode.cc
-  Dicom/DcmtkJpeg2000/djencode.cc
-  Dicom/DcmtkJpeg2000/djrparam.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
   Dicom/Siemens/SiemensMRReader.cc
@@ -111,6 +106,29 @@ set( _sources
   Transformation/Transformation3d.cc
 )
 
+if (SOMA_DICOM_JPEG2000_SUPPORT)
+  # Add JPEG 2000 support for Dicom
+  set ( _headers
+    ${_headers}
+    Dicom/DcmtkJpeg2000/dj2kcodd.h
+    Dicom/DcmtkJpeg2000/dj2kcode.h
+    Dicom/DcmtkJpeg2000/dj2kutil.h
+    Dicom/DcmtkJpeg2000/djcparam.h
+    Dicom/DcmtkJpeg2000/djdecode.h
+    Dicom/DcmtkJpeg2000/djencode.h
+    Dicom/DcmtkJpeg2000/djrparam.h
+  )
+
+  set ( _sources 
+        ${_sources}
+        Dicom/DcmtkJpeg2000/dj2kcodd.cc
+        Dicom/DcmtkJpeg2000/dj2kcode.cc
+        Dicom/DcmtkJpeg2000/dj2kutil.cc
+        Dicom/DcmtkJpeg2000/djcparam.cc
+        Dicom/DcmtkJpeg2000/djdecode.cc
+        Dicom/DcmtkJpeg2000/djencode.cc
+        Dicom/DcmtkJpeg2000/djrparam.cc )
+endif()
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMADICOM_HEADERS ${_headers} PARENT_SCOPE)

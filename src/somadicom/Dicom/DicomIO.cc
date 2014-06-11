@@ -1,6 +1,11 @@
+#include <soma-io/config/somadicom.h>
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
-#include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
+
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
+  #include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
+#endif
+
 #include <soma-io/Container/Data.h>
 #include <soma-io/System/Directory.h>
 #include <soma-io/Pattern/Callback.h>
@@ -11,7 +16,9 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcrledrg.h>
 #include <dcmtk/dcmjpeg/djdecode.h>
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
 #include <dcmtk/dcmjpls/djdecode.h>
+#endif
 #include <dcmtk/dcmimage/diregist.h>
 
 #include <sstream>
@@ -26,7 +33,10 @@ soma::DicomIO::DicomIO()
   DcmRLEDecoderRegistration::registerCodecs();
   DJDecoderRegistration::registerCodecs();
   //DJLSDecoderRegistration::registerCodecs();
+  
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
   DJ2KDecoderRegistration::registerCodecs();
+#endif
 
 }
 
@@ -34,7 +44,9 @@ soma::DicomIO::DicomIO()
 soma::DicomIO::~DicomIO()
 {
 
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
   DJ2KDecoderRegistration::cleanup();
+#endif
   DJDecoderRegistration::cleanup();
   //DJLSDecoderRegistration::cleanup();
   DcmRLEDecoderRegistration::cleanup();

@@ -10,6 +10,11 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
+// Fix for DCMTK 3.5.4
+#ifndef UID_PositronEmissionTomographyImageStorage
+  #define UID_PositronEmissionTomographyImageStorage "1.2.840.10008.5.1.4.1.1.128"
+#endif
+
 #include <sstream>
 
 

@@ -42,12 +42,20 @@ void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
       DcmOutputBufferStream dobs( header->getBuffer(), header->getLength() );
 
       dataset->transferInit();
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
       dataset->write( dobs, 
                       EXS_LittleEndianExplicit, 
                       EET_ExplicitLength,
                       0,
                       EGL_recalcGL,
                       EPD_withoutPadding );
+#else
+      dataset->write( dobs, 
+                      EXS_LittleEndianExplicit, 
+                      EET_ExplicitLength,
+                      EGL_recalcGL,
+                      EPD_withoutPadding );
+#endif
       dataset->transferEnd();
 
     }
