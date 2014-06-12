@@ -140,7 +140,7 @@ namespace soma {
   void OSImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                std::vector<int> & pos,
                                std::vector<int> & size,
-                               std::vector<int> & /* stride */,
+                               std::vector<long> & /* stride */,
                                carto::Object      options )
   {
     if( _sizes.empty() )

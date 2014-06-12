@@ -66,7 +66,7 @@ namespace soma
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,
                          std::vector<int> & size,
-                         std::vector<int> & stride,
+                         std::vector<long> & stride,
                          carto::Object options = carto::none() );
 
       virtual void updateParams( DataSourceInfo & dsi );

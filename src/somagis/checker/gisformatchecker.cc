@@ -424,6 +424,8 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekLine( true );
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
+    dsi.capabilities().setRandomAccessEfficient( true );
+    dsi.capabilities().setHandleStrides( false );
   }
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );

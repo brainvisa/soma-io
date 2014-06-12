@@ -83,7 +83,7 @@ namespace soma {
   void ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                              std::vector<int> &  /* pos */,
                              std::vector<int> &  /*size */,
-                             std::vector<int> &  /* stride */,
+                             std::vector<long> & /* stride */,
                              carto::Object       /* options */ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource();

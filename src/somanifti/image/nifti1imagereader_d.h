@@ -107,7 +107,7 @@ namespace soma
   void Nifti1ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
-                                std::vector<int> & stride,
+                                std::vector<long> & stride,
                                 carto::Object      options )
   {
     if( _sizes.empty() || _nim.isNull() )
@@ -143,7 +143,7 @@ namespace soma
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
-                                std::vector<int> & stride,
+                                std::vector<long> & stride,
                                 carto::Object      options )
   {
     if( _sizes.empty() || _nim.isNull() )
@@ -166,7 +166,7 @@ namespace soma
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
-                                std::vector<int> & stride,
+                                std::vector<long> & stride,
                                 carto::Object      options )
   {
     if( _sizes.empty() || _nim.isNull() )
@@ -189,7 +189,7 @@ namespace soma
   void Nifti1ImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
-                                std::vector<int> & /* stride */,
+                                std::vector<long> & stride,
                                 carto::Object      /* options */ )
   {
     // dest is supposed to be allocated
@@ -277,6 +277,18 @@ namespace soma
     subbb1[0] = idims[0];
     subbb1[1] = idims[1];
     subbb1[2] = idims[2];
+    // strides in dest data
+    if( stride.size() < 4 )
+      stride.resize( 4, 0 );
+    if( stride[0] == 0 )
+      stride[0] = 1;
+    if( stride[1] == 0 )
+      stride[1] = vx * stride[0];
+    if( stride[2] == 0 )
+      stride[2] = vy * stride[1];
+    if( stride[3] == 0 )
+      stride[3] = vz * stride[2];
+    long dstinc = stride[0]; // just for faster access
 
     if (((carto::DataTypeCode<T>::name() == "FLOAT")
       || (carto::DataTypeCode<T>::name() == "DOUBLE"))&& (s[0] != 0.0))
@@ -302,12 +314,10 @@ namespace soma
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
             psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
-            offset = ((offset_t)t2) * vz + z;
-            offset = offset * vy + y;
-            offset = offset * vx;
+            offset = t2 * stride[3] + z * stride[2] + y * stride[1];
             target = dest + offset;
 
-            for( int x=0; x<vx; ++x, psrc += minc )
+            for( int x=0; x<vx; x+=dstinc, psrc += minc )
             {
               if( psrc >= pmin && psrc < pmax )
                 *target++ = (T) ( ((T) *psrc ) * s[0] + s[1] );
@@ -345,14 +355,12 @@ namespace soma
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
             psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
-            offset = ((offset_t)t2) * vz + z;
-            offset = offset * vy + y;
-            offset = offset * vx;
+            offset = t2 * stride[3] + z * stride[2] + y * stride[1];
             target = dest + offset;
 //             if( y == 0 )
 //               std::cout << "d0: " << d0[0] << ", " << d0[1] << ", " << d0[2] << std::endl;
 
-            for( int x=0; x<vx; ++x, psrc += minc )
+            for( int x=0; x<vx; x+=dstinc, psrc += minc )
             {
               if( psrc >= pmin && psrc < pmax )
                 *target++ = (T) *psrc;

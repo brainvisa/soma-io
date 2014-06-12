@@ -787,6 +787,8 @@ DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekLine( true );
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
+    dsi.capabilities().setRandomAccessEfficient( false );
+    dsi.capabilities().setHandleStrides( true );
   }
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );

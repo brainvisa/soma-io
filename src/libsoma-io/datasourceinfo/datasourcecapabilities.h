@@ -73,6 +73,8 @@ namespace soma
       bool  canSeekLine()   const;
       bool  canSeekSlice()  const;
       bool  canSeekVolume() const;
+      bool  isRandomAccessEfficient() const;
+      bool  canHandleStrides() const;
 
       carto::rc_ptr<DataSource>  mappableDataSource() const;
 
@@ -86,6 +88,8 @@ namespace soma
       void  setSeekLine       ( const bool & boo = true );
       void  setSeekSlice      ( const bool & boo = true );
       void  setSeekVolume     ( const bool & boo = true );
+      void  setRandomAccessEfficient( const bool & boo = true );
+      void  setHandleStrides  ( const bool & boo = true );
 
       void  setDataSource( const carto::rc_ptr<DataSource> ds );
 
@@ -115,8 +119,10 @@ namespace soma
       ///  - seek_line
       ///  - seek_slice
       ///  - seek_volume
+      ///  - is_random_access_efficient
+      ///  - handle_strides
       /// Default value is [00000000]
-      unsigned char _capabilities;
+      unsigned int _capabilities;
       /// In a case where memory mapping is allowed, it is necessary to
       /// tell the AllocatorContext which DataSource must be mapped.
       carto::rc_ptr<DataSource>  _mds;

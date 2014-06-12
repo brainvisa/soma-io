@@ -65,7 +65,7 @@ namespace soma
       virtual void read( T * dest, DataSourceInfo & dsi,
                          std::vector<int> & pos,
                          std::vector<int> & size,
-                         std::vector<int> & stride,
+                         std::vector<long> & stride,
                          carto::Object options = carto::none() );
 
       virtual void updateParams( DataSourceInfo & dsi );
@@ -77,7 +77,7 @@ namespace soma
       void readType( T * dest, DataSourceInfo & dsi,
                      std::vector<int> & pos,
                      std::vector<int> & size,
-                     std::vector<int> & stride,
+                     std::vector<long> & stride,
                      carto::Object options = carto::none() );
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<Nifti1StructWrapper> _nim;
