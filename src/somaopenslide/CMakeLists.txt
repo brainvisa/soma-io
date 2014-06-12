@@ -14,3 +14,14 @@ target_link_libraries( somaopenslide soma-io cartobase ${OPENSLIDE_LIBRARIES}  )
 BRAINVISA_INSTALL( TARGETS somaopenslide
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
+
+if( APPLE )
+  # Setting VERSION or SOVERSION on a MODULE cause a link error on MacOS 10.5 with cmake 2.6:
+  #  i686-apple-darwin9-g++-4.0.1: -compatibility_version only allowed with -dynamiclib
+  add_library( bundle_somaopenslide MODULE plugin/dummy.cc )
+  set_property( TARGET bundle_somaopenslide PROPERTY OUTPUT_NAME somaopenslide.${${PROJECT_NAME}_VERSION} )
+  target_link_libraries( bundle_somaopenslide somaopenslide )
+  BRAINVISA_INSTALL( TARGETS bundle_somaopenslide
+                    DESTINATION lib
+                    COMPONENT ${PROJECT_NAME} )
+endif()
