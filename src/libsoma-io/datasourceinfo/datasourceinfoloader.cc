@@ -212,7 +212,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     = FileUtil::uriOptions( dsi.list().dataSource()->url() );
   if( urioptions.get() )
     options->copyProperties( urioptions );
-  
+
   // find filename extension if it's a file //////////////////////////////////
   string  ext;
   int     excp = 0;

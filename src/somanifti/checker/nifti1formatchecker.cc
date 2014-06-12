@@ -166,71 +166,89 @@ namespace soma
 void Nifti1FormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
-  string hdrname, niiname, niigzname, imgname, minfname, dataname;
+  string hdrname, dataname, minfname;
   // dataname is the name of the main data file (.nii, .nii.gz or .img)
 
-  niiname = FileUtil::uriFilename( pds->url() );
-  if( niiname.empty() )
+  dataname = FileUtil::uriFilename( pds->url() );
+  if( dataname.empty() )
   {
     // we suppose ds is a nii file
     dsl.addDataSource( "nii", rc_ptr<DataSource>( pds ) );
   }
   else
   {
-    string ext = FileUtil::extension( niiname );
-    string basename = FileUtil::removeExtension( niiname );
+    string ext = FileUtil::extension( dataname );
+    string basename = FileUtil::removeExtension( dataname );
 
     if( ext == "nii" )
     {
-      minfname = niiname + ".minf";
-      dataname = niiname;
+      // all OK
     }
     else if( ext == "hdr" )
     {
-      imgname = basename + ".img";
+      dataname = basename + ".img";
       hdrname = basename + ".hdr";
-      niiname.clear();
-      minfname = imgname + ".minf";
-      dataname = imgname;
     }
     else if( ext == "gz" )
     {
-      string ext2 = FileUtil::extension( niiname );
+      string ext2 = FileUtil::extension( basename );
       if( ext2 == "nii" )
       {
         ext = "nii.gz";
         basename = FileUtil::removeExtension( basename );
-        niigzname = basename + ".nii.gz";
-        niiname.clear();
-        minfname = niigzname + ".minf";
-        dataname = niigzname;
+        dataname = basename + ".nii.gz";
+      }
+      else if( ext2 == "img" )
+      {
+        ext = "img.gz";
+        basename = FileUtil::removeExtension( basename );
+        dataname = basename + ".img.gz";
       }
       else
       {
+        // probably a problem... but we'll try like this
         ext.clear();
-        niiname.clear();
       }
     }
     else if( ext == "img" )
     {
-      imgname = basename + ".img";
+      dataname = basename + ".img";
       hdrname = basename + ".hdr";
-      niiname.clear();
-      minfname = imgname + ".minf";
-      dataname = imgname;
     }
     else
     {
+      // probably a problem... but we'll try like this
       ext.clear();
-      niiname.clear();
     }
 
     if( ext.empty() )
     {
-      basename = niiname;
-      niiname += ".nii";
-      dataname = niiname;
+      if( FileUtil::fileStat( dataname + ".nii" ).find( '+' ) )
+      {
+        basename = dataname;
+        dataname = dataname + ".nii";
+        ext = "nii";
+      }
+      else if( FileUtil::fileStat( dataname + ".nii.gz" ).find( '+' ) )
+      {
+        basename = dataname;
+        dataname = dataname + ".nii.gz";
+        ext = "nii.gz";
+      }
+      else if( FileUtil::fileStat( dataname + ".img" ).find( '+' ) )
+      {
+        basename = dataname;
+        dataname = dataname + ".img";
+        ext = "img";
+      }
+      else if( FileUtil::fileStat( dataname + ".img.gz" ).find( '+' ) )
+      {
+        basename = dataname;
+        dataname = dataname + ".img.gz";
+        ext = "img.gz";
+      }
     }
+    minfname = dataname + ".minf";
 
     if( hdrname == pds->url() )
     {

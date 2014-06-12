@@ -258,17 +258,6 @@ namespace soma
     Point3df d0f;
     int d0[3];
 
-    std::vector<U> src( ((size_t)sx) * sy * sz );
-    T *target = 0;
-    void *buf = &src[0];
-    size_t ntot = ((size_t)vx) * vy * vz * sizeof(U);
-    long ii;
-    size_t yoff = idims[0];
-    size_t zoff = yoff * idims[1];
-    long minc;
-    U* psrc, *pmax = &src[src.size()], *pmin = &src[0];
-    bool fail = false;
-    int t2;
     int subbb0[7] = { 0, 0, 0, 0, 0, 0, 0 },
     subbb1[7] = { 0, 0, 0, 1, 1, 1, 1 };
     subbb0[0] = ipos[0];
@@ -277,6 +266,31 @@ namespace soma
     subbb1[0] = idims[0];
     subbb1[1] = idims[1];
     subbb1[2] = idims[2];
+
+    // check if it is a compressed streem to optimize reading
+    char *tmpimgname = nifti_findimgname(nim->iname , nim->nifti_type);
+    bool gzipped = nifti_is_gzfile( tmpimgname );
+    free( tmpimgname );
+    if( gzipped )
+    {
+      // compressed: read all in one call, but fully duplicate the buffer:
+      // needs twice as much memory as the volume
+      subbb0[3] = ot;
+      subbb1[3] = vt;
+    }
+
+    std::vector<U> src( ((size_t)vx) * vy * vz * (gzipped? vt : 1) );
+    T *target = 0;
+    void *buf = &src[0];
+    size_t ntot = ((size_t)vx) * vy * vz * sizeof(U);
+    long ii;
+    size_t yoff = idims[0];
+    size_t zoff = yoff * idims[1];
+    size_t toff = 0;
+    long minc;
+    U* psrc, *pmax = &src[src.size()], *pmin = &src[0];
+    bool fail = false;
+    int t2;
     // strides in dest data
     if( stride.size() < 4 )
       stride.resize( 4, 0 );
@@ -290,6 +304,15 @@ namespace soma
       stride[3] = vz * stride[2];
     long dstinc = stride[0]; // just for faster access
 
+    if( gzipped )
+    {
+      // compressed stream are read just once, completely
+      ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
+      if( ii < 0 || (size_t) ii < ntot * vt )
+        throw eof_error( dsi.url() );
+      toff = zoff * idims[2];
+    }
+
     if (((carto::DataTypeCode<T>::name() == "FLOAT")
       || (carto::DataTypeCode<T>::name() == "DOUBLE"))&& (s[0] != 0.0))
     {
@@ -299,9 +322,12 @@ namespace soma
         t2 = t + ot;
 
         subbb0[3] = t2;
-        ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
-        if( ii < 0 || (size_t) ii < ntot )
-          throw eof_error( dsi.url() );
+        if( !gzipped )
+        {
+          ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
+          if( ii < 0 || (size_t) ii < ntot )
+            throw eof_error( dsi.url() );
+        }
 
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
@@ -312,7 +338,7 @@ namespace soma
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
-            psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
+            psrc = pmin + toff * t + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
             offset = t2 * stride[3] + z * stride[2] + y * stride[1];
             target = dest + offset;
@@ -340,9 +366,12 @@ namespace soma
 //         std::cout << "subbb0: " << subbb0[0] << ", " << subbb0[1] << ", " << subbb0[2] << ", " << subbb0[3] << std::endl;
 //         std::cout << "subbb1: " << subbb1[0] << ", " << subbb1[1] << ", " << subbb1[2] << ", " << subbb1[3] << std::endl;
 //         std::cout << "nim dim: " << nim->dim[1] << ", " << nim->dim[2] << ", " << nim->dim[3] << ", " << nim->dim[4] << std::endl;
-        ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
-        if( ii < 0 || (size_t) ii < ntot )
-          throw eof_error( dsi.url() );
+        if( !gzipped )
+        {
+          ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
+          if( ii < 0 || (size_t) ii < ntot )
+            throw eof_error( dsi.url() );
+        }
 
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
@@ -353,7 +382,7 @@ namespace soma
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
-            psrc = pmin + zoff * d0[2] + yoff * d0[1] + d0[0];
+            psrc = pmin + toff * t + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
             offset = t2 * stride[3] + z * stride[2] + y * stride[1];
             target = dest + offset;
