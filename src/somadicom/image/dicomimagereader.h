@@ -47,7 +47,7 @@ namespace soma
 {
   class DataSourceInfo;
 
-  /// ImageReader for GIS files.
+  /// ImageReader for DICOM files.
   template<typename T>
   class DicomImageReader : public ImageReader<T>
   {
