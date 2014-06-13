@@ -109,7 +109,6 @@ namespace soma {
     if ( dest )
     {
 
-std::cout << "dicomimagereader::read" << std::endl;
       if( _sizes.empty() )
         updateParams( dsi );
 
