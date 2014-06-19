@@ -1,4 +1,5 @@
 #include <soma-io/Dicom/USImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
@@ -95,6 +96,9 @@ bool soma::USImageStorageReader::readData( soma::Data& data,
           data.m_info.m_maximum = int32_t( max );
 
         }
+
+        soma::DicomDatasetHeader datasetHeader( data );
+        datasetHeader.add( dataset, 0 );
 
         if ( progress )
         {

@@ -1,4 +1,5 @@
 #include <soma-io/Dicom/DicomDataContext.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 
@@ -39,6 +40,7 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
   int32_t min = ( 1 << m_data.m_info.m_depth ) - 1;
   int32_t max = 1 - ( 1 << m_data.m_info.m_depth );
   unsigned long flags = 0;
+  soma::DicomDatasetHeader datasetHeader( m_data );
 
   m_data.m_info.m_patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
 
@@ -156,6 +158,8 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
           }
 
         }
+
+        datasetHeader.add( dataset, i );
 
         lock();
         m_count++;

@@ -1,4 +1,5 @@
 #include <soma-io/Dicom/NMImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/Data.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
@@ -61,10 +62,24 @@ bool soma::NMImageStorageReader::readData( soma::Data& data,
   if ( data.Create( m_dataInfo ) )
   {
 
+    if ( progress )
+    {
+
+      progress->execute( 2 );
+
+    }
+
     DcmFileFormat fileFormat;
 
     if ( fileFormat.loadFile( m_slices[ 0 ].c_str() ).good() )
     {
+
+      if ( progress )
+      {
+
+        progress->execute( 6 );
+
+      }
 
       DcmDataset* dataset = fileFormat.getDataset();
       DicomImage dcmImage( &fileFormat, 
@@ -115,6 +130,16 @@ bool soma::NMImageStorageReader::readData( soma::Data& data,
           dcmImage.getMinMaxValues( min, max );
           data.m_info.m_minimum = int32_t( min );
           data.m_info.m_maximum = int32_t( max );
+
+        }
+
+        soma::DicomDatasetHeader datasetHeader( data );
+        datasetHeader.add( dataset, 0 );
+
+        if ( progress )
+        {
+
+          progress->execute( 100 );
 
         }
 
