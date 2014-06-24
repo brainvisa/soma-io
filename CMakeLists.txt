@@ -16,6 +16,7 @@ BRAINVISA_DEPENDENCY( DEV DEPENDS libboost DEV )
 
 find_package( Doxygen )
 
+# OpenSlide support library
 find_package( OpenSlide )
 if( OPENSLIDE_FOUND )
   BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )
@@ -23,6 +24,7 @@ if( OPENSLIDE_FOUND )
 endif()
 BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenslide DEV )
 
+# DICOM support library
 find_package( DCMTK )
 find_package( Jasper )
 find_package( TIFF )
@@ -42,6 +44,13 @@ find_package( ZLIB )
 if( ZLIB_FOUND )
   BRAINVISA_DEPENDENCY( RUN DEPENDS zlib RUN )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS zlib DEV )
+endif()
+
+# TIFF support library
+find_package( TIFF )
+if( TIFF_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libtiff RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libtiff DEV )
 endif()
 
 # Python is required for the DICOM conversion script
@@ -109,6 +118,9 @@ if( ZLIB_FOUND )
 endif()
 if( OPENSLIDE_FOUND )
   add_subdirectory( src/somaopenslide )
+endif()
+if( TIFF_FOUND )
+  add_subdirectory( src/somatiff )
 endif()
 if( DCMTK_FOUND AND JASPER_FOUND AND TIFF_FOUND AND PNG12_FOUND )
   add_subdirectory( src/somadicom )

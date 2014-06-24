@@ -30,11 +30,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
-
-#include <soma-io/checker/gisformatchecker.h>
+#include <soma-io/config/soma_config.h>
+#include <soma-io/utilities/multifileformat.h>
+#include <soma-io/checker/tiffformatchecker.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
+#include <soma-io/plugin/plugin.h>
 #include <cartobase/smart/rcptr.h>
 #include <cartobase/exception/assert.h>
 #include <cartobase/getopt/getopt.h>
@@ -52,7 +54,7 @@ int main( int argc, const char** argv )
   try {
     string  fname, hname;
     int     test = 1;
-    CartoApplication  app( argc, argv, "Test for GIS format checking" );
+    CartoApplication  app( argc, argv, "Test for TIFF format checking" );
     app.addOption( fname, "-i", "input filename to be read\n" );
     app.addOption( hname, "-j", "input filename to be read (if 2 passes)\n", true );
     app.addOption( test, "-t", "test to perform. 1) normal reading. "
@@ -60,9 +62,24 @@ int main( int argc, const char** argv )
                               "3) two pass reading with juste header\n", true );
     app.alias( "-v", "--verbose" );
     app.initialize();
+
+    // Test that tiff plugin is loaded
+    const std::set<Plugin*> & plugins = PluginManager::singleton().plugins();
+    std::set<Plugin*>::iterator itp, ite = plugins.end();
+    Plugin* tiffplugin;
+    bool tiffpluginfound = false;
+    for( itp = plugins.begin(); itp != ite; ++itp ) {
+      if ((*itp)->name() == "TIFF SOMA-IO") {
+        std::cout << "TIFF SOMA-IO plugin found" << std::endl;
+        tiffpluginfound = true;
+        tiffplugin = (*itp);
+        break;
+      }
+    }
+    ASSERT(tiffpluginfound);
     
-    // Get gis FormatChecker
-    FormatChecker * fc = DataSourceInfoLoader::formatInfo( "GIS" );
+    // Get tiff FormatChecker
+    FormatChecker * fc = DataSourceInfoLoader::formatInfo( "TIFF" );
     ASSERT(fc);
     
     if( hname.empty() )
@@ -72,6 +89,32 @@ int main( int argc, const char** argv )
     DataSourceInfo dsi( ds );
     DataSourceInfoLoader dsil;
     dsi = fc->check( dsi, dsil );
+    
+    // Tests multifileformatinfo
+    vector<int32_t> dims(4, 1);
+    MultiFileFormatInfo mfi;
+    dsi.privateIOData()->getProperty( "tiff_info", mfi );
+    MultiFileFormat::updateDimensions(mfi, dims);
+    const vector<string> & filenames = MultiFileFormat::filenames(mfi);
+    vector<string>::const_iterator it, ie = filenames.end();
+    
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "//   M U L T I F I L E F O R M A T I N F O                 " << endl;
+    cout << "//---------------------------------------------------------" << endl;
+    cout << "Directory: " << carto::toString(mfi.directory) << endl;
+    cout << "Pattern: " << carto::toString(mfi.pattern) << endl;
+    cout << "Format: " << carto::toString(mfi.format) << endl;
+    cout << "Slice minimum: " << carto::toString(mfi.slicemin) << endl;
+    cout << "Slice maximum: " << carto::toString(mfi.slicemax) << endl;
+    cout << "Time minimum: " << carto::toString(mfi.timemin) << endl;
+    cout << "Time maximum: " << carto::toString(mfi.timemax) << endl;
+    cout << "Dimensions: [ " << carto::toString(dims[0]) << ", "
+                             << carto::toString(dims[1]) << ", "
+                             << carto::toString(dims[2]) << ", "
+                             << carto::toString(dims[3]) << " ]" << endl;
+    cout << "Files found: " << endl;
+    for (it = filenames.begin(); it != ie; ++it)
+      cout << (*it) << endl;
     
     if( test == 2) {
       dsi = fc->check( dsi, dsil );
@@ -106,6 +149,8 @@ int main( int argc, const char** argv )
                                 << endl;
     if( dsi.header()->hasProperty( "object_type" ) )
       cout << "object_type: \t" << dsi.header()->getProperty( "object_type" )->getString() << endl;
+    if( dsi.header()->hasProperty( "disk_data_type" ) )
+      cout << "disk_data_type: \t" << dsi.header()->getProperty( "disk_data_type" )->getString() << endl;
     if( dsi.header()->hasProperty( "ascii" ) )
       cout << "ascii: \t" << dsi.header()->getProperty( "ascii" )->getString() << endl;
     if( dsi.header()->hasProperty( "byte_swapping" ) )
@@ -127,12 +172,12 @@ int main( int argc, const char** argv )
     cout << "//   D A T A   S O U R C E   L I S T                       " << endl;
     cout << "//---------------------------------------------------------" << endl;
     set<string> types = dsi.list().types();
-    set<string>::iterator it = types.begin();
-    for( it; it != types.end(); ++it ) {
-      int size = dsi.list().size( *it );
+    set<string>::iterator itt;
+    for( itt = types.begin(); itt != types.end(); ++itt ) {
+      int size = dsi.list().size( *itt );
       int i;
       for ( i = 0; i< size; ++i ) {
-        cout << "DS " << *it << " : \t" << dsi.list().dataSource( *it, i )->url() << endl;
+        cout << "DS " << *itt << " : \t" << dsi.list().dataSource( *itt, i )->url() << endl;
       }
     }
   } catch( user_interruption & ) {

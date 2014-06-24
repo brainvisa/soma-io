@@ -59,6 +59,7 @@ set( _headers
   utilities/asciidatasourcetraits.h
   utilities/creator.h
   utilities/headertranslator.h
+  utilities/multifileformat.h
   utilities/minfXML2.h
   writer/awriter.h
   writer/formatwriter.h
@@ -106,6 +107,7 @@ set( _somaio_sources
   reader/xmlformatreader.cc
   utilities/asciidatasourcetraits.cc
   utilities/minfXML2.cc
+  utilities/multifileformat.cc
   writer/awriter.cc
   writer/pythonformatwriter.cc
   writer/pythonwriter.cc

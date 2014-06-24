@@ -37,6 +37,9 @@
 #include <soma-io/datasource/datasource.h>             // to declare rc_ptr of
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                      // to declare vecor of
+//--- debug ------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "DATASOURCELIST" )
 //--- system -----------------------------------------------------------------
 #include <string>
 #include <set>
@@ -186,3 +189,5 @@ void DataSourceList::reset()
 {
   _dslist.clear();
 }
+
+#undef localMsg
