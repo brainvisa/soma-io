@@ -76,6 +76,7 @@ bool soma::DicomReader::read( const std::vector< std::string >& fileList,
   {
 
     m_slices.push_back( fileList.front() );
+    data.m_info.m_fileCount = 1;
 
     if ( progress )
     {
