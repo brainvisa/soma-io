@@ -83,10 +83,10 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
   if ( !imaname.empty() )
   {
 
+    vector< string > fileList;
     soma::DataInfo dataInfo;
-    vector< string > fileList = soma::DicomIO::getInstance().check( imaname, 
-                                                                    dataInfo );
-    if ( fileList.empty() )
+
+    if ( !soma::DicomIO::getInstance().check( imaname, fileList, dataInfo ) )
     {
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }

@@ -28,13 +28,13 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
 
     bool registerReader( DicomReader* reader );
 
-    bool check( std::string manufacturer,
-                std::string storageUID,
+    bool check( const std::string& manufacturer,
+                const std::string& storageUID,
                 DirectoryParser& directory,
                 std::vector< std::string >& fileList,
                 DataInfo& dataInfo );
-    bool read( std::string manufacturer,
-               std::string storageUID,
+    bool read( const std::string& manufacturer,
+               const std::string& storageUID,
                const std::vector< std::string >& fileList,
                Data& data,
                Callback* progress = 0 );
@@ -49,8 +49,8 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
 
   private:
 
-    DicomReader* getReader( std::string manufacturer,
-                            std::string storageUID );
+    DicomReader* getReader( const std::string& manufacturer,
+                            const std::string& storageUID );
 
 };
 

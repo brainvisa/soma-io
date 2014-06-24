@@ -17,12 +17,11 @@ soma::MultiFileReader::MultiFileReader()
 }
 
 
-std::vector< std::string > soma::MultiFileReader::check(
-                                                   soma::DirectoryParser& directory,
-                                                   soma::DataInfo& dataInfo )
+bool soma::MultiFileReader::check( soma::DirectoryParser& directory,
+                                   std::vector< std::string >& fileList,
+                                   soma::DataInfo& dataInfo )
 {
 
-  std::vector< std::string > fileList;
   std::string selectedFile = directory.getSelectedFile();
 
   if ( !selectedFile.empty() )
@@ -34,14 +33,22 @@ std::vector< std::string > soma::MultiFileReader::check(
     {
 
       fileList = sortFiles( directory );
-      dataInfo = m_dataInfo;
-      dataInfo.initialize();
+
+      if ( !fileList.empty() )
+      {
+
+        dataInfo = m_dataInfo;
+        dataInfo.initialize();
+
+        return true;
+
+      }
 
     }
 
   }
 
-  return fileList;
+  return false;
 
 }
 

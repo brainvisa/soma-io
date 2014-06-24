@@ -31,12 +31,11 @@ std::string soma::DicomReader::getManufacturerName()
 }
 
 
-std::vector< std::string > soma::DicomReader::check( 
-                                                   soma::DirectoryParser& directory,
-                                                   soma::DataInfo& dataInfo )
+bool soma::DicomReader::check( soma::DirectoryParser& directory,
+                               std::vector< std::string >& fileList,
+                               soma::DataInfo& dataInfo )
 {
 
-  std::vector< std::string > fileList;
   std::string selectedFile = directory.getSelectedFile();
 
   if ( !selectedFile.empty() )
@@ -51,11 +50,13 @@ std::vector< std::string > soma::DicomReader::check(
       dataInfo = m_dataInfo;
       dataInfo.initialize();
 
+      return true;
+
     }
 
   }
 
-  return fileList;
+  return false;
 
 }
 

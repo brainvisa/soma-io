@@ -32,8 +32,9 @@ class DicomReader
     virtual std::string getManufacturerName();
     virtual std::string getStorageUID() = 0;
 
-    virtual std::vector< std::string > check( DirectoryParser& directory,
-                                              DataInfo& dataInfo );
+    virtual bool check( DirectoryParser& directory,
+                        std::vector< std::string >& fileList,
+                        DataInfo& dataInfo );
     virtual bool read( const std::vector< std::string >& fileList, 
                        Data& data,
                        Callback* progress = 0 );

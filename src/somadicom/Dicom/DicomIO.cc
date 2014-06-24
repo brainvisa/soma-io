@@ -54,13 +54,13 @@ soma::DicomIO::~DicomIO()
 }
 
 
-std::vector< std::string > soma::DicomIO::check( const std::string& fileName,
-                                                 soma::DataInfo& dataInfo )
+bool soma::DicomIO::check( const std::string& fileName,
+                           std::vector< std::string >& fileList,
+                           soma::DataInfo& dataInfo )
 {
 
   soma::DirectoryParser directory( fileName );
   std::string selectedFile = directory.getSelectedFile();
-  std::vector< std::string > fileList;
 
   if ( !selectedFile.empty() )
   {
@@ -71,17 +71,17 @@ std::vector< std::string > soma::DicomIO::check( const std::string& fileName,
     if ( getInfo( selectedFile, manufacturer, sopClassUid ) )
     {
 
-      soma::DicomReaderFactory::getInstance().check( manufacturer,
-                                                     sopClassUid, 
-                                                     directory, 
-                                                     fileList,
-                                                     dataInfo );
+      return soma::DicomReaderFactory::getInstance().check( manufacturer,
+                                                            sopClassUid, 
+                                                            directory, 
+                                                            fileList,
+                                                            dataInfo );
 
     }
 
   }
 
-  return fileList;
+  return false;
 
 }
 

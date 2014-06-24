@@ -23,8 +23,9 @@ class DicomIO : public Singleton< DicomIO >
 
   public:
 
-    std::vector< std::string > check( const std::string& fileName,
-                                      DataInfo& dataInfo );
+    bool check( const std::string& fileName,
+                std::vector< std::string >& fileList,
+                DataInfo& dataInfo );
     bool read( const std::vector< std::string >& fileList, 
                Data& data, 
                Callback* progress = 0 );
