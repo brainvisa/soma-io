@@ -38,7 +38,7 @@ void soma::MultiSliceReader::setOrientation( soma::DataInfo& dataInfo )
 
     double minPos = std::numeric_limits< double >::max();
     double maxPos = -std::numeric_limits< double >::max();
-    double n = (double)dataInfo.m_slices;
+    double n = (double)dataInfo.m_slices - 1.0;
     std::vector< soma::Vector >::iterator 
       p = m_positions.begin(),
       pe = m_positions.end();
