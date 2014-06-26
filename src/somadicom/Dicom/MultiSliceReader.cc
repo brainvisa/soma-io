@@ -68,7 +68,7 @@ void soma::MultiSliceReader::setOrientation( soma::DataInfo& dataInfo )
 
     }
 
-    if ( ( n > 1.0 ) && ( maxPos > minPos ) )
+    if ( ( n >= 1.0 ) && ( maxPos > minPos ) )
     {
 
       dataInfo.m_pixelSpacingZ = ( maxPos - minPos ) / n;
