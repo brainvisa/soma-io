@@ -169,6 +169,18 @@ FormatChecker* DataSourceInfoLoader::formatInfo( const string & format )
   return( i->second.get() );
 }
 
+
+set<string> DataSourceInfoLoader::extensions( const string & format )
+{
+  Private_Static        & ps = getstatic();
+  multimap<string, string>::const_iterator ie, ee = ps.extensions.end();
+  set<string> out_exts;
+  for( ie=ps.extensions.begin(); ie!=ee; ++ie )
+    if( ie->second == format )
+      out_exts.insert( ie->first );
+  return out_exts;
+}
+
 //============================================================================
 //    C H E C K I N G   F O R M A T
 //============================================================================

@@ -158,6 +158,9 @@ namespace soma
       /// Syntax for minf dictionaries
       static carto::SyntaxSet & minfSyntax();
 
+      /// Extensions matching a specified format
+      static std::set<std::string> extensions( const std::string & format );
+
     protected:
       struct Private;
       Private *d;
