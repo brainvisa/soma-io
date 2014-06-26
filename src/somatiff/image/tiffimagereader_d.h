@@ -60,7 +60,7 @@ extern "C" {
 //----------------------------------------------------------------------------
 
 namespace soma {
-
+  
   //==========================================================================
   //   U S E F U L
   //==========================================================================
@@ -144,7 +144,6 @@ namespace soma {
   }
 
   // specialize RGB and RGBA
-
   template <>
   void TiffImageReader<carto::VoxelRGB>::read( carto::VoxelRGB * dest,
                                                DataSourceInfo & dsi,
@@ -160,9 +159,8 @@ namespace soma {
     std::string dt;
     dsi.header()->getProperty( "disk_data_type", dt );
 
-    if( dt == "RGB" )
-      readType<carto::VoxelRGB>( dest, dsi, pos, size, stride, options );
-    else if( dt == "RGBA" )
+    // RGB data are necessary read using RGBA types
+    if( dt == "RGBA" )
       readType<carto::VoxelRGBA>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
@@ -184,22 +182,20 @@ namespace soma {
     std::string dt;
     dsi.header()->getProperty( "disk_data_type", dt );
 
-    if( dt == "RGB" )
-      readType<carto::VoxelRGB>( dest, dsi, pos, size, stride, options );
-    else if( dt == "RGBA" )
+    if( dt == "RGBA" )
       readType<carto::VoxelRGBA>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
   }
 
-
+  
   template <typename T>
   template <typename U>
   void TiffImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
-                                std::vector<int> & pos,
-                                std::vector<int> & size,
-                                std::vector<long> & stride,
-                                carto::Object      /* options */ )
+                                     std::vector<int> & pos,
+                                     std::vector<int> & size,
+                                     std::vector<long> & stride,
+                                     carto::Object      /* options */ )
   {
     // dest is supposed to be allocated
 
@@ -235,14 +231,14 @@ namespace soma {
     // Get file names to use during region reading
     std::string filename;
     int32_t tiffsx, tiffsy; // sizes of read tiff image
-    int tiled, stripSize, rowsPerStrip, 
-        sstart, send;
-    long x, y, z, t, s, c, ystrip;
+    int tiled, sstart, send, srows;
+    long x, y, z, t, s, c, ystrip, bsize;
     size_t bpos, // position in bytes buffer
            dpos; // position in destination data
     uint dirmin, dirmax; // tiff directories to use in files
     ushort photometric;
     byte* buffer;
+    bool isrgba = (DataTypeCode<U>::dataType() == DataTypeCode<carto::VoxelRGBA>::dataType()); // Disk data type is rgba
 
     // Get files and tiff directories to use for reading
     switch (_mfi.type) {
@@ -292,22 +288,27 @@ namespace soma {
             for ( uint d = 0; d < (dirmax - dirmin); ++d ) {
               TIFFSetDirectory(tif,  d + dirmin );
               // Read tif directory properties
-              stripSize = TIFFStripSize(tif);
-              TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &rowsPerStrip);
+              TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &srows);
               TIFFGetFieldDefaulted(tif, TIFFTAG_PHOTOMETRIC, &photometric);
-              
-              sstart = oy / rowsPerStrip; // Starting strip for the region
-              send = (oy + vy + rowsPerStrip - 1) / rowsPerStrip; // Ending strip for the region
-              buffer = new byte[stripSize]; // Buffer allocation
+
+              // As TIFFStripSize does not return number of bytes in RGBA cases,
+              // we do not use it anymore
+              bsize = srows * tiffsx * sizeof(U);
+              sstart = oy / srows; // Starting strip for the region
+              send = (oy + vy + srows - 1) / srows; // Ending strip for the region
+              buffer = new byte[ bsize ];
               std::vector<long> bstride(2, 0), // Strides in buffer
                                 boffset(2, 0); // Offsets in buffer
               bstride[0] = 1;
               bstride[1] = bstride[0] * tiffsx;
               boffset[0] = ox;
-              boffset[1] = oy % rowsPerStrip;
+              boffset[1] = oy % srows;
               
-              localMsg( "Strip size: " + carto::toString(stripSize) );
-              localMsg( "Strip rows: " + carto::toString(rowsPerStrip) );
+              localMsg( "Read data type: " + carto::DataTypeCode<T>::name() );
+              localMsg( "Read disk data type: " + carto::DataTypeCode<U>::name() );
+              localMsg( "Buffer size: " + carto::toString(bsize));
+              localMsg( "Strip size: " + carto::toString(TIFFStripSize(tif)) );
+              localMsg( "Strip rows: " + carto::toString(srows) );
               localMsg( "Photometric does not use palette: " + carto::toString(photometric != PHOTOMETRIC_PALETTE) );
               localMsg( "Strip start: " + carto::toString(sstart) );
               localMsg( "Strip end: " + carto::toString(send) );
@@ -322,15 +323,22 @@ namespace soma {
               // Read strips for the region
               y = 0;
               for ( s = sstart; s < send; ++s  ) {
-                TIFFReadEncodedStrip(tif, s, buffer, stripSize);
+                if (!isrgba) {
+                  TIFFReadEncodedStrip(tif, s, buffer, bsize);
+                }
+                else {
+//                   std::cout << "Reading strip: " << carto::toString(s) << " ...";
+                  TIFFReadRGBAStrip(tif, s * srows, (uint32_t*)buffer );
+//                   std::cout << " OK" << std::endl;
+                }
 
                 // Copy buffer region to data
-                for (ystrip = 0; ((ystrip < rowsPerStrip) && (y < vy)); ++y, ++ystrip )
+                for (ystrip = boffset[1]; ((ystrip < srows) && (y < vy)); ++y, ++ystrip )
                   for (x = 0; x < vx; ++x) {
                     if ((x < tiffsx)
                      && (y < tiffsy)) {
                       // Position in buffer
-                      bpos = (boffset[1] + ystrip) * bstride[1]
+                      bpos = (!isrgba ? ystrip : srows - ystrip - 1) * bstride[1]
                            + (boffset[0] + x) * bstride[0];
                       // Position in destination data
                       dpos = t * stride[3]
@@ -343,18 +351,18 @@ namespace soma {
                           buffer[bpos * sizeof(U) + c] =~ buffer[bpos * sizeof(U) + c];
                         }
                       }
-                      dest[dpos] = ((T*)buffer)[bpos];
+                      
+                      dest[dpos] = ((U*)buffer)[bpos];
                     }
                     else {
                       dest[dpos] = (T)0;
                     }
                   }
+                  
+                // offset y in buffer is only for the firt stride read
+                // because only the first and last strides can be incomplete
+                boffset[1] = 0;
               }
-//               else if ( DataTypeCode<T>().dataType() == DataTypeCode<AimsRGBA>().dataType() ) {
-//                   // Indexed images can only be read as RGBA data
-//                   uint32 * rgba_data = (uint32 *)&data(0, 0, z, tframe);
-//                   TIFFReadRGBAImageOriented(tif, data.dimX(), data.dimY(), rgba_data, ORIENTATION_TOPLEFT);
-//               }
               delete[] buffer;
             }
           }
@@ -368,7 +376,6 @@ namespace soma {
       }
     }
   }
-
 
   template <typename T>
   ImageReader<T>* TiffImageReader<T>::cloneReader() const

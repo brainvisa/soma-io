@@ -159,8 +159,11 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   string          filename = hds->url();
   ushort          typesize, mbps, spp, unit, sampleformat, photometric;
   vector<int32_t> dims(4, 1);
-  float           voxelSizeX, voxelSizeY, voxelSizeZ, voxelSizeT;
-  string          type;
+  float           voxelSizeX = 1.0,
+                  voxelSizeY = 1.0,
+                  voxelSizeZ = 1.0,
+                  voxelSizeT = 1.0;
+  string          type, diskdatatype;
   ostringstream   oss;
   
   TIFFSetErrorHandler( 0 );
@@ -201,6 +204,8 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   }
   
   type = "";
+  diskdatatype = "";
+
   switch( spp ) {
     case 1:
     case 2:
@@ -211,26 +216,44 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
               case PHOTOMETRIC_PALETTE :
                   // Indexed colormap
                   type = "RGBA";
+                  diskdatatype = "RGBA";
                   pt.push_back( "RGBA" );
                   pt.push_back( "RGB" );
                   break;
+                  
               default:
                   type = "unknown";
+                  diskdatatype = "unknown";
                   break;
           }
           break;
+          
         case SAMPLEFORMAT_UINT:
-          typesize = ( spp * mbps );
-          if ( ( typesize % 8 ) > 0 ) {
-            // Get the next multiple of 8
-            typesize = ( ( typesize / 8 ) + 1 ) * 8;
+          switch ( photometric ) {
+            case PHOTOMETRIC_PALETTE :
+              // Indexed colormap
+              type = "RGBA";
+              diskdatatype = "RGBA";
+              pt.push_back( type );
+              pt.push_back( "RGB" );
+              break;
+              
+            default:
+              typesize = ( spp * mbps );
+              if ( ( typesize % 8 ) > 0 ) {
+                // Get the next multiple of 8
+                typesize = ( ( typesize / 8 ) + 1 ) * 8;
+              }
+              oss << ( typesize );
+              type = "U" + oss.str();
+              diskdatatype = type;
+              pt.push_back( type );
+              pt.push_back( "RGB" );
+              pt.push_back( "RGBA" );
+              break;
           }
-          oss << ( typesize );
-          type = "U" + oss.str();
-          pt.push_back( type );
-          pt.push_back( "RGB" );
-          pt.push_back( "RGBA" );
           break;
+          
         case SAMPLEFORMAT_INT:
           typesize = ( spp * mbps );
           if ( ( typesize % 8 ) > 0 ) {
@@ -239,37 +262,47 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
           }
           oss << ( typesize );
           type = "S" + oss.str();
+          diskdatatype = type;
           pt.push_back( type );
           pt.push_back( "RGB" );
           pt.push_back( "RGBA" );
           break;
+          
         case SAMPLEFORMAT_IEEEFP:
           if( mbps == 32 )
             type = "FLOAT";
           else
             type = "DOUBLE";
+          diskdatatype = type;
           pt.push_back( type );
           break;
+          
         case SAMPLEFORMAT_COMPLEXINT:
         case SAMPLEFORMAT_COMPLEXIEEEFP:
           if( mbps == 32 ) // not sure it is 32 or 64...
             type = "CFLOAT";
           else
             type = "CDOUBLE";
+          diskdatatype = type;
           pt.push_back( type );
           break;
         default: // undefined
           type = "unknown";
+          diskdatatype = type;
           break;
       }
       break;
+      
     case 3:
       type = "RGB";
+      diskdatatype = "RGBA";
       pt.push_back( "RGB" );
       pt.push_back( "RGBA" );
       break;
+      
     case 4:
       type = "RGBA";
+      diskdatatype = "RGBA";
       pt.push_back( "RGBA" );
       pt.push_back( "RGB" );
       break;
@@ -287,7 +320,7 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   vs.push_back( voxelSizeY );
   vs.push_back( voxelSizeZ );
   vs.push_back( voxelSizeT );
-  
+
   hdr->setProperty( "sizeX", dims[0] );
   hdr->setProperty( "sizeY", dims[1] );
   hdr->setProperty( "sizeZ", dims[2] );
@@ -296,7 +329,7 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   hdr->setProperty( "voxel_size", vs );
   hdr->setProperty( "object_type", string( "Volume" ) );
   hdr->setProperty( "data_type", type );
-  hdr->setProperty( "disk_data_type", type );
+  hdr->setProperty( "disk_data_type", diskdatatype );
   if( !pt.empty() )
     hdr->setProperty( "possible_data_types", pt );
 

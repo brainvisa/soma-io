@@ -86,7 +86,6 @@ namespace soma
       std::vector<std::vector<int> >  _sizes;
       soma::MultiFileFormatInfo _mfi;
   };
-
 }
 
 #endif
