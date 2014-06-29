@@ -59,12 +59,13 @@ namespace soma
       virtual ~Nifti1ImageWriter();
 
       //======================================================================
-      //   I M A G E R E A D E R
+      //   I M A G E W R I T E R
       //======================================================================
-      virtual void write( T * dest, DataSourceInfo & dsi,
-                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                         std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         carto::Object options = carto::none() );
+      virtual void write( const T * source, DataSourceInfo & dsi,
+        const std::vector<int> & pos,  /* size 4 : x,y,z,t */
+        const std::vector<int> & size, /* size 4 : x,y,z,t */
+        const std::vector<long> & strides, /* size 4 : x,y,z,t */
+        carto::Object options = carto::none() );
 
       virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 
                                           carto::Object options
@@ -80,6 +81,7 @@ namespace soma
 
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<Nifti1StructWrapper> _nim;
+      std::vector<carto::rc_ptr<NiftiFileWrapper> > _znzfiles;
   };
 
 }

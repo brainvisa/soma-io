@@ -63,10 +63,11 @@ namespace soma
       //======================================================================
       //   I M A G E R E A D E R
       //======================================================================
-      virtual void write( T * dest, DataSourceInfo & dsi,
-                         std::vector<int> & pos,  /* taille 4 : x,y,z,t */
-                         std::vector<int> & size, /* taille 4 : x,y,z,t */
-                         carto::Object options = carto::none() );
+      virtual void write( const T * dest, DataSourceInfo & dsi,
+        const std::vector<int> & pos,  /* taille 4 : x,y,z,t */
+        const std::vector<int> & size, /* taille 4 : x,y,z,t */
+        const std::vector<long> & strides,
+        carto::Object options = carto::none() );
 
       virtual DataSourceInfo writeHeader( DataSourceInfo dsi, 
                                           carto::Object options

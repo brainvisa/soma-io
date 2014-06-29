@@ -53,6 +53,17 @@ namespace soma
     nifti_image* nim;
   };
 
+  /** This class holds the nifti_image stream (znzFile), and frees it
+      when it is deleted.
+   */
+  class NiftiFileWrapper : public carto::RCObject
+  {
+  public:
+    NiftiFileWrapper( znzFile znz ) : znzfile( znz ) {}
+    virtual ~NiftiFileWrapper();
+    znzFile znzfile;
+  };
+
 }
 
 namespace carto

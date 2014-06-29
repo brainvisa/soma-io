@@ -62,11 +62,11 @@
 //----------------------------------------------------------------------------
 
 namespace soma {
-  
+
   //==========================================================================
   //   U S E F U L
   //==========================================================================
-  template <typename T> 
+  template <typename T>
   void TiffImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
     try {
@@ -90,19 +90,19 @@ namespace soma {
     dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
     dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
     dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
-    
-    ChainDataSource::setSource( dsi.list().dataSource( "ima" ), 
+
+    ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
                                 dsi.list().dataSource( "ima" )->url() );
   }
-  
-  template <typename T> 
+
+  template <typename T>
   void TiffImageWriter<T>::resetParams()
   {
     _binary = true;
     _byteswap = false;
     _sizes = std::vector< std::vector<int> >();
   }
-  
+
   //==========================================================================
   //   C O N S T R U C T O R S
   //==========================================================================
@@ -122,13 +122,13 @@ namespace soma {
   //==========================================================================
   //   C H A I N D A T A S O U R C E   M E T H O D S
   //==========================================================================
-  template <typename T> 
+  template <typename T>
   DataSource* TiffImageWriter<T>::clone() const
   {
     return new FileDataSource( ChainDataSource::url() );
   }
-  
-  template <typename T> 
+
+  template <typename T>
   int TiffImageWriter<T>::iterateMode() const
   {
     int m = source()->iterateMode();
@@ -137,33 +137,33 @@ namespace soma {
       m &= SequentialAccess;
     return m;
   }
-  
-  template <typename T> 
+
+  template <typename T>
   offset_t TiffImageWriter<T>::size() const
   {
     return source() ? source()->size() : 0;
   }
-  
-  template <typename T> 
+
+  template <typename T>
   offset_t TiffImageWriter<T>::at() const
   {
     return source()->at();
   }
-  
-  template <typename T> 
+
+  template <typename T>
   bool TiffImageWriter<T>::at( offset_t pos )
   {
     return source()->at( pos );
   }
-  
-  template <typename T> 
+
+  template <typename T>
   long TiffImageWriter<T>::readBlock( char * data, unsigned long maxlen )
   {
     return 0;
   }
-  
-  
-  template <typename T> 
+
+
+  template <typename T>
   long TiffImageWriter<T>::writeBlock( const char * data, unsigned long len )
   {
     if( !_itemw.get() )
@@ -174,102 +174,101 @@ namespace soma {
     unsigned long nitems = len / sizeof( T );
     return _itemw->write( *source(), (const T *) data, nitems ) * sizeof( T );
   }
-  
-  
-  template <typename T> 
+
+
+  template <typename T>
   int TiffImageWriter<T>::getch()
   {
     return source()->getch();
   }
-  
-  template <typename T> 
+
+  template <typename T>
   int TiffImageWriter<T>::putch( int ch )
   {
     return source()->putch( ch );
   }
-  
-  template <typename T> 
+
+  template <typename T>
   bool TiffImageWriter<T>::ungetch( int ch )
   {
     return source()->ungetch( ch );
   }
-  
-  template <typename T> 
+
+  template <typename T>
   bool TiffImageWriter<T>::allowsMemoryMapping() const
   {
     return _binary && !_byteswap;
-    
+
   }
-  
-  template <typename T> 
+
+  template <typename T>
   bool TiffImageWriter<T>::setpos( int x, int y, int z, int t )
   {
     offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
     offset_t  sli = lin * _sizes[ 0 ][ 1 ];
     offset_t  vol = sli * _sizes[ 0 ][ 2 ];
-    return source()->at( ( (offset_t) sizeof(T) ) * 
+    return source()->at( ( (offset_t) sizeof(T) ) *
                          ( x + y * lin + z * sli + t * vol ) );
   }
-  
+
   //==========================================================================
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
   template <typename T>
-  void TiffImageWriter<T>::write( T * source, DataSourceInfo & dsi,
-                                 std::vector<int> & pos,
-                                 std::vector<int> & size,
-                                 carto::Object options )
+  void TiffImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
+                                  const std::vector<int> & pos,
+                                  const std::vector<int> & size,
+                                  const std::vector<long> & strides,
+                                  carto::Object options )
   {
     if( _sizes.empty() )
       updateParams( dsi );
-    
+
     // total volume size
     int  sx = _sizes[ 0 ][ 0 ];
     int  sy = _sizes[ 0 ][ 1 ];
     int  sz = _sizes[ 0 ][ 2 ];
     int  st = _sizes[ 0 ][ 3 ];
-    
+
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
     int  vz = size[ 2 ];
     int  vt = size[ 3 ];
-    
+
     // region position
     int  ox = pos[ 0 ];
     int  oy = pos[ 1 ];
     int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
-    
+
     int  y, z, t;
     // region line size
     offset_t  len = ((offset_t)vx) * sizeof( T );
-    offset_t offset;
-    
+
     if( options->hasProperty( "partial_writing" ) && !open( DataSource::ReadWrite ) )
       throw carto::open_error( "data source not available", url() );
     else if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
-    
+
     for( t=0; t<vt; ++t )
       for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
           // we move in the file
-          //at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz ) 
+          //at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz )
           //                  + y + oy ) + ox ) * sizeof(T) );
           setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
-          offset = ((offset_t)t) * vz + z;
-          offset = offset * vy + y;
-          offset = offset * len;
-          char * target = ((char *)source) + offset;
+          // FIXME: stride[0] not taken into account for now
+          char * target = (char *)( source + strides[3] * t + strides[2] * z
+            + strides[1] * y );
           if( writeBlock( target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
   }
-  
+
   template <typename T>
-  DataSourceInfo TiffImageWriter<T>::writeHeader( DataSourceInfo dsi, 
+  DataSourceInfo TiffImageWriter<T>::writeHeader( DataSourceInfo dsi,
                                                  carto::Object options )
   {
     //--- build datasourcelist -----------------------------------------------
@@ -303,7 +302,7 @@ namespace soma {
     }
     //--- write header -------------------------------------------------------
     localMsg( "writing Header..." );
-    ChainDataSource::setSource( dsi.list().dataSource( "dim" ), 
+    ChainDataSource::setSource( dsi.list().dataSource( "dim" ),
                                 dsi.list().dataSource( "dim" )->url() );
     DataSource* ds;
     ds = dsi.list().dataSource( "dim" ).get();
@@ -326,12 +325,12 @@ namespace soma {
     vs[3] = dsi.header()->getProperty( "voxel_size")
                         ->getArrayItem(3)->getScalar();
     // header :: volume dimensions
-    *ds << dim[0] << " " << dim[1] << " " 
+    *ds << dim[0] << " " << dim[1] << " "
         << dim[2] << " " << dim[3] << "\n";
     // header :: data type
     *ds << "-type " << carto::DataTypeCode<T>::dataType() << "\n";
     // header :: voxel size
-    *ds << "-dx " << vs[0] << " -dy " << vs[1] 
+    *ds << "-dx " << vs[0] << " -dy " << vs[1]
         << " -dz " << vs[2] << " -dt " << vs[3] << "\n";
     // header :: byte ordering
     *ds << "-bo ";
@@ -348,7 +347,7 @@ namespace soma {
     ds->writeBlock( (char *) &magicNumber , sizeof(uint) );
     *ds << "\n";
     //header :: opening mode
-    *ds << "-om " 
+    *ds << "-om "
         << ( dsi.header()->getProperty( "ascii" )->getScalar() ? "ascii" : "binar" )
         << "\n";
     close();
@@ -364,7 +363,7 @@ namespace soma {
     dsi.header()->getProperty( "sizeZ", dims[ 2 ] );
     dsi.header()->getProperty( "sizeT", dims[ 3 ] );
     minf->setProperty( "volume_dimension", dims );
-    minf->setProperty( "voxel_size", 
+    minf->setProperty( "voxel_size",
                        dsi.header()->getProperty( "voxel_size" ) );
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
@@ -374,7 +373,7 @@ namespace soma {
       localMsg( "building file for partial writing..." );
       if( _sizes.empty() )
         updateParams( dsi );
-      ChainDataSource::setSource( dsi.list().dataSource( "ima" ), 
+      ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
                                   dsi.list().dataSource( "ima" )->url() );
       if( !open( DataSource::Write ) )
         throw carto::open_error( "data source not available", url() );
@@ -389,24 +388,24 @@ namespace soma {
     localMsg( "done writing header." );
     return dsi;
   }
-  
+
   //==========================================================================
   //   U T I L I T I E S
   //==========================================================================
   template <typename T>
-  void TiffImageWriter<T>::buildDSList( DataSourceList & dsl, 
+  void TiffImageWriter<T>::buildDSList( DataSourceList & dsl,
                                        carto::Object /*options*/ ) const
   {
     DataSource* pds = dsl.dataSource().get();
     std::string dimname, imaname, minfname;
-    
+
     dimname = imaname = minfname = pds->url();
     if( dimname.empty() ) {
       throw carto::file_not_found_error( "needs a filename", dimname );
     } else {
       std::string ext = carto::FileUtil::extension( dimname );
       std::string basename = carto::FileUtil::removeExtension( dimname );
-      
+
       if( ext == "ima" ) {
         dimname = basename + ".dim";
       } else if( ext == "dim" ) {
@@ -414,14 +413,14 @@ namespace soma {
       } else {
         ext.clear();
       }
-      
+
       if( ext.empty() ) {
         basename = dimname;
         dimname += ".dim";
         imaname += ".ima";
       }
       minfname = imaname + ".minf";
-      
+
       if( dimname == pds->url() ) {
         // if dimname is original url
         dsl.addDataSource( "dim", carto::rc_ptr<DataSource>( pds ) );
@@ -437,10 +436,10 @@ namespace soma {
                                   ( new FileDataSource( imaname ) ) );
       }
     }
-    
+
     dsl.addDataSource( "minf", carto::rc_ptr<DataSource>
                                ( new FileDataSource( minfname ) ) );
-    
+
   }
 }
 

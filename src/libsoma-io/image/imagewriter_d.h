@@ -80,10 +80,11 @@ namespace soma
    * (like GisImageWriter)
    **************************************************************************/
   template <typename T>
-  void ImageWriter<T>::write( T * /*source*/, 
+  void ImageWriter<T>::write( const T * /*source*/, 
                               DataSourceInfo & dsi,
-                              std::vector<int> & /*pos*/,
-                              std::vector<int> & /*size*/,
+                              const std::vector<int> & /*pos*/,
+                              const std::vector<int> & /*size*/,
+                              const std::vector<long> & /*strides*/,
                               carto::Object /*options*/ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource();

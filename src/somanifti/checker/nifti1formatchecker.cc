@@ -831,6 +831,21 @@ Nifti1StructWrapper::~Nifti1StructWrapper()
   }
 }
 
+//============================================================================
+// NiftiFileWrapper
+//============================================================================
+/*** Instantiate NiftiFileWrapper destructor
+ ****************************************************************************/
+
+NiftiFileWrapper::~NiftiFileWrapper()
+{
+  if( znzfile )
+  {
+    znzclose( znzfile );
+    znzfile = 0;
+  }
+}
+
 #include <cartobase/object/object_d.h>
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( carto::rc_ptr<Nifti1StructWrapper> )

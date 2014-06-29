@@ -63,15 +63,17 @@ namespace soma
       /// pre-allocated buffer. Positions are expressed in 4D (x,y,z,t). If  
       /// one or more of these dimensions are of no interest for the format, 
       /// they take the value 0 ( pos ) or 1 ( size )
-      /// \param source Buffer containing the region to write. It must be of
-      ///               length size[0]*size[1]*size[2]*size[3]*sizeof(T)
-      /// \param pos    Position of the first voxel of the region to write.
-      /// \param size   Size of the region to write.
-      /// \param options  Communicates info to the writer (for example, 
-      ///                 enabling of partial writing).
-      virtual void write( T * source, DataSourceInfo & dsi,
-                          std::vector<int> & pos,
-                          std::vector<int> & size,
+      /// \param source  Buffer containing the region to write. It must be of
+      ///                length size[0]*size[1]*size[2]*size[3]*sizeof(T)
+      /// \param pos     Position of the first voxel of the region to write.
+      /// \param size    Size of the region to write.
+      /// \param strides Offsets between voxels in each direction.
+      /// \param options Communicates info to the writer (for example, 
+      ///                enabling of partial writing).
+      virtual void write( const T * source, DataSourceInfo & dsi,
+                          const std::vector<int> & pos,
+                          const std::vector<int> & size,
+                          const std::vector<long> & strides,
                           carto::Object options = carto::none() );
 
       /// This function is called before the actual writing by a FormatWriter.

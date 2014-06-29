@@ -87,6 +87,8 @@ namespace soma
   void Nifti1ImageWriter<T>::resetParams()
   {
     _sizes = std::vector< std::vector<int> >();
+    _nim.reset( 0 );
+    _znzfiles.clear();
   }
 
 }
@@ -115,7 +117,6 @@ namespace
                                znzFile zfp, 
                                const std::vector<long> & strides )
   {
-    std::cout << "in expandNiftiScaleFactor\n";
     soma::Point3df d0f;
     std::vector<int> d0(4);
     soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
@@ -158,7 +159,7 @@ namespace
               y = nim->ny;
               z = nim->nz;
               t = tmax;
-              break;
+              carto::io_error::launchErrnoExcept();
             }
           }
       return true;
@@ -203,7 +204,7 @@ namespace
   template <typename T>
   void dataTOnim( nifti_image *nim, carto::Object & hdr,
                   const T* source, int tt, znzFile zfp, 
-                  std::vector<long> & strides )
+                  const std::vector<long> & strides )
   {
     soma::AffineTransformation3d m;
     try
@@ -293,7 +294,7 @@ namespace
               y = nim->ny;
               z = nim->nz;
               t = tmax;
-              break;
+              carto::io_error::launchErrnoExcept();
             }
           }
     }
@@ -322,12 +323,13 @@ namespace soma
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
   template <typename T>
-  void Nifti1ImageWriter<T>::write( T * source, DataSourceInfo & dsi,
-                                 std::vector<int> & pos,
-                                 std::vector<int> & size,
-                                 carto::Object options )
+  void Nifti1ImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
+                                    const std::vector<int> & pos,
+                                    const std::vector<int> & size,
+                                    const std::vector<long> & strides,
+                                    carto::Object options )
   {
-    std::cout << "Nifti1ImageWriter.write\n";
+    std::cout << "Nifti1ImageWriter<T>::write\n";
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
@@ -352,6 +354,10 @@ namespace soma
     int  y, z, t;
     // region line size
     offset_t offset;
+
+    std::cout << "nifti, size: " << sx << ", " << sy << ", " << sz << std::endl;
+    std::cout << "nifti, pos: " << ox << ", " << oy << ", " << oz << std::endl;
+    std::cout << "nifti, view: " << vx << ", " << vy << ", " << vz << std::endl;
 
 //     if( options->hasProperty( "partial_writing" )
 //       && !open( DataSource::ReadWrite ) )
@@ -462,17 +468,11 @@ namespace soma
     bool ok = true;
     carto::fdinhibitor fdi( 2 );
     fdi.close(); // disable output on stderr
-    std::vector<long> strides(4);
-    strides[0] = 1;
-    strides[1] = sx;
-    strides[2] = strides[1] * sy;
-    strides[3] = strides[2] * sz;
 
     if( write4d || st == 1 )
     {
-      // write Nifti header and data
-      znzFile zfp = nifti_image_write_hdr_img( nim, 2, "wb" );
-      // don't close file because we have no other way to know if it failed
+      // write Nifti data (header is alrady written)
+      znzFile zfp = _znzfiles[0]->znzfile;
       if( znz_isnull( zfp ) )
         ok = false;
 
@@ -482,15 +482,10 @@ namespace soma
 
         if( znz_isnull( zfp ) )
           ok = false;
-        else
-        {
-          znzclose(zfp);
-        }
       }
 
       // unload data in the nifti_image struct
       nifti_image_unload( nim );
-      std::cout << "done.\n";
     }
 #if 0
     else
@@ -542,14 +537,13 @@ namespace soma
     fdi.open(); // enable stderr
     if( !ok )
       carto::io_error::launchErrnoExcept();
-    std::cout << "write finished.\n";
   }
+
 
   template <typename T>
   DataSourceInfo Nifti1ImageWriter<T>::writeHeader( DataSourceInfo & dsi,
                                                     carto::Object options )
   {
-    std::cout << "Nifti1ImageWriter.writeHeader\n";
     //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1;
     if( dolist )
@@ -582,6 +576,18 @@ namespace soma
     bool allow4d = true;
     fillNiftiHeader( dsi, options, allow4d );
 
+    updateParams( dsi );
+    _znzfiles.clear();
+    // FIXME: handle multiple files
+    znzFile zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+    // don't close file because we have no other way to know if it failed
+    if( znz_isnull( zfp ) )
+    {
+      znzclose(zfp);
+      carto::io_error::launchErrnoExcept();
+    }
+    _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
+      new NiftiFileWrapper( zfp ) ) );
 
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
