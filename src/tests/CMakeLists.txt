@@ -1,3 +1,5 @@
+include_directories( ${TIFF_INCLUDE_DIR} )
+
 BRAINVISA_ADD_EXECUTABLE(cartoAlgorithm_test       cartoAlgorithm_test/algorithm_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(cartoConversion_test      cartoConversion_test/conversion_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(cartoDataTypeTraits_test  cartoDataTypeTraits_test/datatypetraits_test.cc HELP_GENERATE FALSE)
