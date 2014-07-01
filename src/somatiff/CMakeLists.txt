@@ -1,3 +1,5 @@
+include_directories( ${TIFF_INCLUDE_DIR} )
+
 set( _headers
   checker/tiffformatchecker.h
   image/tiffimagereader.h
