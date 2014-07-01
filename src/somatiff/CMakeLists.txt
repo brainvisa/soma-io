@@ -22,7 +22,8 @@ add_library( somatiff SHARED ${_sources} )
 add_dependencies( somatiff ${headersTarget} )
 set_property( TARGET somatiff PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
-target_link_libraries( somatiff soma-io cartobase ${TIFF_LIBRARY} )
+target_link_libraries( somatiff soma-io cartobase
+  ${TIFF_LIBRARIES} ${ZLIB_LIBRARIES} )
 BRAINVISA_INSTALL( TARGETS somatiff
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
