@@ -3,7 +3,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMAGIS_HEADERS ${_headers} PARENT_SCOPE)
 add_library( somagis SHARED ${_sources} )
 add_dependencies( somagis ${headersTarget} )
-set_property( TARGET somagis PROPERTY OUTPUT_NAME somagis.${${PROJECT_NAME}_VERSION} )
+set_property( TARGET somagis PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( somagis soma-io cartobase )
 BRAINVISA_INSTALL( TARGETS somagis
                    DESTINATION lib
