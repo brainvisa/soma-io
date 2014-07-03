@@ -339,7 +339,7 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   vector<int> dims;
   for( int i=1; i<=nim->ndim; ++i )
     dims.push_back( nim->dim[i] );
-  while( dims.size() < 3 ) // complete to at least 3D
+  while( dims.size() < 4 ) // complete to 4D
     dims.push_back( 1 );
   // space: x,y,z, time: t and 3 extra
   // dim[8]: dim[0]=ndim, dim[1]=nx, etc.
