@@ -574,7 +574,6 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   hdr->setProperty( "sizeX", dims[0] );
   hdr->setProperty( "sizeY", dims[1] );
   hdr->setProperty( "sizeZ", dims[2] );
-  if( dims.size() >= 4 )
   hdr->setProperty( "sizeT", dims[3] );
 
   Point3df pvs = s2m.transform( Point3df( vs[0], vs[1], vs[2] ) )
