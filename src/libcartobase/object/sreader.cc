@@ -50,9 +50,9 @@ using namespace std;
 SyntaxReader::SyntaxReader(const string& filename)
         : _filename(filename), _stream(filename.c_str())
 {
-        // are files opened?
-        if (!_stream)
-                throw file_error(_filename);
+  // are files opened?
+  if (!_stream)
+    throw file_error(_filename);
 }
 
 
@@ -64,43 +64,43 @@ SyntaxReader::~SyntaxReader()
 void
 SyntaxReader::skipWhile(const string& s)
 {
-        if( _stream.eof() )
-                return;
-        int c = _stream.get();
-        while( !_stream.eof() && c != EOF
-                && s.find_first_of(c) != string::npos )
-        {
-                c = _stream.get();
-        }
-        _stream.unget();
+  if( _stream.eof() )
+    return;
+  int c = _stream.get();
+  while( !_stream.eof() && c != EOF
+    && s.find_first_of(c) != string::npos )
+  {
+    c = _stream.get();
+  }
+  _stream.unget();
 }
 
 
 string
 SyntaxReader::readUntil(const string& s)
 {
-        string token;
+  string token;
 
-        if( _stream.eof() )
-                return token;
-        int c = _stream.get();
-        while( !_stream.eof() && c != EOF
-                && s.find_first_of(c) == string::npos )
-        {
-                token += static_cast<char>(c);
-                c = _stream.get();
-        }
-        _stream.unget();
+  if( _stream.eof() )
+    return token;
+  int c = _stream.get();
+  while( !_stream.eof() && c != EOF
+    && s.find_first_of(c) == string::npos )
+  {
+    token += static_cast<char>(c);
+    c = _stream.get();
+  }
+  _stream.unget();
 
-        return token;
+  return token;
 }
 
 
 string
 SyntaxReader::nextToken()
 {
-        skipWhile(" \t\n");
-        return readUntil(" \t\n");
+  skipWhile(" \t\n");
+  return readUntil(" \t\n");
 }
 
 void
@@ -135,36 +135,36 @@ SyntaxReader::read(SyntaxSet& rules)
 void
 SyntaxReader::read(Syntax& syntax)
 {
-        string token;
+  string token;
 
-        while (1)
-        {
-                token = nextToken();
-                if (_stream.eof())
-                        throw parse_error(Lexicon::end(), token, \
-                                _filename, _stream.line());
-                if (token == Lexicon::end())
-                        break;
-                string name = token;
+  while (1)
+  {
+    token = nextToken();
+    if (_stream.eof())
+      throw parse_error(Lexicon::end(), token, \
+        _filename, _stream.line());
+    if (token == Lexicon::end())
+      break;
+    string name = token;
 
-                token = nextToken();
-                if (_stream.eof())
-                        throw parse_error("{semantic attribute type}", token, \
-                                _filename, _stream.line());
-                string type = token;
+    token = nextToken();
+    if (_stream.eof())
+      throw parse_error("{semantic attribute type}", token, \
+        _filename, _stream.line());
+    string type = token;
 
-                skipWhile(" \t");
-                token = readUntil(" \t\n");
-                if (_stream.eof())
-                        throw parse_error("!", token, \
-                                _filename, _stream.line());
-                bool needed = (token == "") ? false : true;
+    skipWhile(" \t");
+    token = readUntil(" \t\n");
+    if (_stream.eof())
+      throw parse_error("!", token, \
+        _filename, _stream.line());
+    bool needed = (token == "") ? false : true;
 
-                Semantic semantic;
-                semantic.type = type;
-                semantic.needed = needed;
-                syntax[name] = semantic;
-        }
+    Semantic semantic;
+    semantic.type = type;
+    semantic.needed = needed;
+    syntax[name] = semantic;
+  }
 }
 
 
@@ -175,6 +175,6 @@ SyntaxReader::read(Syntax& syntax)
 SyntaxReader&
 operator>>(SyntaxReader& reader, SyntaxSet& rules)
 {
-        reader.read(rules);
-        return reader;
+  reader.read(rules);
+  return reader;
 }
