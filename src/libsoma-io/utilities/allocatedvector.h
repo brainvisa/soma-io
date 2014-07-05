@@ -39,28 +39,24 @@
 #include <soma-io/datasource/bufferdatasource.h>
 //----------------------------------------------------------------------------
 
-namespace carto {
-  template <typename T> class Volume;
-}
-
 namespace soma
 {
-  
-  /// A STL-like vector with a smart and slow allocation system for large 
+
+  /// A STL-like vector with a smart and slow allocation system for large
   /// data buffers.
   ///
-  /// AllocatedVector is a fixed-size vector (no push_back(), insert() 
-  /// functions, nor reallocation method) which is suitable for very large 
-  /// data that may need the use of memory mapping and/or partial input/output 
-  /// functionalities. However for small data blocks, this container class 
-  /// is not optimal, because the allocation system is rather slow when 
+  /// AllocatedVector is a fixed-size vector (no push_back(), insert()
+  /// functions, nor reallocation method) which is suitable for very large
+  /// data that may need the use of memory mapping and/or partial input/output
+  /// functionalities. However for small data blocks, this container class
+  /// is not optimal, because the allocation system is rather slow when
   /// repeatedly used many times.
   ///
-  /// Otherwise, AllocatedVector works like a std::vector, or rather like a 
+  /// Otherwise, AllocatedVector works like a std::vector, or rather like a
   /// \link carto::block block\endlink.
   ///
-  /// The allocation system uses an allocation context (AllocatorContext) to 
-  /// automatically switch to the most suitable type of allocation (or memory 
+  /// The allocation system uses an allocation context (AllocatorContext) to
+  /// automatically switch to the most suitable type of allocation (or memory
   /// mapping). This system is describe in the \ref allocators section.
   template <typename T>
   class AllocatedVector
@@ -69,16 +65,16 @@ namespace soma
       typedef size_t size_type;
       typedef T* iterator;
       typedef const T* const_iterator;
-      
+
       AllocatedVector( size_type n, const AllocatorContext & ac );
       AllocatedVector( const AllocatedVector & other );
-      AllocatedVector( const AllocatedVector & other, 
+      AllocatedVector( const AllocatedVector & other,
                       const AllocatorContext & ac );
-      /// This constructor builds a vector on an already allocated buffer. 
+      /// This constructor builds a vector on an already allocated buffer.
       /// The vector is not owner of the underlying data.
       AllocatedVector( size_type n, T* buffer );
       ~AllocatedVector();
-      
+
       size_type size() const;
       iterator begin();
       const_iterator begin() const;
@@ -87,14 +83,12 @@ namespace soma
       T & operator [] ( size_type i );
       const T & operator [] ( size_type i ) const;
       AllocatedVector & operator = ( const AllocatedVector & );
-      
+
       const AllocatorContext & allocatorContext() const;
-      
-    protected:
+
       void free();
       void allocate( size_type n, const AllocatorContext & ac );
-      friend class carto::Volume<T>;
-      
+
     private:
       AllocatorContext _allocatorContext;
       size_type _size;
@@ -106,21 +100,21 @@ namespace soma
   //==========================================================================
 
   template<typename T> inline
-  AllocatedVector<T>::AllocatedVector( size_type n, 
+  AllocatedVector<T>::AllocatedVector( size_type n,
                                        const AllocatorContext &ac )
-    : _allocatorContext( ac ), _size( n ), 
+    : _allocatorContext( ac ), _size( n ),
       _items( _allocatorContext.allocate( _items, n ) )
   {
   }
 
   template<typename T> inline
   AllocatedVector<T>::AllocatedVector( const AllocatedVector & other )
-    : _allocatorContext( other.allocatorContext() ), _size( other.size() ), 
+    : _allocatorContext( other.allocatorContext() ), _size( other.size() ),
       _items( _allocatorContext.allocate( _items, _size ) )
   {
-    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap 
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated 
-        && other._allocatorContext.allocatorType() 
+    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
+        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
+        && other._allocatorContext.allocatorType()
         != AllocatorStrategy::Unallocated )
       {
         iterator i, e = end();
@@ -131,14 +125,14 @@ namespace soma
   }
 
   template<typename T> inline
-  AllocatedVector<T>::AllocatedVector( const AllocatedVector & other, 
+  AllocatedVector<T>::AllocatedVector( const AllocatedVector & other,
                                        const AllocatorContext &ac )
-    : _allocatorContext( ac ), _size( other.size() ), 
+    : _allocatorContext( ac ), _size( other.size() ),
       _items( _allocatorContext.allocate( _items, _size ) )
   {
-    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap 
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated 
-        && other._allocatorContext.allocatorType() 
+    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
+        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
+        && other._allocatorContext.allocatorType()
         != AllocatorStrategy::Unallocated )
       {
         iterator i, e = end();
@@ -150,12 +144,12 @@ namespace soma
 
   template<typename T> inline
   AllocatedVector<T>::AllocatedVector( size_type n, T* buffer )
-    : _allocatorContext( AllocatorStrategy::NotOwner, 
+    : _allocatorContext( AllocatorStrategy::NotOwner,
                          carto::rc_ptr<DataSource>
                          ( new BufferDataSource( reinterpret_cast<char *>
-                                                 ( buffer ), n * sizeof( T ), 
-                                                 DataSource::ReadWrite ) ) ), 
-      _size( n ), 
+                                                 ( buffer ), n * sizeof( T ),
+                                                 DataSource::ReadWrite ) ) ),
+      _size( n ),
       _items( _allocatorContext.allocate( _items, _size ) )
   {
   }
@@ -173,9 +167,10 @@ namespace soma
   }
 
   template<typename T> inline
-  void AllocatedVector<T>::allocate( size_type n, 
+  void AllocatedVector<T>::allocate( size_type n,
                                      const AllocatorContext & ac )
   {
+    free();
     _size = n;
     _allocatorContext = ac;
     _allocatorContext.allocate( _items, n );
@@ -184,7 +179,12 @@ namespace soma
   template<typename T> inline
   void AllocatedVector<T>::free()
   {
-    _allocatorContext.deallocate( _items, _size );
+    if( _items )
+    {
+      _allocatorContext.deallocate( _items, _size );
+      _size = 0;
+      _items = 0;
+    }
   }
 
   template<typename T> inline
@@ -194,16 +194,15 @@ namespace soma
   }
 
   template<typename T> inline
-  AllocatedVector<T> & 
+  AllocatedVector<T> &
   AllocatedVector<T>::operator = ( const AllocatedVector & other )
   {
     if( &other == this )
       return *this;
-    free();
     allocate( other.size(), other.allocatorContext() );
-    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap 
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated 
-        && other._allocatorContext.allocatorType() 
+    if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
+        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
+        && other._allocatorContext.allocatorType()
         != AllocatorStrategy::Unallocated )
       {
         iterator i, e = end();
@@ -221,7 +220,7 @@ namespace soma
   }
 
   template<typename T> inline
-  typename AllocatedVector<T>::const_iterator 
+  typename AllocatedVector<T>::const_iterator
   AllocatedVector<T>::begin() const
   {
     return _items;
