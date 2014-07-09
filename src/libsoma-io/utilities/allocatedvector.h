@@ -179,12 +179,9 @@ namespace soma
   template<typename T> inline
   void AllocatedVector<T>::free()
   {
-    if( _items )
-    {
-      _allocatorContext.deallocate( _items, _size );
-      _size = 0;
-      _items = 0;
-    }
+    _allocatorContext.deallocate( _items, _size );
+    _size = 0;
+    _items = 0;
   }
 
   template<typename T> inline
