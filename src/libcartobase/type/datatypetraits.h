@@ -41,30 +41,36 @@
 #include <cartobase/type/voxelhsv.h>
 
   
-#define DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( T ) \
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_SINGLE_CHANNEL( T, IS_SCALAR ) \
 template <> \
 struct DataTypeTraits< T > \
 { \
   public: \
     typedef T ChannelType; \
     \
+    static const bool is_scalar = IS_SCALAR; \
     static const bool is_multichannel = false; \
-    static const uint8_t channelcount = 1; \
+    static const unsigned int channelcount = 1; \
 }; \
   
-#define DATA_TYPE_TRAITS_MULTI_CHANNEL_DECLARE_SPECIALIZATION( T ) \
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_MULTI_CHANNEL( T, IS_SCALAR ) \
 template <> \
 struct DataTypeTraits< T > \
 { \
   public: \
     typedef T::ChannelType ChannelType; \
     \
+    static const bool is_scalar = false; \
     static const bool is_multichannel = true; \
-    static const uint8_t channelcount = T::channelcount; \
+    static const unsigned int channelcount = T::channelcount; \
 }; \
 
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( T, IS_SCALAR, IS_MULTICHANNEL ) \
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_##IS_MULTICHANNEL(T, IS_SCALAR) \
+
 #define DATA_TYPE_TRAITS_INSTANCIATE_SPECIALIZATION( T ) \
-  const uint8_t carto::DataTypeTraits< T >::channelcount; \
+  const bool carto::DataTypeTraits< T >::is_scalar; \
+  const unsigned int carto::DataTypeTraits< T >::channelcount; \
   const bool carto::DataTypeTraits< T >::is_multichannel; \
   
 
@@ -89,28 +95,31 @@ namespace carto {
       // Types definition
       typedef Void ChannelType;
       
+      static const bool is_scalar = false;
       static const bool is_multichannel = false;
-      static const uint8_t channelcount = 0;
+      static const unsigned int channelcount = 0;
   };
 
   /// DataTypeTraits base types specialization
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( uint8_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( int8_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( uint16_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( int16_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( uint32_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( int32_t )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( unsigned long )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( long )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( unsigned long long )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( long long )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( float )
-  DATA_TYPE_TRAITS_SINGLE_CHANNEL_DECLARE_SPECIALIZATION( double )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint8_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int8_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint16_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int16_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint32_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int32_t, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long long, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long long, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( float, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( double, true, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cfloat, false, SINGLE_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cdouble, false, SINGLE_CHANNEL )
 
   /// DataTypeTraits carto::VoxelValue specialization
-  DATA_TYPE_TRAITS_MULTI_CHANNEL_DECLARE_SPECIALIZATION( carto::VoxelRGB )
-  DATA_TYPE_TRAITS_MULTI_CHANNEL_DECLARE_SPECIALIZATION( carto::VoxelRGBA )
-  DATA_TYPE_TRAITS_MULTI_CHANNEL_DECLARE_SPECIALIZATION( carto::VoxelHSV )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGB, false, MULTI_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGBA, false, MULTI_CHANNEL )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelHSV, false, MULTI_CHANNEL )
 
 }
 
