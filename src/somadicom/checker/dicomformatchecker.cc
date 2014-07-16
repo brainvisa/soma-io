@@ -48,6 +48,7 @@
 #include <cartobase/object/object.h>                                 // header
 #include <cartobase/object/property.h>                               // header
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
+#include <cartobase/stream/fdinhibitor.h>
 //--- system -----------------------------------------------------------------
 #include <stdio.h>
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
@@ -86,10 +87,17 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     vector< string > fileList;
     soma::DataInfo dataInfo;
 
+    // avoid printing anything from dcmtk
+    fdinhibitor   fdi( STDERR_FILENO );
+    fdi.close();
     if ( !soma::DicomIO::getInstance().check( imaname, fileList, dataInfo ) )
     {
+      // open file
+      fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
+    // open file
+    fdi.open();
 
     vector< string >::const_iterator
       f = fileList.begin(),
