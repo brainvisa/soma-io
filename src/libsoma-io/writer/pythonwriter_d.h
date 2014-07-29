@@ -392,8 +392,8 @@ void rcDictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int
 }
 
 
-void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int indent,
-		 bool writeInternals )
+void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w,
+                 int indent, bool writeInternals )
 {
   soma::DataSource			& ds = *w.dataSource();
   carto::Object			it = obj.objectIterator();
@@ -404,7 +404,7 @@ void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int i
   for( it=obj.objectIterator(); it->isValid(); it->next() )
     {
       if( first )
-	first = false;
+        first = false;
       else
         ds.putch( ',' );
       ds.putch( ' ' );

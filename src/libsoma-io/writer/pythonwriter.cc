@@ -369,8 +369,8 @@ bool PythonWriter::isInternal( const string & syntax, const string & semantic )
 
 
 void PythonWriter::write( const GenericObject & object, int indent, 
-			  const string & syntax, const string & semantic, 
-			  bool writeInternals )
+                          const string & syntax, const string & semantic,
+                          bool writeInternals )
 {
   try
   {
