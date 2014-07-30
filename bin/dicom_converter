@@ -428,19 +428,44 @@ def convert_to_nifti_MR( serie ):
   fd.close()
 
 def convert_to_nifti_NM( serie ):
-    ds = dicom.read_file( serie[0] )
+    tmpDir = mkdtemp()
+    shutil.copy(serie[0], tmpDir)
+    tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
+    os.chmod(tempFile, 0777)
+    
+    try:
+        check_transfer_syntax_uid(tempFile)
+        check_jpeg(tempFile)
+    except OSError:
+        print "The DICOM converter needs DCMTK binaries to convert", f
+    
+    ds = dicom.read_file(tempFile)
+    tags = ((0x0010, 0x0010), (0x0008, 0x0020),
+            (0x0008, 0x0060), (0x0008, 0x103e),
+            (0x0008, 0x0080))
+    filename = ''
+    for tag in tags:
+        try:
+            filename += ds[tag].value + '-'
+        except:
+            pass
     try:
         outfile = os.path.join( args.output, \
-                                make_valid_filename( \
-                                  ds.PatientsName + '-' + ds.StudyDate + '-' + \
-                                  ds.Modality + '-' + \
-                                  ds.SeriesDescription + '-' + \
-                                  ds.InstitutionName ) + ".nii" )
-        
+                                make_valid_filename(filename[:-1] + '.nii'))
     except:
         outfile = None
+#    try:
+#        outfile = os.path.join( args.output, \
+#                                make_valid_filename( \
+#                                  ds.PatientsName + '-' + ds.StudyDate + '-' + \
+#                                  ds.Modality + '-' + \
+#                                  ds.SeriesDescription + '-' + \
+#                                  ds.InstitutionName ) + ".nii" )
+#        
+#    except:
+#        outfile = None
 
-    check_call( [ 'AimsFileConvert', '-i', serie[0], '-o', outfile ] )
+    check_call( [ 'AimsFileConvert', '-i', tempFile, '-o', outfile ] )
 
     try:
         if ds[0x0008,0x0070].value == "SIEMENS NM" and \
