@@ -76,19 +76,27 @@ namespace soma
     void flush();
     /// close the writing DataSource
     void close();
-    
+
   protected:
     carto::rc_ptr<DataSourceInfo>  _datasourceinfo;
-    carto::rc_ptr<DataSource>	     _datasource; ///\deprecated
+    carto::rc_ptr<DataSource>      _datasource; ///\deprecated
   };
 
 
-  ///	Generic writer for *every* format of Aims object. 
-	/// The Writer classes are built on the same model as the Reader classes
-	/// and share the same FormatDictionary with them to store all 
-	/// known file formats.
+  // Specialize write<Object> to be the same as write<GenericObject>
+  template <> inline bool GenericWriter::write( const carto::Object & obj,
+                                                carto::Object options )
+  {
+    return write( *obj, options );
+  }
+
+
+  /// Generic writer for *every* format of Aims object.
+  /// The Writer classes are built on the same model as the Reader classes
+  /// and share the same FormatDictionary with them to store all
+  /// known file formats.
   ///
-	/// \see FormatDictionary Reader
+  /// \see FormatDictionary Reader
   template<class T> class Writer : public GenericWriter
   {
   public:
@@ -113,11 +121,21 @@ namespace soma
     /// - pass 3 : empty extension
     /// - pass 4 : all writers
     virtual bool write( const T & obj,
-                        carto::Object options = carto::none(),
+                        carto::Object options,
                         int passbegin = 1 , int passend = 4 );
 
     virtual std::string writtenObjectType() const;
   };
+
+
+  // Specialize Writer<Object> to be the same as Writer<GenericObject>
+  template <> inline bool Writer<carto::Object>::write(
+    const carto::Object & obj, carto::Object options,
+    int passbegin, int passend )
+  {
+    Writer<carto::GenericObject> w( dataSource() );
+    w.write( *obj, options, passbegin, passend );
+  }
 
 }
 

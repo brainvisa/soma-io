@@ -108,9 +108,11 @@ namespace soma
     /// if set, the catch function is used instead of throwing the regular
     /// exception during writing
     void setCatchFunction( CatchFunction f );
+    char quoteCharacter() const { return _quoteChar; }
+    void setQuoteCharacter( char q ) { _quoteChar = q; }
 
     /// utility function
-    static void writeString( DataSource &, std::string );
+    void writeString( DataSource &, std::string );
 
     template<typename T>
     static void genericSequenceHelper( const carto::GenericObject & obj, 
@@ -125,6 +127,7 @@ namespace soma
     HelperSet                 _helpers;
     bool                      _singleLine;
     CatchFunction             _catchFunction;
+    char                      _quoteChar;
   };
 } // namespace soma
 

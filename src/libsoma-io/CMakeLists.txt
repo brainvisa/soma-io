@@ -15,6 +15,7 @@ set( _headers
   allocator/mappingrw.h
   checker/achecker.h
   checker/formatchecker.h
+  checker/jsonformatchecker.h
   checker/pythonformatchecker.h
   checker/xmlformatchecker.h
   config/info.h
@@ -51,6 +52,7 @@ set( _headers
   reader/formatreader.h
   reader/formatreader_d.h
   reader/itemreader.h
+  reader/jsonformatreader.h
   reader/pythonformatreader.h
   reader/pythonreader.h
   reader/pythonreader_d.h
@@ -64,6 +66,7 @@ set( _headers
   writer/awriter.h
   writer/formatwriter.h
   writer/itemwriter.h
+  writer/jsonformatwriter.h
   writer/pythonformatwriter.h
   writer/pythonwriter.h
   writer/pythonwriter_d.h
@@ -76,6 +79,7 @@ set( _somaio_sources
   allocator/mappingrw.cc
   allocator/meminfo.cc
   checker/achecker.cc
+  checker/jsonformatchecker.cc
   checker/pythonformatchecker.cc
   checker/xmlformatchecker.cc
   config/info.cc
@@ -102,6 +106,7 @@ set( _somaio_sources
   io/writer.cc
   plugin/plugin.cc
   reader/areader.cc
+  reader/jsonformatreader.cc
   reader/pythonformatreader.cc
   reader/pythonreader.cc
   reader/xmlformatreader.cc
@@ -109,6 +114,7 @@ set( _somaio_sources
   utilities/minfXML2.cc
   utilities/multifileformat.cc
   writer/awriter.cc
+  writer/jsonformatwriter.cc
   writer/pythonformatwriter.cc
   writer/pythonwriter.cc
 )

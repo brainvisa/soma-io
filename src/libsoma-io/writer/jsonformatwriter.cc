@@ -33,13 +33,13 @@
 
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/writer/pythonformatwriter.h>
+#include <soma-io/writer/jsonformatwriter.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/io/writer_d.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
-#define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATWRITER" )
+#define localMsg( message ) cartoCondMsg( 4, message, "JSONFORMATWRITER" )
 // localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
@@ -47,45 +47,36 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool PythonFormatWriter::write( const GenericObject & obj, 
-                                rc_ptr<DataSourceInfo> dsi, 
-                                Object options )
+bool JsonFormatWriter::write( const GenericObject & obj,
+                              rc_ptr<DataSourceInfo> dsi,
+                              Object options )
 {
-  cout << "PythonFormatWriter\n";
+  cout << "JsonFormatWriter\n";
   rc_ptr<DataSource> ds;
-  if( !dsi->list().empty( "minf" ) )
-    ds = dsi->list().dataSource( "minf" );
-  else
-    ds = dsi->list().dataSource();
+  ds = dsi->list().dataSource();
 
   localMsg( "write " + ds->url() );
-  SyntaxSet			synt;
-  PythonWriter::HelperSet	hs;
-  bool				writeinternals = false;
-  bool				writevariable = true;
+  SyntaxSet                     synt;
+  PythonWriter::HelperSet       hs;
+  bool                          writeinternals = false;
+  bool                          writevariable = true;
   if( !options.isNone() )
     {
       options->getProperty( "syntaxset", synt );
       options->getProperty( "helpers", hs );
       try
         {
-          writeinternals 
+          writeinternals
             = (bool) options->getProperty( "writeinternals" )->getScalar();
         }
       catch( ... )
         {
         }
-      try
-        {
-          writevariable 
-            = (bool) options->getProperty( "writevariable" )->getScalar();
-        }
-      catch( ... )
-        {
-        }
     }
-  PythonWriter	pw( ds, synt, hs );
-  pw.write( obj, writeinternals, writevariable );
+  cout << "WRITE JSON\n";
+  PythonWriter  pw( ds, synt, hs );
+  pw.setQuoteCharacter( '"' );
+  pw.write( obj, writeinternals, false );
   return true;
 }
 
@@ -93,17 +84,17 @@ bool PythonFormatWriter::write( const GenericObject & obj,
 namespace
 {
 
-  bool initpythonformat()
+  bool initjsonformat()
   {
-    PythonFormatWriter	*r = new PythonFormatWriter;
-    vector<string>	exts;
-    exts.push_back( "minf" );
-    exts.push_back( "py" );
-    FormatDictionary<GenericObject>::registerFormat( "PYTHON", r, exts );
+    JsonFormatWriter  *r = new JsonFormatWriter;
+    vector<string>      exts;
+    exts.push_back( "json" );
+    cout << "init json writer\n";
+    FormatDictionary<GenericObject>::registerFormat( "JSON", r, exts );
     return true;
   }
 
-  bool dummy = initpythonformat();
+  bool dummy = initjsonformat();
 
 }
 

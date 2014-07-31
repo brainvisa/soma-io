@@ -56,7 +56,7 @@ PythonWriter::PythonWriter( const std::string& filename,
 			    const SyntaxSet& rules, const HelperSet& helpers )
   : _rules(rules), 
     _datasource( new FileDataSource( filename, 0, DataSource::Write ) ), 
-    _singleLine( false ), _catchFunction( 0 )
+    _singleLine( false ), _catchFunction( 0 ), _quoteChar( '\'' )
 {
   init( helpers );
   _datasource->open( DataSource::Write );
@@ -64,7 +64,8 @@ PythonWriter::PythonWriter( const std::string& filename,
 
 
 PythonWriter::PythonWriter( const SyntaxSet& rules, const HelperSet& helpers )
-  : _rules(rules), _datasource(), _singleLine( false ), _catchFunction( 0 )
+  : _rules(rules), _datasource(), _singleLine( false ), _catchFunction( 0 ),
+    _quoteChar( '\'' )
 {
   init( helpers );
 }
@@ -72,7 +73,8 @@ PythonWriter::PythonWriter( const SyntaxSet& rules, const HelperSet& helpers )
 
 PythonWriter::PythonWriter( rc_ptr<DataSource> ds, 
 			    const SyntaxSet& rules, const HelperSet& helpers )
-  : _rules(rules), _datasource( ds ), _singleLine( false ), _catchFunction( 0 )
+  : _rules(rules), _datasource( ds ), _singleLine( false ),
+    _catchFunction( 0 ), _quoteChar( '\'' )
 {
   init( helpers );
 }
@@ -259,6 +261,21 @@ void PythonWriter::writeString( DataSource & ds, string x )
       switch( (unsigned char) x[i] )
       {
       case '\'':
+        if( _quoteChar == '\'' )
+        {
+          x.insert( i, "\\" );
+          ++n;
+          ++i;
+        }
+        break;
+      case '"':
+        if( _quoteChar == '"' )
+        {
+          x.insert( i, "\\" );
+          ++n;
+          ++i;
+        }
+        break;
       case '\\':
         x.insert( i, "\\" );
         ++n;
@@ -272,9 +289,9 @@ void PythonWriter::writeString( DataSource & ds, string x )
       default:
         break;
       }
-  ds.putch( '\'' );
+  ds.putch( _quoteChar );
   AsciiDataSourceTraits<string>::write( ds, x );
-  ds.putch( '\'' );
+  ds.putch( _quoteChar );
 }
 
 
