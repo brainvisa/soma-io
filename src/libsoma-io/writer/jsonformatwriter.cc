@@ -51,7 +51,6 @@ bool JsonFormatWriter::write( const GenericObject & obj,
                               rc_ptr<DataSourceInfo> dsi,
                               Object options )
 {
-  cout << "JsonFormatWriter\n";
   rc_ptr<DataSource> ds;
   ds = dsi->list().dataSource();
 
@@ -73,7 +72,6 @@ bool JsonFormatWriter::write( const GenericObject & obj,
         {
         }
     }
-  cout << "WRITE JSON\n";
   PythonWriter  pw( ds, synt, hs );
   pw.setQuoteCharacter( '"' );
   pw.write( obj, writeinternals, false );
@@ -89,7 +87,6 @@ namespace
     JsonFormatWriter  *r = new JsonFormatWriter;
     vector<string>      exts;
     exts.push_back( "json" );
-    cout << "init json writer\n";
     FormatDictionary<GenericObject>::registerFormat( "JSON", r, exts );
     return true;
   }

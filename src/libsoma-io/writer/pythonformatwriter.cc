@@ -51,7 +51,6 @@ bool PythonFormatWriter::write( const GenericObject & obj,
                                 rc_ptr<DataSourceInfo> dsi, 
                                 Object options )
 {
-  cout << "PythonFormatWriter\n";
   rc_ptr<DataSource> ds;
   if( !dsi->list().empty( "minf" ) )
     ds = dsi->list().dataSource( "minf" );
