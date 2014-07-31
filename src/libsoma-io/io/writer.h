@@ -121,7 +121,7 @@ namespace soma
     /// - pass 3 : empty extension
     /// - pass 4 : all writers
     virtual bool write( const T & obj,
-                        carto::Object options,
+                        carto::Object options = carto::none(),
                         int passbegin = 1 , int passend = 4 );
 
     virtual std::string writtenObjectType() const;
