@@ -36,7 +36,8 @@
 #include <soma-io/writer/pythonformatwriter.h>
 #include <soma-io/io/formatdictionary.h>
 #include <soma-io/writer/pythonwriter.h>
-#include <soma-io/io/writer_d.h>
+#include <soma-io/io/writer.h>
+#include <soma-io/datasourceinfo/datasourceinfo.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "PYTHONFORMATWRITER" )
@@ -106,7 +107,5 @@ namespace
 
 }
 
-
-template class Writer<GenericObject>;
 
 #undef localMsg

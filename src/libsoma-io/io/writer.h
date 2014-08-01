@@ -104,7 +104,7 @@ namespace soma
     inline Writer( carto::rc_ptr<DataSource> ds ) : GenericWriter( ds ) {}
     inline Writer( const std::string& filename )  : GenericWriter( filename ) {}
     inline Writer( std::ostream & stream )        : GenericWriter( stream ) {}
-    virtual ~Writer() {}
+    virtual ~Writer();
 
     ///	\brief Finds the correct format and writes the object
     ///

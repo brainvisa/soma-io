@@ -69,6 +69,11 @@ namespace soma
   }
 
 
+  template<typename T>
+  Writer<T>::~Writer()
+  {
+  }
+
 
   template<class T>
   std::string Writer<T>::writtenObjectType() const

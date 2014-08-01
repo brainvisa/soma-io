@@ -33,7 +33,7 @@
 
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/io/writer.h>
+#include <soma-io/io/writer_d.h>
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
@@ -125,3 +125,8 @@ void GenericWriter::attach( ostream & stream )
                           ( rc_ptr<DataSource>( new OStreamDataSource( stream ) ) )
                         );
 }
+
+
+template class Writer<GenericObject>;
+template class Writer<Object>;
+
