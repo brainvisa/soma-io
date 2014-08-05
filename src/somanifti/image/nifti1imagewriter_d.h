@@ -484,7 +484,6 @@ namespace soma
     hdr->getProperty( "sizeT", dimt );
     if( write4d && dimt >= 0x8000 )
       write4d = false;
-    std::cout << "write4d: " << write4d << std::endl;
 
     //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1;
@@ -634,7 +633,6 @@ namespace soma
         shape = NII;
       }
 
-      std::cout << "buildDSList, write4d: " << write4d << std::endl;
       if( !write4d && dimt > 1 )
       {
         std::vector<char> name( basename.length() + 7, 0 );
