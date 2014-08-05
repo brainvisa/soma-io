@@ -361,65 +361,17 @@ namespace soma
 //       throw carto::open_error( "data source not available", url() );
 
     // TODO
-    bool  write4d = true;
-    try
-    {
-      if( !options.isNull() )
-        write4d = (bool)
-          options->getProperty( "nifti_output_4d_volumes" )->getScalar();
-    }
-    catch( std::exception & )
-    {
-    }
+    bool  write4d = dsi.list().size( "nii" ) == 1;
 
     if( sx >= 0x8000 || sy >= 0x8000 || sz >= 0x8000 )
       throw carto::invalid_format_error( "NIFTI-1 cannot handle volume "
         "dimensions exceeding 32737", dsi.url() );
-    int ntime = st;
-    if( write4d && st >= 0x8000 )
-    {
-      ntime = 1;
-      write4d = false;
-    }
 
     std::string code = carto::DataTypeCode<T>().dataType();
     carto::Object hdr = dsi.header();
     nifti_image *nim = _nim->nim;
 
 #if 0
-    NiftiHeader hdr( thing.dimX(), thing.dimY(), thing.dimZ(), ntime,
-                    thing.sizeX(), thing.sizeY(), thing.sizeZ(),
-                    thing.sizeT(), name );
-
-    const PythonHeader 
-      *ph = dynamic_cast<const PythonHeader *>( thing.header() );
-    if( ph )
-    {
-      hdr.copy( *ph );
-      std::vector<int> dims(4);
-      dims[0] = thing.dimX();
-      dims[1] = thing.dimY();
-      dims[2] = thing.dimZ();
-      dims[3] = ntime;
-      hdr.setProperty( "volume_dimension", dims );
-      std::vector<float> vs(4);
-      vs[0] = thing.sizeX();
-      vs[1] = thing.sizeY();
-      vs[2] = thing.sizeZ();
-      vs[3] = thing.sizeT();
-      hdr.setProperty( "voxel_size", vs );
-      // remove specific attribute that may be incompatible
-      if( hdr.hasProperty( "disk_data_type" ) )
-        hdr.removeProperty( "disk_data_type" );
-      if( hdr.hasProperty( "possible_data_types" ) )
-        hdr.removeProperty( "possible_data_types" );
-      hdr.setProperty( "data_type", code );
-    }
-
-    if( hdr.hasProperty( "scale_factor" ) )
-      hdr.removeProperty( "scale_factor" );
-    if( hdr.hasProperty( "scale_offset" ) )
-      hdr.removeProperty( "scale_offset" );
 
     // Can float data be saved as integer without loss?
     if( code == "FLOAT" || code == "DOUBLE" )
@@ -477,22 +429,9 @@ namespace soma
       // unload data in the nifti_image struct
       nifti_image_unload( nim );
     }
-#if 0
-    else
+    else // write4d == false
     {
-      char sequence[16];
       int f;
-      std::vector<std::string> fnames;
-      std::string dname, bname;
-      dname = carto::FileUtil::dirname( name )
-          + carto::FileUtil::separator();
-      bname = carto::FileUtil::basename( removeExtension( name ) );
-      fnames.reserve( vt );
-      for( f=0; f<vt; ++f )
-      {
-        sprintf( sequence, "%04d", f + ot );
-        fnames.push_back( bname + std::string( sequence ) + ext );
-      }
 //       hdr.setProperty( "series_filenames", fnames );
 //       std::vector<int> vdim(4);
 //       vdim[0] = sx;
@@ -501,21 +440,31 @@ namespace soma
 //       vdim[3] = st;
 //       hdr.setProperty( "volume_dimension", vdim );
 
-      for( f=0; f < nt; ++f )
+      const DataSourceList & dsl = dsi.list();
+
+      for( f=ot; f<ot+vt; ++f )
       {
 //         hdr.setName( dname + fnames[f] );
 //         hdr.fillNim( false ); // allow4D set to false
 //         nifti_image *nim = hdr.niftiNim();
 
-        znzFile zfp = nifti_image_write_hdr_img( nim, 2, "wb" );
+        nifti_set_filenames( nim, dsl.dataSource( "nii", f )->url().c_str(),
+          0, 1 );
+
+        znzFile zfp;
+        if( f == 0 )
+          // file 0 is already open
+          zfp = _znzfiles[0]->znzfile;
+        else // others are not.
+          zfp = nifti_image_write_hdr_img( nim, 2, "wb" );
         if( znz_isnull( zfp ) )
           ok = false;
         else
         {
-//           dataTOnim( nim, hdr, thing, f, zfp);
+          dataTOnim( nim, hdr, source, f, zfp, strides );
           if( znz_isnull( zfp ) )
             ok = false;
-          else
+          else if( f != 0 )
             znzclose( zfp );
         }
         nifti_image_unload( nim );
@@ -523,7 +472,7 @@ namespace soma
           break;
       }
     }
-#endif
+
     fdi.open(); // enable stderr
     if( !ok )
       carto::io_error::launchErrnoExcept();
@@ -534,12 +483,31 @@ namespace soma
   DataSourceInfo Nifti1ImageWriter<T>::writeHeader( DataSourceInfo & dsi,
                                                     carto::Object options )
   {
+    // wheck if it will be a sequence of 3D volumes
+    bool  write4d = true;
+    try
+    {
+      if( !options.isNull() )
+        write4d = (bool)
+          options->getProperty( "nifti_output_4d_volumes" )->getScalar();
+    }
+    catch( std::exception & )
+    {
+    }
+
+    Object hdr = dsi.header();
+    int dimt;
+    hdr->getProperty( "sizeT", dimt );
+    if( write4d && dimt >= 0x8000 )
+      write4d = false;
+    std::cout << "write4d: " << write4d << std::endl;
+
     //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1;
     if( dolist )
     {
       localMsg( "building DataSourceList..." );
-      buildDSList( dsi.list(), options );
+      buildDSList( dsi.list(), options, write4d, dimt );
     }
     //--- set header ---------------------------------------------------------
     localMsg( "setting Header..." );
@@ -563,8 +531,7 @@ namespace soma
     }
     //--- write header -------------------------------------------------------
     localMsg( "writing Header..." );
-    bool allow4d = true;
-    fillNiftiHeader( dsi, options, allow4d );
+    fillNiftiHeader( dsi, options, write4d );
 
     updateParams( dsi );
     _znzfiles.clear();
@@ -618,10 +585,18 @@ namespace soma
   //==========================================================================
   template <typename T>
   void Nifti1ImageWriter<T>::buildDSList( DataSourceList & dsl,
-                                          carto::Object /*options*/ ) const
+                                          carto::Object /*options*/,
+                                          bool write4d, int dimt ) const
   {
     DataSource* pds = dsl.dataSource().get();
     std::string niiname, hdrname, minfname;
+    enum format_shape
+    {
+      NII,
+      NII_GZ,
+      IMG,
+    };
+    format_shape shape = NII_GZ;
 
     niiname = pds->url();
     if( niiname.empty() )
@@ -641,17 +616,24 @@ namespace soma
           ext = "";
         else
           ext = "nii.gz";
+        shape = NII_GZ;
       }
       if( ext == "nii" || ext == "nii.gz" || ext == "img" )
       {
         niiname = basename + "." + ext;
         if( ext == "img" )
+        {
           hdrname = basename + ".hdr";
+          shape = IMG;
+        }
+        else if( ext == "nii" )
+          shape = NII;
       }
       else if( ext == "hdr" )
       {
         niiname = basename + ".img";
         hdrname = basename + ".hdr";
+        shape = IMG;
       }
       else
         ext.clear();
@@ -661,33 +643,57 @@ namespace soma
         basename = niiname;
         hdrname = "";
         niiname = basename + ".nii";
+        ext = "nii";
+        shape = NII;
       }
-      minfname = niiname + ".minf";
 
-      if( hdrname == pds->url() )
+      std::cout << "buildDSList, write4d: " << write4d << std::endl;
+      if( !write4d && dimt > 1 )
       {
-        // if hdrname is original url
-        dsl.addDataSource( "hdr", carto::rc_ptr<DataSource>( pds ) );
-      }
-      else if( !hdrname.empty() )
-      {
-        dsl.addDataSource( "hdr", carto::rc_ptr<DataSource>
-                                  ( new FileDataSource( hdrname ) ) );
-      }
-      if( niiname == pds->url() )
-      {
-        // if niiname is original url
-        dsl.addDataSource( "nii", carto::rc_ptr<DataSource>( pds ) );
+        std::vector<char> name( basename.length() + 7, 0 );
+        minfname = basename + "_0000." + ext + ".minf";
+        for( int t=0; t<dimt; ++t )
+        {
+          sprintf( &name[0], "%s_%04d.", basename.c_str(), t );
+          if( shape == IMG )
+            dsl.addDataSource( "hdr",
+              carto::rc_ptr<DataSource>(
+                new FileDataSource(
+                  std::string( &name[0] ) + "hdr" ) ) );
+          dsl.addDataSource( "nii", carto::rc_ptr<DataSource>(
+              new FileDataSource(
+                std::string( &name[0] ) + ext ) ) );
+        }
       }
       else
       {
-        dsl.addDataSource( "nii", carto::rc_ptr<DataSource>
-                                  ( new FileDataSource( niiname ) ) );
+        minfname = niiname + ".minf";
+
+        if( hdrname == pds->url() )
+        {
+          // if hdrname is original url
+          dsl.addDataSource( "hdr", carto::rc_ptr<DataSource>( pds ) );
+        }
+        else if( !hdrname.empty() )
+        {
+          dsl.addDataSource( "hdr", carto::rc_ptr<DataSource>
+                                    ( new FileDataSource( hdrname ) ) );
+        }
+        if( niiname == pds->url() )
+        {
+          // if niiname is original url
+          dsl.addDataSource( "nii", carto::rc_ptr<DataSource>( pds ) );
+        }
+        else
+        {
+          dsl.addDataSource( "nii", carto::rc_ptr<DataSource>
+                                    ( new FileDataSource( niiname ) ) );
+        }
       }
     }
 
-    dsl.addDataSource( "minf", carto::rc_ptr<DataSource>
-                               ( new FileDataSource( minfname ) ) );
+    dsl.addDataSource( "minf",
+      carto::rc_ptr<DataSource>( new FileDataSource( minfname ) ) );
 
   }
 

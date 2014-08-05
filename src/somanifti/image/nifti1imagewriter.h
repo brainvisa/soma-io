@@ -75,7 +75,8 @@ namespace soma
       virtual void resetParams();
 
     protected:
-      void buildDSList( DataSourceList & dsl, carto::Object options ) const;
+      void buildDSList( DataSourceList & dsl, carto::Object options,
+        bool write4d, int dimt ) const;
       static void fillNiftiHeader( DataSourceInfo & dsi, carto::Object options, 
                                    bool allow4d );
 
