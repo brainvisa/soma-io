@@ -45,6 +45,7 @@ set( _headers
   io/reader.h
   io/reader_d.h
   io/readeralgorithm.h
+  io/scaledcoding.h
   io/writer.h
   io/writer_d.h
   plugin/plugin.h
@@ -103,6 +104,7 @@ set( _somaio_sources
   io/formatdictionary.cc
   io/reader_object.cc
   io/readeralgorithm.cc
+  io/scaledcoding.cc
   io/writer.cc
   plugin/plugin.cc
   reader/areader.cc

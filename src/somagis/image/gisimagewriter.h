@@ -70,6 +70,10 @@ namespace soma
         carto::Object options = carto::none() );
 
       virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 
+                                          const T * source,
+                                          const std::vector<int> & pos,
+                                          const std::vector<int> & size,
+                                          const std::vector<long> & strides,
                                           carto::Object options
                                             = carto::none() );
 

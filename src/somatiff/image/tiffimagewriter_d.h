@@ -268,8 +268,13 @@ namespace soma {
   }
 
   template <typename T>
-  DataSourceInfo TiffImageWriter<T>::writeHeader( DataSourceInfo dsi,
-                                                 carto::Object options )
+  DataSourceInfo TiffImageWriter<T>::writeHeader(
+    DataSourceInfo dsi,
+    const T * source,
+    const std::vector<int> & pos,
+    const std::vector<int> & size,
+    const std::vector<long> & strides,
+    carto::Object options )
   {
     //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1 ;

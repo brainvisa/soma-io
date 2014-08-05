@@ -79,7 +79,13 @@ namespace soma
       /// This function is called before the actual writing by a FormatWriter.
       /// It builds dsi's DataSourceList and writes the header if any is
       /// needed. It may also allocate file space for partial writing.
+      /// Image data is also passed because some formats may make use of it to
+      /// build some specific header information (like scale factors).
       virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 
+                                          const T * source,
+                                          const std::vector<int> & pos,
+                                          const std::vector<int> & size,
+                                          const std::vector<long> & strides,
                                           carto::Object options
                                             = carto::none() );
 

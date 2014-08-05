@@ -68,6 +68,10 @@ namespace soma
         carto::Object options = carto::none() );
 
       virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 
+                                          const T * source,
+                                          const std::vector<int> & pos,
+                                          const std::vector<int> & size,
+                                          const std::vector<long> & strides,
                                           carto::Object options
                                             = carto::none() );
 
@@ -79,6 +83,11 @@ namespace soma
         bool write4d, int dimt ) const;
       static void fillNiftiHeader( DataSourceInfo & dsi, carto::Object options, 
                                    bool allow4d );
+      void checkDiskDataType( carto::Object header,
+                              const T * source,
+                              const std::vector<long> & strides,
+                              const std::vector<int> & size,
+                              carto::Object options ) const;
 
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<Nifti1StructWrapper> _nim;

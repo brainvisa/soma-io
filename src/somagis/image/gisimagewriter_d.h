@@ -269,8 +269,13 @@ namespace soma {
   }
 
   template <typename T>
-  DataSourceInfo GisImageWriter<T>::writeHeader( DataSourceInfo & dsi,
-                                                 carto::Object options )
+  DataSourceInfo GisImageWriter<T>::writeHeader(
+    DataSourceInfo & dsi,
+    const T *,
+    const std::vector<int> &,
+    const std::vector<int> &,
+    const std::vector<long> &,
+    carto::Object options )
   {
     //--- build datasourcelist -----------------------------------------------
     bool dolist = dsi.list().typecount() == 1 ;

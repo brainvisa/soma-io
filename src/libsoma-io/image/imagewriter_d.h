@@ -91,10 +91,15 @@ namespace soma
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        ds ? ds->url() : "" );
   }
-  
+
   template <typename T>
-  DataSourceInfo ImageWriter<T>::writeHeader( DataSourceInfo & dsi, 
-                                              carto::Object /*options*/ )
+  DataSourceInfo ImageWriter<T>::writeHeader(
+    DataSourceInfo & dsi,
+    const T * source,
+    const std::vector<int> & pos,
+    const std::vector<int> & size,
+    const std::vector<long> & strides,
+    carto::Object /*options*/ )
   {
     carto::rc_ptr<DataSource> ds = dsi.list().dataSource();
     throw carto::invalid_format_error( "format reader not implemented yet...", 

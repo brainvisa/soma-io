@@ -47,6 +47,7 @@
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
 #include <soma-io/checker/nifti1formatchecker.h>
 #include <soma-io/checker/transformation.h>
+#include <soma-io/io/scaledcoding.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 #include <cartobase/object/property.h>                      // header, options
@@ -360,52 +361,14 @@ namespace soma
 //     else if( !open( DataSource::Write ) )
 //       throw carto::open_error( "data source not available", url() );
 
-    // TODO
     bool  write4d = dsi.list().size( "nii" ) == 1;
 
     if( sx >= 0x8000 || sy >= 0x8000 || sz >= 0x8000 )
       throw carto::invalid_format_error( "NIFTI-1 cannot handle volume "
         "dimensions exceeding 32737", dsi.url() );
 
-    std::string code = carto::DataTypeCode<T>().dataType();
     carto::Object hdr = dsi.header();
     nifti_image *nim = _nim->nim;
-
-#if 0
-
-    // Can float data be saved as integer without loss?
-    if( code == "FLOAT" || code == "DOUBLE" )
-    {
-      bool forcedDT = false;
-      try
-      {
-        if( !options.isNull() )
-        {
-          carto::Object aso = options->getProperty( "force_disk_data_type" );
-          if( !aso.isNull() )
-            forcedDT = (bool) aso->getScalar();
-        }
-      }
-      catch( ... )
-      {
-      }
-      if( !forcedDT )
-      {
-        // double maxm = 0;
-        float scale = 1, offset = 0;
-        bool shen = canEncodeAsScaledS16( *thing.volume(), scale, offset, true,
-                                          0 /* &maxm */ );
-        if( shen )
-        {
-          hdr.setProperty( "disk_data_type",
-                          carto::DataTypeCode<int16_t>().dataType() );
-          hdr.setProperty( "scale_factor_applied", true );
-          hdr.setProperty( "scale_factor", scale );
-          hdr.setProperty( "scale_offset", offset );
-        }
-      }
-    }
-#endif
 
     bool ok = true;
     carto::fdinhibitor fdi( 2 );
@@ -413,8 +376,19 @@ namespace soma
 
     if( write4d || st == 1 )
     {
-      // write Nifti data (header is alrady written)
-      znzFile zfp = _znzfiles[0]->znzfile;
+      // write Nifti data
+      znzFile zfp;
+
+      if( _znzfiles.size() != 0 )
+        zfp = _znzfiles[0]->znzfile;
+      else
+      {
+        // header has not been written. do it.
+        zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+//         _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
+//           new NiftiFileWrapper( zfp ) ) );
+      }
+
       if( znz_isnull( zfp ) )
         ok = false;
 
@@ -425,6 +399,11 @@ namespace soma
         if( znz_isnull( zfp ) )
           ok = false;
       }
+
+      if( znz_isnull( zfp ) )
+        ok = false;
+      else if( _znzfiles.empty() ) // close it if not in _znzfiles
+        znzclose( zfp );
 
       // unload data in the nifti_image struct
       nifti_image_unload( nim );
@@ -452,9 +431,9 @@ namespace soma
           0, 1 );
 
         znzFile zfp;
-        if( f == 0 )
+        if( _znzfiles.size() > f )
           // file 0 is already open
-          zfp = _znzfiles[0]->znzfile;
+          zfp = _znzfiles[f]->znzfile;
         else // others are not.
           zfp = nifti_image_write_hdr_img( nim, 2, "wb" );
         if( znz_isnull( zfp ) )
@@ -464,7 +443,7 @@ namespace soma
           dataTOnim( nim, hdr, source, f, zfp, strides );
           if( znz_isnull( zfp ) )
             ok = false;
-          else if( f != 0 )
+          else if( _znzfiles.size() <= f )
             znzclose( zfp );
         }
         nifti_image_unload( nim );
@@ -480,8 +459,13 @@ namespace soma
 
 
   template <typename T>
-  DataSourceInfo Nifti1ImageWriter<T>::writeHeader( DataSourceInfo & dsi,
-                                                    carto::Object options )
+  DataSourceInfo Nifti1ImageWriter<T>::writeHeader(
+    DataSourceInfo & dsi,
+    const T * source,
+    const std::vector<int> & pos,
+    const std::vector<int> & size,
+    const std::vector<long> & strides,
+    carto::Object options )
   {
     // wheck if it will be a sequence of 3D volumes
     bool  write4d = true;
@@ -529,22 +513,25 @@ namespace soma
                                  hdrdsi.header()->getProperty( "sizeT" ) );
       return dsi;
     }
+
+    checkDiskDataType( hdr, source, strides, size, options );
+
     //--- write header -------------------------------------------------------
-    localMsg( "writing Header..." );
+    localMsg( "building Header..." );
     fillNiftiHeader( dsi, options, write4d );
 
     updateParams( dsi );
     _znzfiles.clear();
-    // FIXME: handle multiple files
-    znzFile zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
-    // don't close file because we have no other way to know if it failed
-    if( znz_isnull( zfp ) )
-    {
-      znzclose(zfp);
-      carto::io_error::launchErrnoExcept();
-    }
-    _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
-      new NiftiFileWrapper( zfp ) ) );
+//     // FIXME: handle multiple files
+//     znzFile zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+//     // don't close file because we have no other way to know if it failed
+//     if( znz_isnull( zfp ) )
+//     {
+//       znzclose(zfp);
+//       carto::io_error::launchErrnoExcept();
+//     }
+//     _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
+//       new NiftiFileWrapper( zfp ) ) );
 
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
@@ -1250,6 +1237,57 @@ namespace soma
 
     carto::rc_ptr<Nifti1StructWrapper> nimw( new Nifti1StructWrapper( nim ) );
     dsi.privateIOData()->setProperty( "nifti_structure", nimw );
+  }
+
+
+  template <typename T>
+  void Nifti1ImageWriter<T>::checkDiskDataType(
+    carto::Object hdr,
+    const T * source,
+    const std::vector<long> & strides,
+    const std::vector<int> & size,
+    carto::Object options ) const
+  {
+    // Can float data be saved as integer without loss?
+
+    if( hdr->hasProperty( "scale_factor" ) )
+      hdr->removeProperty( "scale_factor" );
+    if( hdr->hasProperty( "scale_offset" ) )
+      hdr->removeProperty( "scale_offset" );
+
+    std::string code = carto::DataTypeCode<T>().dataType();
+    if( code == "FLOAT" || code == "DOUBLE" )
+    {
+      bool forcedDT = false;
+      try
+      {
+        if( !options.isNull() )
+        {
+          carto::Object aso = options->getProperty( "force_disk_data_type" );
+          if( !aso.isNull() )
+            forcedDT = (bool) aso->getScalar();
+        }
+      }
+      catch( ... )
+      {
+      }
+      if( !forcedDT )
+      {
+        // double maxm = 0;
+        float scale = 1, offset = 0;
+        bool shen = canEncodeAsScaledS16( source, scale,
+                                          offset, strides, _sizes[0], true,
+                                          0 /* &maxm */ );
+        if( shen )
+        {
+          hdr->setProperty( "disk_data_type",
+                          carto::DataTypeCode<int16_t>().dataType() );
+          hdr->setProperty( "scale_factor_applied", true );
+          hdr->setProperty( "scale_factor", scale );
+          hdr->setProperty( "scale_offset", offset );
+        }
+      }
+    }
   }
 
 }
