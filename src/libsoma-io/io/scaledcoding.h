@@ -34,6 +34,7 @@
 #ifndef SOMAIO_IO_SCALEDCODING_H
 #define SOMAIO_IO_SCALEDCODING_H
 
+#include <soma-io/config/soma_config.h>
 #include <vector>
 
 namespace carto
