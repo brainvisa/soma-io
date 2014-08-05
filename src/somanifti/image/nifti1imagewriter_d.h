@@ -329,7 +329,6 @@ namespace soma
                                     const std::vector<long> & strides,
                                     carto::Object options )
   {
-    std::cout << "Nifti1ImageWriter<T>::write\n";
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
@@ -354,10 +353,6 @@ namespace soma
     int  y, z, t;
     // region line size
     offset_t offset;
-
-    std::cout << "nifti, size: " << sx << ", " << sy << ", " << sz << std::endl;
-    std::cout << "nifti, pos: " << ox << ", " << oy << ", " << oz << std::endl;
-    std::cout << "nifti, view: " << vx << ", " << vy << ", " << vz << std::endl;
 
 //     if( options->hasProperty( "partial_writing" )
 //       && !open( DataSource::ReadWrite ) )
@@ -450,17 +445,12 @@ namespace soma
                                           0 /* &maxm */ );
         if( shen )
         {
-          /* std::cout << "16 bit coding possible: scale: " << scale
-              << ", offset: " << offset << ", max error: " << maxm << std::endl;
-          */
           hdr.setProperty( "disk_data_type",
                           carto::DataTypeCode<int16_t>().dataType() );
           hdr.setProperty( "scale_factor_applied", true );
           hdr.setProperty( "scale_factor", scale );
           hdr.setProperty( "scale_offset", offset );
         }
-        /* else
-        std::cout << "matching interval not found. Not 16 bit codable\n"; */
       }
     }
 #endif
@@ -745,7 +735,6 @@ namespace soma
     }
     catch( ... )
     {
-      // cout << "Saving in neurological orientation: ";
       /* TODO */ // Should use 'spm_force_output_convention' and 'spm_output_radio_convention'
       /* TODO */ // and also see if 'spm_radio_convention' is present
       s2m.matrix(0,3) = dims[0] - 1;
@@ -975,7 +964,6 @@ namespace soma
 
     if( transformations.isNull() )
     {
-      // cout << "no transformations\n";
       transformations = Object::value( std::vector<std::vector<float> >() );
       referentials = Object::value( std::vector<std::string>() );
     }
@@ -988,7 +976,6 @@ namespace soma
 
     nim->qform_code = NIFTI_XFORM_UNKNOWN;
     nim->sform_code = NIFTI_XFORM_UNKNOWN;
-    // cout << "transformations: " << transformations->size() << endl;
     unsigned nt = transformations->size();
     std::vector<AffineTransformation3d> mv( nt );
     if( nt > 0 )
@@ -1022,8 +1009,6 @@ namespace soma
       for( j=0; j<i; ++j )
         if( mv[j] == mv[i] )
         {
-          /* cout << "duplicate transformation " << i << " identical to " << j
-              << endl; */
           skip = true;
           break;
         }
@@ -1031,9 +1016,6 @@ namespace soma
       {
         AffineTransformation3d mot( mv[i] );
         std::string ref = referentials->getArrayItem(i)->getString();
-        // cout << "store transformation " << i << ":\n";
-        /* cout << mot << endl;
-        cout << mot * voxsz * s2m << endl; */
         r2.push_back( ref );
         t2.push_back( mot.toVector() );
 
@@ -1055,7 +1037,6 @@ namespace soma
           int icod2, jcod2, kcod2;
           nifti_mat44_to_orientation( R, &icod2, &jcod2, &kcod2 );
           s2morientedbis = ( icod == icod2 && jcod == jcod2 && kcod == kcod2 );
-          // cout << "s2moriented: " << s2morientedbis << endl;
         }
 
         for( int x=0; x<4; ++x )
@@ -1068,7 +1049,6 @@ namespace soma
               /* || (xform_code == NIFTI_XFORM_ALIGNED_ANAT) */ )
               && (nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
         {
-          // cout << "save transformation " << i << " as qform\n";
           nim->qform_code = xform_code;
           nifti_mat44_to_quatern( R, &nim->quatern_b, &nim->quatern_c,
                                   &nim->quatern_d, &nim->qoffset_x,
@@ -1087,7 +1067,6 @@ namespace soma
               if( fabs( P.m[x][j] - R.m[x][j] ) > 1e-5 )
               {
                 // cancel
-                // cout << "transformation does not fit as a quaternion" << endl;
                 ok = false;
                 nim->qform_code = NIFTI_XFORM_UNKNOWN;
                 break;
@@ -1095,7 +1074,6 @@ namespace soma
         }
         if( !ok && nim->sform_code == NIFTI_XFORM_UNKNOWN )
         {
-          // cout << "save transformation " << i << " as sform\n";
           ok = true;
           nim->sform_code = xform_code;
           for( int x=0; x<4; ++x )
@@ -1111,24 +1089,16 @@ namespace soma
 
     if( !s2moriented && nim->qform_code == NIFTI_XFORM_UNKNOWN )
     {
-      /* cout << "add s2m\n";
-      cout << s2m << endl; */
       AffineTransformation3d NIs2m_aims;
       NIs2m_aims.matrix( 0, 0 ) = -1; // invert all axes
       NIs2m_aims.matrix( 1, 1 ) = -1;
       NIs2m_aims.matrix( 2, 2 ) = -1;
       AffineTransformation3d NIs2m = s2m * NIs2m_aims;
-      /* if( NIs2m.rotation()(0,0) == 1 && NIs2m.rotation()(1,1) == 1
-        && NIs2m.rotation()(2,2) == 1)
-      {
-        cout << "default orientation\n";
-      } */
       mvec = NIs2m.toVector();
       mat44 P;
       for( int x=0; x<4; ++x )
         for( int j=0; j<4; ++j )
           P.m[x][j] = mvec[j+4*x];
-      // cout << "matrix: " << NIs2m << endl;
       nim->qform_code = NIFTI_XFORM_SCANNER_ANAT;
       nifti_mat44_to_quatern( P, &nim->quatern_b, &nim->quatern_c,
                               &nim->quatern_d, &nim->qoffset_x,
