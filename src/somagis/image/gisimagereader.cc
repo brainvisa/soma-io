@@ -57,5 +57,5 @@ template class GisImageReader<double>;
 template class GisImageReader<VoxelRGB>;
 template class GisImageReader<VoxelRGBA>;
 template class GisImageReader<VoxelHSV>;
-// template class GisImageReader<std::complex<float> >;
-// template class GisImageReader<std::complex<double> >;
+template class GisImageReader<std::complex<float> >;
+template class GisImageReader<std::complex<double> >;

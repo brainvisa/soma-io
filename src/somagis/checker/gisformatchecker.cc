@@ -379,14 +379,14 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
 //   if( urioptions.get() ) {
 //     options->copyProperties( urioptions );
 //   }
-  
+
   //--- test header format ---------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
         || dsi.header()->getProperty( "format" )->getString() != "GIS" )
       throw wrong_format_error( "Not a GIS header", 
                                 dsi.list().dataSource()->url() );
-  
+
   //--- build datasourcelist -------------------------------------------------
   if( dolist ) {
     localMsg( "Building list..." );
@@ -397,7 +397,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "dim" ).get();
     dsi.header() = _buildHeader( hds );
-    
+
     localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;

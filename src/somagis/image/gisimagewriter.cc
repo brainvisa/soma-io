@@ -57,3 +57,5 @@ template class GisImageWriter<double>;
 template class GisImageWriter<VoxelRGB>;
 template class GisImageWriter<VoxelRGBA>;
 template class GisImageWriter<VoxelHSV>;
+template class GisImageWriter<std::complex<float> >;
+template class GisImageWriter<std::complex<double> >;

@@ -818,6 +818,68 @@ namespace soma
     return ds;
   }
 
+  //=== COMPLEX<FLOAT> =======================================================
+
+  template <> inline
+  bool AsciiDataSourceTraits<std::complex<float> >::read(
+    DataSource & ds, std::complex<float> & item )
+  {
+    carto::VoxelValue<float, 2> x;
+    if( !AsciiDataSourceTraits<carto::VoxelValue<float, 2> >::read( ds, x ) )
+      return false;
+    item = std::complex<float>( x[0], x[1] );
+    return true;
+  }
+
+  template <> inline
+  bool AsciiDataSourceTraits<std::complex<float> >::write(
+    DataSource & ds, const std::complex<float> & item )
+  {
+    carto::VoxelValue<float, 2> x;
+    x[0] = item.real();
+    x[1] = item.imag();
+    return AsciiDataSourceTraits<carto::VoxelValue<float ,2> >::write(
+      ds, x );
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const std::complex<float> & x )
+  {
+    AsciiDataSourceTraits<std::complex<float> >::write( ds, x );
+    return ds;
+  }
+
+  //=== COMPLEX<DOUBLE> =======================================================
+
+  template <> inline
+  bool AsciiDataSourceTraits<std::complex<double> >::read(
+    DataSource & ds, std::complex<double> & item )
+  {
+    carto::VoxelValue<double, 2> x;
+    if( !AsciiDataSourceTraits<carto::VoxelValue<double, 2> >::read( ds, x ) )
+      return false;
+    item = std::complex<double>( x[0], x[1] );
+    return true;
+  }
+
+  template <> inline
+  bool AsciiDataSourceTraits<std::complex<double> >::write(
+    DataSource & ds, const std::complex<double> & item )
+  {
+    carto::VoxelValue<double, 2> x;
+    x[0] = item.real();
+    x[1] = item.imag();
+    return AsciiDataSourceTraits<carto::VoxelValue<double ,2> >::write(
+      ds, x );
+  }
+
+  inline DataSource &
+  operator << ( DataSource & ds, const std::complex<double> & x )
+  {
+    AsciiDataSourceTraits<std::complex<double> >::write( ds, x );
+    return ds;
+  }
+
 } // namespace soma
 
 #endif
