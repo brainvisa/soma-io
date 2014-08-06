@@ -46,20 +46,47 @@ namespace soma
   class DataSourceList;
   class DataSourceInfoLoader;
   class DataSourceInfo;
+  class NiftiApiHelpers;
 
   /// FormatChecker for NIFTI-1 files.
-  class Nifti1FormatChecker : public FormatChecker
+  class NiftiFormatChecker : public FormatChecker
   {
-    public:
-      virtual DataSourceInfo check( DataSourceInfo dsi, 
-                                    DataSourceInfoLoader & f,
-                                    carto::Object options = carto::none() )
-                                    const;
-      virtual ~Nifti1FormatChecker();
+  public:
+    NiftiFormatChecker();
+    virtual DataSourceInfo check( DataSourceInfo dsi,
+                                  DataSourceInfoLoader & f,
+                                  carto::Object options = carto::none() )
+                                  const;
+    virtual ~NiftiFormatChecker() = 0;
 
-    protected:
-      void _buildDSList( DataSourceList & dsl ) const;
-      carto::Object _buildHeader( DataSource * hds ) const;
+  protected:
+    void _buildDSList( DataSourceList & dsl ) const;
+    carto::Object _buildHeader( DataSource * hds ) const;
+    void setApi( NiftiApiHelpers *api );
+    virtual std::string formatName() const = 0;
+    NiftiApiHelpers *api;
+  };
+
+
+  class Nifti1FormatChecker : public NiftiFormatChecker
+  {
+  public:
+    Nifti1FormatChecker();
+    virtual ~Nifti1FormatChecker();
+
+  protected:
+    virtual std::string formatName() const { return "NIFTI-1"; }
+  };
+
+
+  class Nifti2FormatChecker : public NiftiFormatChecker
+  {
+  public:
+    Nifti2FormatChecker();
+    virtual ~Nifti2FormatChecker();
+
+  protected:
+    virtual std::string formatName() const { return "NIFTI-2"; }
   };
 
 

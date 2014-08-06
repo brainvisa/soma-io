@@ -6,9 +6,12 @@ set( _headers
   image/nifti1imagereader_d.h
   image/nifti1imagewriter.h
   image/nifti1imagewriter_d.h
+  nifticlib/niftiapihelpers_p.h
   nifticlib/znzlib/znzlib.h
   nifticlib/niftilib/nifti1.h
   nifticlib/niftilib/nifti1_io.h
+  nifticlib/niftilib/nifti2.h
+  nifticlib/niftilib/nifti2_io.h
   plugin/niftiplugin.h
 )
 
@@ -18,8 +21,10 @@ set( _sources
   checker/inversion_lu.cc
   image/nifti1imagereader.cc
   image/nifti1imagewriter.cc
+  nifticlib/niftiapihelpers_p.cc
   nifticlib/znzlib/znzlib.c
-  nifticlib/niftilib/nifti1_io.c
+#   nifticlib/niftilib/nifti1_io.c
+  nifticlib/niftilib/nifti2_io.c
   plugin/niftiplugin.cc
 )
 

@@ -31,68 +31,60 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -----------------------------------------------------------------
-#include <soma-io/plugin/niftiplugin.h>
-#include <soma-io/checker/nifti1formatchecker.h>
-//--- soma-io ----------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-#include <soma-io/datasourceinfo/datasourceinfoloader.h>
-//--- system -----------------------------------------------------------------
-#include <vector>
-#include <string>
-//----------------------------------------------------------------------------
+#ifndef SOMAIO_NIFTICLIB_NIFTIAPIHELPERS_P_H
+#define SOMAIO_NIFTICLIB_NIFTIAPIHELPERS_P_H
 
-using namespace soma;
-using namespace carto;
-using namespace std;
+#include <soma-io/config/soma_config.h>
+#include <nifti2_io.h>
 
 namespace soma
 {
-  namespace
+
+  class NiftiApiHelpers
   {
-    bool initnifti()
+  public:
+    virtual ~NiftiApiHelpers() = 0;
+
+    virtual nifti_image *nifti_image_read(
+      const char *hname , int read_data ) = 0;
+    virtual int is_nifti_file(const char *hname) = 0;
+  };
+
+
+  class Nifti1ApiHelpers : public NiftiApiHelpers
+  {
+  public:
+    virtual ~Nifti1ApiHelpers();
+
+    virtual nifti_image *nifti_image_read(
+      const char *hname , int read_data )
     {
-      new NiftiPlugin;
-      return true;
+      return ::nifti_image_read( hname, read_data );
     }
-    bool niftiinit = initnifti();
-  }
+    virtual inline int is_nifti_file(const char *hname)
+    {
+      return ::is_nifti_file( hname );
+    }
+  };
+
+
+  class Nifti2ApiHelpers : public NiftiApiHelpers
+  {
+  public:
+    virtual ~Nifti2ApiHelpers();
+
+    virtual inline nifti_image *nifti_image_read(
+      const char *hname , int read_data )
+    {
+      return ::nifti2_image_read( hname, read_data );
+    }
+    virtual inline int is_nifti_file(const char *hname)
+    {
+      return ::is_nifti2_file( hname );
+    }
+  };
+
 }
 
-NiftiPlugin::NiftiPlugin() : Plugin()
-{
-    vector<string>  exts(6);
-    exts[0] = "nii";
-    exts[1] = "nii.gz";
-    exts[2] = "img";
-    exts[3] = "img.gz";
-    exts[4] = "hdr";
-    exts[5] = "gz";
-
-    //////////////////////////////////////////////////////////////////////////
-    ////                         C H E C K E R                            ////
-    //////////////////////////////////////////////////////////////////////////
-
-    DataSourceInfoLoader::registerFormat( "NIFTI-1",
-                                          new Nifti1FormatChecker, exts );
-    DataSourceInfoLoader::registerFormat( "NIFTI-2",
-                                          new Nifti2FormatChecker, exts );
-}
-
-
-NiftiPlugin::~NiftiPlugin()
-{
-}
-
-
-string NiftiPlugin::name() const
-{
-  return string("NIFTI SOMA-IO");
-}
-
-
-bool NiftiPlugin::noop()
-{
-  return true;
-}
+#endif
 

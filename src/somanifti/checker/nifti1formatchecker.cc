@@ -42,6 +42,7 @@
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
 #include <soma-io/checker/nifti1structwrapper.h>
 #include <soma-io/checker/transformation.h>
+#include <soma-io/nifticlib/niftiapihelpers_p.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                                 // header
 #include <cartobase/object/property.h>                               // header
@@ -163,7 +164,7 @@ namespace soma
  * each of the following keywords : "nii", "hdr", "minf", "default", but
  * in the worst case they can all be the initial ds.
  ****************************************************************************/
-void Nifti1FormatChecker::_buildDSList( DataSourceList & dsl ) const
+void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
   string hdrname, dataname, minfname;
@@ -307,7 +308,7 @@ void Nifti1FormatChecker::_buildDSList( DataSourceList & dsl ) const
  * This method builds a header from a .hdr / .nii DataSource.
  * The argument is given by check(...) and is supposed to be a nifti file.
  ****************************************************************************/
-Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
+Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
 {
   FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
   string          fname = hds->url();
@@ -318,11 +319,11 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   nifti_set_debug_level( 0 );
 
   // check that given file is NIFTI and not ANALYZE
-  if( is_nifti_file( fname.c_str() ) <= 0 )
+  if( api->is_nifti_file( fname.c_str() ) <= 0 )
     throw wrong_format_error( fname );
 
   // read header using niftilib without loading data
-  nim = nifti_image_read( fname.c_str() , 0 );
+  nim = api->nifti_image_read( fname.c_str() , 0 );
   if( !nim )
   {
     io_error::launchErrnoExcept( fname );
@@ -692,7 +693,7 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   {
     vector< int > extcode( nim->num_ext );
         vector< vector< char > > extdata( nim->num_ext );
-    cerr << "NIFTI-1 extensions are present in header but will be ignored: \"" << fname << "\"" << endl;
+    cerr << formatName() << " extensions are present in header but will be ignored: \"" << fname << "\"" << endl;
     for (int i=0; i<nim->num_ext;++i)
     {
       extcode.push_back( nim->ext_list[i].ecode );
@@ -714,20 +715,33 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
   // hdr->setProperty( "object_type", string( "Volume of " ) + type );
   hdr->setProperty( "object_type", string( "Volume" ) );
   hdr->setProperty( "data_type", type );
-  hdr->setProperty( "format", string( "NIFTI-1" ) );
+  hdr->setProperty( "format", formatName() );
 
   return hdr;
+}
+
+
+void NiftiFormatChecker::setApi( NiftiApiHelpers *napi )
+{
+  api = napi;
 }
 
 //============================================================================
 //   P U B L I C   M E T H O D S
 //============================================================================
 
-Nifti1FormatChecker::~Nifti1FormatChecker()
+NiftiFormatChecker::NiftiFormatChecker()
+  : FormatChecker(), api( 0 )
 {
 }
 
-DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
+
+NiftiFormatChecker::~NiftiFormatChecker()
+{
+  delete api;
+}
+
+DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
                                            DataSourceInfoLoader & /* f */,
                                            Object /* options */) const
 {
@@ -747,8 +761,8 @@ DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
   //--- test header format ---------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" )
-        || dsi.header()->getProperty( "format" )->getString() != "NIFTI-1" )
-      throw wrong_format_error( "Not a NIFTI-1 header",
+        || dsi.header()->getProperty( "format" )->getString() != formatName() )
+      throw wrong_format_error( string( "Not a " ) + formatName() + " header",
                                 dsi.list().dataSource()->url() );
 
   //--- build datasourcelist -------------------------------------------------
@@ -818,6 +832,38 @@ DataSourceInfo Nifti1FormatChecker::check( DataSourceInfo dsi,
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );
   return dsi;
+}
+
+
+//============================================================================
+// Nifti1FormatChecker
+//============================================================================
+
+Nifti1FormatChecker::Nifti1FormatChecker()
+  : NiftiFormatChecker()
+{
+  setApi( new Nifti1ApiHelpers );
+}
+
+
+Nifti1FormatChecker::~Nifti1FormatChecker()
+{
+}
+
+
+//============================================================================
+// Nifti2FormatChecker
+//============================================================================
+
+Nifti2FormatChecker::Nifti2FormatChecker()
+  : NiftiFormatChecker()
+{
+  setApi( new Nifti2ApiHelpers );
+}
+
+
+Nifti2FormatChecker::~Nifti2FormatChecker()
+{
 }
 
 

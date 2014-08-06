@@ -105,10 +105,10 @@ namespace soma
   //==========================================================================
   template <typename T>
   void Nifti1ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                                std::vector<int> & pos,
-                                std::vector<int> & size,
-                                std::vector<long> & stride,
-                                carto::Object      options )
+                                   std::vector<int> & pos,
+                                   std::vector<int> & size,
+                                   std::vector<long> & stride,
+                                   carto::Object      options )
   {
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
@@ -285,7 +285,6 @@ namespace soma
     int  y, z, t;
     offset_t offset;
 
-//     std::cout << "readType, size: " << vx << ", " << vy << ", " << vz << std::endl;
     nifti_image *nim = _nim->nim;
 
     // fix erroneous null dimT
@@ -307,8 +306,6 @@ namespace soma
 
     Point3df pdims = m2s.transform( Point3df( vx, vy, vz ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
-//     Point3df posf = m2s.transform( Point3df( ox, oy, oz ) )
-//         - m2s.transform( Point3df( 0, 0, 0 ) );
     Point3df posf1 = m2s.transform( Point3df( ox, oy, oz ) );
     Point3df posf2 = m2s.transform( Point3df( ox+vx-1, oy+vy-1, oz+vz-1 ) );
     int idims[3];
@@ -316,9 +313,6 @@ namespace soma
     idims[1] = (int) rint( fabs( pdims[1] ) );
     idims[2] = (int) rint( fabs( pdims[2] ) );
     int ipos[3];
-//     ipos[0] = (int) rint( fabs( posf[0] ) );
-//     ipos[1] = (int) rint( fabs( posf[1] ) );
-//     ipos[2] = (int) rint( fabs( posf[2] ) );
     ipos[0] = (int) rint( std::min( posf1[0], posf2[0] ) );
     ipos[1] = (int) rint( std::min( posf1[1], posf2[1] ) );
     ipos[2] = (int) rint( std::min( posf1[2], posf2[2] ) );
@@ -436,9 +430,6 @@ namespace soma
         t2 = t + ot;
 
         subbb0[3] = t2;
-//         std::cout << "subbb0: " << subbb0[0] << ", " << subbb0[1] << ", " << subbb0[2] << ", " << subbb0[3] << std::endl;
-//         std::cout << "subbb1: " << subbb1[0] << ", " << subbb1[1] << ", " << subbb1[2] << ", " << subbb1[3] << std::endl;
-//         std::cout << "nim dim: " << nim->dim[1] << ", " << nim->dim[2] << ", " << nim->dim[3] << ", " << nim->dim[4] << std::endl;
         if( !gzipped )
         {
           ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
@@ -459,8 +450,6 @@ namespace soma
             // we move in the buffer
             offset = t2 * stride[3] + z * stride[2] + y * stride[1];
             target = dest + offset;
-//             if( y == 0 )
-//               std::cout << "d0: " << d0[0] << ", " << d0[1] << ", " << d0[2] << std::endl;
 
             for( int x=0; x<vx; x+=dstinc, psrc += minc )
             {
@@ -478,7 +467,6 @@ namespace soma
     if( fail )
       std::cerr << "Warning: storage_to_memory transformation in NIFTI1 file "
           "seems to be wrong" << std::endl;
-//     throw carto::corrupt_stream_error( dsi.url() );
   }
 
 
