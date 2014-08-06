@@ -136,7 +136,7 @@ namespace soma
       throw carto::datatype_format_error( dsi.url() );
   }
 
-  // specialize RGB and RGBA
+  // specialize RGB, RGBA and complex
 
   template <>
   void Nifti1ImageReader<carto::VoxelRGB>::read( carto::VoxelRGB * dest,
@@ -183,6 +183,79 @@ namespace soma
       throw carto::datatype_format_error( dsi.url() );
   }
 
+
+  template <>
+  void Nifti1ImageReader<cfloat>::read( cfloat * dest,
+                                        DataSourceInfo & dsi,
+                                        std::vector<int> & pos,
+                                        std::vector<int> & size,
+                                        std::vector<long> & stride,
+                                        carto::Object options )
+  {
+    if( _sizes.empty() || _nim.isNull() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "CFLOAT" )
+      readType<cfloat>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+
+  template <>
+  void Nifti1ImageReader<cdouble>::read( cdouble * dest,
+                                         DataSourceInfo & dsi,
+                                         std::vector<int> & pos,
+                                         std::vector<int> & size,
+                                         std::vector<long> & stride,
+                                         carto::Object options )
+  {
+    if( _sizes.empty() || _nim.isNull() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "CDOUBLE" )
+      readType<cdouble>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+}
+
+
+namespace
+{
+
+  template <typename T> inline T _scaledValue(
+    const T & value, double scale, double offset)
+  {
+    return (T) ( value * scale + offset );
+  }
+
+
+  template <> inline cfloat _scaledValue(
+    const cfloat & value, double scale, double offset)
+  {
+    return value;
+  }
+
+
+  template <> inline cdouble _scaledValue(
+    const cdouble & value, double scale, double offset)
+  {
+    return value;
+  }
+
+}
+
+
+namespace soma
+{
 
   template <typename T>
   template <typename U>
@@ -346,7 +419,7 @@ namespace soma
             for( int x=0; x<vx; x+=dstinc, psrc += minc )
             {
               if( psrc >= pmin && psrc < pmax )
-                *target++ = (T) ( ((T) *psrc ) * s[0] + s[1] );
+                *target++ = _scaledValue( (T) *psrc, s[0], s[1] );
               else
               {
                 *target++ = 0;

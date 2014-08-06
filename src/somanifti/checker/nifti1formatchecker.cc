@@ -403,6 +403,14 @@ Object Nifti1FormatChecker::_buildHeader( DataSource* hds ) const
     type = "RGBA";
     sz = 32;
     break;
+  case DT_COMPLEX64:
+    type = "CFLOAT";
+    sz = 64;
+    break;
+  case DT_COMPLEX128:
+    type = "CDOUBLE";
+    sz = 128;
+    break;
   default:
     cerr << "Unrecognized datatype code in NIFTI file \"" << fname
         << "\"" << endl;

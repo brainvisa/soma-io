@@ -202,6 +202,28 @@ namespace
   }
 
 
+  template <>
+  bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
+                               const soma::AffineTransformation3d &,
+                               const cfloat*,
+                               int, int, znzFile,
+                               const std::vector<long> & )
+  {
+    return false;
+  }
+
+
+  template <>
+  bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
+                               const soma::AffineTransformation3d &,
+                               const cdouble*,
+                               int, int, znzFile,
+                               const std::vector<long> & )
+  {
+    return false;
+  }
+
+
   template <typename T>
   void dataTOnim( nifti_image *nim, carto::Object & hdr,
                   const T* source, int tt, znzFile zfp, 
@@ -851,6 +873,10 @@ namespace soma
       nim->datatype = DT_RGB;
     else if( type == "RGBA" )
       nim->datatype = DT_RGBA32;
+    else if( type == "CFLOAT" )
+      nim->datatype = DT_COMPLEX64;
+    else if( type == "CDOUBLE" )
+      nim->datatype = DT_COMPLEX128;
     else
     {
       std::cerr << "Unknown NIFTI1 datatype, using FLOAT: " << type

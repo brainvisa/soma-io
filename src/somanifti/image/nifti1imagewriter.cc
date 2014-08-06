@@ -58,3 +58,5 @@ template class Nifti1ImageWriter<double>;
 template class Nifti1ImageWriter<VoxelRGB>;
 template class Nifti1ImageWriter<VoxelRGBA>;
 template class Nifti1ImageWriter<VoxelHSV>;
+template class Nifti1ImageWriter<cfloat>;
+template class Nifti1ImageWriter<cdouble>;
