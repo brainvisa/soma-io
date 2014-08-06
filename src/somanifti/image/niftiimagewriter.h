@@ -31,12 +31,12 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_NIFTI1IMAGEWRITER_H
-#define SOMAIO_IMAGE_NIFTI1IMAGEWRITER_H
+#ifndef SOMAIO_IMAGE_NIFTIIMAGEWRITER_H
+#define SOMAIO_IMAGE_NIFTIIMAGEWRITER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagewriter.h>
-#include <soma-io/checker/nifti1structwrapper.h>
+#include <soma-io/checker/niftistructwrapper.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 //--- system -----------------------------------------------------------------
@@ -49,14 +49,14 @@ namespace soma
 
   /// ImageWriter for NIFTI-1 files.
   template<typename T>
-  class Nifti1ImageWriter : public ImageWriter<T>
+  class NiftiImageWriter : public ImageWriter<T>
   {
     public:
       //======================================================================
       //   C O N S T R U C T O R S
       //======================================================================
-      Nifti1ImageWriter();
-      virtual ~Nifti1ImageWriter();
+      NiftiImageWriter();
+      virtual ~NiftiImageWriter();
 
       //======================================================================
       //   I M A G E W R I T E R
@@ -90,7 +90,7 @@ namespace soma
                               carto::Object options ) const;
 
       std::vector<std::vector<int> >  _sizes;
-      carto::rc_ptr<Nifti1StructWrapper> _nim;
+      carto::rc_ptr<NiftiStructWrapper> _nim;
       std::vector<carto::rc_ptr<NiftiFileWrapper> > _znzfiles;
   };
 

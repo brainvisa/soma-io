@@ -31,10 +31,10 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_NIFTI1IMAGEREADER_D_H
-#define SOMAIO_IMAGE_NIFTI1IMAGEREADER_D_H
+#ifndef SOMAIO_IMAGE_NIFTIIMAGEREADER_D_H
+#define SOMAIO_IMAGE_NIFTIIMAGEREADER_D_H
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/image/nifti1imagereader.h> // class declaration
+#include <soma-io/image/niftiimagereader.h> // class declaration
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader.h>                  // inheritance
@@ -62,7 +62,7 @@ namespace soma
   //   U S E F U L
   //==========================================================================
   template <typename T>
-  void Nifti1ImageReader<T>::updateParams( DataSourceInfo & dsi )
+  void NiftiImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
     dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
@@ -74,7 +74,7 @@ namespace soma
   }
 
   template <typename T>
-  void Nifti1ImageReader<T>::resetParams()
+  void NiftiImageReader<T>::resetParams()
   {
     _sizes = std::vector< std::vector<int> >();
   }
@@ -90,13 +90,13 @@ namespace soma
    */
 
   template <typename T>
-  Nifti1ImageReader<T>::Nifti1ImageReader() :
+  NiftiImageReader<T>::NiftiImageReader() :
     ImageReader<T>()
   {
   }
 
   template <typename T>
-  Nifti1ImageReader<T>::~Nifti1ImageReader()
+  NiftiImageReader<T>::~NiftiImageReader()
   {
   }
 
@@ -104,7 +104,7 @@ namespace soma
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
   template <typename T>
-  void Nifti1ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
+  void NiftiImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                    std::vector<int> & pos,
                                    std::vector<int> & size,
                                    std::vector<long> & stride,
@@ -139,7 +139,7 @@ namespace soma
   // specialize RGB, RGBA and complex
 
   template <>
-  void Nifti1ImageReader<carto::VoxelRGB>::read( carto::VoxelRGB * dest,
+  void NiftiImageReader<carto::VoxelRGB>::read( carto::VoxelRGB * dest,
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
@@ -162,7 +162,7 @@ namespace soma
 
 
   template <>
-  void Nifti1ImageReader<carto::VoxelRGBA>::read( carto::VoxelRGBA * dest,
+  void NiftiImageReader<carto::VoxelRGBA>::read( carto::VoxelRGBA * dest,
                                 DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
@@ -185,7 +185,7 @@ namespace soma
 
 
   template <>
-  void Nifti1ImageReader<cfloat>::read( cfloat * dest,
+  void NiftiImageReader<cfloat>::read( cfloat * dest,
                                         DataSourceInfo & dsi,
                                         std::vector<int> & pos,
                                         std::vector<int> & size,
@@ -206,7 +206,7 @@ namespace soma
 
 
   template <>
-  void Nifti1ImageReader<cdouble>::read( cdouble * dest,
+  void NiftiImageReader<cdouble>::read( cdouble * dest,
                                          DataSourceInfo & dsi,
                                          std::vector<int> & pos,
                                          std::vector<int> & size,
@@ -259,7 +259,7 @@ namespace soma
 
   template <typename T>
   template <typename U>
-  void Nifti1ImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
+  void NiftiImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
                                 std::vector<long> & stride,
@@ -471,9 +471,9 @@ namespace soma
 
 
   template <typename T>
-  ImageReader<T>* Nifti1ImageReader<T>::cloneReader() const
+  ImageReader<T>* NiftiImageReader<T>::cloneReader() const
   {
-    return new Nifti1ImageReader;
+    return new NiftiImageReader;
   }
 
 }

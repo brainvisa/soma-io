@@ -1,11 +1,11 @@
 set( _headers
-  checker/nifti1formatchecker.h
-  checker/nifti1structwrapper.h
+  checker/niftiformatchecker.h
+  checker/niftistructwrapper.h
   checker/transformation.h
-  image/nifti1imagereader.h
-  image/nifti1imagereader_d.h
-  image/nifti1imagewriter.h
-  image/nifti1imagewriter_d.h
+  image/niftiimagereader.h
+  image/niftiimagereader_d.h
+  image/niftiimagewriter.h
+  image/niftiimagewriter_d.h
   nifticlib/niftiapihelpers_p.h
   nifticlib/znzlib/znzlib.h
   nifticlib/niftilib/nifti1.h
@@ -16,14 +16,14 @@ set( _headers
 )
 
 set( _sources
-  checker/nifti1formatchecker.cc
+  checker/niftiformatchecker.cc
   checker/transformation.cc
   checker/inversion_lu.cc
-  image/nifti1imagereader.cc
-  image/nifti1imagewriter.cc
+  image/niftiimagereader.cc
+  image/niftiimagewriter.cc
   nifticlib/niftiapihelpers_p.cc
   nifticlib/znzlib/znzlib.c
-#   nifticlib/niftilib/nifti1_io.c
+#   nifticlib/niftilib/nifti1_io.c ## included in nifti2_io.c
   nifticlib/niftilib/nifti2_io.c
   plugin/niftiplugin.cc
 )

@@ -31,31 +31,45 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -----------------------------------------------------------------
-#include <soma-io/image/nifti1imagereader_d.h>
-//--- soma-io ----------------------------------------------------------------
-#include <soma-io/config/soma_config.h>
-//--- cartobase --------------------------------------------------------------
-#include <cartobase/type/voxelrgb.h>
-#include <cartobase/type/voxelrgba.h>
-#include <cartobase/type/voxelhsv.h>
-//----------------------------------------------------------------------------
+#ifndef SOMAIO_CHECKER_NIFTISTRUCTWRAPPER_H
+#define SOMAIO_CHECKER_NIFTISTRUCTWRAPPER_H
 
-using namespace soma;
-using namespace carto;
+#include <cartobase/object/object.h>
+#include <cartobase/smart/rcptr.h>
+#include <soma-io/nifticlib/niftilib/nifti1_io.h>
 
-template class Nifti1ImageReader<int8_t>;
-template class Nifti1ImageReader<int16_t>;
-template class Nifti1ImageReader<int32_t>;
-template class Nifti1ImageReader<int64_t>;
-template class Nifti1ImageReader<uint8_t>;
-template class Nifti1ImageReader<uint16_t>;
-template class Nifti1ImageReader<uint32_t>;
-template class Nifti1ImageReader<uint64_t>;
-template class Nifti1ImageReader<float>;
-template class Nifti1ImageReader<double>;
-template class Nifti1ImageReader<VoxelRGB>;
-template class Nifti1ImageReader<VoxelRGBA>;
-template class Nifti1ImageReader<VoxelHSV>;
-template class Nifti1ImageReader<std::complex<float> >;
-template class Nifti1ImageReader<std::complex<double> >;
+namespace soma
+{
+
+  /** This class holds the nifti_image structure of nifticlib, and frees it
+      when it is deleted. It can be set in a generic object so as to fit in a
+      header.
+   */
+  class NiftiStructWrapper : public carto::RCObject
+  {
+  public:
+    NiftiStructWrapper( nifti_image* nim=0 ) : nim( nim ) {}
+    virtual ~NiftiStructWrapper();
+    nifti_image* nim;
+  };
+
+  /** This class holds the nifti_image stream (znzFile), and frees it
+      when it is deleted.
+   */
+  class NiftiFileWrapper : public carto::RCObject
+  {
+  public:
+    NiftiFileWrapper( znzFile znz ) : znzfile( znz ) {}
+    virtual ~NiftiFileWrapper();
+    znzFile znzfile;
+  };
+
+}
+
+namespace carto
+{
+  DECLARE_GENERIC_OBJECT_TYPE( carto::rc_ptr<soma::NiftiStructWrapper> )
+}
+
+#endif
+

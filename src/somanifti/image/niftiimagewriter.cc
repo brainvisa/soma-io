@@ -31,81 +31,31 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_CHECKER_NIFTI1FORMATCHECKER_H
-#define SOMAIO_CHECKER_NIFTI1FORMATCHECKER_H
+//--- plugin -----------------------------------------------------------------
+#include <soma-io/image/niftiimagewriter_d.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/checker/formatchecker.h>
 //--- cartobase --------------------------------------------------------------
-#include <cartobase/object/object.h>
+#include <cartobase/type/voxelrgb.h>
+#include <cartobase/type/voxelrgba.h>
+#include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-namespace soma
-{
-  class DataSource;
-  class DataSourceList;
-  class DataSourceInfoLoader;
-  class DataSourceInfo;
-  class NiftiApiHelpers;
+using namespace soma;
+using namespace carto;
 
-  /// FormatChecker for NIFTI-1 files.
-  class NiftiFormatChecker : public FormatChecker
-  {
-  public:
-    NiftiFormatChecker();
-    virtual DataSourceInfo check( DataSourceInfo dsi,
-                                  DataSourceInfoLoader & f,
-                                  carto::Object options = carto::none() )
-                                  const;
-    virtual ~NiftiFormatChecker() = 0;
-
-  protected:
-    void _buildDSList( DataSourceList & dsl ) const;
-    carto::Object _buildHeader( DataSource * hds ) const;
-    void setApi( NiftiApiHelpers *api );
-    virtual std::string formatName() const = 0;
-    NiftiApiHelpers *api;
-  };
-
-
-  class Nifti1FormatChecker : public NiftiFormatChecker
-  {
-  public:
-    Nifti1FormatChecker();
-    virtual ~Nifti1FormatChecker();
-
-  protected:
-    virtual std::string formatName() const { return "NIFTI-1"; }
-  };
-
-
-  class Nifti2FormatChecker : public NiftiFormatChecker
-  {
-  public:
-    Nifti2FormatChecker();
-    virtual ~Nifti2FormatChecker();
-
-  protected:
-    virtual std::string formatName() const { return "NIFTI-2"; }
-  };
-
-
-  class StandardReferentials
-  {
-  public:
-    static std::string mniTemplateReferential();
-    static std::string acPcReferential();
-    static std::string talairachReferential();
-    static std::string commonScannerBasedReferential();
-    static std::string mniTemplateReferentialID();
-    static std::string acPcReferentialID();
-    static std::string commonScannerBasedReferentialID();
-  };
-
-  std::string NiftiReferential( int xform_code );
-  int NiftiReferential( const std::string & ref );
-
-}
-
-#endif
-
+template class NiftiImageWriter<int8_t>;
+template class NiftiImageWriter<int16_t>;
+template class NiftiImageWriter<int32_t>;
+template class NiftiImageWriter<int64_t>;
+template class NiftiImageWriter<uint8_t>;
+template class NiftiImageWriter<uint16_t>;
+template class NiftiImageWriter<uint32_t>;
+template class NiftiImageWriter<uint64_t>;
+template class NiftiImageWriter<float>;
+template class NiftiImageWriter<double>;
+template class NiftiImageWriter<VoxelRGB>;
+template class NiftiImageWriter<VoxelRGBA>;
+template class NiftiImageWriter<VoxelHSV>;
+template class NiftiImageWriter<cfloat>;
+template class NiftiImageWriter<cdouble>;

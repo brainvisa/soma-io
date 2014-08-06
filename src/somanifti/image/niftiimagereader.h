@@ -31,32 +31,58 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-//--- plugin -----------------------------------------------------------------
-#include <soma-io/image/nifti1imagewriter_d.h>
-#include <soma-io/checker/nifti1formatchecker.h>
+#ifndef SOMAIO_IMAGE_NIFTIIMAGEREADER_H
+#define SOMAIO_IMAGE_NIFTIIMAGEREADER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+#include <soma-io/image/imagereader.h>
+#include <soma-io/datasource/chaindatasource.h>
+#include <soma-io/checker/niftistructwrapper.h>
 //--- cartobase --------------------------------------------------------------
-#include <cartobase/type/voxelrgb.h>
-#include <cartobase/type/voxelrgba.h>
-#include <cartobase/type/voxelhsv.h>
+#include <cartobase/object/object.h>                        // header, options
+//--- system -----------------------------------------------------------------
+#include <vector>
 //----------------------------------------------------------------------------
 
-using namespace soma;
-using namespace carto;
+namespace soma
+{
+  class DataSourceInfo;
 
-template class Nifti1ImageWriter<int8_t>;
-template class Nifti1ImageWriter<int16_t>;
-template class Nifti1ImageWriter<int32_t>;
-template class Nifti1ImageWriter<int64_t>;
-template class Nifti1ImageWriter<uint8_t>;
-template class Nifti1ImageWriter<uint16_t>;
-template class Nifti1ImageWriter<uint32_t>;
-template class Nifti1ImageWriter<uint64_t>;
-template class Nifti1ImageWriter<float>;
-template class Nifti1ImageWriter<double>;
-template class Nifti1ImageWriter<VoxelRGB>;
-template class Nifti1ImageWriter<VoxelRGBA>;
-template class Nifti1ImageWriter<VoxelHSV>;
-template class Nifti1ImageWriter<cfloat>;
-template class Nifti1ImageWriter<cdouble>;
+  /// ImageReader for NIFTI files.
+  template<typename T>
+  class NiftiImageReader : public ImageReader<T>
+  {
+    public:
+      //======================================================================
+      //   C O N S T R U C T O R S
+      //======================================================================
+      NiftiImageReader();
+      virtual ~NiftiImageReader();
+
+      //======================================================================
+      //   I M A G E R E A D E R
+      //======================================================================
+      virtual void read( T * dest, DataSourceInfo & dsi,
+                         std::vector<int> & pos,
+                         std::vector<int> & size,
+                         std::vector<long> & stride,
+                         carto::Object options = carto::none() );
+
+      virtual void updateParams( DataSourceInfo & dsi );
+      virtual void resetParams();
+      virtual ImageReader<T>* cloneReader() const;
+
+    protected:
+      template <typename U>
+      void readType( T * dest, DataSourceInfo & dsi,
+                     std::vector<int> & pos,
+                     std::vector<int> & size,
+                     std::vector<long> & stride,
+                     carto::Object options = carto::none() );
+      std::vector<std::vector<int> >  _sizes;
+      carto::rc_ptr<NiftiStructWrapper> _nim;
+  };
+
+}
+
+#endif

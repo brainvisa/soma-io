@@ -31,10 +31,10 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#ifndef SOMAIO_IMAGE_NIFTI1IMAGEWRITER_D_H
-#define SOMAIO_IMAGE_NIFTI1IMAGEWRITER_D_H
+#ifndef SOMAIO_IMAGE_NIFTIIMAGEWRITER_D_H
+#define SOMAIO_IMAGE_NIFTIIMAGEWRITER_D_H
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/image/nifti1imagewriter.h>               // class declaration
+#include <soma-io/image/niftiimagewriter.h>               // class declaration
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagewriter.h>                             // heritage
@@ -45,7 +45,7 @@
 #include <soma-io/datasource/streamdatasource.h>      // used by writeHeader()
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
-#include <soma-io/checker/nifti1formatchecker.h>
+#include <soma-io/checker/niftiformatchecker.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/io/scaledcoding.h>
 //--- cartobase --------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace soma
   //   U S E F U L
   //==========================================================================
   template <typename T>
-  void Nifti1ImageWriter<T>::updateParams( DataSourceInfo & dsi )
+  void NiftiImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
     dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
@@ -85,7 +85,7 @@ namespace soma
   }
 
   template <typename T>
-  void Nifti1ImageWriter<T>::resetParams()
+  void NiftiImageWriter<T>::resetParams()
   {
     _sizes = std::vector< std::vector<int> >();
     _nim.reset( 0 );
@@ -332,13 +332,13 @@ namespace soma
   //   C O N S T R U C T O R S
   //==========================================================================
   template <typename T>
-  Nifti1ImageWriter<T>::Nifti1ImageWriter() :
+  NiftiImageWriter<T>::NiftiImageWriter() :
     ImageWriter<T>()
   {
   }
 
   template <typename T>
-  Nifti1ImageWriter<T>::~Nifti1ImageWriter()
+  NiftiImageWriter<T>::~NiftiImageWriter()
   {
   }
 
@@ -346,7 +346,7 @@ namespace soma
   //   I M A G E R E A D E R   M E T H O D S
   //==========================================================================
   template <typename T>
-  void Nifti1ImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
+  void NiftiImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
                                     const std::vector<int> & pos,
                                     const std::vector<int> & size,
                                     const std::vector<long> & strides,
@@ -481,7 +481,7 @@ namespace soma
 
 
   template <typename T>
-  DataSourceInfo Nifti1ImageWriter<T>::writeHeader(
+  DataSourceInfo NiftiImageWriter<T>::writeHeader(
     DataSourceInfo & dsi,
     const T * source,
     const std::vector<int> & pos,
@@ -592,7 +592,7 @@ namespace soma
   //   U T I L I T I E S
   //==========================================================================
   template <typename T>
-  void Nifti1ImageWriter<T>::buildDSList( DataSourceList & dsl,
+  void NiftiImageWriter<T>::buildDSList( DataSourceList & dsl,
                                           carto::Object /*options*/,
                                           bool write4d, int dimt ) const
   {
@@ -706,7 +706,7 @@ namespace soma
 
 
   template <typename T>
-  void Nifti1ImageWriter<T>::fillNiftiHeader( DataSourceInfo & dsi,
+  void NiftiImageWriter<T>::fillNiftiHeader( DataSourceInfo & dsi,
                                               carto::Object options, 
                                               bool allow4d )
   {
@@ -1259,13 +1259,13 @@ namespace soma
 
     // store nifti structure in DataSourceInfo
 
-    carto::rc_ptr<Nifti1StructWrapper> nimw( new Nifti1StructWrapper( nim ) );
+    carto::rc_ptr<NiftiStructWrapper> nimw( new NiftiStructWrapper( nim ) );
     dsi.privateIOData()->setProperty( "nifti_structure", nimw );
   }
 
 
   template <typename T>
-  void Nifti1ImageWriter<T>::checkDiskDataType(
+  void NiftiImageWriter<T>::checkDiskDataType(
     carto::Object hdr,
     const T * source,
     const std::vector<long> & strides,

@@ -32,7 +32,7 @@
  */
 
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/checker/nifti1formatchecker.h> // class declaration
+#include <soma-io/checker/niftiformatchecker.h> // class declaration
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
@@ -40,7 +40,7 @@
 #include <soma-io/datasource/datasourcelist.h>
 #include <soma-io/datasource/filedatasource.h>  // because we use file sources
 #include <soma-io/nifticlib/niftilib/nifti1_io.h>
-#include <soma-io/checker/nifti1structwrapper.h>
+#include <soma-io/checker/niftistructwrapper.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/nifticlib/niftiapihelpers_p.h>
 //--- cartobase --------------------------------------------------------------
@@ -708,8 +708,8 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   /* keep the nifti structur in the header, because it will be used during
      reading. */
   hdr->setProperty( "_nifti_structure",
-                    Object::value( rc_ptr<Nifti1StructWrapper>(
-                      new Nifti1StructWrapper( nim ) ) ) );
+                    Object::value( rc_ptr<NiftiStructWrapper>(
+                      new NiftiStructWrapper( nim ) ) ) );
 
   // the following shape is more logical, but incompatible with AIMS.
   // hdr->setProperty( "object_type", string( "Volume of " ) + type );
@@ -868,13 +868,13 @@ Nifti2FormatChecker::~Nifti2FormatChecker()
 
 
 //============================================================================
-// Nifti1StructWrapper
+// NiftiStructWrapper
 //============================================================================
-/*** Instantiate Nifti1StructWrapper destructor
+/*** Instantiate NiftiStructWrapper destructor
  * and compile the corresponding generic object
  ****************************************************************************/
 
-Nifti1StructWrapper::~Nifti1StructWrapper()
+NiftiStructWrapper::~NiftiStructWrapper()
 {
   /* free the nifti structure */
   if( nim )
@@ -901,7 +901,7 @@ NiftiFileWrapper::~NiftiFileWrapper()
 
 #include <cartobase/object/object_d.h>
 
-INSTANTIATE_GENERIC_OBJECT_TYPE( carto::rc_ptr<Nifti1StructWrapper> )
+INSTANTIATE_GENERIC_OBJECT_TYPE( carto::rc_ptr<NiftiStructWrapper> )
 
 #undef localMsg
 
