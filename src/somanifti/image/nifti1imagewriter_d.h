@@ -1274,7 +1274,7 @@ namespace soma
         // double maxm = 0;
         float scale = 1, offset = 0;
         bool shen = canEncodeAsScaledS16( source, scale,
-                                          offset, strides, _sizes[0], true,
+                                          offset, strides, size, true,
                                           0 /* &maxm */ );
         if( shen )
         {
