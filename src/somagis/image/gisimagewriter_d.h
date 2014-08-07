@@ -360,7 +360,9 @@ namespace soma {
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
     carto::Object minf = dsi.header();
-    minf->setProperty( "file_type", std::string( "GIS" ) );
+    if( minf->hasProperty( "file_type" ) )
+      minf->removeProperty( "file_type" );
+    minf->setProperty( "format", std::string( "GIS" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
     std::vector<int> dims( 4, 0 );

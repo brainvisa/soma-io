@@ -44,7 +44,7 @@
 #include <soma-io/datasource/filedatasource.h>              // used by clone()
 #include <soma-io/datasource/streamdatasource.h>      // used by writeHeader()
 #include <soma-io/datasource/datasource.h>
-#include <soma-io/nifticlib/niftilib/nifti1_io.h>
+#include <soma-io/nifticlib/niftiapihelpers_p.h>
 #include <soma-io/checker/niftiformatchecker.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/io/scaledcoding.h>
@@ -57,6 +57,7 @@
 #include <cartobase/type/voxelrgb.h>
 #include <cartobase/type/voxelrgba.h>
 #include <cartobase/type/voxelhsv.h>
+#include <cartobase/config/version.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -333,17 +334,18 @@ namespace soma
   //==========================================================================
   template <typename T>
   NiftiImageWriter<T>::NiftiImageWriter() :
-    ImageWriter<T>()
+    ImageWriter<T>(), api( 0 )
   {
   }
 
   template <typename T>
   NiftiImageWriter<T>::~NiftiImageWriter()
   {
+    delete api;
   }
 
   //==========================================================================
-  //   I M A G E R E A D E R   M E T H O D S
+  //   I M A G E W R I T E R   M E T H O D S
   //==========================================================================
   template <typename T>
   void NiftiImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
@@ -385,8 +387,9 @@ namespace soma
 
     bool  write4d = dsi.list().size( "nii" ) == 1;
 
-    if( sx >= 0x8000 || sy >= 0x8000 || sz >= 0x8000 )
-      throw carto::invalid_format_error( "NIFTI-1 cannot handle volume "
+    if( !checkDimsCompatibility() )
+      throw carto::invalid_format_error( formatName()
+        + " cannot handle volume "
         "dimensions exceeding 32737", dsi.url() );
 
     carto::Object hdr = dsi.header();
@@ -406,7 +409,7 @@ namespace soma
       else
       {
         // header has not been written. do it.
-        zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+        zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
 //         _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
 //           new NiftiFileWrapper( zfp ) ) );
       }
@@ -457,7 +460,7 @@ namespace soma
           // file 0 is already open
           zfp = _znzfiles[f]->znzfile;
         else // others are not.
-          zfp = nifti_image_write_hdr_img( nim, 2, "wb" );
+          zfp = api->nifti_image_write_hdr_img( nim, 2, "wb" );
         if( znz_isnull( zfp ) )
           ok = false;
         else
@@ -504,7 +507,7 @@ namespace soma
     Object hdr = dsi.header();
     int dimt;
     hdr->getProperty( "sizeT", dimt );
-    if( write4d && dimt >= 0x8000 )
+    if( write4d && !canWrite4d() )
       write4d = false;
 
     //--- build datasourcelist -----------------------------------------------
@@ -544,7 +547,7 @@ namespace soma
     updateParams( dsi );
     _znzfiles.clear();
 //     // FIXME: handle multiple files
-//     znzFile zfp = nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+//     znzFile zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
 //     // don't close file because we have no other way to know if it failed
 //     if( znz_isnull( zfp ) )
 //     {
@@ -557,7 +560,9 @@ namespace soma
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
     carto::Object minf = dsi.header();
-    minf->setProperty( "file_type", std::string( "NIFTI-1" ) );
+    if( minf->hasProperty( "file_type" ) )
+      minf->removeProperty( "file_type" );
+    minf->setProperty( "format", formatName() );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
     std::vector<int> dims( 4, 0 );
@@ -707,8 +712,8 @@ namespace soma
 
   template <typename T>
   void NiftiImageWriter<T>::fillNiftiHeader( DataSourceInfo & dsi,
-                                              carto::Object options, 
-                                              bool allow4d )
+                                             carto::Object options,
+                                             bool allow4d )
   {
     /* initialization of a nifti image struct */
     nifti_image *nim = nifti_simple_init_nim();
@@ -1203,7 +1208,8 @@ namespace soma
     /* DESCRIPTION AND AUXILIARY FILE */
     /**********************************/
 
-    strcpy( nim->descrip, "NIFTI-1 (writer: Soma IO 4.5).\0" );
+    strcpy( nim->descrip, (formatName() + " (writer: Soma IO "
+      + carto::cartobaseShortVersion() + ").\0").c_str() );
     std::string descrip;
     if( hdr->getProperty( "descrip", descrip ) )
     {
@@ -1312,6 +1318,56 @@ namespace soma
         }
       }
     }
+  }
+
+  //==========================================================================
+  //   N I F T I 1 I M A G E W R I T E R   M E T H O D S
+  //==========================================================================
+  template <typename T>
+  Nifti1ImageWriter<T>::Nifti1ImageWriter()
+    : NiftiImageWriter<T>()
+  {
+    this->setApi( new Nifti1ApiHelpers );
+  }
+
+
+  template <typename T>
+  Nifti1ImageWriter<T>::~Nifti1ImageWriter()
+  {
+  }
+
+
+  template <typename T>
+  bool Nifti1ImageWriter<T>::checkDimsCompatibility() const
+  {
+    if( this->_sizes[ 0 ][ 0 ] >= 0x8000 || this->_sizes[ 0 ][ 1 ] >= 0x8000
+        || this->_sizes[ 0 ][ 2 ] >= 0x8000 )
+      return false;
+    return true;
+  }
+
+
+  template <typename T>
+  bool Nifti1ImageWriter<T>::canWrite4d() const
+  {
+    return this->_sizes[ 0 ][ 2 ] < 0x8000;
+  }
+
+
+  //==========================================================================
+  //   N I F T I 2 I M A G E W R I T E R   M E T H O D S
+  //==========================================================================
+  template <typename T>
+  Nifti2ImageWriter<T>::Nifti2ImageWriter()
+    : NiftiImageWriter<T>()
+  {
+    this->setApi( new Nifti2ApiHelpers );
+  }
+
+
+  template <typename T>
+  Nifti2ImageWriter<T>::~Nifti2ImageWriter()
+  {
   }
 
 }

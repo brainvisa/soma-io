@@ -47,7 +47,9 @@ namespace soma
 
     virtual nifti_image *nifti_image_read(
       const char *hname , int read_data ) = 0;
-    virtual int is_nifti_file(const char *hname) = 0;
+    virtual int is_nifti_file( const char *hname ) = 0;
+    virtual znzFile nifti_image_write_hdr_img(
+      nifti_image *nim, int write_data, const char* opts ) = 0;
   };
 
 
@@ -61,9 +63,16 @@ namespace soma
     {
       return ::nifti_image_read( hname, read_data );
     }
-    virtual inline int is_nifti_file(const char *hname)
+
+    virtual inline int is_nifti_file( const char *hname )
     {
       return ::is_nifti_file( hname );
+    }
+
+    virtual znzFile nifti_image_write_hdr_img(
+      nifti_image *nim, int write_data, const char* opts )
+    {
+      return ::nifti_image_write_hdr_img( nim, write_data, opts );
     }
   };
 
@@ -78,9 +87,16 @@ namespace soma
     {
       return ::nifti2_image_read( hname, read_data );
     }
-    virtual inline int is_nifti_file(const char *hname)
+
+    virtual inline int is_nifti_file( const char *hname )
     {
       return ::is_nifti2_file( hname );
+    }
+
+    virtual znzFile nifti_image_write_hdr_img(
+      nifti_image *nim, int write_data, const char* opts )
+    {
+      return ::nifti2_image_write_hdr_img( nim, write_data, opts );
     }
   };
 

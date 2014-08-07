@@ -46,8 +46,9 @@
 namespace soma
 {
   class DataSourceInfo;
+  class NiftiApiHelpers;
 
-  /// ImageWriter for NIFTI-1 files.
+  /// abstract ImageWriter for NIFTI files.
   template<typename T>
   class NiftiImageWriter : public ImageWriter<T>
   {
@@ -56,7 +57,7 @@ namespace soma
       //   C O N S T R U C T O R S
       //======================================================================
       NiftiImageWriter();
-      virtual ~NiftiImageWriter();
+      virtual ~NiftiImageWriter() = 0;
 
       //======================================================================
       //   I M A G E W R I T E R
@@ -80,18 +81,57 @@ namespace soma
 
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options,
-        bool write4d, int dimt ) const;
-      static void fillNiftiHeader( DataSourceInfo & dsi, carto::Object options, 
-                                   bool allow4d );
+                        bool write4d, int dimt ) const;
+      void fillNiftiHeader( DataSourceInfo & dsi, carto::Object options,
+                            bool allow4d );
       void checkDiskDataType( carto::Object header,
                               const T * source,
                               const std::vector<long> & strides,
                               const std::vector<int> & size,
                               carto::Object options ) const;
+      void setApi( NiftiApiHelpers *napi ) { api = napi; }
+
+      virtual std::string formatName() const = 0;
+      virtual bool checkDimsCompatibility() const = 0;
+      virtual bool canWrite4d() const = 0;
 
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<NiftiStructWrapper> _nim;
       std::vector<carto::rc_ptr<NiftiFileWrapper> > _znzfiles;
+
+      NiftiApiHelpers *api;
+  };
+
+
+  /// ImageWriter for NIFTI-1 files.
+  template<typename T>
+  class Nifti1ImageWriter : public NiftiImageWriter<T>
+  {
+    public:
+      //======================================================================
+      //   C O N S T R U C T O R S
+      //======================================================================
+      Nifti1ImageWriter();
+      virtual ~Nifti1ImageWriter();
+      virtual std::string formatName() const { return "NIFTI-1"; }
+      virtual bool checkDimsCompatibility() const;
+      virtual bool canWrite4d() const;
+  };
+
+
+  /// ImageWriter for NIFTI-2 files.
+  template<typename T>
+  class Nifti2ImageWriter : public NiftiImageWriter<T>
+  {
+    public:
+      //======================================================================
+      //   C O N S T R U C T O R S
+      //======================================================================
+      Nifti2ImageWriter();
+      virtual ~Nifti2ImageWriter();
+      virtual std::string formatName() const { return "NIFTI-2"; }
+      virtual bool checkDimsCompatibility() const { return true; }
+      virtual bool canWrite4d() const { return true; }
   };
 
 }
