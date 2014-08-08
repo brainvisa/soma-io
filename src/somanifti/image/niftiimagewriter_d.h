@@ -507,7 +507,7 @@ namespace soma
     Object hdr = dsi.header();
     int dimt;
     hdr->getProperty( "sizeT", dimt );
-    if( write4d && !canWrite4d() )
+    if( write4d && !canWrite4d( hdr ) )
       write4d = false;
 
     //--- build datasourcelist -----------------------------------------------
@@ -1348,9 +1348,12 @@ namespace soma
 
 
   template <typename T>
-  bool Nifti1ImageWriter<T>::canWrite4d() const
+  bool Nifti1ImageWriter<T>::canWrite4d( carto::Object hdr ) const
   {
-    return this->_sizes[ 0 ][ 2 ] < 0x8000;
+    int sizeT;
+    if( hdr->getProperty( "sizeT", sizeT ) )
+      return sizeT < 0x8000;
+    return false;
   }
 
 

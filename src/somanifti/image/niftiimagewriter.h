@@ -93,7 +93,7 @@ namespace soma
 
       virtual std::string formatName() const = 0;
       virtual bool checkDimsCompatibility() const = 0;
-      virtual bool canWrite4d() const = 0;
+      virtual bool canWrite4d( carto::Object hdr ) const = 0;
 
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<NiftiStructWrapper> _nim;
@@ -115,7 +115,7 @@ namespace soma
       virtual ~Nifti1ImageWriter();
       virtual std::string formatName() const { return "NIFTI-1"; }
       virtual bool checkDimsCompatibility() const;
-      virtual bool canWrite4d() const;
+      virtual bool canWrite4d( carto::Object hdr ) const;
   };
 
 
@@ -131,7 +131,7 @@ namespace soma
       virtual ~Nifti2ImageWriter();
       virtual std::string formatName() const { return "NIFTI-2"; }
       virtual bool checkDimsCompatibility() const { return true; }
-      virtual bool canWrite4d() const { return true; }
+      virtual bool canWrite4d( carto::Object hdr ) const { return true; }
   };
 
 }
