@@ -62,7 +62,7 @@ namespace soma
     if ( ! writer ) {
       std::string	filename;
       filename = _datasourceinfo->list().dataSource()->url();
-      
+
       throw carto::format_mismatch_error( filename );
     }
     return writer->write( obj, options );
@@ -84,20 +84,20 @@ namespace soma
   //==========================================================================
   //   W R I T E   M E T H O D S
   //==========================================================================
-  
+
   //--- useful typedef -------------------------------------------------------
   typedef std::multimap<std::string,std::string> multi_S;
   typedef std::set<std::string> set_S;
-  typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
+  typedef std::pair<std::multimap<std::string, std::string>::const_iterator,
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
   //--------------------------------------------------------------------------
-  
+
   template<class T>
   bool Writer<T>::write( const T & obj, carto::Object options,
                          int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
-    
+
     set_S            tried;
     FormatWriter<T>  *writer;
     set_S::iterator  notyet = tried.end();
@@ -107,40 +107,62 @@ namespace soma
 
     if( !options.get() )
       options = carto::Object::value( carto::PropertySet() );
-    
+
     //// Reading URI /////////////////////////////////////////////////////////
-    std::string filename 
+    std::string filename
       = FileUtil::uriFilename( _datasourceinfo->list().dataSource()->url() );
-    carto::Object urioptions 
+    carto::Object urioptions
       = FileUtil::uriOptions( _datasourceinfo->list().dataSource()->url() );
     if( urioptions.get() ) {
       _datasourceinfo->list().dataSource()
                              .reset( new FileDataSource( filename ) );
       options->copyProperties( urioptions );
     }
-    
+
     std::string	format;
     options->getProperty( "format", format );
     localMsg( "format: " + format );
+    bool exactformat = false;
+    try
+    {
+      carto::Object exact = options->getProperty( "exact_format" );
+      exactformat = (bool) exact->getScalar();
+    }
+    catch( ... )
+    {
+    }
 
     //// priority to format hint /////////////////////////////////////////////
     if( passbegin <= 1 && passend >= 1 && !format.empty() )
     {
       localMsg( "Pass 1..." );
       writer = FormatDictionary<T>::writeFormat( format );
-      if( writer ) {
-        try {
+      if( writer )
+      {
+        try
+        {
           localMsg( "1. try writer " + format );
-          if( writer->write( obj, _datasourceinfo, options ) ) {
+          if( writer->write( obj, _datasourceinfo, options ) )
+          {
             localMsg( "1. " + format + " OK" );
             return true;
           }
-	      } catch( std::exception & e ) {
+          else if( exactformat )
+            throw carto::wrong_format_error( std::string( "Cannot write "
+              "object in format " ) + format, _datasourceinfo->url() );
+        }
+        catch( std::exception & e )
+        {
           localMsg( "1. " + format + " failed" );
+          if( exactformat )
+            throw;
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
-	      }
+        }
         tried.insert( format );
       }
+      else if( exactformat )
+        throw carto::wrong_format_error( std::string( "Cannot write "
+          "object in format " ) + format, _datasourceinfo->url() );
     }
 
     std::string	          ext = carto::FileUtil::extension( filename );
@@ -157,15 +179,25 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
           writer = FormatDictionary<T>::writeFormat( ie->second );
-          if( writer ) {
-            try {
+          if( writer )
+          {
+            try
+            {
               localMsg( "2. try writer " + ie->second );
-              if( writer->write( obj, _datasourceinfo, options ) ) {
+              if( writer->write( obj, _datasourceinfo, options ) )
+              {
                 localMsg( "2. " + ie->second + " OK" );
                 return true;
               }
-            } catch( std::exception & e ) {
+              else if( exactformat )
+                throw carto::wrong_format_error( std::string( "Cannot write "
+                  "object in format " ) + format, _datasourceinfo->url() );
+            }
+            catch( std::exception & e )
+            {
               localMsg( " 2. " + ie->second + " failed" );
+              if( exactformat )
+                throw;
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -181,15 +213,25 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
           writer = FormatDictionary<T>::writeFormat( ie->second );
-          if( writer ) {
-            try {
+          if( writer )
+          {
+            try
+            {
               localMsg( "3. try writer " + ie->second );
-              if( writer->write( obj, _datasourceinfo, options ) ) {
+              if( writer->write( obj, _datasourceinfo, options ) )
+              {
                 localMsg( "3. " + ie->second + " OK" );
                 return true;
               }
-            } catch( std::exception & e ) {
+              else if( exactformat )
+                throw carto::wrong_format_error( std::string( "Cannot write "
+                  "object in format " ) + format, _datasourceinfo->url() );
+            }
+            catch( std::exception & e )
+            {
               localMsg( "3. " + ie->second + " failed" );
+              if( exactformat )
+                throw;
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -206,15 +248,25 @@ namespace soma
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
         if( tried.find( ie->second ) == notyet ) {
           writer = FormatDictionary<T>::writeFormat( ie->second );
-          if( writer ) {
-            try {
+          if( writer )
+          {
+            try
+            {
               localMsg( "4. try writer " + ie->second );
-              if( writer->write( obj, _datasourceinfo, options ) ) {
+              if( writer->write( obj, _datasourceinfo, options ) )
+              {
                 localMsg( "4. " + ie->second + " OK" );
                 return true;
               }
-            } catch( std::exception & e ) {
+              else if( exactformat )
+                throw carto::wrong_format_error( std::string( "Cannot write "
+                  "object in format " ) + format, _datasourceinfo->url() );
+            }
+            catch( std::exception & e )
+            {
               localMsg( "4. " + ie->second + " failed" );
+              if( exactformat )
+                throw;
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -223,7 +275,7 @@ namespace soma
     }
 
     //// still not succeeded, it's hopeless... ///////////////////////////////
-    carto::io_error::launchExcept( exct, excm, 
+    carto::io_error::launchExcept( exct, excm,
                                    filename + " : no matching format" );
     return false;
   }
