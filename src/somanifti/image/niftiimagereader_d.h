@@ -299,6 +299,8 @@ namespace soma
     AffineTransformation3d m2s = s2m.inverse();
 
     std::vector<float> s(2);
+    s[0] = 1.;
+    s[1] = 0.;
     hdr->getProperty( "scale_factor", s[0] );
     hdr->getProperty( "scale_offset", s[1] );
     std::string dt;
@@ -380,8 +382,7 @@ namespace soma
       toff = zoff * idims[2];
     }
 
-    if (((carto::DataTypeCode<T>::name() == "FLOAT")
-      || (carto::DataTypeCode<T>::name() == "DOUBLE"))&& (s[0] != 0.0))
+    if( s[0] != 0. && ( s[0] != 1. || s[1] != 0. ) )
     {
       hdr->setProperty( "scale_factor_applied", true );
       for( int t=0; t<vt; ++t )

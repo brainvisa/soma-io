@@ -712,9 +712,8 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
                       new NiftiStructWrapper( nim ) ) ) );
 
   // the following shape is more logical, but incompatible with AIMS.
-  // hdr->setProperty( "object_type", string( "Volume of " ) + type );
+  // hdr->setProperty( "object_type", string( "Volume of " ) + dt );
   hdr->setProperty( "object_type", string( "Volume" ) );
-  hdr->setProperty( "data_type", type );
   hdr->setProperty( "format", formatName() );
 
   return hdr;
