@@ -1284,6 +1284,10 @@ namespace soma
       hdr->removeProperty( "scale_factor" );
     if( hdr->hasProperty( "scale_offset" ) )
       hdr->removeProperty( "scale_offset" );
+    if( hdr->hasProperty( "disk_data_type" ) )
+      hdr->removeProperty( "disk_data_type" );
+    if( hdr->hasProperty( "scale_factor_applied" ) )
+      hdr->removeProperty( "scale_factor_applied" );
 
     std::string code = carto::DataTypeCode<T>().dataType();
     if( code == "FLOAT" || code == "DOUBLE" )
