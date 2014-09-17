@@ -51,6 +51,7 @@ set( _headers
    smart/rcobject.h
    smart/rcptr.h
    smart/rcptrtrick.h
+   smart/refwrapper.h
    smart/scopedptr.h
    smart/sharedptr.h
    smart/smartdoc.h
