@@ -61,6 +61,7 @@ int main( int argc, const char **argv )
   string uri4 = "file.ext?";
   string uri5 = "file.ext?option1=this&&option2&";
   string uri6 = "/home/Petri/base/TD201210_Aperio/3399.svs?bx=5&by=5&resolution_level=2";
+  string uri7 = "?option1=1.2";
   string filename;
   Object options;
 
@@ -165,5 +166,20 @@ int main( int argc, const char **argv )
     verbMsg( "!!! resolution_level failed" );
   }
   ASSERT( options->getProperty( "resolution_level" )->getScalar() == 2 );
+  verbMsg( "" );
+
+  //--- test #7 --------------------------------------------------------------
+  verbMsg( "parsing uri : " + uri7 );
+  filename = FileUtil::uriFilename( uri7 );
+  verbMsg( " -> filename : \t" + filename );
+  ASSERT( filename == "" );
+  options = FileUtil::uriOptions( uri7 );
+  ASSERT( options.get() != 0 );
+  try {
+    verbMsg( " -> option1 : \t" + options->getProperty( "option1" )->getString() );
+  } catch( ... ) {
+    verbMsg( "!!! option1 failed" );
+  }
+  ASSERT( options->getProperty( "option1" )->getScalar() == (float)1.2 );
   verbMsg( "" );
 }
