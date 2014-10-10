@@ -105,6 +105,11 @@ set( SOMA-IO_INCLUDE_DIRS
      ${Boost_INCLUDE_DIRS}
    )
 
+if (DCMTK_FOUND)
+    set(SOMA-IO_INCLUDE_DIRS ${SOMA-IO_INCLUDE_DIRS}
+        ${DCMTK_INCLUDE_DIR})
+endif()
+
 include_directories( ${SOMA-IO_INCLUDE_DIRS} )
 
 ## Libraries
