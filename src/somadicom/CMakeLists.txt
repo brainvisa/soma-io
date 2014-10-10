@@ -71,9 +71,6 @@ set( _sources
   Dicom/DicomReader.cc
   Dicom/DicomReaderFactory.cc
   Dicom/DicomSortContext.cc
-  Dicom/Siemens/Demosaicer.cc
-  Dicom/Siemens/MosaicDataContext.cc
-  Dicom/Siemens/SiemensMRReader.cc
   Dicom/EnhancedMRImageStorageReader.cc
   Dicom/GenericCTReader.cc
   Dicom/GenericEnhancedMRReader.cc
