@@ -36,6 +36,7 @@ bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
   if ( dataset )
   {
+    m_dataInfo.m_fileCount = 1;
 
     Uint16 nSlices = 1;
 
