@@ -39,7 +39,7 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 #include <soma-io/datasource/datasourcelist.h>
 #include <soma-io/datasource/filedatasource.h>  // because we use file sources
-#include <soma-io/nifticlib/niftilib/nifti1_io.h>
+#include <soma-io/nifticlib/niftilib/nifti2_io.h>
 #include <soma-io/checker/niftistructwrapper.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/nifticlib/niftiapihelpers_p.h>

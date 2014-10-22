@@ -36,7 +36,7 @@
 
 #include <cartobase/object/object.h>
 #include <cartobase/smart/rcptr.h>
-#include <soma-io/nifticlib/niftilib/nifti1_io.h>
+#include <soma-io/nifticlib/niftilib/nifti2_io.h>
 
 namespace soma
 {

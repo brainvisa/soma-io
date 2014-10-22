@@ -42,7 +42,7 @@
 #include <soma-io/datasource/filedatasource.h>          // used by clone()
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/checker/transformation.h>
-#include <soma-io/nifticlib/niftilib/nifti1_io.h>
+#include <soma-io/nifticlib/niftilib/nifti2_io.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
 #include <cartobase/type/voxelrgb.h>

@@ -2,6 +2,7 @@
 #ifndef NIFTI2_IO_H
 #define NIFTI2_IO_H
 
+#include "niftilib_defines.h"
 #include "nifti1_io.h"
 #include "nifti2.h"
 

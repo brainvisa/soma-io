@@ -1,12 +1,13 @@
 
+#define _NIFTI1_IO_C_  // to allow some conditional defs in nifti1_io.h
+#include "nifti2_io.h"
+
 /* inlcude the .c for nifti-1
    this is to allow the modified code for nifti-2 to use static functions
    of nifti1_io.c
 */
 #include "nifti1_io.c"
-/* #define _NIFTI1_IO_C_ */
 
-#include "nifti2_io.h"
 
 /*! global nifti options structure - init with defaults */
 // static nifti_global_options g_opts = {
@@ -1007,6 +1008,5 @@ void nifti2_set_iname_offset(nifti_image *nim)
      break ;
    }
 }
-
 
 

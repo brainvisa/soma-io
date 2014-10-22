@@ -8,6 +8,7 @@ set( _headers
   image/niftiimagewriter_d.h
   nifticlib/niftiapihelpers_p.h
   nifticlib/znzlib/znzlib.h
+  nifticlib/niftilib/niftilib_defines.h
   nifticlib/niftilib/nifti1.h
   nifticlib/niftilib/nifti1_io.h
   nifticlib/niftilib/nifti2.h
