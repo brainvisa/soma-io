@@ -490,6 +490,18 @@ def convert_to_nifti_NM( serie ):
         newattributes = {'referentials': [uuid],
                          'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
+        
+        try:
+            detectorInf = ds.DetectorInformations
+            if len(detectorInf) == 1:
+                imagePosition = detectorInf[0].ImagePositionPatient
+                transformation = header['transformations'][0]
+                transformation[3] = -imagePosition[0]
+                transformation[7] = -imagePosition[1]
+                transformation[11] = ds.SpacingBetweenSlices*ds.NumberofSlices + imagePosition[2]
+                newattributes.update({'transformations': [transformations]})
+        except:
+            pass
     else:
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
