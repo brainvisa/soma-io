@@ -81,7 +81,7 @@ namespace soma
 
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options,
-                        bool write4d, int dimt ) const;
+                        bool write4d, int dimt, carto::Object header ) const;
       void fillNiftiHeader( DataSourceInfo & dsi, carto::Object options,
                             bool allow4d );
       void checkDiskDataType( carto::Object header,
@@ -89,6 +89,8 @@ namespace soma
                               const std::vector<long> & strides,
                               const std::vector<int> & size,
                               carto::Object options ) const;
+      void _writeDiffusionVectors( DataSource* bvalfile, DataSource* bvecfile,
+                                   carto::Object header );
       void setApi( NiftiApiHelpers *napi ) { api = napi; }
 
       virtual std::string formatName() const = 0;

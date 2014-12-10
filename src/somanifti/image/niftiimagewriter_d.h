@@ -48,6 +48,7 @@
 #include <soma-io/checker/niftiformatchecker.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/io/scaledcoding.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 #include <cartobase/object/property.h>                      // header, options
@@ -515,7 +516,7 @@ namespace soma
     if( dolist )
     {
       localMsg( "building DataSourceList..." );
-      buildDSList( dsi.list(), options, write4d, dimt );
+      buildDSList( dsi.list(), options, write4d, dimt, dsi.header() );
     }
     //--- set header ---------------------------------------------------------
     localMsg( "setting Header..." );
@@ -556,6 +557,18 @@ namespace soma
 //     }
 //     _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
 //       new NiftiFileWrapper( zfp ) ) );
+
+    // diffusion bvec / bval files
+    try
+    {
+      DataSource* bvalfile = dsi.list().dataSource( "bval" ).get();
+      DataSource* bvecfile = dsi.list().dataSource( "bvec" ).get();
+      if( bvalfile && bvecfile )
+        _writeDiffusionVectors( bvalfile, bvecfile, dsi.header() );
+    }
+    catch( ... )
+    {
+    }
 
     //--- write minf ---------------------------------------------------------
     localMsg( "writing Minf..." );
@@ -598,11 +611,12 @@ namespace soma
   //==========================================================================
   template <typename T>
   void NiftiImageWriter<T>::buildDSList( DataSourceList & dsl,
-                                          carto::Object /*options*/,
-                                          bool write4d, int dimt ) const
+                                         carto::Object /*options*/,
+                                         bool write4d, int dimt,
+                                         carto::Object header ) const
   {
     DataSource* pds = dsl.dataSource().get();
-    std::string niiname, hdrname, minfname;
+    std::string niiname, hdrname, minfname, basename;
     enum format_shape
     {
       NII,
@@ -619,7 +633,7 @@ namespace soma
     else
     {
       std::string ext = carto::FileUtil::extension( niiname );
-      std::string basename = carto::FileUtil::removeExtension( niiname );
+      basename = carto::FileUtil::removeExtension( niiname );
 
       if( ext == "gz" )
       {
@@ -676,6 +690,7 @@ namespace soma
               new FileDataSource(
                 std::string( &name[0] ) + ext ) ) );
         }
+        basename += "_0000";
       }
       else
       {
@@ -707,6 +722,58 @@ namespace soma
     dsl.addDataSource( "minf",
       carto::rc_ptr<DataSource>( new FileDataSource( minfname ) ) );
 
+    // if there are diffusion B values / directions information, add 2 files
+    if( header->hasProperty( "bvecs" ) && header->hasProperty( "bvals" ) )
+    {
+      dsl.addDataSource( "bval",
+        carto::rc_ptr<DataSource>( new FileDataSource( basename + ".bval" ) ) );
+      dsl.addDataSource( "bvec",
+        carto::rc_ptr<DataSource>( new FileDataSource( basename + ".bvec" ) ) );
+    }
+
+  }
+
+
+  template <typename T>
+  void NiftiImageWriter<T>::_writeDiffusionVectors( DataSource* bvalfile,
+                                                    DataSource* bvecfile,
+                                                    carto::Object header )
+  {
+    std::vector<float> bval;
+    std::vector<std::vector<float> > bvec;
+    if( header->getProperty( "bvals", bval )
+      && header->getProperty( "bvecs", bvec ) )
+    {
+      if( bval.size() != bvec.size() )
+      {
+        std::cerr << "Inconsistency between bvec and bval.\n";
+        return;
+      }
+      size_t i, j, n = bval.size();
+      bvalfile->open( DataSource::Write );
+      for( i=0; i<n; ++i )
+      {
+        if( i != 0 )
+          bvalfile->putch( ' ' );
+        AsciiDataSourceTraits<float>::write( *bvalfile, bval[i] );
+      }
+      bvalfile->putch( '\n' );
+      bvalfile->close();
+
+      // TODO: handle bvec coordinates system
+      bvecfile->open( DataSource::Write );
+      for( j=0; j<3; ++j )
+      {
+        for( i=0; i<n; ++i )
+        {
+          if( i != 0 )
+            bvecfile->putch( ' ' );
+          AsciiDataSourceTraits<float>::write( *bvecfile, bvec[i][j] );
+        }
+        bvecfile->putch( '\n' );
+      }
+      bvecfile->close();
+    }
   }
 
 

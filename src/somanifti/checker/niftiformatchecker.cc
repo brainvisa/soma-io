@@ -878,6 +878,7 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
     StreamUtil::skip( *bvalfile );
     bvals.push_back( val );
   }
+  bvalfile->close();
 
   bvecfile->open( DataSource::Read );
   vector<float> bvecs;
@@ -890,6 +891,7 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
     StreamUtil::skip( *bvecfile );
     bvecs.push_back( val );
   }
+  bvecfile->close();
 
   if( bvecs.size() != bvals.size() * 3 )
   {
