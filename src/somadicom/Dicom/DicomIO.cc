@@ -1,14 +1,14 @@
 #include <soma-io/config/somadicom.h>
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/System/DirectoryParser.h>
+#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Pattern/Callback.h>
+
 
 #ifdef SOMA_DICOM_JPEG2000_SUPPORT
   #include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
 #endif
-
-#include <soma-io/Container/Data.h>
-#include <soma-io/System/Directory.h>
-#include <soma-io/Pattern/Callback.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
@@ -20,10 +20,6 @@
 #include <dcmtk/dcmjpls/djdecode.h>
 #endif
 #include <dcmtk/dcmimage/diregist.h>
-
-#include <sstream>
-#include <cmath>
-#include <map>
 
 
 soma::DicomIO::DicomIO()
@@ -68,6 +64,8 @@ bool soma::DicomIO::check( const std::string& fileName,
     std::string manufacturer;
     std::string sopClassUid;
 
+    dataInfo.clear();
+
     if ( getInfo( selectedFile, manufacturer, sopClassUid ) )
     {
 
@@ -87,7 +85,7 @@ bool soma::DicomIO::check( const std::string& fileName,
 
 
 bool soma::DicomIO::read( const std::vector< std::string >& fileList, 
-                          soma::Data& data,
+                          soma::DicomProxy& proxy,
                           soma::Callback* progress )
 {
 
@@ -103,7 +101,7 @@ bool soma::DicomIO::read( const std::vector< std::string >& fileList,
       return soma::DicomReaderFactory::getInstance().read( manufacturer,
                                                            sopClassUid, 
                                                            fileList, 
-                                                           data,
+                                                           proxy,
                                                            progress );
 
     }

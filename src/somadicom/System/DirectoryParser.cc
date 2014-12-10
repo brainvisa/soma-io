@@ -1,4 +1,4 @@
-#include <soma-io/System/Directory.h>
+#include <soma-io/System/DirectoryParser.h>
 
 #include <sstream>
 #include <sys/types.h>
@@ -114,7 +114,7 @@ void soma::DirectoryParser::parse( const std::string& dirName )
 
           }
 
-          m_files.push_back( fname.str() );
+          m_files.insert( fname.str() );
 
         }
 
@@ -143,7 +143,7 @@ std::string& soma::DirectoryParser::getSelectedDirectory()
 }
 
 
-std::vector< std::string >& soma::DirectoryParser::getFiles()
+std::set< std::string >& soma::DirectoryParser::getFiles()
 {
 
   return m_files;

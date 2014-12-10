@@ -24,8 +24,8 @@ bool soma::USReader::readHeader( DcmDataset* dataset )
 
     bool status = true;
 
-    if ( ( m_dataInfo.m_pixelSpacingX <= 0.0 ) ||
-         ( m_dataInfo.m_pixelSpacingY <= 0.0 ) )
+    if ( ( m_dataInfo->m_resolution.x <= 0.0 ) ||
+         ( m_dataInfo->m_resolution.y <= 0.0 ) )
     {
 
       int32_t nScales = 0;
@@ -54,7 +54,7 @@ bool soma::USReader::readHeader( DcmDataset* dataset )
     	      if ( item->findAndGetFloat64( DCM_PhysicalDeltaX, tmpFD ).good() )
 	      {
 
-                m_dataInfo.m_pixelSpacingX = 10.0 * std::fabs( tmpFD );
+                m_dataInfo->m_resolution.x = 10.0 * std::fabs( tmpFD );
 		nScales++;
 
 	      }
@@ -62,7 +62,7 @@ bool soma::USReader::readHeader( DcmDataset* dataset )
     	      if ( item->findAndGetFloat64( DCM_PhysicalDeltaY, tmpFD ).good() )
 	      {
 
-                m_dataInfo.m_pixelSpacingY = 10.0 * std::fabs( tmpFD );
+                m_dataInfo->m_resolution.y = 10.0 * std::fabs( tmpFD );
 		nScales++;
 
 	      }

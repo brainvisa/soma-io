@@ -160,7 +160,7 @@ soma::Vector soma::Vector::mainDirection() const
 }
 
 
-soma::Vector soma::Vector::abs() const
+soma::Vector soma::Vector::absoluteCoordinates() const
 {
 
   return soma::Vector( std::fabs( x ), std::fabs( y ), std::fabs( z ) );

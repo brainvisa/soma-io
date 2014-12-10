@@ -1,6 +1,6 @@
 #include <soma-io/Dicom/USImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -27,11 +27,11 @@ std::string soma::USImageStorageReader::getStorageUID()
 }
 
 
-bool soma::USImageStorageReader::readData( soma::Data& data,
+bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
                                            soma::Callback* progress )
 {
 
-  if ( data.Create( m_dataInfo ) )
+  if ( proxy.allocate() )
   {
 
     if ( progress )
@@ -59,20 +59,46 @@ bool soma::USImageStorageReader::readData( soma::Data& data,
       if ( dcmImage.getStatus() == EIS_Normal )
       {
 
-        int32_t bpp = data.m_info.m_bpp;
-        uint32_t sliceSize = data.m_info.m_sliceSize;
+        soma::DataInfo& info = proxy.getDataInfo();
+        int32_t bpp = info.m_bpp;
+        uint32_t sliceSize = info.m_sliceSize;
         uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData();
         int32_t representation = dcmImage.getInterData()->getRepresentation();
 
         if ( ( bpp == 2 ) && ( representation < 2 ) )
         {
 
-          uint16_t* p = (uint16_t*)data.getSlice( 0 );
-
-          while ( sliceSize-- )
+          if ( proxy.isMemoryMapped() )
           {
 
-            *p++ = (uint16_t)*pIn++;
+            int32_t sizeX = info.m_width;
+            int32_t sizeY = info.m_height;
+            int32_t x, y;
+
+            for ( y = 0; y < sizeY; y++ )
+            {
+
+              for ( x = 0; x < sizeX; x++ )
+              {
+
+                *( (int16_t*)proxy( x, y ) ) = int16_t( *pIn++ );
+
+              }
+
+            }
+
+          }
+          else
+          {
+
+            uint16_t* p = (uint16_t*)proxy( 0 );
+
+            while ( sliceSize-- )
+            {
+
+              *p++ = (uint16_t)*pIn++;
+
+            }
 
           }
 
@@ -80,24 +106,49 @@ bool soma::USImageStorageReader::readData( soma::Data& data,
         else
         {
 
-          std::memcpy( (void*)data.getSlice( 0 ), pIn, sliceSize * bpp );
+          if ( proxy.isMemoryMapped() )
+          {
+
+            int32_t sizeX = info.m_width;
+            int32_t sizeY = info.m_height;
+            int32_t x, y;
+
+            for ( y = 0; y < sizeY; y++ )
+            {
+
+              for ( x = 0; x < sizeX; x++, pIn += bpp )
+              {
+
+                std::memcpy( proxy( x, y ), pIn, bpp );
+
+              }
+
+            }
+
+          }
+          else
+          {
+
+            std::memcpy( proxy( 0 ), pIn, sliceSize * bpp );
+
+          }
 
         }
 
-        data.m_info.m_pixelRepresentation = representation & 1;
+        info.m_pixelRepresentation = representation;
 
-        if ( data.m_info.m_bpp < 3 )
+        if ( bpp < 3 )
         {
 
           double min = 0.0, max = 0.0;
 
           dcmImage.getMinMaxValues( min, max );
-          data.m_info.m_minimum = int32_t( min );
-          data.m_info.m_maximum = int32_t( max );
+          info.m_minimum = int32_t( min );
+          info.m_maximum = int32_t( max );
 
         }
 
-        soma::DicomDatasetHeader datasetHeader( data );
+        soma::DicomDatasetHeader datasetHeader( proxy );
         datasetHeader.add( dataset, 0 );
 
         if ( progress )

@@ -1,6 +1,8 @@
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Dicom/DicomReader.h>
-#include <soma-io/System/Directory.h>
+#include <soma-io/Container/DataInfo.h>
+#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Pattern/Callback.h>
 
 #include <iostream>
@@ -83,7 +85,7 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
 bool soma::DicomReaderFactory::read( const std::string& manufacturer,
                                      const std::string& storageUID,
                                      const std::vector< std::string >& fileList,
-                                     soma::Data& data,
+                                     soma::DicomProxy& proxy,
                                      soma::Callback* progress )
 {
 
@@ -92,7 +94,7 @@ bool soma::DicomReaderFactory::read( const std::string& manufacturer,
   if ( reader )
   {
 
-    return reader->read( fileList, data, progress );
+    return reader->read( fileList, proxy, progress );
 
   }
 

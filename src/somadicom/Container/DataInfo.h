@@ -4,7 +4,6 @@
 
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
-#include <soma-io/Container/DatasetHeader.h>
 #include <soma-io/Transformation/PatientOrientation.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -45,9 +44,7 @@ class DataInfo
     int32_t m_volumeSize;
     int32_t m_datasetSize;
 
-    double m_pixelSpacingX;
-    double m_pixelSpacingY;
-    double m_pixelSpacingZ;
+    Vector m_resolution;
     double m_spacingBetweenSlices;
     double m_repetitionTime;
 
@@ -56,13 +53,16 @@ class DataInfo
     std::vector< double > m_intercept;
 
     int32_t m_fileCount;
-    std::vector< DatasetHeader > m_datasetHeader;
 
     Vector m_rowVec;
     Vector m_colVec;
     Vector m_normVec;
 
     PatientOrientation m_patientOrientation;
+
+    bool m_mosaic;
+    bool m_noFlip;
+    bool m_noDemosaic;
 
 };
 

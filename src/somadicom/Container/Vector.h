@@ -30,7 +30,7 @@ class Vector
     double getNorm();
     void normalize();
     Vector mainDirection() const;
-    Vector abs() const;
+    Vector absoluteCoordinates() const;
 
     double x;
     double y;

@@ -12,17 +12,19 @@ soma::DataInfo::DataInfo()
                 m_height( 1 ),
                 m_slices( 1 ),
                 m_frames( 1 ),
-                m_pixelSpacingX( 1.0 ),
-                m_pixelSpacingY( 1.0 ),
-                m_pixelSpacingZ( 1.0 ),
                 m_spacingBetweenSlices( 1.0 ),
                 m_repetitionTime( 1.0 ),
                 m_modalityLUTApplied( true ),
-                m_fileCount( 0 )
+                m_fileCount( 0 ),
+                m_mosaic( false ),
+                m_noFlip( false ),
+                m_noDemosaic( false )
 {
 
+  m_resolution = soma::Vector( 1.0, 1.0, 1.0 );
   m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
+
   initialize();
 
 }
@@ -39,16 +41,17 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 m_height( other.m_height ),
                 m_slices( other.m_slices ),
                 m_frames( other.m_frames ),
-                m_pixelSpacingX( other.m_pixelSpacingX ),
-                m_pixelSpacingY( other.m_pixelSpacingY ),
-                m_pixelSpacingZ( other.m_pixelSpacingZ ),
+                m_resolution( other.m_resolution ),
                 m_spacingBetweenSlices( other.m_spacingBetweenSlices ),
                 m_repetitionTime( other.m_repetitionTime ),
                 m_modalityLUTApplied( other.m_modalityLUTApplied ),
                 m_fileCount( other.m_fileCount ),
                 m_rowVec( other.m_rowVec ),
                 m_colVec( other.m_colVec ),
-                m_patientOrientation( other.m_patientOrientation )
+                m_patientOrientation( other.m_patientOrientation ),
+                m_mosaic( other.m_mosaic ),
+                m_noFlip( other.m_noFlip ),
+                m_noDemosaic( other.m_noDemosaic )
 {
 
   initialize();
@@ -78,18 +81,18 @@ void soma::DataInfo::clear()
   m_sliceSize = 0;
   m_volumeSize = 0;
   m_datasetSize = 0;
-  m_pixelSpacingX = 1.0;
-  m_pixelSpacingY = 1.0;
-  m_pixelSpacingZ = 1.0;
+  m_resolution = soma::Vector( 1.0, 1.0, 1.0 );
   m_spacingBetweenSlices = 1.0;
   m_repetitionTime = 1.0;
   m_modalityLUTApplied = true;
   m_fileCount = 0;
   m_slope.clear();
   m_intercept.clear();
-  m_datasetHeader.clear();
   m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  m_mosaic = false;
+  m_noFlip = false;
+  m_noDemosaic = false;
 
 }
 
@@ -106,14 +109,16 @@ void soma::DataInfo::initialize()
 
   }
 
-  int32_t sliceCount = m_slices * m_frames;
+  if ( !m_maximum )
+  {
+
+    m_maximum = ( 1 << m_depth ) - 1;
+
+  }
 
   m_sliceSize = m_width * m_height;
   m_volumeSize = m_sliceSize * m_slices;
   m_datasetSize = m_volumeSize * m_frames;
-  m_slope.resize( sliceCount, 1.0 );
-  m_intercept.resize( sliceCount, 0.0 );
-  m_datasetHeader.resize( m_fileCount, soma::DatasetHeader() );
   m_normVec = m_rowVec.cross( m_colVec );
 
 }

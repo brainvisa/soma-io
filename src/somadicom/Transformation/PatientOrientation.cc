@@ -1,5 +1,4 @@
 #include <soma-io/Transformation/PatientOrientation.h>
-#include <soma-io/Container/Vector.h>
 
 #include <cmath>
 
@@ -9,15 +8,11 @@ soma::PatientOrientation::PatientOrientation()
                           m_onDiskSizeX( 0 ),
                           m_onDiskSizeY( 0 ),
                           m_onDiskSizeZ( 0 ),
-                          m_onDiskResolutionX( 1.0 ),
-                          m_onDiskResolutionY( 1.0 ),
-                          m_onDiskResolutionZ( 1.0 ),
+                          m_onDiskResolution( 1.0, 1.0, 1.0 ),
                           m_sizeX( 0 ),
                           m_sizeY( 0 ),
                           m_sizeZ( 0 ),
-                          m_resolutionX( 1.0 ),
-                          m_resolutionY( 1.0 ),
-                          m_resolutionZ( 1.0 )
+                          m_resolution( 1.0, 1.0, 1.0 )
 {
 }
 
@@ -28,18 +23,19 @@ soma::PatientOrientation::PatientOrientation(
                           m_onDiskSizeX( other.m_onDiskSizeX ),
                           m_onDiskSizeY( other.m_onDiskSizeY ),
                           m_onDiskSizeZ( other.m_onDiskSizeZ ),
-                          m_onDiskResolutionX( other.m_onDiskResolutionX ),
-                          m_onDiskResolutionY( other.m_onDiskResolutionY ),
-                          m_onDiskResolutionZ( other.m_onDiskResolutionZ ),
+                          m_onDiskResolution( other.m_onDiskResolution ),
                           m_sizeX( other.m_sizeX ),
                           m_sizeY( other.m_sizeY ),
                           m_sizeZ( other.m_sizeZ ),
-                          m_resolutionX( other.m_resolutionX ),
-                          m_resolutionY( other.m_resolutionY ),
-                          m_resolutionZ( other.m_resolutionZ ),
+                          m_resolution( other.m_resolution ),
                           m_normalVector( other.m_normalVector ),
                           m_axialTransformation( other.m_axialTransformation ),
                           m_dicomTransformation( other.m_dicomTransformation )
+{
+}
+
+
+soma::PatientOrientation::~PatientOrientation()
 {
 }
 
@@ -51,18 +47,14 @@ void soma::PatientOrientation::set( const soma::Vector& rowVector,
                                     int32_t sizeX,
                                     int32_t sizeY,
                                     int32_t sizeZ,
-                                    double pixelSpacingX,
-                                    double pixelSpacingY,
-                                    double pixelSpacingZ )
+                                    const soma::Vector& resolution )
 {
 
   m_axialAcquisition = false;
   m_onDiskSizeX = sizeX;
   m_onDiskSizeY = sizeY;
   m_onDiskSizeZ = sizeZ;
-  m_onDiskResolutionX = pixelSpacingX;
-  m_onDiskResolutionY = pixelSpacingY;
-  m_onDiskResolutionZ = pixelSpacingZ;
+  m_onDiskResolution = resolution;
   m_normalVector = normalVector;
 
   m_axialTransformation = soma::AxialTransformation3d( rowVector,
@@ -70,10 +62,7 @@ void soma::PatientOrientation::set( const soma::Vector& rowVector,
                                                        normalVector );
   m_dicomTransformation = soma::DicomTransformation3d( rowVector,
                                                        columnVector,
-                                                       normalVector,
-                                                       soma::Vector( 0.0, 
-                                                                     0.0, 
-                                                                     0.0 ) );
+                                                       normalVector );
 
   double sX, sY, sZ;
   m_axialTransformation.getDirect( double( m_onDiskSizeX ),
@@ -86,30 +75,35 @@ void soma::PatientOrientation::set( const soma::Vector& rowVector,
   m_sizeY = int32_t( std::fabs( sY ) + 0.5 );
   m_sizeZ = int32_t( std::fabs( sZ ) + 0.5 );
 
-  if ( std::fabs( m_axialTransformation.getDirectCoefficient( 2, 2 ) ) > 1e-12 )
+  if ( std::fabs( m_axialTransformation.getDirectCoefficient( 2, 2 ) ) > 0.0 )
   {
 
     m_axialAcquisition = true;
 
   }
 
-  m_axialTransformation.getDirect( m_onDiskResolutionX,
-                                   m_onDiskResolutionY,
-                                   m_onDiskResolutionZ,
-                                   m_resolutionX,
-                                   m_resolutionY,
-                                   m_resolutionZ );
-  m_resolutionX = std::fabs( m_resolutionX );
-  m_resolutionY = std::fabs( m_resolutionY );
-  m_resolutionZ = std::fabs( m_resolutionZ );
+  m_axialTransformation.getDirect( m_onDiskResolution.x,
+                                   m_onDiskResolution.y,
+                                   m_onDiskResolution.z,
+                                   m_resolution.x,
+                                   m_resolution.y,
+                                   m_resolution.z );
+  m_resolution.x = std::fabs( m_resolution.x );
+  m_resolution.y = std::fabs( m_resolution.y );
+  m_resolution.z = std::fabs( m_resolution.z );
+
+  if ( rowVector.cross( columnVector ).dot( normalVector ) > 0.0 )
+  {
+
+    m_axialTransformation.setTranslation( soma::Vector( 
+                                                      double( m_sizeX - 1 ),
+                                                      double( m_sizeY - 1 ),
+                                                      double( m_sizeZ - 1 ) ) );
+
+  }
 
   setOrigin( origin );
 
-}
-
-
-soma::PatientOrientation::~PatientOrientation()
-{
 }
 
 
@@ -121,7 +115,7 @@ void soma::PatientOrientation::setOrigin( const Vector& origin )
   if ( m_axialAcquisition )
   {
 
-    position += m_normalVector * double( m_onDiskSizeZ * m_onDiskResolutionZ );
+    position += m_normalVector * double( m_onDiskSizeZ * m_onDiskResolution.z );
 
   }
 
@@ -159,9 +153,9 @@ void soma::PatientOrientation::getResolution( double& resolutionX,
                                               double& resolutionZ )
 {
 
-  resolutionX = m_resolutionX;
-  resolutionY = m_resolutionY;
-  resolutionZ = m_resolutionZ;
+  resolutionX = m_resolution.x;
+  resolutionY = m_resolution.y;
+  resolutionZ = m_resolution.z;
 
 }
 
@@ -186,13 +180,6 @@ void soma::PatientOrientation::getDirect( const int32_t fromX,
   toY = int32_t( tY + 0.5 );
   toZ = int32_t( tZ + 0.5 );
 
-  if ( m_axialAcquisition )
-  {
-
-    toZ += m_sizeZ - 1;
-
-  }
-
 }
 
 
@@ -204,19 +191,11 @@ void soma::PatientOrientation::getInverse( const int32_t toX,
                                            int32_t& fromZ )
 {
 
-  int32_t z = toZ;
   double fX, fY, fZ;
-
-  if ( m_axialAcquisition )
-  {
-
-    z -= m_sizeZ - 1;
-
-  }
 
   m_axialTransformation.getInverse( double( toX ),
                                     double( toY ),
-                                    double( z ),
+                                    double( toZ ),
                                     fX,
                                     fY,
                                     fZ );

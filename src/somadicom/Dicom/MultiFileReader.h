@@ -23,13 +23,6 @@ class MultiFileReader : public MultiSliceReader
 
     MultiFileReader();
 
-    bool check( DirectoryParser& directory,
-                std::vector< std::string >& fileList,
-                DataInfo& dataInfo );
-    bool read( const std::vector< std::string >& fileList, 
-               Data& data,
-               Callback* progress = 0 );
-
   protected:
 
     virtual bool readHeader( DcmDataset* dataset );

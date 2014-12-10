@@ -1,21 +1,12 @@
 #include <soma-io/Dicom/PTImageStorageReader.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/DicomDataContext.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
-
-// Fix for DCMTK 3.5.4
-#ifndef UID_PositronEmissionTomographyImageStorage
-  #define UID_PositronEmissionTomographyImageStorage "1.2.840.10008.5.1.4.1.1.128"
-#endif
-
-#include <sstream>
 
 
 soma::PTImageStorageReader::PTImageStorageReader()
@@ -27,27 +18,30 @@ soma::PTImageStorageReader::PTImageStorageReader()
 std::string soma::PTImageStorageReader::getStorageUID()
 {
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
+
   return UID_PositronEmissionTomographyImageStorage;
+
+#else
+
+  return UID_PETImageStorage;
+
+#endif
 
 }
 
 
-bool soma::PTImageStorageReader::readData( soma::Data& data,
+bool soma::PTImageStorageReader::readData( soma::DicomProxy& proxy,
                                            soma::Callback* progress )
 {
 
-  soma::DataInfo dataInfo( m_dataInfo );
-
-  if ( data.Create( dataInfo ) )
+  if ( proxy.allocate() )
   {
 
-    soma::DicomDataContext context( m_slices, 
-                                    data, 
-                                    false,
-                                    progress );
+    soma::DicomDataContext context( m_slices, proxy, false, progress );
     carto::ThreadedLoop threadedLoop( &context,
-                                     0,
-                                     int32_t( m_slices.size() ) );
+                                      0,
+                                      int32_t( m_slices.size() ) );
 
     threadedLoop.launch();
 

@@ -14,7 +14,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 class Demosaicer;
 class Callback;
 
@@ -25,7 +25,7 @@ class MosaicDataContext : public carto::LoopContext
   public:
 
     MosaicDataContext( const std::vector< std::string >& files,
-                       Data& data,
+                       DicomProxy& proxy,
                        Demosaicer& demosaicer,
                        Callback* progress = 0 );
 
@@ -34,7 +34,7 @@ class MosaicDataContext : public carto::LoopContext
   private:
 
     const std::vector< std::string >& m_files;
-    Data& m_data;
+    DicomProxy& m_proxy;
     Demosaicer& m_demosaicer;
     Callback* m_progress;
     int32_t m_count;

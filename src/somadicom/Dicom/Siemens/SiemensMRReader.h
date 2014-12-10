@@ -33,12 +33,11 @@ class SiemensMRReader : public MRImageStorageReader,
     ~SiemensMRReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( Data& data, Callback* progress = 0 );
+    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
 
   private:
 
     Demosaicer* m_demosaicer;
-    bool m_mosaic;
     int32_t m_sliceCount;
 
 };

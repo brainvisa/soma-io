@@ -15,7 +15,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -25,7 +25,7 @@ class MultiFrameContext : public carto::LoopContext
   public:
 
     MultiFrameContext( DicomImage& dcmImage, 
-                       Data& data,
+                       DicomProxy& proxy,
                        bool fillSlices = false,
                        Callback* progress = 0 );
 
@@ -34,7 +34,7 @@ class MultiFrameContext : public carto::LoopContext
   private:
 
     DicomImage& m_dcmImage;
-    Data& m_data;
+    DicomProxy& m_proxy;
     bool m_fillSlices;
     Callback* m_progress;
     int32_t m_count;

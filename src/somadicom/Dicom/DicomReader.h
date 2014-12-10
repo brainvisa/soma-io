@@ -17,7 +17,7 @@ namespace soma
 
 
 class DirectoryParser;
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -36,7 +36,7 @@ class DicomReader
                         std::vector< std::string >& fileList,
                         DataInfo& dataInfo );
     virtual bool read( const std::vector< std::string >& fileList, 
-                       Data& data,
+                       DicomProxy& proxy,
                        Callback* progress = 0 );
 
   protected:
@@ -45,12 +45,12 @@ class DicomReader
 
     void initialize();
 
+    virtual std::vector< std::string > sortFiles( DirectoryParser& directory );
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( Data& data, Callback* progress ) = 0;
+    virtual bool readData( DicomProxy& proxy, Callback* progress ) = 0;
    
-    DataInfo m_dataInfo;
+    DataInfo* m_dataInfo;
     std::string m_seriesInstanceUID;
-
     std::vector< std::string > m_slices;
 
 };

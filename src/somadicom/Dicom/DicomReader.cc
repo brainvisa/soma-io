@@ -1,6 +1,6 @@
 #include <soma-io/Dicom/DicomReader.h>
-#include <soma-io/System/Directory.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/System/DirectoryParser.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -14,6 +14,7 @@
 
 
 soma::DicomReader::DicomReader()
+                 : m_dataInfo( 0 )
 {
 }
 
@@ -43,14 +44,21 @@ bool soma::DicomReader::check( soma::DirectoryParser& directory,
 
     initialize();
 
+    m_dataInfo = &dataInfo;
+
     if ( readHeader( selectedFile ) )
     {
 
-      fileList.push_back( selectedFile );
-      dataInfo = m_dataInfo;
-      dataInfo.initialize();
+      fileList = sortFiles( directory );
 
-      return true;
+      if ( !fileList.empty() )
+      {
+
+        m_dataInfo->initialize();
+
+        return true;
+
+      }
 
     }
 
@@ -62,7 +70,7 @@ bool soma::DicomReader::check( soma::DirectoryParser& directory,
 
 
 bool soma::DicomReader::read( const std::vector< std::string >& fileList, 
-                              soma::Data& data, 
+                              soma::DicomProxy& proxy, 
                               soma::Callback* progress )
 {
 
@@ -76,8 +84,7 @@ bool soma::DicomReader::read( const std::vector< std::string >& fileList,
   if ( !fileList.empty() )
   {
 
-    m_slices.push_back( fileList.front() );
-    data.m_info.m_fileCount = 1; // maybe useless since the DataInfo is recreated in the readData method?
+    m_slices = fileList;
 
     if ( progress )
     {
@@ -87,7 +94,7 @@ bool soma::DicomReader::read( const std::vector< std::string >& fileList,
     }
 
     // read datset
-    bool status = readData( data, progress );
+    bool status = readData( proxy, progress );
 
     if ( progress )
     {
@@ -146,7 +153,7 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
   if ( dataset->findAndGetUint16( DCM_Columns, tmpShort ).good() )
   {
 
-    m_dataInfo.m_width = (int32_t)tmpShort;
+    m_dataInfo->m_width = (int32_t)tmpShort;
 
   }
   else
@@ -159,7 +166,7 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
   if ( dataset->findAndGetUint16( DCM_Rows, tmpShort ).good() )
   {
 
-    m_dataInfo.m_height = (int32_t)tmpShort;
+    m_dataInfo->m_height = (int32_t)tmpShort;
 
   }
   else
@@ -172,7 +179,7 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
   if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
   {
 
-    m_dataInfo.m_depth = int32_t( tmpShort < 8 ? 8 : tmpShort );
+    m_dataInfo->m_depth = int32_t( tmpShort < 8 ? 8 : tmpShort );
 
   }
   else
@@ -185,7 +192,7 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
   if ( dataset->findAndGetUint16( DCM_BitsStored, tmpShort ).good() )
   {
 
-    m_dataInfo.m_bitsStored = int32_t( tmpShort < 8 ? 8 : tmpShort );
+    m_dataInfo->m_bitsStored = int32_t( tmpShort < 8 ? 8 : tmpShort );
 
   }
   else
@@ -199,13 +206,13 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
                                     tmpString ).good() )
   {
 
-    m_dataInfo.m_monochrome = false;
+    m_dataInfo->m_monochrome = false;
 
     if ( !tmpString.compare( "MONOCHROME1" ) || 
          !tmpString.compare( "MONOCHROME2" ) )
     {
 
-      m_dataInfo.m_monochrome = true;
+      m_dataInfo->m_monochrome = true;
 
     }
 
@@ -221,14 +228,14 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
   if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpFloat, 0 ).good() )
   {
 
-    m_dataInfo.m_pixelSpacingX = (double)tmpFloat;
+    m_dataInfo->m_resolution.x = (double)tmpFloat;
 
   }
 
   if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpFloat, 1 ).good() )
   {
 
-    m_dataInfo.m_pixelSpacingY = (double)tmpFloat;
+    m_dataInfo->m_resolution.y = (double)tmpFloat;
 
   }
 
@@ -236,7 +243,7 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
                                    tmpFloat ).good() )
   {
 
-    m_dataInfo.m_spacingBetweenSlices = (double)tmpFloat;
+    m_dataInfo->m_spacingBetweenSlices = (double)tmpFloat;
 
   }
   else
@@ -245,16 +252,42 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
     if ( dataset->findAndGetFloat64( DCM_SliceThickness, tmpFloat ).good() )
     {
 
-      m_dataInfo.m_spacingBetweenSlices = (double)tmpFloat;
+      m_dataInfo->m_spacingBetweenSlices = (double)tmpFloat;
 
     }
 
   }
 
-  m_dataInfo.m_pixelSpacingZ = m_dataInfo.m_spacingBetweenSlices;
+  if ( dataset->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
+  {
 
-  m_dataInfo.m_minimum = ( 1 << m_dataInfo.m_bitsStored ) - 1;
-  m_dataInfo.m_maximum = 1 - ( 1 << m_dataInfo.m_bitsStored );
+    m_dataInfo->m_slope.push_back( (double)tmpFloat );
+
+  }
+  else
+  {
+
+    m_dataInfo->m_slope.push_back( 1.0 );
+
+  }
+
+  if ( dataset->findAndGetFloat64( DCM_RescaleIntercept, tmpFloat ).good() )
+  {
+
+     m_dataInfo->m_intercept.push_back( (double)tmpFloat );
+
+  }
+  else
+  {
+
+     m_dataInfo->m_intercept.push_back( 0.0 );
+
+  }
+
+  m_dataInfo->m_resolution.z = m_dataInfo->m_spacingBetweenSlices;
+
+  m_dataInfo->m_minimum = ( 1 << m_dataInfo->m_bitsStored ) - 1;
+  m_dataInfo->m_maximum = 1 - ( 1 << m_dataInfo->m_bitsStored );
 
   return readHeader( dataset );
 
@@ -264,9 +297,20 @@ bool soma::DicomReader::readHeader( const std::string& fileName )
 void soma::DicomReader::initialize()
 {
 
-  m_dataInfo.clear();
   m_seriesInstanceUID.clear();
   m_slices.clear();
+
+}
+
+
+std::vector< std::string > soma::DicomReader::sortFiles( 
+                                              soma::DirectoryParser& directory )
+{
+
+  m_slices.push_back( directory.getSelectedFile() );
+  m_dataInfo->m_fileCount = 1;
+
+  return m_slices;
 
 }
 

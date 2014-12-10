@@ -17,7 +17,7 @@ class MultiSliceReader : public DicomReader
 
     MultiSliceReader();
 
-    void setOrientation( DataInfo& dataInfo );
+    void setOrientation();
 
   protected:
 

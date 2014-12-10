@@ -1,7 +1,7 @@
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
@@ -15,12 +15,12 @@
 
 soma::MosaicDataContext::MosaicDataContext( 
                                    const std::vector< std::string >& files,
-                                   soma::Data& data,
+                                   soma::DicomProxy& proxy,
                                    soma::Demosaicer& demosaicer,
                                    soma::Callback* progress )
                        : carto::LoopContext(),
                          m_files( files ),
-                         m_data( data ),
+                         m_proxy( proxy ),
                          m_demosaicer( demosaicer ),
                          m_progress( progress ),
                          m_count( 0 )
@@ -31,11 +31,12 @@ soma::MosaicDataContext::MosaicDataContext(
 void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
+  soma::DataInfo& info = m_proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
-  int32_t n = m_data.m_info.m_frames - 1;
-  int32_t min = ( 1 << m_data.m_info.m_depth ) - 1;
-  int32_t max = 1 - ( 1 << m_data.m_info.m_depth );
-  soma::DicomDatasetHeader datasetHeader( m_data );
+  int32_t n = info.m_frames - 1;
+  int32_t min = ( 1 << info.m_depth ) - 1;
+  int32_t max = 1 - ( 1 << info.m_depth );
+  soma::DicomDatasetHeader datasetHeader( m_proxy );
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
@@ -69,7 +70,7 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 
         }
 
-        m_demosaicer.demosaic( dcmImage, m_data, 0, i );
+        m_demosaicer.demosaic( dcmImage, m_proxy, 0, i );
         datasetHeader.add( dataset, i );
                              
         lock();
@@ -92,17 +93,17 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 
   lock();
 
-  if ( min < m_data.m_info.m_minimum )
+  if ( min < info.m_minimum )
   {
 
-    m_data.m_info.m_minimum = min;
+    info.m_minimum = min;
 
   }
 
-  if ( max > m_data.m_info.m_maximum )
+  if ( max > info.m_maximum )
   {
 
-    m_data.m_info.m_maximum = max;
+    info.m_maximum = max;
 
   }
 

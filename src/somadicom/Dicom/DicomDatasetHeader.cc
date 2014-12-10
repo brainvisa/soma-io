@@ -1,5 +1,5 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
@@ -14,8 +14,8 @@
 #include <iomanip>
 
 
-soma::DicomDatasetHeader::DicomDatasetHeader( soma::Data& data )
-                        : m_data( data )
+soma::DicomDatasetHeader::DicomDatasetHeader( soma::DicomProxy& proxy )
+                        : m_binaryHeader( proxy.getBinaryHeader() )
 {
 }
 
@@ -33,16 +33,17 @@ void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
 
     dataset->remove( DCM_PixelData );
 
-    soma::DatasetHeader* header = &m_data.m_info.m_datasetHeader[ i ];
     int32_t length = dataset->calcElementLength( EXS_LittleEndianExplicit,
                                                  EET_ExplicitLength );
     
-    if ( header->allocate( length ) )
+    if ( m_binaryHeader.allocate( i, length ) )
     {
 
-      DcmOutputBufferStream dobs( header->getBuffer(), header->getLength() );
+      DcmOutputBufferStream dobs( m_binaryHeader[ i ].first,
+                                  m_binaryHeader[ i ].second  );
 
       dataset->transferInit();
+
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
       dataset->write( dobs, 
                       EXS_LittleEndianExplicit, 
@@ -57,6 +58,7 @@ void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
                       EGL_recalcGL,
                       EPD_withoutPadding );
 #endif
+
       dataset->transferEnd();
 
     }
@@ -69,19 +71,16 @@ void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
 void soma::DicomDatasetHeader::get( DcmDataset& dataset, int32_t i )
 {
 
-  if ( ( i >= 0 ) &&
-       ( i < int32_t( m_data.m_info.m_datasetHeader.size() ) ) )
+  if ( ( i >= 0 ) && ( i < m_binaryHeader.getCount() ) )
   {
 
-    soma::DatasetHeader* header = &m_data.m_info.m_datasetHeader[ i ];
-
-    if ( header->getLength() )
+    if ( m_binaryHeader[ i ].second )
     {
 
       DcmInputBufferStream dibs;
 
-      dibs.setBuffer( (const void*)header->getBuffer(),
-                      header->getLength() );
+      dibs.setBuffer( (const void*)m_binaryHeader[ i ].first,
+                      m_binaryHeader[ i ].second );
       dibs.setEos();
       dataset.transferInit();
       dataset.read( dibs, EXS_LittleEndianExplicit );
@@ -98,20 +97,12 @@ bool soma::DicomDatasetHeader::getDictionary(
                               std::map< std::string, std::string >& dictionary )
 {
 
-  if ( int32_t( m_data.m_info.m_datasetHeader.size() ) !=
-       m_data.m_info.m_fileCount )
-  {
-
-    return false;
-
-  }
-
   dictionary.clear();
 
   int32_t slice = 0;
-  std::vector< soma::DatasetHeader >::iterator
-    d = m_data.m_info.m_datasetHeader.begin(),
-    de = m_data.m_info.m_datasetHeader.end();
+  soma::BinaryHeader::iterator
+    d = m_binaryHeader.begin(),
+    de = m_binaryHeader.end();
 
   while ( d != de )
   {
@@ -121,8 +112,8 @@ bool soma::DicomDatasetHeader::getDictionary(
     ossSlice << slice++ << std::flush;
 
     std::ostringstream ossDataset;
-    int32_t length = d->getLength();
-    uint8_t* p = d->getBuffer();
+    int32_t length = d->second;
+    uint8_t* p = d->first;
 
     while ( length-- )
     {
@@ -149,8 +140,7 @@ bool soma::DicomDatasetHeader::setDictionary(
                               std::map< std::string, std::string >& dictionary )
 {
 
-  if ( int32_t( dictionary.size() ) != 
-       int32_t( m_data.m_info.m_datasetHeader.size() ) )
+  if ( int32_t( dictionary.size() ) != m_binaryHeader.getCount() )
   {
 
     return false;
@@ -169,17 +159,21 @@ bool soma::DicomDatasetHeader::setDictionary(
     int32_t slice;
 
     issSlice >> slice;
-    m_data.m_info.m_datasetHeader[ slice ].allocate( length );
 
-    std::istringstream issDataset( d->second );
-    uint8_t* p = m_data.m_info.m_datasetHeader[ slice ].getBuffer();
-    int32_t value;
-
-    while ( length-- )
+    if ( m_binaryHeader.allocate( slice, length ) )
     {
 
-      issDataset >> std::setbase( 16 ) >> value;
-      *p++ = (uint8_t)value;
+      std::istringstream issDataset( d->second );
+      uint8_t* p = m_binaryHeader[ slice ].first;
+      int32_t value;
+
+      while ( length-- )
+      {
+
+        issDataset >> std::setbase( 16 ) >> value;
+        *p++ = (uint8_t)value;
+
+      }
 
     }
 

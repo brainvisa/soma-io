@@ -36,7 +36,8 @@
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/image/dicomimagereader.h>                 // class declaration
 #include <soma-io/Dicom/DicomIO.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Container/DataInfoCache.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader.h>                             // heritage
@@ -124,8 +125,10 @@ namespace soma {
     
       if ( !fileList.empty() )
       {
-        Data data( (uint8_t*)dest );
+        DicomProxy data( (uint8_t*)dest,
+                         &soma::DataInfoCache::getInstance().getDataInfo() );
         DicomIO::getInstance().read( fileList, data );
+        soma::DataInfoCache::getInstance().clear();
       }
     }
   }

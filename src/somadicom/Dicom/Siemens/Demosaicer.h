@@ -15,7 +15,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 
 
 class Demosaicer
@@ -38,7 +38,11 @@ class Demosaicer
     void getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ );
 
     void demosaic( DicomImage& dcmImage,
-                   Data& data,
+                   DicomProxy& data,
+                   int32_t slice,
+                   int32_t t );
+    void demosaic( const uint8_t* mosaic, 
+                   DicomProxy& data, 
                    int32_t slice,
                    int32_t t );
 

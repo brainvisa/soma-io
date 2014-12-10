@@ -1,5 +1,6 @@
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Transformation/PatientOrientation.h>
 
 #include <cstring>
 
@@ -70,46 +71,92 @@ void soma::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
 
 
 void soma::Demosaicer::demosaic( DicomImage& dcmImage,
-                                 soma::Data& data,
+                                 soma::DicomProxy& data,
+                                 int32_t slice,
+                                 int32_t t )
+{
+
+  const uint8_t* m = (const uint8_t*)dcmImage.getInterData()->getData();
+
+  data.getDataInfo().m_pixelRepresentation = 
+                                   dcmImage.getInterData()->getRepresentation();
+
+  demosaic( m, data, slice, t );
+
+}
+
+
+void soma::Demosaicer::demosaic( const uint8_t* mosaic,
+                                 soma::DicomProxy& data,
                                  int32_t slice,
                                  int32_t t )
 {
 
   int32_t x, y, px, py, pz;
-  int32_t bpp = data.m_info.m_bpp;
+  soma::DataInfo& info = data.getDataInfo();
   int32_t lineShift = ( m_mosaicSizeX - m_sizeX );
+  int32_t divider = m_divider;
 
-  const uint8_t* m = (const uint8_t*)dcmImage.getInterData()->getData();
-  int32_t representation = dcmImage.getInterData()->getRepresentation();
+  if ( info.m_noDemosaic )
+  {
 
-  data.m_info.m_pixelRepresentation = representation & 1;
+    divider = 1;
+    lineShift = 0;
 
-  if ( m_divider > 1 )
+  }
+
+  if ( divider > 1 )
   {
 
     int32_t z;
     int32_t sliceSize = m_mosaicSizeX * m_sizeY;
 
-    if ( ( bpp == 2 ) && ( representation < 2 ) )
+    if ( ( info.m_bpp == 2 ) && ( info.m_pixelRepresentation < 2 ) )
     {
 
-      for ( z = 0; z < m_sizeZ; z++ )
+      if ( info.m_noFlip )
       {
 
-        const uint8_t* slicePtr = m + ( z / m_divider ) * sliceSize +
-                                      ( z % m_divider ) * m_sizeX;
-
-        for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
+        for ( z = 0; z < m_sizeZ; z++ )
         {
 
-          for ( x = 0; x < m_sizeX; x++ )
+          const uint8_t* slicePtr = mosaic + ( z / m_divider ) * sliceSize +
+                                             ( z % m_divider ) * m_sizeX;
+
+          for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
           {
 
-            data.m_info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
+            for ( x = 0; x < m_sizeX; x++ )
+            {
 
-            uint16_t* v = (uint16_t*)data.getLine( py, pz, t ) + px;
+              *( (uint16_t*)data( x, y, z, t ) ) = (uint16_t)*slicePtr++;
 
-            *v = (uint16_t)*slicePtr++;
+            }
+
+          }
+
+        }
+
+      }
+      else
+      {
+
+        for ( z = 0; z < m_sizeZ; z++ )
+        {
+
+          const uint8_t* slicePtr = mosaic + ( z / m_divider ) * sliceSize +
+                                             ( z % m_divider ) * m_sizeX;
+
+          for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
+          {
+
+            for ( x = 0; x < m_sizeX; x++ )
+            {
+
+              info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
+              *( (uint16_t*)data( px, py, pz, t ) ) = (uint16_t)*slicePtr++;
+
+            }
 
           }
 
@@ -121,25 +168,53 @@ void soma::Demosaicer::demosaic( DicomImage& dcmImage,
     else
     {
 
-      lineShift *= bpp;
+      lineShift *= info.m_bpp;
 
-      for ( z = 0; z < m_sizeZ; z++ )
+      if ( info.m_noFlip )
       {
 
-        const uint8_t* slicePtr = m + ( ( z / m_divider ) * sliceSize +
-                                        ( z % m_divider ) * m_sizeX ) * bpp;
-
-        for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
+        for ( z = 0; z < m_sizeZ; z++ )
         {
 
-          for ( x = 0; x < m_sizeX; x++, slicePtr += bpp )
+          const uint8_t* slicePtr = mosaic + ( ( z / m_divider ) * sliceSize +
+                                             ( z % m_divider ) * m_sizeX ) * 
+                                             info.m_bpp;
+
+          for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
           {
 
-            data.m_info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
+            for ( x = 0; x < m_sizeX; x++, slicePtr += info.m_bpp )
+            {
 
-            uint8_t* v = data.getLine( py, pz, t ) + px * bpp;
+              std::memcpy( data( x, y, z, t ), slicePtr, info.m_bpp );
 
-            std::memcpy( v, slicePtr, bpp );
+            }
+
+          }
+
+        }
+
+      }
+      else
+      {
+
+        for ( z = 0; z < m_sizeZ; z++ )
+        {
+
+          const uint8_t* slicePtr = mosaic + ( ( z / m_divider ) * sliceSize +
+                                             ( z % m_divider ) * m_sizeX ) * 
+                                             info.m_bpp;
+
+          for ( y = 0; y < m_sizeY; y++, slicePtr += lineShift )
+          {
+
+            for ( x = 0; x < m_sizeX; x++, slicePtr += info.m_bpp )
+            {
+
+              info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
+              std::memcpy( data( px, py, pz, t ), slicePtr, info.m_bpp );
+
+            }
 
           }
 
@@ -153,20 +228,38 @@ void soma::Demosaicer::demosaic( DicomImage& dcmImage,
   else
   {
 
-    if ( ( bpp == 2 ) && ( representation < 2 ) )
+    if ( ( info.m_bpp == 2 ) && ( info.m_pixelRepresentation < 2 ) )
     {
 
-      for ( y = 0; y < m_sizeY; y++, m += lineShift )
+      if ( info.m_noFlip )
       {
 
-        for ( x = 0; x < m_sizeX; x++ )
+        for ( y = 0; y < m_sizeY; y++, mosaic += lineShift )
         {
 
-          data.m_info.m_patientOrientation.getDirect( x, y, slice, px, py, pz );
+          for ( x = 0; x < m_sizeX; x++ )
+          {
 
-          uint16_t* v = (uint16_t*)data.getLine( py, pz, t ) + px;
+            *( (uint16_t*)data( x, y, slice, t ) ) = (uint16_t)*mosaic++;
 
-          *v = (uint16_t)*m++;
+          }
+
+        }
+
+      }
+      else
+      {
+
+        for ( y = 0; y < m_sizeY; y++, mosaic += lineShift )
+        {
+
+          for ( x = 0; x < m_sizeX; x++ )
+          {
+
+            info.m_patientOrientation.getDirect( x, y, slice, px, py, pz );
+            *( (uint16_t*)data( px, py, pz, t ) ) = (uint16_t)*mosaic++;
+
+          }
 
         }
 
@@ -176,19 +269,37 @@ void soma::Demosaicer::demosaic( DicomImage& dcmImage,
     else
     {
 
-      lineShift *= bpp;
+      lineShift *= info.m_bpp;
 
-      for ( y = 0; y < m_sizeY; y++, m += lineShift )
+      if ( info.m_noFlip )
       {
 
-        for ( x = 0; x < m_sizeX; x++, m += bpp )
+        for ( y = 0; y < m_sizeY; y++, mosaic += lineShift )
         {
 
-          data.m_info.m_patientOrientation.getDirect( x, y, slice, px, py, pz );
+          for ( x = 0; x < m_sizeX; x++, mosaic += info.m_bpp )
+          {
 
-          uint8_t* v = data.getLine( py, pz, t ) + px * bpp;
+            std::memcpy( data( x, y, slice, t ), mosaic, info.m_bpp );
 
-          std::memcpy( v, m, bpp );
+          }
+
+        }
+
+      }
+      else
+      {
+
+        for ( y = 0; y < m_sizeY; y++, mosaic += lineShift )
+        {
+
+          for ( x = 0; x < m_sizeX; x++, mosaic += info.m_bpp )
+          {
+
+            info.m_patientOrientation.getDirect( x, y, slice, px, py, pz );
+            std::memcpy( data( px, py, pz, t ), mosaic, info.m_bpp );
+
+          }
 
         }
 

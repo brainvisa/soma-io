@@ -1,6 +1,6 @@
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiSliceContext.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -14,8 +14,6 @@
 #include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmdata/dcsequen.h>
-
-#include <algorithm>
 
 
 soma::EnhancedMRImageStorageReader::EnhancedMRImageStorageReader()
@@ -43,7 +41,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
     if ( dataset->findAndGetSint32( DCM_NumberOfFrames, nSlices ).good() )
     {
 
-      m_dataInfo.m_slices = (int32_t)nSlices;
+      m_dataInfo->m_slices = (int32_t)nSlices;
 
     }
 
@@ -54,6 +52,9 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
       uint32_t i, nItems = seq->card();
       bool found = false;
+
+      m_dataInfo->m_slope.resize( nItems );
+      m_dataInfo->m_intercept.resize( nItems );
 
       for ( i = 0; i < nItems; i++ )
       {
@@ -85,12 +86,12 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
             std::istringstream iss( orientationStr );
 
-            iss >> m_dataInfo.m_rowVec.x
-                >> m_dataInfo.m_rowVec.y
-                >> m_dataInfo.m_rowVec.z
-                >> m_dataInfo.m_colVec.x
-                >> m_dataInfo.m_colVec.y
-                >> m_dataInfo.m_colVec.z;
+            iss >> m_dataInfo->m_rowVec.x
+                >> m_dataInfo->m_rowVec.y
+                >> m_dataInfo->m_rowVec.z
+                >> m_dataInfo->m_colVec.x
+                >> m_dataInfo->m_colVec.y
+                >> m_dataInfo->m_colVec.z;
 
             found = true;
 
@@ -132,11 +133,34 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
         }
 
+        if ( item->findAndGetSequenceItem( DCM_PixelValueTransformationSequence,
+                                           tmpItem ).good() )
+        {
+
+          Float64 tmpFloat;
+
+          if ( tmpItem->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
+          {
+
+            m_dataInfo->m_slope[ i ] = (double)tmpFloat;
+
+          }
+
+          if ( tmpItem->findAndGetFloat64( DCM_RescaleIntercept,
+                                           tmpFloat ).good() )
+          {
+
+            m_dataInfo->m_intercept[ i ] = (double)tmpFloat;
+
+          }
+
+        }
+
       }
 
     }
 
-    setOrientation( m_dataInfo );
+    setOrientation();
 
     return true;
 
@@ -147,13 +171,11 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::EnhancedMRImageStorageReader::readData( soma::Data& data,
+bool soma::EnhancedMRImageStorageReader::readData( soma::DicomProxy& proxy,
                                                    soma::Callback* progress )
 {
 
-  soma::DataInfo dataInfo( m_dataInfo );
-
-  if ( data.Create( dataInfo ) )
+  if ( proxy.allocate() )
   {
 
     if ( progress )
@@ -175,6 +197,7 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::Data& data,
 
       }
 
+      soma::DataInfo& info = proxy.getDataInfo();
       DcmDataset* dataset = fileFormat.getDataset();
       DicomImage dcmImage( &fileFormat, 
                            dataset->getOriginalXfer(),
@@ -183,76 +206,30 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::Data& data,
       if ( dcmImage.getStatus() == EIS_Normal )
       {
 
-        data.m_info.m_modalityLUTApplied = false;
+        int32_t tmp1, tmp2, nSlices;
 
-        DcmSequenceOfItems* seq = 0;
-        if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
-                                          seq ).good() )
-        {
+        info.m_modalityLUTApplied = false;
+        info.m_pixelRepresentation = 
+                                   dcmImage.getInterData()->getRepresentation();
+        info.m_patientOrientation.getOnDiskSize( tmp1, tmp2, nSlices );
 
-          uint32_t i, nItems = seq->card();
-
-          m_dataInfo.initialize();
-
-          for ( i = 0; i < nItems; i++ )
-          {
-
-            DcmItem* item = seq->getItem( i );
-            DcmItem* tmpItem = 0;
-
-            if ( item->findAndGetSequenceItem( 
-                                           DCM_PixelValueTransformationSequence,
-                                           tmpItem ).good() )
-            {
-
-              Float64 tmpFloat;
-
-              if ( tmpItem->findAndGetFloat64( DCM_RescaleSlope, 
-                                               tmpFloat ).good() )
-              {
-
-                m_dataInfo.m_slope[ i ] = (double)tmpFloat;
-
-              }
-
-              if ( tmpItem->findAndGetFloat64( DCM_RescaleIntercept,
-                                               tmpFloat ).good() )
-              {
-
-                m_dataInfo.m_intercept[ i ] = (double)tmpFloat;
-
-              }
-
-            }
-
-          }
-
-        }
-        
-        soma::MultiSliceContext context( dcmImage,
-                                         data, 
-                                         progress );
-        carto::ThreadedLoop threadedLoop( &context,
-                                         0,
-                                         m_dataInfo.m_slices );
+        soma::MultiSliceContext context( dcmImage, proxy, progress );
+        carto::ThreadedLoop threadedLoop( &context, 0, nSlices );
 
         threadedLoop.launch();
 
-        data.m_info.m_pixelRepresentation = 
-                               dcmImage.getInterData()->getRepresentation() & 1;
-
-        if ( data.m_info.m_bpp < 3 )
+        if ( info.m_bpp < 3 )
         {
 
           double min = 0.0, max = 0.0;
 
           dcmImage.getMinMaxValues( min, max );
-          data.m_info.m_minimum = int32_t( min );
-          data.m_info.m_maximum = int32_t( max );
+          info.m_minimum = int32_t( min );
+          info.m_maximum = int32_t( max );
 
         }
 
-        soma::DicomDatasetHeader datasetHeader( data );
+        soma::DicomDatasetHeader datasetHeader( proxy );
         datasetHeader.add( dataset, 0 );
 
         if ( progress )

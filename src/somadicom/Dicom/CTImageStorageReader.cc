@@ -1,5 +1,5 @@
 #include <soma-io/Dicom/CTImageStorageReader.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/DicomDataContext.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -26,24 +26,22 @@ std::string soma::CTImageStorageReader::getStorageUID()
 bool soma::CTImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
-  m_dataInfo.m_slices = int32_t( m_slices.size() );
+  m_dataInfo->m_slices = int32_t( m_slices.size() );
 
   return soma::MultiFileReader::readHeader( dataset );
 
 }
 
 
-bool soma::CTImageStorageReader::readData( soma::Data& data,
+bool soma::CTImageStorageReader::readData( soma::DicomProxy& proxy,
                                            soma::Callback* progress )
 {
 
-  soma::DataInfo dataInfo( m_dataInfo );
-
-  if ( data.Create( dataInfo ) )
+  if ( proxy.allocate() )
   {
 
     soma::DicomDataContext context( m_slices, 
-                                    data, 
+                                    proxy, 
                                     false,
                                     progress );
     carto::ThreadedLoop threadedLoop( &context,

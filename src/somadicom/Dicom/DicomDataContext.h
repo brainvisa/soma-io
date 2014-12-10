@@ -14,7 +14,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -24,7 +24,7 @@ class DicomDataContext : public carto::LoopContext
   public:
 
     DicomDataContext( const std::vector< std::string >& files,
-                      Data& data,
+                      DicomProxy& proxy,
                       bool applyModalityLUT = true,
                       Callback* progress = 0 );
 
@@ -33,7 +33,7 @@ class DicomDataContext : public carto::LoopContext
   private:
 
     const std::vector< std::string >& m_files;
-    Data& m_data;
+    DicomProxy& m_proxy;
     Callback* m_progress;
     int32_t m_count;
 

@@ -11,9 +11,6 @@ namespace soma
 {
 
 
-class Vector;
-
-
 class AxialTransformation3d : public Transformation3d
 {
 
@@ -22,7 +19,16 @@ class AxialTransformation3d : public Transformation3d
     AxialTransformation3d();
     AxialTransformation3d( const Vector& rowCosine,
                            const Vector& columnCosine,
-                           const Vector& normal );
+                           const Vector& normal,
+                           const Vector& origin = Vector( 0.0, 0.0, 0.0 )  );
+    AxialTransformation3d( const AxialTransformation3d& other );
+
+    void setTranslation( const Vector& translation );
+
+    void getDirect( const double fromX, const double fromY, const double fromZ,
+                    double& toX, double& toY, double& toZ );
+    void getInverse( const double toX, const double toY, const double toZ,
+                     double& fromX, double& fromY, double& fromZ );
 
 };
 

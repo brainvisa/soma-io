@@ -26,10 +26,12 @@ class Transformation3d
                    double r20, double r21, double r22, double tz,
                    double sx, double sy, double sz, double w );
 
-    void getDirect( const double fromX, const double fromY, const double fromZ,
-                    double& toX, double& toY, double& toZ );
-    void getInverse( const double toX, const double toY, const double toZ,
-                     double& fromX, double& fromY, double& fromZ );
+    virtual void getDirect( 
+                     const double fromX, const double fromY, const double fromZ,
+                     double& toX, double& toY, double& toZ );
+    virtual void getInverse( 
+                           const double toX, const double toY, const double toZ,
+                           double& fromX, double& fromY, double& fromZ );
 
     double getDirectCoefficient( int32_t j, int32_t i ) const;
     double getInverseCoefficient( int32_t j, int32_t i ) const;

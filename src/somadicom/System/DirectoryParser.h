@@ -1,11 +1,11 @@
-#ifndef _Directory_h_
-#define _Directory_h_
+#ifndef _DirectoryParser_h_
+#define _DirectoryParser_h_
 
 
 #include <soma-io/config/soma_config.h>
 
 #include <string>
-#include <vector>
+#include <set>
 
 
 namespace soma
@@ -21,7 +21,7 @@ class DirectoryParser
 
     std::string& getSelectedFile();
     std::string& getSelectedDirectory();
-    std::vector< std::string >& getFiles();
+    std::set< std::string >& getFiles();
 
     bool parse();
 
@@ -31,7 +31,7 @@ class DirectoryParser
 
     std::string m_selectedFile;
     std::string m_selectedDir;
-    std::vector< std::string > m_files;
+    std::set< std::string > m_files;
 
 };
 

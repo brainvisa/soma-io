@@ -14,7 +14,7 @@ namespace soma
 
 
 class DataInfo;
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -27,7 +27,7 @@ class DicomIO : public Singleton< DicomIO >
                 std::vector< std::string >& fileList,
                 DataInfo& dataInfo );
     bool read( const std::vector< std::string >& fileList, 
-               Data& data, 
+               DicomProxy& proxy, 
                Callback* progress = 0 );
 
   protected:

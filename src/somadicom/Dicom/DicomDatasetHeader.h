@@ -17,7 +17,8 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
+class BinaryHeader;
 
 
 class DicomDatasetHeader
@@ -25,7 +26,7 @@ class DicomDatasetHeader
 
   public:
 
-    DicomDatasetHeader( Data& data );
+    DicomDatasetHeader( DicomProxy& proxy );
     virtual ~DicomDatasetHeader();
 
     void add( DcmDataset* dataset, int32_t i );
@@ -36,7 +37,7 @@ class DicomDatasetHeader
 
   private:
 
-    Data& m_data;
+    BinaryHeader& m_binaryHeader;
 
 };
 

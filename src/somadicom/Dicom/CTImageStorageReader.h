@@ -22,7 +22,7 @@ class CTImageStorageReader : public MultiFileReader
     CTImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( Data& data, Callback* progress = 0 );
+    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
 
 };
 

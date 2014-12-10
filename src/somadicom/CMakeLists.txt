@@ -9,9 +9,9 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h
 
 set( _headers
   checker/dicomformatchecker.h
-  Container/Data.h
   Container/DataInfo.h
-  Container/DatasetHeader.h
+  Container/DataInfoCache.h
+  Container/DicomProxy.h
   Container/Matrix.h
   Container/Vector.h
   Dicom/CTImageStorageReader.h
@@ -22,6 +22,7 @@ set( _headers
   Dicom/DicomReader.h
   Dicom/DicomSortContext.h
   Dicom/EnhancedMRImageStorageReader.h
+  Dicom/FileInformation.h
   Dicom/GenericCTReader.h
   Dicom/GenericEnhancedMRReader.h
   Dicom/GenericMRReader.h
@@ -40,16 +41,16 @@ set( _headers
   Dicom/Siemens/MosaicDataContext.h
   Dicom/Siemens/SiemensMRReader.h
   Dicom/soma_osconfig.h
-  Dicom/SortInformation.h
   Dicom/USImageStorageReader.h
   Dicom/USMultiframeImageStorageReader.h
   Dicom/USReader.h
   image/dicomimagereader.h
   image/dicomimagereader_d.h
+  Object/BinaryHeader.h
   Pattern/Callback.h
   Pattern/Singleton.h
   plugin/dicomplugin.h
-  System/Directory.h
+  System/DirectoryParser.h
   Transformation/AxialTransformation3d.h
   Transformation/DicomTransformation3d.h
   Transformation/PatientOrientation.h
@@ -59,9 +60,9 @@ set( _headers
 
 set( _sources
   checker/dicomformatchecker.cc
-  Container/Data.cc
   Container/DataInfo.cc
-  Container/DatasetHeader.cc
+  Container/DataInfoCache.cc
+  Container/DicomProxy.cc
   Container/Matrix.cc
   Container/Vector.cc
   Dicom/CTImageStorageReader.cc
@@ -72,6 +73,7 @@ set( _sources
   Dicom/DicomReaderFactory.cc
   Dicom/DicomSortContext.cc
   Dicom/EnhancedMRImageStorageReader.cc
+  Dicom/FileInformation.cc
   Dicom/GenericCTReader.cc
   Dicom/GenericEnhancedMRReader.cc
   Dicom/GenericMRReader.cc
@@ -89,14 +91,14 @@ set( _sources
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
   Dicom/Siemens/SiemensMRReader.cc
-  Dicom/SortInformation.cc
   Dicom/USImageStorageReader.cc
   Dicom/USMultiframeImageStorageReader.cc
   Dicom/USReader.cc
   image/dicomimagereader.cc
+  Object/BinaryHeader.cc
   Pattern/Callback.cc
   plugin/dicomplugin.cc
-  System/Directory.cc
+  System/DirectoryParser.cc
   Transformation/AxialTransformation3d.cc
   Transformation/DicomTransformation3d.cc
   Transformation/PatientOrientation.cc

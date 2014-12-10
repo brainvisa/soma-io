@@ -24,7 +24,7 @@ class PTImageStorageReader : public MultiFileReader
 
     PTImageStorageReader();
 
-    virtual bool readData( Data& data, Callback* progress = 0 );
+    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
 
 };
 

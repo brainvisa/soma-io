@@ -15,7 +15,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -25,7 +25,7 @@ class MultiSliceContext : public carto::LoopContext
   public:
 
     MultiSliceContext( DicomImage& dcmImage, 
-                       Data& data,
+                       DicomProxy& proxy,
                        Callback* progress = 0 );
 
     void doIt( int32_t startIndex, int32_t count );
@@ -33,7 +33,7 @@ class MultiSliceContext : public carto::LoopContext
   private:
 
     DicomImage& m_dcmImage;
-    Data& m_data;
+    DicomProxy& m_proxy;
     Callback* m_progress;
     int32_t m_count;
 

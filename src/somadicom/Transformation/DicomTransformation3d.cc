@@ -24,6 +24,13 @@ soma::DicomTransformation3d::DicomTransformation3d(
 }
 
 
+soma::DicomTransformation3d::DicomTransformation3d( 
+                                      const soma::DicomTransformation3d& other )
+                           : soma::Transformation3d( other )
+{
+}
+
+
 void soma::DicomTransformation3d::setTranslation( 
                                                const soma::Vector& translation )
 {

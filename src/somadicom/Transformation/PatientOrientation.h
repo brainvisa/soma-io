@@ -28,13 +28,10 @@ class PatientOrientation
               int32_t sizeX,
               int32_t sizeY,
               int32_t sizeZ,
-              double pixelSpacingX,
-              double pixelSpacingY,
-              double pixelSpacingZ );
+              const Vector& resolution );
     void setOrigin( const Vector& origin );
 
     void getOnDiskSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ );
-
     void getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ );
     void getResolution( double& resolutionX,
                         double& resolutionY,
@@ -59,21 +56,17 @@ class PatientOrientation
 
     bool m_axialAcquisition;
 
+    Vector m_normalVector;
+
     int32_t m_onDiskSizeX;
     int32_t m_onDiskSizeY;
     int32_t m_onDiskSizeZ;
-    double m_onDiskResolutionX;
-    double m_onDiskResolutionY;
-    double m_onDiskResolutionZ;
+    Vector m_onDiskResolution;
 
     int32_t m_sizeX;
     int32_t m_sizeY;
     int32_t m_sizeZ;
-    double m_resolutionX;
-    double m_resolutionY;
-    double m_resolutionZ;
-
-    Vector m_normalVector;
+    Vector m_resolution;
 
     AxialTransformation3d m_axialTransformation;
     DicomTransformation3d m_dicomTransformation;

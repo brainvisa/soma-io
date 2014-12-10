@@ -1,6 +1,6 @@
 #include <soma-io/Dicom/MultiFileReader.h>
-#include <soma-io/System/Directory.h>
-#include <soma-io/Container/Data.h>
+#include <soma-io/System/DirectoryParser.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Dicom/DicomSortContext.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Pattern/Callback.h>
@@ -14,85 +14,6 @@
 soma::MultiFileReader::MultiFileReader()
                      : soma::MultiSliceReader()
 {
-}
-
-
-bool soma::MultiFileReader::check( soma::DirectoryParser& directory,
-                                   std::vector< std::string >& fileList,
-                                   soma::DataInfo& dataInfo )
-{
-
-  std::string selectedFile = directory.getSelectedFile();
-
-  if ( !selectedFile.empty() )
-  {
-
-    initialize();
-
-    if ( soma::DicomReader::readHeader( selectedFile ) )
-    {
-
-      fileList = sortFiles( directory );
-
-      if ( !fileList.empty() )
-      {
-
-        dataInfo = m_dataInfo;
-        dataInfo.initialize();
-
-        return true;
-
-      }
-
-    }
-
-  }
-
-  return false;
-
-}
-
-
-bool soma::MultiFileReader::read( const std::vector< std::string >& fileList, 
-                                  soma::Data& data, 
-                                  soma::Callback* progress )
-{
-
-  if ( progress )
-  {
-
-    progress->execute( 0 );
-
-  }
-
-  if ( !fileList.empty() )
-  {
-
-    m_slices = fileList;
-
-    if ( progress )
-    {
-
-      progress->execute( 6 );
-
-    }
-
-    // read all slices in the serie
-    bool status = readData( data, progress );
-
-    if ( progress )
-    {
-
-      progress->execute( 100 );
-
-    }
-
-    return status;
-
-  }
-
-  return false;
-
 }
 
 
@@ -121,12 +42,12 @@ bool soma::MultiFileReader::readHeader( DcmDataset* dataset )
 
       std::istringstream iss( orientationStr );
 
-      iss >> m_dataInfo.m_rowVec.x
-          >> m_dataInfo.m_rowVec.y
-          >> m_dataInfo.m_rowVec.z
-          >> m_dataInfo.m_colVec.x
-          >> m_dataInfo.m_colVec.y
-          >> m_dataInfo.m_colVec.z;
+      iss >> m_dataInfo->m_rowVec.x
+          >> m_dataInfo->m_rowVec.y
+          >> m_dataInfo->m_rowVec.z
+          >> m_dataInfo->m_colVec.x
+          >> m_dataInfo->m_colVec.y
+          >> m_dataInfo->m_colVec.z;
 
     }
 
@@ -147,7 +68,7 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
   m_slices.clear();
   m_positions.clear();
-  m_dataInfo.m_fileCount = 0;
+  m_dataInfo->m_fileCount = 0;
 
   if ( directory.getFiles().empty() )
   {
@@ -161,39 +82,48 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
     int32_t nFiles = int32_t( directory.getFiles().size() );
 
-    std::multimap< double, soma::SortInformation > slices;
+    std::multimap< double, soma::FileInformation > slices;
     soma::DicomSortContext context( m_seriesInstanceUID, 
                                     directory.getFiles(),
                                     slices,
-                                    m_dataInfo.m_rowVec,
-                                    m_dataInfo.m_colVec,
-                                    m_dataInfo.m_fileCount );
-    carto::ThreadedLoop threadedLoop( &context,
-                                     0,
-                                     nFiles );
+                                    m_dataInfo->m_rowVec,
+                                    m_dataInfo->m_colVec,
+                                    m_dataInfo->m_fileCount );
+    carto::ThreadedLoop threadedLoop( &context, 0, nFiles );
 
     threadedLoop.launch();
-    m_slices.resize( m_dataInfo.m_fileCount );
-    m_positions.resize( m_dataInfo.m_fileCount );
 
-    m_dataInfo.m_frames = slices.count( slices.begin()->first );
-    m_dataInfo.m_slices = m_dataInfo.m_fileCount / m_dataInfo.m_frames;
+    m_slices.resize( m_dataInfo->m_fileCount );
+    m_positions.resize( m_dataInfo->m_fileCount );
+    m_dataInfo->m_slope.resize( m_dataInfo->m_fileCount );
+    m_dataInfo->m_intercept.resize( m_dataInfo->m_fileCount );
 
-    std::multimap< double, soma::SortInformation >::iterator
+    m_dataInfo->m_frames = slices.count( slices.begin()->first );
+
+    int32_t dimZ = m_dataInfo->m_fileCount / m_dataInfo->m_frames;
+
+    if ( !m_dataInfo->m_mosaic )
+    {
+
+      m_dataInfo->m_slices = dimZ;
+
+    }
+
+    std::multimap< double, soma::FileInformation >::iterator
       s = slices.begin(),
       se = slices.end();
-    std::map< double, std::map< int32_t, soma::SortInformation > > ordered;
+    std::map< double, std::map< int32_t, soma::FileInformation > > ordered;
 
     while ( s != se )
     {
 
-      std::map< double, std::map< int32_t, soma::SortInformation > >::iterator
+      std::map< double, std::map< int32_t, soma::FileInformation > >::iterator
         m = ordered.find( s->first );
 
       if ( m == ordered.end() )
       {
 
-        std::map< int32_t, soma::SortInformation > orderedFiles;
+        std::map< int32_t, soma::FileInformation > orderedFiles;
 
         orderedFiles.insert( std::make_pair( s->second.m_instanceNumber,
                                              s->second ) );
@@ -212,16 +142,15 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
     }
 
-    std::map< double, std::map< int32_t, soma::SortInformation > >::iterator
+    std::map< double, std::map< int32_t, soma::FileInformation > >::iterator
       o = ordered.begin(),
       oe = ordered.end();
     int32_t origin = 0;
-    int32_t dimZ = m_dataInfo.m_slices;
 
     while ( o != oe )
     {
 
-      std::map< int32_t, soma::SortInformation >::iterator
+      std::map< int32_t, soma::FileInformation >::iterator
         f = o->second.begin(),
         fe = o->second.end();
       int32_t pos = origin;
@@ -231,6 +160,8 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
         m_slices[ pos ] = f->second.m_fileName;
         m_positions[ pos ] = f->second.m_imagePosition;
+        m_dataInfo->m_slope[ pos ] = f->second.m_slope;
+        m_dataInfo->m_intercept[ pos ] = f->second.m_intercept;
         
         pos += dimZ;
         ++f;
@@ -242,7 +173,7 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
     }
 
-    setOrientation( m_dataInfo );
+    setOrientation();
 
   }
 

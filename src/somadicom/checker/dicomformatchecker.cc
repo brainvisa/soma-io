@@ -34,7 +34,7 @@
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/checker/dicomformatchecker.h>             // class declaration
 #include <soma-io/Dicom/DicomIO.h>
-#include <soma-io/Container/DataInfo.h>
+#include <soma-io/Container/DataInfoCache.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
@@ -85,7 +85,9 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
   {
 
     vector< string > fileList;
-    soma::DataInfo dataInfo;
+
+    soma::DataInfoCache::getInstance().clear();
+    soma::DataInfo& dataInfo = soma::DataInfoCache::getInstance().getDataInfo();
 
     // avoid printing anything from dcmtk
     fdinhibitor   fdi( STDERR_FILENO );
@@ -116,9 +118,9 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     int            sizex = 1, sizey = 1, sizez = 1, sizet = 1;
     vector<float>  vs(4, 1.); // voxel size
 
-    vs[ 0 ] = dataInfo.m_pixelSpacingX;
-    vs[ 1 ] = dataInfo.m_pixelSpacingY;
-    vs[ 2 ] = dataInfo.m_pixelSpacingZ;
+    vs[ 0 ] = dataInfo.m_resolution.x;
+    vs[ 1 ] = dataInfo.m_resolution.y;
+    vs[ 2 ] = dataInfo.m_resolution.z;
     vs[ 3 ] = dataInfo.m_repetitionTime;
 
     switch ( dataInfo.m_bpp )
@@ -129,7 +131,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
         break;
 
       case 2:
-        type = dataInfo.m_pixelRepresentation ? "S16" : "U16";
+        type = ( dataInfo.m_pixelRepresentation & 1 ) ? "S16" : "U16";
         break;
         
       case 3:

@@ -13,7 +13,7 @@ namespace soma
 {
 
 
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -29,7 +29,7 @@ class USMultiframeImageStorageReader : public USReader
     USMultiframeImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( Data& data, Callback* progress = 0 );
+    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
 
 };
 

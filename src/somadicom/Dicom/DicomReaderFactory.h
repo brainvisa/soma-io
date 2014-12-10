@@ -17,7 +17,7 @@ namespace soma
 class DicomReader;
 class DirectoryParser;
 class DataInfo;
-class Data;
+class DicomProxy;
 class Callback;
 
 
@@ -36,7 +36,7 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
     bool read( const std::string& manufacturer,
                const std::string& storageUID,
                const std::vector< std::string >& fileList,
-               Data& data,
+               DicomProxy& proxy,
                Callback* progress = 0 );
 
   protected:
