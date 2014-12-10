@@ -62,6 +62,8 @@ namespace soma
   protected:
     void _buildDSList( DataSourceList & dsl ) const;
     carto::Object _buildHeader( DataSource * hds ) const;
+    void _readDiffusionVectors( DataSource* bvecfile, DataSource* bvalfile,
+                                carto::Object header ) const;
     void setApi( NiftiApiHelpers *api );
     virtual std::string formatName() const = 0;
     NiftiApiHelpers *api;

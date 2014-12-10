@@ -43,6 +43,7 @@
 #include <soma-io/checker/niftistructwrapper.h>
 #include <soma-io/checker/transformation.h>
 #include <soma-io/nifticlib/niftiapihelpers_p.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                                 // header
 #include <cartobase/object/property.h>                               // header
@@ -167,7 +168,7 @@ namespace soma
 void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   DataSource* pds = dsl.dataSource().get();
-  string hdrname, dataname, minfname;
+  string hdrname, dataname, minfname, basename;
   // dataname is the name of the main data file (.nii, .nii.gz or .img)
 
   dataname = FileUtil::uriFilename( pds->url() );
@@ -175,11 +176,12 @@ void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
   {
     // we suppose ds is a nii file
     dsl.addDataSource( "nii", rc_ptr<DataSource>( pds ) );
+    basename = FileUtil::removeExtension( pds->url() );
   }
   else
   {
     string ext = FileUtil::extension( dataname );
-    string basename = FileUtil::removeExtension( dataname );
+    basename = FileUtil::removeExtension( dataname );
 
     if( ext == "nii" )
     {
@@ -289,7 +291,20 @@ void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
   localMsg( "hdr: " + dsl.dataSource( "hdr" )->url() );
   localMsg( "nii: " + dsl.dataSource( "nii" )->url() );
 
-  //// Minf DataSource
+  /* chexck for .bval and .bvec additional files (diffusion imaging, output of
+     dcm2nii) */
+  string bvecfile = basename + ".bvec";
+  string bvalfile = basename + ".bval";
+  if( FileUtil::fileStat( bvecfile ).find( '+' ) != string::npos
+    && FileUtil::fileStat( bvalfile ).find( '+' ) != string::npos )
+  {
+    dsl.addDataSource( "bvec", rc_ptr<DataSource>
+        ( new FileDataSource( bvecfile ) ) );
+    dsl.addDataSource( "bval", rc_ptr<DataSource>
+        ( new FileDataSource( bvalfile ) ) );
+  }
+
+  // Minf DataSource
   if( !minfname.empty()
       && FileUtil::fileStat( minfname ).find( '+' ) != string::npos )
   {
@@ -796,6 +811,20 @@ DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
       dsi.header()->removeProperty( "_nifti_structure" );
     }
 
+    // read bvec/bval files if present
+    try
+    {
+      DataSource* bvecfile = dsi.list().dataSource( "bvec" ).get();
+      DataSource* bvalfile = dsi.list().dataSource( "bval" ).get();
+      if( bvecfile && bvalfile )
+      {
+        _readDiffusionVectors( bvecfile, bvalfile, dsi.header() );
+      }
+    }
+    catch( ... )
+    {
+    }
+
     localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;
@@ -831,6 +860,56 @@ DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );
   return dsi;
+}
+
+
+void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
+                                                DataSource* bvalfile,
+                                                Object header ) const
+{
+  bvalfile->open( DataSource::Read );
+  vector<float> bvals;
+  while( (*bvalfile) )
+  {
+    float val;
+    AsciiDataSourceTraits<float>::read( *bvalfile, val );
+    if( !(*bvalfile) )
+      break;
+    StreamUtil::skip( *bvalfile );
+    bvals.push_back( val );
+  }
+
+  bvecfile->open( DataSource::Read );
+  vector<float> bvecs;
+  while( (*bvecfile) )
+  {
+    float val;
+    AsciiDataSourceTraits<float>::read( *bvecfile, val );
+    if( !(*bvecfile) )
+      break;
+    StreamUtil::skip( *bvecfile );
+    bvecs.push_back( val );
+  }
+
+  if( bvecs.size() != bvals.size() * 3 )
+  {
+    cerr << "B values / directions inconsistency\n";
+    return;
+  }
+
+  unsigned i, n = bvals.size();
+  vector<vector<float> > bvecs2( n );
+  for( unsigned i=0; i<n; ++i )
+  {
+    vector<float> dir( 3 );
+    dir[0] = bvecs[i];
+    dir[1] = bvecs[i+n];
+    dir[2] = bvecs[i+n*2];
+    bvecs2[i] = dir;
+  }
+
+  header->setProperty( "bvals", bvals );
+  header->setProperty( "bvecs", bvecs2 );
 }
 
 
