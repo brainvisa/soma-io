@@ -2,6 +2,7 @@
 #include <soma-io/Dicom/DicomReader.h>
 #include <soma-io/Container/DataInfo.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/Header.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Pattern/Callback.h>
 
@@ -74,6 +75,26 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
   {
 
     return reader->check( directory, fileList, dataInfo );
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::DicomReaderFactory::getHeader( const std::string& manufacturer,
+                                          const std::string& storageUID,
+                                          soma::Header& header,
+                                          soma::DataInfo& dataInfo )
+{
+
+  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+
+  if ( reader )
+  {
+
+    return reader->getHeader( header, dataInfo );
 
   }
 

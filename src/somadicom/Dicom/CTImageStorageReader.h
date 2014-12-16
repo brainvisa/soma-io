@@ -17,6 +17,8 @@ class CTImageStorageReader : public MultiFileReader
 
     std::string getStorageUID();
 
+    virtual bool getHeader( Header& header, DataInfo& info );
+
   protected:
 
     CTImageStorageReader();

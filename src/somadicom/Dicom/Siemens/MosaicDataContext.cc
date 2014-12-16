@@ -1,5 +1,4 @@
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
-#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
@@ -36,7 +35,6 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
   int32_t n = info.m_frames - 1;
   int32_t min = ( 1 << info.m_depth ) - 1;
   int32_t max = 1 - ( 1 << info.m_depth );
-  soma::DicomDatasetHeader datasetHeader( m_proxy );
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
@@ -71,7 +69,6 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
         }
 
         m_demosaicer.demosaic( dcmImage, m_proxy, 0, i );
-        datasetHeader.add( dataset, i );
                              
         lock();
         m_count++;

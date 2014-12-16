@@ -49,6 +49,8 @@ class PatientOrientation
                      int32_t& fromX, 
                      int32_t& fromY, 
                      int32_t& fromZ );
+
+    const Transformation3d& getAxialTransformation() const;
 		     
     Transformation3d getReferential() const;
 

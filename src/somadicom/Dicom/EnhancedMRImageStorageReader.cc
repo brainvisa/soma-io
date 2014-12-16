@@ -1,5 +1,4 @@
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
-#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiSliceContext.h>
@@ -228,9 +227,6 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::DicomProxy& proxy,
           info.m_maximum = int32_t( max );
 
         }
-
-        soma::DicomDatasetHeader datasetHeader( proxy );
-        datasetHeader.add( dataset, 0 );
 
         if ( progress )
         {

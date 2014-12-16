@@ -51,6 +51,7 @@ soma::BinaryHeader& soma::BinaryHeader::operator = (
     }
 
     ++o;
+    ++b;
     i++;
 
   }

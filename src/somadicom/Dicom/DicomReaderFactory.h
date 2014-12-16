@@ -19,6 +19,7 @@ class DirectoryParser;
 class DataInfo;
 class DicomProxy;
 class Callback;
+class Header;
 
 
 class DicomReaderFactory : public Singleton< DicomReaderFactory >
@@ -33,6 +34,10 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
                 DirectoryParser& directory,
                 std::vector< std::string >& fileList,
                 DataInfo& dataInfo );
+    bool getHeader( const std::string& manufacturer,
+                    const std::string& storageUID,
+                    Header& header,
+                    DataInfo& dataInfo );
     bool read( const std::string& manufacturer,
                const std::string& storageUID,
                const std::vector< std::string >& fileList,

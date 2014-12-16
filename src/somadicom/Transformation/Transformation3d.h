@@ -5,6 +5,7 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Utils/StdInt.h>
 
+#include <vector>
 #include <iostream>
 
 
@@ -35,6 +36,8 @@ class Transformation3d
 
     double getDirectCoefficient( int32_t j, int32_t i ) const;
     double getInverseCoefficient( int32_t j, int32_t i ) const;
+
+    std::vector< double > getCoefficients() const;
     
     Transformation3d inverse() const;
 

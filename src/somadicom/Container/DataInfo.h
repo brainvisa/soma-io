@@ -5,6 +5,7 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Transformation/PatientOrientation.h>
+#include <soma-io/Object/BinaryHeader.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <vector>
@@ -59,6 +60,7 @@ class DataInfo
     Vector m_normVec;
 
     PatientOrientation m_patientOrientation;
+    BinaryHeader m_datasetHeader;
 
     bool m_mosaic;
     bool m_noFlip;

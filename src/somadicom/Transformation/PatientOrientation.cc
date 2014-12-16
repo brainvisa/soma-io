@@ -207,6 +207,15 @@ void soma::PatientOrientation::getInverse( const int32_t toX,
 }
 
 
+const soma::Transformation3d& 
+soma::PatientOrientation::getAxialTransformation() const
+{
+
+  return m_axialTransformation;
+
+}
+
+
 soma::Transformation3d soma::PatientOrientation::getReferential() const
 {
 

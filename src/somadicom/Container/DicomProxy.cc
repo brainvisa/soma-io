@@ -60,9 +60,6 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
   }
 
   m_info.initialize();
-  m_datasetHeader.clear();
-  m_datasetHeader.resize( m_info.m_fileCount );
-  m_datasetHeader.setFormat( "dicom" );
 
   if ( m_dataOwner )
   {
@@ -161,7 +158,7 @@ soma::DataInfo& soma::DicomProxy::getDataInfo()
 soma::BinaryHeader& soma::DicomProxy::getBinaryHeader()
 {
 
-  return m_datasetHeader;
+  return m_info.m_datasetHeader;
 
 }
 

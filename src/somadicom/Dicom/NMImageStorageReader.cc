@@ -1,6 +1,7 @@
 #include <soma-io/Dicom/NMImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/Header.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -27,6 +28,59 @@ std::string soma::NMImageStorageReader::getStorageUID()
 {
 
   return UID_NuclearMedicineImageStorage;
+
+}
+
+
+bool soma::NMImageStorageReader::getHeader( soma::Header& header, 
+                                            soma::DataInfo& info )
+{
+
+  if ( !soma::DicomReader::getHeader( header, info ) )
+  {
+
+    return false;
+
+  }
+
+  header.addAttribute( "number_of_frames", info.m_slices );
+
+  OFString tmpString;
+  DcmDataset dataset;
+  soma::DicomDatasetHeader datasetHeader( info );
+
+  datasetHeader.get( dataset );
+
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
+  if ( dataset.findAndGetOFString( DCM_PatientSex, tmpString ).good() )
+#else
+  if ( dataset.findAndGetOFString( DCM_PatientsSex, tmpString ).good() )
+#endif
+  {
+
+    header.addAttribute( "patient_sex", tmpString.c_str() );
+
+  }
+
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
+  if ( dataset.findAndGetOFString( DCM_PatientBirthDate, tmpString ).good() )
+#else
+  if ( dataset.findAndGetOFString( DCM_PatientsBirthDate, tmpString ).good() )
+#endif
+  {
+
+    header.addAttribute( "patient_birthdate", tmpString.c_str() );
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_CorrectedImage, tmpString ).good() )
+  {
+
+    header.addAttribute( "corrected_image", tmpString.c_str() );
+
+  }
+
+  return true;
 
 }
 
@@ -134,9 +188,6 @@ bool soma::NMImageStorageReader::readData( soma::DicomProxy& proxy,
           info.m_maximum = int32_t( max );
 
         }
-
-        soma::DicomDatasetHeader datasetHeader( proxy );
-        datasetHeader.add( dataset, 0 );
 
         if ( progress )
         {

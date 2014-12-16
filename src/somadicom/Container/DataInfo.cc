@@ -49,6 +49,7 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 m_rowVec( other.m_rowVec ),
                 m_colVec( other.m_colVec ),
                 m_patientOrientation( other.m_patientOrientation ),
+                m_datasetHeader( other.m_datasetHeader ),
                 m_mosaic( other.m_mosaic ),
                 m_noFlip( other.m_noFlip ),
                 m_noDemosaic( other.m_noDemosaic )
@@ -90,6 +91,7 @@ void soma::DataInfo::clear()
   m_intercept.clear();
   m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  m_datasetHeader.clear();
   m_mosaic = false;
   m_noFlip = false;
   m_noDemosaic = false;

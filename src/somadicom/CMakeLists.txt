@@ -47,6 +47,8 @@ set( _headers
   image/dicomimagereader.h
   image/dicomimagereader_d.h
   Object/BinaryHeader.h
+  Object/CartoHeader.h
+  Object/Header.h
   Pattern/Callback.h
   Pattern/Singleton.h
   plugin/dicomplugin.h
@@ -96,6 +98,8 @@ set( _sources
   Dicom/USReader.cc
   image/dicomimagereader.cc
   Object/BinaryHeader.cc
+  Object/CartoHeader.cc
+  Object/Header.cc
   Pattern/Callback.cc
   plugin/dicomplugin.cc
   System/DirectoryParser.cc

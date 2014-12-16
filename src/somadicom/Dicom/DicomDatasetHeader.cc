@@ -1,5 +1,5 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Container/DataInfo.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
@@ -14,8 +14,8 @@
 #include <iomanip>
 
 
-soma::DicomDatasetHeader::DicomDatasetHeader( soma::DicomProxy& proxy )
-                        : m_binaryHeader( proxy.getBinaryHeader() )
+soma::DicomDatasetHeader::DicomDatasetHeader( soma::DataInfo& dataInfo )
+                        : m_binaryHeader( dataInfo.m_datasetHeader )
 {
 }
 
@@ -35,7 +35,7 @@ void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
 
     int32_t length = dataset->calcElementLength( EXS_LittleEndianExplicit,
                                                  EET_ExplicitLength );
-    
+
     if ( m_binaryHeader.allocate( i, length ) )
     {
 
@@ -82,6 +82,7 @@ void soma::DicomDatasetHeader::get( DcmDataset& dataset, int32_t i )
       dibs.setBuffer( (const void*)m_binaryHeader[ i ].first,
                       m_binaryHeader[ i ].second );
       dibs.setEos();
+      dataset.clear();
       dataset.transferInit();
       dataset.read( dibs, EXS_LittleEndianExplicit );
       dataset.transferEnd();

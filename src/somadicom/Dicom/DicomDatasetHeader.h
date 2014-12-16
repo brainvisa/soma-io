@@ -10,14 +10,13 @@
 
 
 class DcmDataset;
-class DcmFileFormat;
 
 
 namespace soma
 {
 
 
-class DicomProxy;
+class DataInfo;
 class BinaryHeader;
 
 
@@ -26,11 +25,11 @@ class DicomDatasetHeader
 
   public:
 
-    DicomDatasetHeader( DicomProxy& proxy );
+    DicomDatasetHeader( DataInfo& dataInfo );
     virtual ~DicomDatasetHeader();
 
-    void add( DcmDataset* dataset, int32_t i );
-    void get( DcmDataset& dataset, int32_t i );
+    void add( DcmDataset* dataset, int32_t i = 0 );
+    void get( DcmDataset& dataset, int32_t i = 0 );
 
     bool getDictionary( std::map< std::string, std::string >& dictionary );
     bool setDictionary( std::map< std::string, std::string >& dictionary );

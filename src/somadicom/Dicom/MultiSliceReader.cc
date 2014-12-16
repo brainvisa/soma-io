@@ -1,4 +1,11 @@
 #include <soma-io/Dicom/MultiSliceReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Object/Header.h>
+
+#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcdeftag.h>
+#include <dcmtk/dcmdata/dcuid.h>
 
 #include <limits>
 
@@ -97,5 +104,47 @@ void soma::MultiSliceReader::setOrientation()
                                                    m_dataInfo->m_resolution.z );
 
   }
+
+}
+
+
+bool soma::MultiSliceReader::getHeader( Header& header, DataInfo& dataInfo )
+{
+
+  OFString tmpString;
+  DcmDataset dataset;
+  std::vector< std::string > referential;
+  soma::DicomDatasetHeader datasetHeader( dataInfo );
+
+  datasetHeader.get( dataset );
+
+  if ( dataset.findAndGetOFString( DCM_FrameOfReferenceUID, tmpString ).good() )
+  {
+
+    referential.push_back( tmpString.c_str() );
+    header.addAttribute( "referential", referential );
+
+  }
+
+  std::vector< std::string > referentials;
+  referentials.push_back(
+                        std::string( "Scanner-based anatomical coordinates" ) );
+  header.addAttribute( "referentials", referentials );
+
+  std::vector< double > transformation = 
+               dataInfo.m_patientOrientation.getReferential().getCoefficients();
+  transformation[ 3 ] *= -1.0;
+  transformation[ 7 ] *= -1.0;
+  transformation[ 11 ] *= -1.0;
+  std::vector< std::vector< double > > transformations;
+  transformations.push_back( transformation );
+  header.addAttribute( "transformations", transformations );
+
+  std::vector< std::vector< double > > axialTransformations;
+  axialTransformations.push_back( 
+     dataInfo.m_patientOrientation.getAxialTransformation().getCoefficients() );
+  header.addAttribute( "axial_transformations", axialTransformations );
+
+  return soma::DicomReader::getHeader( header, dataInfo );
 
 }

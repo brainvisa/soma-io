@@ -144,6 +144,36 @@ double soma::Transformation3d::getInverseCoefficient( int32_t j,
 }
 
 
+std::vector< double > soma::Transformation3d::getCoefficients() const
+{
+
+  std::vector< double > coef( 16 );
+
+  coef[ 0 ] = m_direct[ 0 ][ 0 ];
+  coef[ 1 ] = m_direct[ 0 ][ 1 ];
+  coef[ 2 ] = m_direct[ 0 ][ 2 ];
+  coef[ 3 ] = m_direct[ 0 ][ 3 ];
+
+  coef[ 4 ] = m_direct[ 1 ][ 0 ];
+  coef[ 5 ] = m_direct[ 1 ][ 1 ];
+  coef[ 6 ] = m_direct[ 1 ][ 2 ];
+  coef[ 7 ] = m_direct[ 1 ][ 3 ];
+
+  coef[ 8 ] = m_direct[ 2 ][ 0 ];
+  coef[ 9 ] = m_direct[ 2 ][ 1 ];
+  coef[ 10 ] = m_direct[ 2 ][ 2 ];
+  coef[ 11 ] = m_direct[ 2 ][ 3 ];
+
+  coef[ 12 ] = m_direct[ 3 ][ 0 ];
+  coef[ 13 ] = m_direct[ 3 ][ 1 ];
+  coef[ 14 ] = m_direct[ 3 ][ 2 ];
+  coef[ 15 ] = m_direct[ 3 ][ 3 ];
+
+  return coef;
+
+}
+
+
 soma::Transformation3d soma::Transformation3d::inverse() const
 {
 

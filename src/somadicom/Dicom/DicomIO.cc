@@ -1,8 +1,10 @@
 #include <soma-io/config/somadicom.h>
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/Header.h>
 #include <soma-io/Pattern/Callback.h>
 
 
@@ -50,6 +52,49 @@ soma::DicomIO::~DicomIO()
 }
 
 
+bool soma::DicomIO::analyze( const std::string& fileName,
+                             soma::DataInfo& dataInfo )
+{
+
+  soma::DirectoryParser directory( fileName );
+  std::string selectedFile = directory.getSelectedFile();
+
+  if ( !selectedFile.empty() )
+  {
+
+    DcmFileFormat header;
+    OFCondition status = header.loadFile( selectedFile.c_str() );
+
+    if ( status.good() )
+    {
+
+      DcmDataset* dataset = header.getDataset();
+
+      if ( dataset )
+      {
+
+        Uint16 tmpShort;
+
+        if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
+        {
+
+          dataInfo.m_depth = int32_t( tmpShort < 8 ? 8 : tmpShort );
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
 bool soma::DicomIO::check( const std::string& fileName,
                            std::vector< std::string >& fileList,
                            soma::DataInfo& dataInfo )
@@ -76,6 +121,31 @@ bool soma::DicomIO::check( const std::string& fileName,
                                                             dataInfo );
 
     }
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::DicomIO::getHeader( soma::Header& header, soma::DataInfo& dataInfo )
+{
+
+  std::string manufacturer;
+  std::string sopClassUid;
+  DcmDataset dataset;
+  soma::DicomDatasetHeader datasetHeader( dataInfo );
+
+  datasetHeader.get( dataset );
+
+  if ( getInfo( &dataset, manufacturer, sopClassUid ) )
+  {
+
+    return soma::DicomReaderFactory::getInstance().getHeader( manufacturer,
+                                                              sopClassUid,
+                                                              header,
+                                                              dataInfo );
 
   }
 
@@ -120,25 +190,40 @@ bool soma::DicomIO::getInfo( const std::string& filename,
 
   DcmFileFormat fileFormat;
 
+  if ( fileFormat.loadFile( filename.c_str() ).good() )
+  {
+
+    return getInfo( fileFormat.getDataset(), manufacturer, sopClassUid );
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::DicomIO::getInfo( DcmDataset* dataset, 
+                             std::string& manufacturer,
+                             std::string& sopClassUid )
+{
+
   manufacturer = "Generic";
 
-  if ( fileFormat.loadFile( filename.c_str() ).good() )
+  if ( dataset )
   {
 
     OFString manufacturerStr;
     OFString sopUID;
 
-    if ( fileFormat.getDataset()->findAndGetOFString( 
-                                                     DCM_Manufacturer, 
-                                                     manufacturerStr ).good() )
+    if ( dataset->findAndGetOFString( DCM_Manufacturer, 
+                                      manufacturerStr ).good() )
     {
 
       manufacturer = manufacturerStr.c_str();
 
     }
 
-    if ( fileFormat.getDataset()->findAndGetOFString( DCM_SOPClassUID, 
-                                                      sopUID ).good() )
+    if ( dataset->findAndGetOFString( DCM_SOPClassUID, sopUID ).good() )
     {
 
       sopClassUid = sopUID.c_str();

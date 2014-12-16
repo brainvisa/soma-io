@@ -1,11 +1,15 @@
 #include <soma-io/Dicom/CTImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/Header.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/DicomDataContext.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 
@@ -19,6 +23,36 @@ std::string soma::CTImageStorageReader::getStorageUID()
 {
 
   return UID_CTImageStorage;
+
+}
+
+
+bool soma::CTImageStorageReader::getHeader( soma::Header& header, 
+                                            soma::DataInfo& info )
+{
+
+  if ( !soma::MultiSliceReader::getHeader( header, info ) )
+  {
+
+    return false;
+
+  }
+
+  Float64 tmpDouble;
+  DcmDataset dataset;
+  soma::DicomDatasetHeader datasetHeader( info );
+
+  datasetHeader.get( dataset );
+
+  if ( dataset.findAndGetFloat64( DCM_ReconstructionDiameter, 
+                                  tmpDouble ).good() )
+  {
+
+    header.addAttribute( "reconstruction_diameter", double( tmpDouble ) );
+
+  }
+
+  return true;
 
 }
 

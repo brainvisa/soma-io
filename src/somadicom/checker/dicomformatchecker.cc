@@ -35,6 +35,7 @@
 #include <soma-io/checker/dicomformatchecker.h>             // class declaration
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Container/DataInfoCache.h>
+#include <soma-io/Object/CartoHeader.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
@@ -92,12 +93,23 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     // avoid printing anything from dcmtk
     fdinhibitor   fdi( STDERR_FILENO );
     fdi.close();
-    if ( !soma::DicomIO::getInstance().check( imaname, fileList, dataInfo ) )
+
+    // fast check
+    if ( !soma::DicomIO::getInstance().analyze( imaname, dataInfo ) )
     {
       // open file
       fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
+
+    // select files and read information relevent for memory allocation
+    if ( !soma::DicomIO::getInstance().check( imaname, fileList, dataInfo ) )
+    {
+      // open file
+      fdi.open();
+      throw wrong_format_error( "Error in DICOM dataset", imaname );
+    }
+
     // open file
     fdi.open();
 
@@ -115,7 +127,6 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     }
 
     string         type;
-    int            sizex = 1, sizey = 1, sizez = 1, sizet = 1;
     vector<float>  vs(4, 1.); // voxel size
 
     vs[ 0 ] = dataInfo.m_resolution.x;
@@ -144,15 +155,16 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
     }
 
-    hdr->setProperty( "sizeX", dataInfo.m_width );
-    hdr->setProperty( "sizeY", dataInfo.m_height );
-    hdr->setProperty( "sizeZ", dataInfo.m_slices );
-    hdr->setProperty( "sizeT", dataInfo.m_frames );
+    // set base header information
     hdr->setProperty( "format", string( "DICOM" ) );
     hdr->setProperty( "voxel_size", vs );
     hdr->setProperty( "object_type", string( "Volume" ) );
     hdr->setProperty( "data_type", type );
 
+    // read specific header information
+    CartoHeader header( hdr );
+    DicomIO::getInstance().getHeader( header, dataInfo );
+ 
   }
 
   return hdr;

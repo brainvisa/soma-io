@@ -4,7 +4,6 @@
 
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/DataInfo.h>
-#include <soma-io/Object/BinaryHeader.h>
 
 #include <vector>
 
@@ -41,7 +40,6 @@ class DicomProxy
     uint8_t* m_buffer;
     bool m_dataOwner;
     DataInfo m_info;
-    BinaryHeader m_datasetHeader;
 
     std::vector< std::vector< std::vector< uint8_t* > > > m_lineAccess;
 
