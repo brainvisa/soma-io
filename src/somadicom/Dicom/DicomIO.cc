@@ -4,7 +4,7 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Pattern/Callback.h>
 
 
@@ -129,7 +129,8 @@ bool soma::DicomIO::check( const std::string& fileName,
 }
 
 
-bool soma::DicomIO::getHeader( soma::Header& header, soma::DataInfo& dataInfo )
+bool soma::DicomIO::getHeader( soma::HeaderProxy& header, 
+                               soma::DataInfo& dataInfo )
 {
 
   std::string manufacturer;

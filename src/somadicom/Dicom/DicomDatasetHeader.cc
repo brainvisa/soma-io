@@ -1,5 +1,5 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DataInfo.h>
+#include <soma-io/Container/DicomProxy.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
@@ -16,6 +16,12 @@
 
 soma::DicomDatasetHeader::DicomDatasetHeader( soma::DataInfo& dataInfo )
                         : m_binaryHeader( dataInfo.m_datasetHeader )
+{
+}
+
+
+soma::DicomDatasetHeader::DicomDatasetHeader( soma::DicomProxy& proxy )
+                        : m_binaryHeader( proxy.getBinaryHeader() )
 {
 }
 

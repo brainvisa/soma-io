@@ -20,7 +20,7 @@ class NMImageStorageReader : public DicomReader
 
     std::string getStorageUID();
 
-    virtual bool getHeader( Header& header, DataInfo& info );
+    virtual bool getHeader( HeaderProxy& header, DataInfo& info );
 
   protected:
 

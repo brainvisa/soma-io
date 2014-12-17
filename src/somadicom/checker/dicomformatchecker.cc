@@ -164,7 +164,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     // read specific header information
     CartoHeader header( hdr );
     DicomIO::getInstance().getHeader( header, dataInfo );
- 
+
   }
 
   return hdr;

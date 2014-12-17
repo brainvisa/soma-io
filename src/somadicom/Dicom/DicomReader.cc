@@ -2,7 +2,7 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
 
@@ -100,7 +100,7 @@ bool soma::DicomReader::check( soma::DirectoryParser& directory,
 }
 
 
-bool soma::DicomReader::getHeader( soma::Header& header, 
+bool soma::DicomReader::getHeader( soma::HeaderProxy& header, 
                                    soma::DataInfo& info )
 {
 

@@ -1,6 +1,6 @@
 #include <soma-io/Dicom/MultiSliceReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 
 #include <soma-io/Dicom/soma_osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
@@ -108,7 +108,8 @@ void soma::MultiSliceReader::setOrientation()
 }
 
 
-bool soma::MultiSliceReader::getHeader( Header& header, DataInfo& dataInfo )
+bool soma::MultiSliceReader::getHeader( soma::HeaderProxy& header, 
+                                        soma::DataInfo& dataInfo )
 {
 
   OFString tmpString;
@@ -132,7 +133,7 @@ bool soma::MultiSliceReader::getHeader( Header& header, DataInfo& dataInfo )
   header.addAttribute( "referentials", referentials );
 
   std::vector< double > transformation = 
-               dataInfo.m_patientOrientation.getReferential().getCoefficients();
+         dataInfo.m_patientOrientation.getReferential().getDirectCoefficients();
   transformation[ 3 ] *= -1.0;
   transformation[ 7 ] *= -1.0;
   transformation[ 11 ] *= -1.0;
@@ -142,7 +143,8 @@ bool soma::MultiSliceReader::getHeader( Header& header, DataInfo& dataInfo )
 
   std::vector< std::vector< double > > axialTransformations;
   axialTransformations.push_back( 
-     dataInfo.m_patientOrientation.getAxialTransformation().getCoefficients() );
+    dataInfo.m_patientOrientation.
+                             getAxialTransformation().getDirectCoefficients() );
   header.addAttribute( "axial_transformations", axialTransformations );
 
   return soma::DicomReader::getHeader( header, dataInfo );

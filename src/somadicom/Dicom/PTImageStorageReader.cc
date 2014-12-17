@@ -1,7 +1,7 @@
 #include <soma-io/Dicom/PTImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/DicomDataContext.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -56,7 +56,7 @@ std::string soma::PTImageStorageReader::getStorageUID()
 }
 
 
-bool soma::PTImageStorageReader::getHeader( soma::Header& header, 
+bool soma::PTImageStorageReader::getHeader( soma::HeaderProxy& header, 
                                             soma::DataInfo& info )
 {
 

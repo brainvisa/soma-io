@@ -1,5 +1,5 @@
-#ifndef _Header_h_
-#define _Header_h_
+#ifndef _HeaderProxy_h_
+#define _HeaderProxy_h_
 
 
 #include <soma-io/config/soma_config.h>
@@ -13,13 +13,13 @@ namespace soma
 {
 
 
-class Header
+class HeaderProxy
 {
 
   public:
 
-    Header();
-    virtual ~Header();
+    HeaderProxy();
+    virtual ~HeaderProxy();
 
     virtual void addAttribute( const std::string& name, int32_t value ) = 0;
     virtual void addAttribute( const std::string& name, double value ) = 0;

@@ -1,7 +1,7 @@
 #include <soma-io/Dicom/NMImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -32,7 +32,7 @@ std::string soma::NMImageStorageReader::getStorageUID()
 }
 
 
-bool soma::NMImageStorageReader::getHeader( soma::Header& header, 
+bool soma::NMImageStorageReader::getHeader( soma::HeaderProxy& header, 
                                             soma::DataInfo& info )
 {
 

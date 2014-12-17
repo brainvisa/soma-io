@@ -22,7 +22,7 @@ class PTImageStorageReader : public MultiFileReader
 
     std::string getStorageUID();
 
-    virtual bool getHeader( Header& header, DataInfo& info );
+    virtual bool getHeader( HeaderProxy& header, DataInfo& info );
 
   protected:
 

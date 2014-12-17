@@ -2,7 +2,7 @@
 #define _CartoHeader_h_
 
 
-#include <soma-io/Object/Header.h>
+#include <soma-io/Object/HeaderProxy.h>
 
 #include <cartobase/object/object.h>
 
@@ -11,7 +11,7 @@ namespace soma
 {
 
 
-class CartoHeader : public Header
+class CartoHeader : public HeaderProxy
 {
 
 

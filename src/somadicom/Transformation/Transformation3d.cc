@@ -144,7 +144,7 @@ double soma::Transformation3d::getInverseCoefficient( int32_t j,
 }
 
 
-std::vector< double > soma::Transformation3d::getCoefficients() const
+std::vector< double > soma::Transformation3d::getDirectCoefficients() const
 {
 
   std::vector< double > coef( 16 );

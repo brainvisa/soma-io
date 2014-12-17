@@ -2,7 +2,8 @@
 
 
 soma::CartoHeader::CartoHeader( carto::Object& header )
-                 : m_header( header )
+                 : soma::HeaderProxy(),
+                   m_header( header )
 {
 }
 

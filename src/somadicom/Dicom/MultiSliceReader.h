@@ -10,7 +10,7 @@ namespace soma
 {
 
 
-class Header;
+class HeaderProxy;
 
 
 class MultiSliceReader : public DicomReader
@@ -22,7 +22,7 @@ class MultiSliceReader : public DicomReader
 
     void setOrientation();
 
-    virtual bool getHeader( Header& header, DataInfo& dataInfo );
+    virtual bool getHeader( HeaderProxy& header, DataInfo& dataInfo );
 
   protected:
 
