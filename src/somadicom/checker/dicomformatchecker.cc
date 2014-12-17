@@ -34,6 +34,7 @@
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/checker/dicomformatchecker.h>             // class declaration
 #include <soma-io/Dicom/DicomIO.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DataInfoCache.h>
 #include <soma-io/Object/CartoHeader.h>
 //--- soma-io ----------------------------------------------------------------
@@ -103,7 +104,12 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     }
 
     // select files and read information relevent for memory allocation
-    if ( !soma::DicomIO::getInstance().check( imaname, fileList, dataInfo ) )
+    soma::DicomDatasetHeader datasetHeader( dataInfo );
+
+    if ( !soma::DicomIO::getInstance().check( imaname, 
+                                              fileList, 
+                                              dataInfo,
+                                              datasetHeader ) )
     {
       // open file
       fdi.open();
@@ -163,7 +169,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
     // read specific header information
     CartoHeader header( hdr );
-    DicomIO::getInstance().getHeader( header, dataInfo );
+    DicomIO::getInstance().getHeader( header, dataInfo, datasetHeader );
 
   }
 

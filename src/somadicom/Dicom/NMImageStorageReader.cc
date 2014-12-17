@@ -32,11 +32,13 @@ std::string soma::NMImageStorageReader::getStorageUID()
 }
 
 
-bool soma::NMImageStorageReader::getHeader( soma::HeaderProxy& header, 
-                                            soma::DataInfo& info )
+bool soma::NMImageStorageReader::getHeader(
+                                       soma::HeaderProxy& header,
+                                       soma::DataInfo& info,
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::DicomReader::getHeader( header, info ) )
+  if ( !soma::DicomReader::getHeader( header, info, datasetHeader ) )
   {
 
     return false;
@@ -47,7 +49,6 @@ bool soma::NMImageStorageReader::getHeader( soma::HeaderProxy& header,
 
   OFString tmpString;
   DcmDataset dataset;
-  soma::DicomDatasetHeader datasetHeader( info );
 
   datasetHeader.get( dataset );
 

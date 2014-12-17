@@ -30,6 +30,9 @@ class DicomDatasetHeader
     DicomDatasetHeader( DicomProxy& proxy );
     virtual ~DicomDatasetHeader();
 
+    void allocate( int32_t size );
+    int32_t size();
+
     void add( DcmDataset* dataset, int32_t i = 0 );
     void get( DcmDataset& dataset, int32_t i = 0 );
 

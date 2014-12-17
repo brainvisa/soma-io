@@ -27,11 +27,13 @@ std::string soma::CTImageStorageReader::getStorageUID()
 }
 
 
-bool soma::CTImageStorageReader::getHeader( soma::HeaderProxy& header, 
-                                            soma::DataInfo& info )
+bool soma::CTImageStorageReader::getHeader( 
+                                       soma::HeaderProxy& header, 
+                                       soma::DataInfo& info,
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( header, info ) )
+  if ( !soma::MultiSliceReader::getHeader( header, info, datasetHeader ) )
   {
 
     return false;
@@ -40,7 +42,6 @@ bool soma::CTImageStorageReader::getHeader( soma::HeaderProxy& header,
 
   Float64 tmpDouble;
   DcmDataset dataset;
-  soma::DicomDatasetHeader datasetHeader( info );
 
   datasetHeader.get( dataset );
 

@@ -31,6 +31,24 @@ soma::DicomDatasetHeader::~DicomDatasetHeader()
 }
 
 
+void soma::DicomDatasetHeader::allocate( int32_t size )
+{
+
+  m_binaryHeader.clear();
+  m_binaryHeader.setFormat( "dicom" );
+  m_binaryHeader.resize( size );
+
+}
+
+
+int32_t soma::DicomDatasetHeader::size()
+{
+
+  return m_binaryHeader.getCount();
+
+}
+
+
 void soma::DicomDatasetHeader::add( DcmDataset* dataset, int32_t i )
 {
 

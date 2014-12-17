@@ -1,5 +1,6 @@
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Dicom/DicomReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DataInfo.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
@@ -66,7 +67,8 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
                                       const std::string& storageUID,
                                       soma::DirectoryParser& directory,
                                       std::vector< std::string >& fileList,
-                                      soma::DataInfo& dataInfo )
+                                      soma::DataInfo& dataInfo,
+                                      soma::DicomDatasetHeader& datasetHeader )
 {
 
   soma::DicomReader* reader = getReader( manufacturer, storageUID );
@@ -74,7 +76,7 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
   if ( reader )
   {
 
-    return reader->check( directory, fileList, dataInfo );
+    return reader->check( directory, fileList, dataInfo, datasetHeader );
 
   }
 
@@ -83,10 +85,12 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
 }
 
 
-bool soma::DicomReaderFactory::getHeader( const std::string& manufacturer,
-                                          const std::string& storageUID,
-                                          soma::HeaderProxy& header,
-                                          soma::DataInfo& dataInfo )
+bool soma::DicomReaderFactory::getHeader( 
+                                       const std::string& manufacturer,
+                                       const std::string& storageUID,
+                                       soma::HeaderProxy& header,
+                                       soma::DataInfo& dataInfo,
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
   soma::DicomReader* reader = getReader( manufacturer, storageUID );
@@ -94,7 +98,7 @@ bool soma::DicomReaderFactory::getHeader( const std::string& manufacturer,
   if ( reader )
   {
 
-    return reader->getHeader( header, dataInfo );
+    return reader->getHeader( header, dataInfo, datasetHeader );
 
   }
 

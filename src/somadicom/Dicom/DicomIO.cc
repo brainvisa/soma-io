@@ -97,7 +97,8 @@ bool soma::DicomIO::analyze( const std::string& fileName,
 
 bool soma::DicomIO::check( const std::string& fileName,
                            std::vector< std::string >& fileList,
-                           soma::DataInfo& dataInfo )
+                           soma::DataInfo& dataInfo,
+                           soma::DicomDatasetHeader& datasetHeader )
 {
 
   soma::DirectoryParser directory( fileName );
@@ -118,7 +119,8 @@ bool soma::DicomIO::check( const std::string& fileName,
                                                             sopClassUid, 
                                                             directory, 
                                                             fileList,
-                                                            dataInfo );
+                                                            dataInfo,
+                                                            datasetHeader );
 
     }
 
@@ -130,13 +132,13 @@ bool soma::DicomIO::check( const std::string& fileName,
 
 
 bool soma::DicomIO::getHeader( soma::HeaderProxy& header, 
-                               soma::DataInfo& dataInfo )
+                               soma::DataInfo& dataInfo,
+                               soma::DicomDatasetHeader& datasetHeader )
 {
 
   std::string manufacturer;
   std::string sopClassUid;
   DcmDataset dataset;
-  soma::DicomDatasetHeader datasetHeader( dataInfo );
 
   datasetHeader.get( dataset );
 
@@ -146,7 +148,8 @@ bool soma::DicomIO::getHeader( soma::HeaderProxy& header,
     return soma::DicomReaderFactory::getInstance().getHeader( manufacturer,
                                                               sopClassUid,
                                                               header,
-                                                              dataInfo );
+                                                              dataInfo,
+                                                              datasetHeader );
 
   }
 

@@ -37,7 +37,8 @@ std::string soma::DicomReader::getManufacturerName()
 
 bool soma::DicomReader::check( soma::DirectoryParser& directory,
                                std::vector< std::string >& fileList,
-                               soma::DataInfo& dataInfo )
+                               soma::DataInfo& dataInfo,
+                               soma::DicomDatasetHeader& datasetHeader )
 {
 
   std::string selectedFile = directory.getSelectedFile();
@@ -59,14 +60,11 @@ bool soma::DicomReader::check( soma::DirectoryParser& directory,
       {
 
         int32_t i = 0;
-        soma::DicomDatasetHeader datasetHeader( dataInfo );
         std::vector< std::string >::iterator
           f = fileList.begin(),
           fe = fileList.end();
 
-        m_dataInfo->m_datasetHeader.clear();
-        m_dataInfo->m_datasetHeader.resize( m_dataInfo->m_fileCount );
-        m_dataInfo->m_datasetHeader.setFormat( "dicom" );
+        datasetHeader.allocate( m_dataInfo->m_fileCount );
 
         while ( f != fe )
         {
@@ -101,7 +99,8 @@ bool soma::DicomReader::check( soma::DirectoryParser& directory,
 
 
 bool soma::DicomReader::getHeader( soma::HeaderProxy& header, 
-                                   soma::DataInfo& info )
+                                   soma::DataInfo& info,
+                                   soma::DicomDatasetHeader& datasetHeader )
 {
 
   header.addAttribute( "sizeX", info.m_width );
@@ -133,7 +132,6 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
   OFString tmpString;
   Sint32 tmpInt;
   DcmDataset dataset;
-  soma::DicomDatasetHeader datasetHeader( info );
 
   datasetHeader.get( dataset );
 
@@ -211,7 +209,7 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 
   }
   
-  int32_t i, n = info.m_datasetHeader.getCount();
+  int32_t i, n = datasetHeader.size();
   std::vector< std::string > acquisitionTimes;
   std::vector< std::string > contentTimes;
 

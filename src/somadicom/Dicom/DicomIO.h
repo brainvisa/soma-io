@@ -18,6 +18,7 @@ namespace soma
 
 class DataInfo;
 class DicomProxy;
+class DicomDatasetHeader;
 class Callback;
 class HeaderProxy;
 
@@ -30,8 +31,11 @@ class DicomIO : public Singleton< DicomIO >
     bool analyze( const std::string& fileName, DataInfo& dataInfo );
     bool check( const std::string& fileName,
                 std::vector< std::string >& fileList,
-                DataInfo& dataInfo );
-    bool getHeader( HeaderProxy& header, DataInfo& dataInfo );
+                DataInfo& dataInfo,
+                DicomDatasetHeader& datasetHeader );
+    bool getHeader( HeaderProxy& header, 
+                    DataInfo& dataInfo,
+                    DicomDatasetHeader& datasetHeader );
     bool read( const std::vector< std::string >& fileList, 
                DicomProxy& proxy, 
                Callback* progress = 0 );

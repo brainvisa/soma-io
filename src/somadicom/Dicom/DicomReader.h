@@ -18,6 +18,7 @@ namespace soma
 
 class DirectoryParser;
 class DicomProxy;
+class DicomDatasetHeader;
 class Callback;
 class HeaderProxy;
 
@@ -35,8 +36,11 @@ class DicomReader
 
     virtual bool check( DirectoryParser& directory,
                         std::vector< std::string >& fileList,
-                        DataInfo& dataInfo );
-    virtual bool getHeader( HeaderProxy& header, DataInfo& dataInfo );
+                        DataInfo& dataInfo,
+                        DicomDatasetHeader& datasetHeader );
+    virtual bool getHeader( HeaderProxy& header, 
+                            DataInfo& dataInfo,
+                            DicomDatasetHeader& datasetHeader );
     virtual bool read( const std::vector< std::string >& fileList, 
                        DicomProxy& proxy,
                        Callback* progress = 0 );

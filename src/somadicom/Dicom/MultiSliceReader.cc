@@ -108,14 +108,15 @@ void soma::MultiSliceReader::setOrientation()
 }
 
 
-bool soma::MultiSliceReader::getHeader( soma::HeaderProxy& header, 
-                                        soma::DataInfo& dataInfo )
+bool soma::MultiSliceReader::getHeader( 
+                                       soma::HeaderProxy& header, 
+                                       soma::DataInfo& dataInfo,
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
   OFString tmpString;
   DcmDataset dataset;
   std::vector< std::string > referential;
-  soma::DicomDatasetHeader datasetHeader( dataInfo );
 
   datasetHeader.get( dataset );
 
@@ -145,8 +146,8 @@ bool soma::MultiSliceReader::getHeader( soma::HeaderProxy& header,
   axialTransformations.push_back( 
     dataInfo.m_patientOrientation.
                              getAxialTransformation().getDirectCoefficients() );
-  header.addAttribute( "axial_transformations", axialTransformations );
+  header.addAttribute( "storage_to_memory", axialTransformations );
 
-  return soma::DicomReader::getHeader( header, dataInfo );
+  return soma::DicomReader::getHeader( header, dataInfo, datasetHeader );
 
 }

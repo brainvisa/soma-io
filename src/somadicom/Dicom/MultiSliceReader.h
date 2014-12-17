@@ -22,7 +22,9 @@ class MultiSliceReader : public DicomReader
 
     void setOrientation();
 
-    virtual bool getHeader( HeaderProxy& header, DataInfo& dataInfo );
+    virtual bool getHeader( HeaderProxy& header, 
+                            DataInfo& dataInfo,
+                            DicomDatasetHeader& datasetHeader );
 
   protected:
 
