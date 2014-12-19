@@ -104,8 +104,8 @@ bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    m_dataInfo->m_slope.resize( m_dataInfo->m_slices );
-    m_dataInfo->m_intercept.resize( m_dataInfo->m_slices );
+    m_dataInfo->m_slope.resize( m_dataInfo->m_slices, 1 );
+    m_dataInfo->m_intercept.resize( m_dataInfo->m_slices, 0 );
 
     if ( dataset->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
     {
