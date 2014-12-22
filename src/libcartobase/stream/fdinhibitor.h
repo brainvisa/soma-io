@@ -48,20 +48,31 @@ namespace carto
    */
 class fdinhibitor
 {
-	public:
-	fdinhibitor(int fd)  { _fd = fd; };
-	fdinhibitor(FILE *fd) { _fd = fileno(fd); };
+  public:
+  /** fd: file descriptor to inhibate, permanent: if false, don't reopen the
+      stream when deleting the fdinhibitor */
+  fdinhibitor( int fd, bool permanent=false )
+    : _fd( fd ), _fdsave( 0 ), _fdblocker( 0 ), _permanent( permanent )
+  {}
+  /** fd: file to inhibate, permanent: if false, don't reopen the
+      stream when deleting the fdinhibitor */
+  fdinhibitor( FILE *fd, bool permanent=false )
+    : _fd( fileno( fd ) ), _fdsave( 0 ), _fdblocker( 0 ),
+      _permanent( permanent )
+  {}
+  ~fdinhibitor();
 
-	void	close(void);
-	void	open(void);
+  void	close(void);
+  void	open(void);
 
-	private:
-	int		_fd;
-	int		_fdsave;
-	int		_fdblocker;
+  private:
+  int           _fd;
+  int           _fdsave;
+  int           _fdblocker;
 #ifdef _WIN32
-	std::string	_tmpfile;
+  std::string   _tmpfile;
 #endif
+  bool          _permanent;
 
 };
 

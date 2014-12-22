@@ -95,11 +95,12 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     fdinhibitor   fdi( STDERR_FILENO );
     fdi.close();
 
+
     // fast check
     if ( !soma::DicomIO::getInstance().analyze( imaname, dataInfo ) )
     {
       // open file
-      fdi.open();
+//       fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
 
@@ -112,7 +113,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
                                               datasetHeader ) )
     {
       // open file
-      fdi.open();
+//       fdi.open();
       throw wrong_format_error( "Error in DICOM dataset", imaname );
     }
 
@@ -150,13 +151,13 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
       case 2:
         type = ( dataInfo.m_pixelRepresentation & 1 ) ? "S16" : "U16";
         break;
-        
+
       case 3:
         type = "RGB";
         break;
 
       default:
-        throw wrong_format_error( "Not a valid DICOM format", 
+        throw wrong_format_error( "Not a valid DICOM format",
                                   pds->url() );
 
     }
