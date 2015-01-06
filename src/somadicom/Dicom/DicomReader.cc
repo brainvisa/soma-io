@@ -277,7 +277,7 @@ bool soma::DicomReader::read( const std::vector< std::string >& fileList,
 
     }
 
-    // read datset
+    // read dataset
     bool status = readData( proxy, progress );
 
     if ( progress )

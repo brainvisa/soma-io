@@ -14,6 +14,7 @@ namespace soma
 {
 
 
+class DirectoryParser;
 class Demosaicer;
 
 
@@ -25,6 +26,10 @@ class SiemensMRReader : public MRImageStorageReader,
 
     std::string getManufacturerName();
 
+    virtual bool getHeader( HeaderProxy& header, 
+                            DataInfo& info,
+                            DicomDatasetHeader& datasetHeader );
+
   protected:
 
     friend class Singleton< SiemensMRReader >;
@@ -34,6 +39,8 @@ class SiemensMRReader : public MRImageStorageReader,
 
     virtual bool readHeader( DcmDataset* dataset );
     virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+
+    virtual std::vector< std::string > sortFiles( DirectoryParser& directory );
 
   private:
 

@@ -61,7 +61,7 @@ bool soma::MultiFileReader::readHeader( DcmDataset* dataset )
 
 
 std::vector< std::string > soma::MultiFileReader::sortFiles( 
-                                                   soma::DirectoryParser& directory )
+                                              soma::DirectoryParser& directory )
 {
 
   bool process = true;
@@ -95,8 +95,8 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
     m_slices.resize( m_dataInfo->m_fileCount );
     m_positions.resize( m_dataInfo->m_fileCount );
-    m_dataInfo->m_slope.resize( m_dataInfo->m_fileCount );
-    m_dataInfo->m_intercept.resize( m_dataInfo->m_fileCount );
+    m_dataInfo->m_slope.resize( m_dataInfo->m_fileCount, 1.0 );
+    m_dataInfo->m_intercept.resize( m_dataInfo->m_fileCount, 0.0 );
 
     m_dataInfo->m_frames = slices.count( slices.begin()->first );
 

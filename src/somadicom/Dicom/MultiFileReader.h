@@ -27,7 +27,7 @@ class MultiFileReader : public MultiSliceReader
 
     virtual bool readHeader( DcmDataset* dataset );
 
-    std::vector< std::string > sortFiles( DirectoryParser& directory );
+    virtual std::vector< std::string > sortFiles( DirectoryParser& directory );
 
 };
 

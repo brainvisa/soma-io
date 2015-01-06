@@ -17,7 +17,7 @@ class CartoHeader : public HeaderProxy
 
   public:
 
-    CartoHeader( carto::Object& header );
+    CartoHeader( carto::Object header );
 
     void addAttribute( const std::string& name, int32_t value );
     void addAttribute( const std::string& name, double value );
@@ -33,9 +33,11 @@ class CartoHeader : public HeaderProxy
     void addAttribute( const std::string& name, 
                        std::vector< std::vector< double > >& value );
 
+    bool hasAttribute( const std::string& name );
+
   private:
 
-    carto::Object& m_header;
+    carto::Object m_header;
 
 };
 

@@ -20,6 +20,10 @@ class MRImageStorageReader : public MultiFileReader
 
     std::string getStorageUID();
 
+    virtual bool getHeader( HeaderProxy& header, 
+                            DataInfo& info,
+                            DicomDatasetHeader& datasetHeader );
+
   protected:
 
     MRImageStorageReader();

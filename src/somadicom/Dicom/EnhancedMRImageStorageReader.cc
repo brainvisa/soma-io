@@ -52,8 +52,8 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
       uint32_t i, nItems = seq->card();
       bool found = false;
 
-      m_dataInfo->m_slope.resize( nItems );
-      m_dataInfo->m_intercept.resize( nItems );
+      m_dataInfo->m_slope.resize( nItems, 1.0 );
+      m_dataInfo->m_intercept.resize( nItems, 0.0 );
 
       for ( i = 0; i < nItems; i++ )
       {

@@ -142,11 +142,10 @@ bool soma::MultiSliceReader::getHeader(
   transformations.push_back( transformation );
   header.addAttribute( "transformations", transformations );
 
-  std::vector< std::vector< double > > axialTransformations;
-  axialTransformations.push_back( 
+  std::vector< double > axialTransformation = 
     dataInfo.m_patientOrientation.
-                             getAxialTransformation().getDirectCoefficients() );
-  header.addAttribute( "storage_to_memory", axialTransformations );
+                               getAxialTransformation().getDirectCoefficients();
+  header.addAttribute( "storage_to_memory", axialTransformation );
 
   return soma::DicomReader::getHeader( header, dataInfo, datasetHeader );
 

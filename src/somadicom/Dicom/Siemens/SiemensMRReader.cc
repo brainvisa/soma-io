@@ -1,8 +1,11 @@
 #include <soma-io/Dicom/Siemens/SiemensMRReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/HeaderProxy.h>
+#include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Pattern/Callback.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
@@ -34,6 +37,98 @@ std::string soma::SiemensMRReader::getManufacturerName()
 {
 
   return "SIEMENS";
+
+}
+
+
+bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
+                                       soma::DataInfo& info,
+                                       soma::DicomDatasetHeader& datasetHeader )
+{
+
+  if ( !soma::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
+  {
+
+    return false;
+
+  }
+
+  if ( !proxy.hasAttribute( "b_values" ) )
+  {
+
+    DcmDataset dataset;
+    Sint32 tmpInt;
+
+    datasetHeader.get( dataset );
+
+    if ( dataset.findAndGetSint32( DcmTagKey( 0x0019, 0x100c ), 
+                                   tmpInt ).good() )
+    {
+
+      int32_t i, n = datasetHeader.size();
+      std::vector< double > bValues;
+      std::vector< std::vector< double > > directions;
+      Float64 tmpFloat;
+
+      for ( i = 0; i < n; i++ )
+      {
+
+        datasetHeader.get( dataset, i );
+
+        if ( dataset.findAndGetSint32( DcmTagKey( 0x0019, 0x100c ),
+                                       tmpInt ).good() )
+        {
+
+          bValues.push_back( double( tmpInt ) );
+
+        }
+
+        std::vector< double > direction( 3, 0.0 );
+
+        if ( tmpInt > 0 )
+        {
+
+          int32_t d;
+
+          for ( d = 0; d < 3; d++ )
+          {
+
+            if ( dataset.findAndGetFloat64( DcmTagKey( 0x0019, 0x100e ),
+                                            tmpFloat,
+                                            d ).good() )
+            {
+
+              direction[ d ] = double( tmpFloat );
+
+            }
+
+          }
+
+        }
+
+        directions.push_back( direction );
+
+      }
+
+      if ( bValues.size() )
+      {
+
+        proxy.addAttribute( "b_values", bValues );
+
+      }
+
+      if ( directions.size() )
+      {
+
+        proxy.addAttribute( "diffusion_direction", directions );
+
+      }
+
+    }
+
+  }
+
+  return true;
 
 }
 
@@ -123,9 +218,6 @@ bool soma::SiemensMRReader::readData( soma::DicomProxy& proxy,
 
   }
 
-  soma::Vector origin = m_demosaicer->demosaic( m_origin );
-  proxy.getDataInfo().m_patientOrientation.setOrigin( origin );
-
   if ( proxy.allocate() )
   {
 
@@ -144,6 +236,26 @@ bool soma::SiemensMRReader::readData( soma::DicomProxy& proxy,
   }
 
   return false;
+
+}
+
+
+std::vector< std::string > soma::SiemensMRReader::sortFiles( 
+                                              soma::DirectoryParser& directory )
+{
+
+  std::vector< std::string > files = soma::MultiFileReader::sortFiles( 
+                                                                    directory );
+
+  if ( m_demosaicer )
+  {
+
+    soma::Vector origin = m_demosaicer->demosaic( m_origin );
+    m_dataInfo->m_patientOrientation.setOrigin( origin );
+
+  }
+
+  return files;
 
 }
 

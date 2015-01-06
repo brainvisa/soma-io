@@ -37,6 +37,8 @@ class HeaderProxy
                               const std::string& name, 
                               std::vector< std::vector< double > >& value ) = 0;
 
+    virtual bool hasAttribute( const std::string& name ) = 0;
+
 };
 
 
