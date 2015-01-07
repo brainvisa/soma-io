@@ -65,8 +65,10 @@ namespace soma
                                       const AllocatorContext & context,
                                       carto::Object options )
   {
-    setup( obj, dsi->header(), context, options );
-    read( obj, dsi, context, options );
+    // copy context with compatible mmap mode
+    AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
+    setup( obj, dsi->header(), ac, options );
+    read( obj, dsi, ac, options );
   }
 
   template<typename T>
@@ -74,9 +76,11 @@ namespace soma
                                      const AllocatorContext & context,
                                      carto::Object options )
   {
-    std::auto_ptr<T>  objp( create( dsi->header(), context, options ) );
+    // copy context with compatible mmap mode
+    AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
+    std::auto_ptr<T>  objp( create( dsi->header(), ac, options ) );
     T  *obj = objp.get();
-    read( *obj, dsi, context, options );
+    read( *obj, dsi, ac, options );
     objp.release();
     return obj;
   }

@@ -169,7 +169,7 @@ void DataSourceCapabilities::setSeekVoxel( const bool & boo )
   if( boo )
     _capabilities = _capabilities | 16;
   else
-    _capabilities = _capabilities | (0xffffffff - 16);
+    _capabilities = _capabilities & (0xffffffff - 16);
   setInit();
 }
 

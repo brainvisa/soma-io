@@ -96,7 +96,7 @@ namespace soma
             carto::Object & header()       { return _header; }
       const DataSourceCapabilities & capabilities() const
         { return _capabilities; }
-            DataSourceCapabilities & capabilities()
+      DataSourceCapabilities & capabilities()
         { return _capabilities; }
       /** privateIOData is a generic object used for specific formats
           readers/writers to store data which may be useful for them.
