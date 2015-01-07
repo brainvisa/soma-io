@@ -723,7 +723,8 @@ namespace soma
       carto::rc_ptr<DataSource>( new FileDataSource( minfname ) ) );
 
     // if there are diffusion B values / directions information, add 2 files
-    if( header->hasProperty( "bvecs" ) && header->hasProperty( "bvals" ) )
+    if( header->hasProperty( "diffusion_directions" )
+        && header->hasProperty( "b_values" ) )
     {
       dsl.addDataSource( "bval",
         carto::rc_ptr<DataSource>( new FileDataSource( basename + ".bval" ) ) );
@@ -741,12 +742,12 @@ namespace soma
   {
     std::vector<float> bval;
     std::vector<std::vector<float> > bvec;
-    if( header->getProperty( "bvals", bval )
-      && header->getProperty( "bvecs", bvec ) )
+    if( header->getProperty( "b_value", bval )
+      && header->getProperty( "diffusion_directions", bvec ) )
     {
       if( bval.size() != bvec.size() )
       {
-        std::cerr << "Inconsistency between bvec and bval.\n";
+        std::cerr << "Inconsistency between diffusion_directions and b_values.\n";
         return;
       }
       size_t i, j, n = bval.size();

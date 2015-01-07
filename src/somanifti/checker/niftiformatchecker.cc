@@ -895,7 +895,7 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
 
   if( bvecs.size() != bvals.size() * 3 )
   {
-    cerr << "B values / directions inconsistency\n";
+    cerr << "B values / diffusion_directions inconsistency\n";
     return;
   }
 
@@ -910,8 +910,8 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
     bvecs2[i] = dir;
   }
 
-  header->setProperty( "bvals", bvals );
-  header->setProperty( "bvecs", bvecs2 );
+  header->setProperty( "b_values", bvals );
+  header->setProperty( "diffusion_directions", bvecs2 );
 }
 
 
