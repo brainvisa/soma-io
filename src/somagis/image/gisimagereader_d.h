@@ -202,6 +202,8 @@ namespace soma {
   template <typename T> 
   bool GisImageReader<T>::setpos( int x, int y, int z, int t )
   {
+    if( !_binary )
+      return false; // cannot move in file in ascii mode
     offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
     offset_t  sli = lin * _sizes[ 0 ][ 1 ];
     offset_t  vol = sli * _sizes[ 0 ][ 2 ];
@@ -244,10 +246,9 @@ namespace soma {
     offset_t  len = vx * sizeof( T );
     offset_t offset;
     long readout;
-    
+
     if( !open( DataSource::Read ) )
       throw carto::open_error( "data source not available", url() );
-    
     for( t=0; t<vt; ++t )
       for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {

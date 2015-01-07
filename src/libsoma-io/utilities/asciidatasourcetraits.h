@@ -429,28 +429,29 @@ namespace soma
       int		sign = 0;
       int		expo = 0;
 
+      StreamUtil::skip( ds, " \t" );
       while( true )
+      {
+        c = ds.getch();
+        if( c == '\0' || !ds.isOpen() )
+          break;
+        if( c < '0' || c > '9' )
         {
-          c = ds.getch();
-          if( c == '\0' || !ds.isOpen() )
+          if( !sign && i == expo && ( c == '-' || c == '+' ) )
+            sign = i+1;
+          else if( c == 'x' && !hex && i == sign+1 && num[sign] == '0' )
+            hex = true;
+          else if( !hex && !expo && ( c == 'e' || c == 'E' ) && i > sign )
+            {
+              expo = i+1;
+              sign = 0;
+            }
+          else if( !hex || c < 'A' || ( c > 'F' && c < 'a' ) || c > 'f' )
             break;
-          if( c < '0' || c > '9' )
-          {
-            if( !sign && i == expo && ( c == '-' || c == '+' ) )
-              sign = i+1;
-            else if( c == 'x' && !hex && i == sign+1 && num[sign] == '0' )
-              hex = true;
-            else if( !hex && !expo && ( c == 'e' || c == 'E' ) && i > sign )
-              {
-                expo = i+1;
-                sign = 0;
-              }
-            else if( !hex || c < 'A' || ( c > 'F' && c < 'a' ) || c > 'f' )
-              break;
-          }
-          num += (char) c;
-          ++i;
         }
+        num += (char) c;
+        ++i;
+      }
       ds.ungetch( c );
       if( i == 0 )
         return false;
@@ -482,6 +483,7 @@ namespace soma
       int		sign = 0;
       int		expo = 0;
 
+      StreamUtil::skip( ds, " \t" );
       while( true )
         {
           c = ds.getch();
@@ -708,18 +710,36 @@ namespace soma
     int c;
     carto::VoxelValue<T,C> result;
 
-    while( true ) {
+    while( true )
+    {
       c = ds.getch();
       if( c != ' ' && c != '\t' && c != '\n' && c != '(' )
         break;
       if( c == '(' ) {
         AsciiDataSourceTraits<T>::read( ds, result[0] );
+        if( !ds.isOpen() )
+          return false;
         c = ds.getch();
         for( unsigned int i=1; i<C; ++i )
-          if( c == ',' ) {
+        {
+          while( ( c == ' ' || c == '\t' ) && ds.isOpen() )
+            c = ds.getch();
+          if( !ds.isOpen() )
+            return false;
+          if( !ds.isOpen() )
+            return false;
+          if( c == ',' )
+          {
             AsciiDataSourceTraits<T>::read( ds, result[i] );
+            if( !ds.isOpen() )
+              return false;
             c = ds.getch();
           }
+          else
+            return false; // unexpected char
+        }
+        while( ( c == ' ' || c == '\t' ) && ds.isOpen() )
+          c = ds.getch();
         if( c == 0 || c == ')' ) {
           item = result;
           return true;
