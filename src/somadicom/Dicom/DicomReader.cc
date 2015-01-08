@@ -135,6 +135,13 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 
   datasetHeader.get( dataset );
 
+  if ( dataset.findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
+  {
+
+    header.addAttribute( "manufacturer", tmpString.c_str() );
+
+  }
+
   if ( dataset.findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
   {
 

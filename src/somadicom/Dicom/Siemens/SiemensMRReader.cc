@@ -120,7 +120,7 @@ bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
       if ( directions.size() )
       {
 
-        proxy.addAttribute( "diffusion_direction", directions );
+        proxy.addAttribute( "diffusion_directions", directions );
 
       }
 

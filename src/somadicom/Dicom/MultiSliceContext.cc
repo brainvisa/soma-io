@@ -6,10 +6,12 @@
 soma::MultiSliceContext::MultiSliceContext( 
                                    DicomImage& dcmImage, 
                                    soma::DicomProxy& proxy,
+                                   const std::vector< int32_t >& indexLut,
                                    soma::Callback* progress )
                        : carto::LoopContext(),
                          m_dcmImage( dcmImage ),
                          m_proxy( proxy ),
+                         m_indexLut( indexLut ),
                          m_progress( progress ),
                          m_count( 0 )
 {
@@ -32,8 +34,9 @@ void soma::MultiSliceContext::doIt( int32_t startIndex, int32_t count )
   for ( i = startIndex; i < stopIndex; i++ )
   {
 
-    int32_t z = i % sizeZ;
-    int32_t t = i / sizeZ;
+    int32_t index = m_indexLut[ i ];
+    int32_t z = index % sizeZ;
+    int32_t t = index / sizeZ;
 
     if ( bpp == 3 )
     {

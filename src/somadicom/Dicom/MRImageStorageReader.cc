@@ -74,20 +74,24 @@ bool soma::MRImageStorageReader::getHeader(
   {
 
     int32_t i, n = datasetHeader.size();
+    int32_t globalSliceCount = info.m_slices * info.m_frames;
+    int32_t step = ( n < globalSliceCount ) ? 1 : info.m_slices;
     std::vector< double > bValues;
     std::vector< std::vector< double > > directions;
+    DcmItem* item = 0;
 
-    for ( i = 0; i < n; i++ )
+    for ( i = 0; i < n; i += step )
     {
 
       datasetHeader.get( dataset, i );
 
-      if ( dataset.findAndGetSequence( DCM_MRDiffusionSequence, seq ).good() )
+      if ( dataset.findAndGetSequenceItem( DCM_MRDiffusionSequence, 
+                                           item ).good() )
       {
 
+        std::vector< double > direction( 3, 0.0 );
         Float64 tmpFloat;
-        DcmSequenceOfItems* seqDir = 0;
-        DcmItem* item = seq->getItem( 0 );
+        DcmItem* itemDir = 0;
 
         if ( item->findAndGetFloat64( DCM_DiffusionBValue, tmpFloat ).good() )
         {
@@ -96,13 +100,12 @@ bool soma::MRImageStorageReader::getHeader(
 
         }
 
-        if ( item->findAndGetSequence( DCM_DiffusionGradientDirectionSequence,
-                                       seqDir ).good() )
+        if ( item->findAndGetSequenceItem( 
+                                         DCM_DiffusionGradientDirectionSequence,
+                                         itemDir ).good() )
         {
 
           int32_t d;
-          std::vector< double > direction( 3, 0.0 );
-          DcmItem* itemDir = seqDir->getItem( 0 );
 
           for ( d = 0; d < 3; d++ )
           {
@@ -118,9 +121,9 @@ bool soma::MRImageStorageReader::getHeader(
 
           }
 
-          directions.push_back( direction );
-
         }
+
+        directions.push_back( direction );
 
       }
 
@@ -136,7 +139,7 @@ bool soma::MRImageStorageReader::getHeader(
     if ( directions.size() )
     {
 
-      proxy.addAttribute( "diffusion_direction", directions );
+      proxy.addAttribute( "diffusion_directions", directions );
 
     }
 

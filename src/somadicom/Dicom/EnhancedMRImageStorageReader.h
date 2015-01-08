@@ -29,6 +29,10 @@ class EnhancedMRImageStorageReader : public MultiSliceReader
     virtual bool readHeader( DcmDataset* dataset );
     virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
 
+    virtual bool buildIndexLut( DcmDataset* dataset );
+
+    std::vector< int32_t > m_indexLut;
+
 };
 
 

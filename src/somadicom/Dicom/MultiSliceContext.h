@@ -10,6 +10,8 @@
 #include <dcmtk/dcmimgle/dcmimage.h>
 #include <dcmtk/dcmimage/diregist.h>
 
+#include <vector>
+
 
 namespace soma
 {
@@ -26,6 +28,7 @@ class MultiSliceContext : public carto::LoopContext
 
     MultiSliceContext( DicomImage& dcmImage, 
                        DicomProxy& proxy,
+                       const std::vector< int32_t >& indexLut,
                        Callback* progress = 0 );
 
     void doIt( int32_t startIndex, int32_t count );
@@ -34,6 +37,7 @@ class MultiSliceContext : public carto::LoopContext
 
     DicomImage& m_dcmImage;
     DicomProxy& m_proxy;
+    const std::vector< int32_t >& m_indexLut;
     Callback* m_progress;
     int32_t m_count;
 

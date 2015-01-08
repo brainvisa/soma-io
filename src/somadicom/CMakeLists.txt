@@ -23,6 +23,7 @@ set( _headers
   Dicom/DicomSortContext.h
   Dicom/EnhancedMRImageStorageReader.h
   Dicom/FileInformation.h
+  Dicom/GE/GEMRReader.h
   Dicom/GenericCTReader.h
   Dicom/GenericEnhancedMRReader.h
   Dicom/GenericMRReader.h
@@ -36,6 +37,8 @@ set( _headers
   Dicom/MultiSliceContext.h
   Dicom/MultiSliceReader.h
   Dicom/NMImageStorageReader.h
+  Dicom/Philips/PhilipsEnhancedMRReader.h
+  Dicom/Philips/PhilipsMRReader.h
   Dicom/PTImageStorageReader.h
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
@@ -76,6 +79,7 @@ set( _sources
   Dicom/DicomSortContext.cc
   Dicom/EnhancedMRImageStorageReader.cc
   Dicom/FileInformation.cc
+  Dicom/GE/GEMRReader.cc
   Dicom/GenericCTReader.cc
   Dicom/GenericEnhancedMRReader.cc
   Dicom/GenericMRReader.cc
@@ -89,6 +93,8 @@ set( _sources
   Dicom/MultiSliceContext.cc
   Dicom/MultiSliceReader.cc
   Dicom/NMImageStorageReader.cc
+  Dicom/Philips/PhilipsEnhancedMRReader.cc
+  Dicom/Philips/PhilipsMRReader.cc
   Dicom/PTImageStorageReader.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
