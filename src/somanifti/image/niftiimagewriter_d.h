@@ -742,7 +742,7 @@ namespace soma
   {
     std::vector<float> bval;
     std::vector<std::vector<float> > bvec;
-    if( header->getProperty( "b_value", bval )
+    if( header->getProperty( "b_values", bval )
       && header->getProperty( "diffusion_directions", bvec ) )
     {
       if( bval.size() != bvec.size() )
