@@ -90,8 +90,8 @@ namespace soma
    */
 
   template <typename T>
-  NiftiImageReader<T>::NiftiImageReader() :
-    ImageReader<T>()
+  NiftiImageReader<T>::NiftiImageReader( const std::string & format_id ) :
+    ImageReader<T>(), _format_id( format_id )
   {
   }
 

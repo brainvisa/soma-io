@@ -72,6 +72,7 @@ namespace soma
       virtual void updateParams( DataSourceInfo & dsi );
       virtual void resetParams();
       virtual ImageReader<T>* cloneReader() const;
+      virtual std::string formatID() const { return "GIS"; }
 
     protected:
       //======================================================================

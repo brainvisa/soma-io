@@ -56,7 +56,8 @@ namespace soma
       //======================================================================
       //   C O N S T R U C T O R S
       //======================================================================
-      NiftiImageReader();
+      /// format_id may be "NIFTI-1" (default) or "NIFTI-2"
+      NiftiImageReader( const std::string & format_id = "NIFTI-1" );
       virtual ~NiftiImageReader();
 
       //======================================================================
@@ -71,6 +72,7 @@ namespace soma
       virtual void updateParams( DataSourceInfo & dsi );
       virtual void resetParams();
       virtual ImageReader<T>* cloneReader() const;
+      virtual std::string formatID() const { return _format_id; }
 
     protected:
       template <typename U>
@@ -81,6 +83,7 @@ namespace soma
                      carto::Object options = carto::none() );
       std::vector<std::vector<int> >  _sizes;
       carto::rc_ptr<NiftiStructWrapper> _nim;
+      std::string _format_id;
   };
 
 }

@@ -62,6 +62,7 @@ namespace soma
                        const AllocatorContext & context, 
                        carto::Object options );
     virtual FormatReader<carto::GenericObject>* clone() const;
+    virtual std::string formatID() const { return "PYTHON"; }
 
     //========================================================================
     //   O L D   M E T H O D S

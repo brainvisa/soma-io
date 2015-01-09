@@ -65,6 +65,7 @@ namespace soma
                                       const AllocatorContext & context,
                                       carto::Object options )
   {
+    dsi = checkDataSourceInfo( dsi, options );
     // copy context with compatible mmap mode
     AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
     setup( obj, dsi->header(), ac, options );
@@ -76,6 +77,7 @@ namespace soma
                                      const AllocatorContext & context,
                                      carto::Object options )
   {
+    dsi = checkDataSourceInfo( dsi, options );
     // copy context with compatible mmap mode
     AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
     std::auto_ptr<T>  objp( create( dsi->header(), ac, options ) );
@@ -99,6 +101,24 @@ namespace soma
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        context.dataSource() ? 
                                        context.dataSource()->url() : "" );
+  }
+
+
+  template<typename T>
+  carto::rc_ptr<DataSourceInfo> FormatReader<T>::checkDataSourceInfo(
+      carto::rc_ptr<DataSourceInfo> dsi, carto::Object options )
+  {
+    // copy options dict to avoid modifying it
+    // (it would kill thread safety)
+    carto::Object new_options( options->clone() );
+    if( new_options.isNone() )
+      new_options = carto::Object::value( carto::PropertySet() );
+    new_options->setProperty( "format", formatID() );
+    DataSourceInfoLoader dsil;
+    // check with exact format (pass 0 only)
+    DataSourceInfo new_dsi = dsil.check( *dsi, new_options, 0, 0 );
+    // FIXME: this copy is suboptimal. dsil.check() should work with rc_ptr
+    return carto::rc_ptr<DataSourceInfo>( new DataSourceInfo( new_dsi ) );
   }
 
   //==========================================================================

@@ -110,12 +110,16 @@ namespace soma
       const DataSourceList & list() const { return _datasourcelist; }
             DataSourceList & list()       { return _datasourcelist; }
       std::string url() const { return _datasourcelist.dataSource()->url(); }
+      std::string identifiedFormat() const { return _identifiedFormat; }
+      void setIdentifiedFormat( const std::string & format )
+      { _identifiedFormat = format; }
 
     protected:
       carto::Object           _header;
       DataSourceCapabilities  _capabilities;
       DataSourceList          _datasourcelist;
       carto::Object           _privateiodata;
+      std::string             _identifiedFormat;
   };
 
 }

@@ -199,9 +199,13 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   localMsg( "check()" );
   
   // If dsi already complete : returns it ////////////////////////////////////
-  if( !dsi.header().isNone() 
+  std::string format;
+  if( options.get() )                                           // try options
+    options->getProperty( "format", format );
+  if( !dsi.header().isNone()
       && dsi.capabilities().isInit() 
-      && dsi.list().typecount() > 1 )
+      && dsi.list().typecount() > 1
+      && ( format.empty() || format == dsi.identifiedFormat() ) )
     return dsi;
   
   // Init ////////////////////////////////////////////////////////////////////
@@ -243,9 +247,8 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   DataSource*              pds = dsi.list().dataSource().get();
   soma::offset_t           dspos = pds->at();
 
-#if 0
   /***************************************************************************
-   * Following commented code allows to deal with format hint as with readers
+   * Following code allows to deal with format hint as with readers
    * and writers. I guess it could be useful for pyramidal tiff files
    * which can be read by both classical tiff checker (maybe?) and
    * openslide (and surely other formats with several plugin implems).
@@ -255,26 +258,28 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
    * be left with the same number as pass 1 considering they should both
    * be called at the same time (numbering was supposed to avoid testing
    * all soma checkers before compatible aims finders)
+   *
+   * It is also useful after a 1st attempt, to try another format, in
+   * FormatReader.
    **************************************************************************/
 
   //// Pass 0 : priority to format hint //////////////////////////////////////
-  std::string format;
-  if( options )                                                 // try options
-    options->getProperty( "format", format );
   if( format.empty() && dsi.header() )                           // try header
     dsi.header()->getProperty( "format", format );
   if( format.empty() && dsi.header() )                  // try deprecated name
     dsi.header()->getProperty( "file_type", format );
   localMsg( "format: " + format );
 
-  if( passbegin <= 1 && passend >= 1 && !format.empty() )
+  if( passbegin <= 0 && passend >= 0 && !format.empty() )
   {
     reader = formatInfo( format );
     if( reader ) {
       localMsg( "0. trying " + format + "..." );
       try {
         d->state = Ok;
-        return reader->check( dsi, *this, options );
+        DataSourceInfo dsi2 = reader->check( dsi, *this, options );
+        dsi2.setIdentifiedFormat( format );
+        return dsi2;
       } catch( exception & e ) {
         localMsg( "0. failed : " + string( e.what() ) );
         d->state = Error;
@@ -285,7 +290,6 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
       tried.insert( format );
     }
   }
-#endif
 
   //// Pass 1 : try every matching format until one works ////////////////////
   if( passbegin <= 1 && passend >= 1 )
@@ -298,7 +302,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
         if( reader ) {
           try {
             d->state = Ok;
-            return reader->check( dsi, *this, options );
+            DataSourceInfo dsi2 = reader->check( dsi, *this, options );
+            dsi2.setIdentifiedFormat( ie->second );
+            return dsi2;
           } catch( exception & e ) {
             localMsg( "1. failed : " + string( e.what() ) );
             d->state = Error;
@@ -323,7 +329,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
         if( reader ) {
           try {
             d->state = Ok;
-            return reader->check( dsi, *this, options );
+            DataSourceInfo dsi2 = reader->check( dsi, *this, options );
+            dsi2.setIdentifiedFormat( ie->second );
+            return dsi2;
           } catch( exception & e ) {
             localMsg( "2. failed : " + string( e.what() ) );
             d->state = Error;
@@ -349,7 +357,9 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
           localMsg( "3. trying " + (*ie).second + "..." );
           try {
             d->state = Ok;
-            return reader->check( dsi, *this, options );
+            DataSourceInfo dsi2 = reader->check( dsi, *this, options );
+            dsi2.setIdentifiedFormat( ie->second );
+            return dsi2;
           } catch( exception & e ) {
             localMsg( "3. failed : " + string( e.what() ) );
             d->state = Error;

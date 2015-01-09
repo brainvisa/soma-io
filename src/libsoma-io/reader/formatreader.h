@@ -36,6 +36,8 @@
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 //----------------------------------------------------------------------------
+#include <string>
+//----------------------------------------------------------------------------
 
 namespace carto {
   template<typename T> class rc_ptr;
@@ -119,6 +121,18 @@ namespace soma
     /// different source/buffer. It just needs to be another instance of the
     /// same exact type.
     virtual FormatReader<T>* clone() const = 0;
+
+    /// Format identifier (abstract).
+    /// Used to match checker and reader
+    virtual std::string formatID() const = 0;
+
+    /// Checks that dsi has been identified with the matching format checker.
+    /// If not, instantiate a new DataSourceInfo and return it.
+    /// If yes, the returned DataSourceInfo will be the input one.
+    /// This method is called automatically from createAndRead() or
+    /// setupAndRead().
+    virtual carto::rc_ptr<DataSourceInfo> checkDataSourceInfo(
+      carto::rc_ptr<DataSourceInfo> dsi, carto::Object options );
 
     //========================================================================
     //   S T I L L   U S E D

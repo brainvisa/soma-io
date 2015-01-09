@@ -91,6 +91,9 @@ namespace soma
       /// Abstract : empty specialized ImageReader's parameters.
       virtual void resetParams();
       virtual ImageReader<T>* cloneReader() const = 0;
+      /// Format identifier (abstract).
+      /// Used to match checker and reader
+      virtual std::string formatID() const = 0;
   };
 
 }
