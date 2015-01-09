@@ -251,7 +251,10 @@ namespace soma {
       throw carto::open_error( "data source not available", url() );
     for( t=0; t<vt; ++t )
       for( z=0; z<vz; ++z )
-        for( y=0; y<vy; ++y ) {
+        for( y=0; y<vy; ++y )
+        {
+          if( !source()->isOpen() )
+            throw carto::eof_error( url() );
           // we move in the file
           setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
