@@ -15,6 +15,9 @@
 #include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
+#include <sstream>
+#include <ctime>
+
 
 soma::DicomReader::DicomReader()
                  : m_dataInfo( 0 )
@@ -142,13 +145,6 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 
   }
 
-  if ( dataset.findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
-  {
-
-    header.addAttribute( "acquisition_date", tmpString.c_str() );
-
-  }
-
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
   if ( dataset.findAndGetOFString( DCM_PatientName, tmpString ).good() )
 #else
@@ -215,10 +211,18 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
     header.addAttribute( "institution_name", tmpString.c_str() );
 
   }
-  
+
+  std::string dateStr;
+  if ( dataset.findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
+  {
+
+    dateStr = tmpString.c_str();
+    header.addAttribute( "acquisition_date", dateStr );
+
+  }
+
   int32_t i, n = datasetHeader.size();
   std::vector< std::string > acquisitionTimes;
-  std::vector< std::string > contentTimes;
 
   for ( i = 0; i < n; i++ )
   {
@@ -232,26 +236,63 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 
     }
 
-    if ( dataset.findAndGetOFString( DCM_ContentTime, tmpString ).good() )
-    {
-
-      contentTimes.push_back( tmpString.c_str() );
-
-    }
-
   }
 
+  std::string timeStr;
   if ( acquisitionTimes.size() )
   {
 
+    timeStr = acquisitionTimes[ 0 ];
     header.addAttribute( "acquisition_time", acquisitionTimes );
 
   }
 
-  if ( contentTimes.size() )
+  if ( !timeStr.empty() )
   {
 
-    header.addAttribute( "content_time", contentTimes );
+    int32_t hour, minute, second, zeroStartTime = 0;
+    std::istringstream iss;
+
+    iss.str( timeStr.substr( 0, 2 ) );
+    iss >> hour;
+    iss.clear();
+    iss.str( timeStr.substr( 2, 2 ) );
+    iss >> minute;
+    iss.clear();
+    iss.str( timeStr.substr( 4, 2 ) );
+    iss >> second;
+
+    if ( dateStr.empty() )
+    {
+
+      zeroStartTime = ( hour * 60 + minute ) * 60 + second;
+
+    }
+    else
+    {
+
+      struct tm t;
+
+      t.tm_hour = hour;
+      t.tm_min = minute;
+      t.tm_sec = second;
+      // t.tm_isdst = -1;
+
+      iss.clear();
+      iss.str( dateStr.substr( 0, 4 ) );
+      iss >> t.tm_year;
+      iss.clear();
+      iss.str( dateStr.substr( 4, 2 ) );
+      iss >> t.tm_mon;
+      iss.clear();
+      iss.str( dateStr.substr( 6, 2 ) );
+      iss >> t.tm_mday;
+
+      zeroStartTime = int32_t( mktime( &t ) );
+
+    }
+
+    header.addAttribute( "zero_start_time", zeroStartTime );
 
   }
 

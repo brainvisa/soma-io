@@ -39,6 +39,7 @@ set( _headers
   Dicom/NMImageStorageReader.h
   Dicom/Philips/PhilipsEnhancedMRReader.h
   Dicom/Philips/PhilipsMRReader.h
+  Dicom/Philips/PhilipsPTReader.h
   Dicom/PTImageStorageReader.h
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
@@ -95,6 +96,7 @@ set( _sources
   Dicom/NMImageStorageReader.cc
   Dicom/Philips/PhilipsEnhancedMRReader.cc
   Dicom/Philips/PhilipsMRReader.cc
+  Dicom/Philips/PhilipsPTReader.cc
   Dicom/PTImageStorageReader.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc

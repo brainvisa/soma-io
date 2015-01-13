@@ -56,9 +56,11 @@ bool soma::PhilipsMRReader::getHeader( soma::HeaderProxy& proxy,
     {
 
       int32_t i, n = datasetHeader.size();
-      int32_t step = info.m_slices;
+      int32_t dummyX, dummyY, step;
       std::vector< double > bValues;
       std::vector< std::vector< double > > directions;
+
+      info.m_patientOrientation.getOnDiskSize( dummyX, dummyY, step );
 
       for ( i = 0; i < n; i += step )
       {

@@ -75,10 +75,14 @@ bool soma::MRImageStorageReader::getHeader(
 
     int32_t i, n = datasetHeader.size();
     int32_t globalSliceCount = info.m_slices * info.m_frames;
-    int32_t step = ( n < globalSliceCount ) ? 1 : info.m_slices;
+    int32_t dummyX, dummyY, sizeZ;
     std::vector< double > bValues;
     std::vector< std::vector< double > > directions;
     DcmItem* item = 0;
+
+    info.m_patientOrientation.getOnDiskSize( dummyX, dummyY, sizeZ );
+
+    int32_t step = ( n < globalSliceCount ) ? 1 : sizeZ;
 
     for ( i = 0; i < n; i += step )
     {

@@ -71,6 +71,8 @@ bool soma::PTImageStorageReader::getHeader(
 
   OFString tmpString;
   Float64 tmpDouble;
+  Sint32 tmpInt;
+  Uint32 tmpUint;
   DcmDataset dataset;
 
   datasetHeader.get( dataset );
@@ -128,6 +130,223 @@ bool soma::PTImageStorageReader::getHeader(
     header.addAttribute( "series_time", tmpString.c_str() );
 
   }
+
+  if ( dataset.findAndGetSint32( DCM_NumberOfTemporalPositions,
+                                 tmpInt ).good() )
+  {
+
+    header.addAttribute( "nb_t_pos", int32_t( tmpInt ) );
+
+  }
+
+  if ( dataset.findAndGetSint32( DCM_AcquisitionNumber, tmpInt ).good() )
+  {
+
+    header.addAttribute( "acquisition_number", int32_t( tmpInt ) );
+
+  }
+
+  DcmItem* item = 0;
+  if ( dataset.findAndGetSequenceItem( 
+                                     DCM_RadiopharmaceuticalInformationSequence,
+                                     item ).good() )
+  {
+
+    DcmItem* rnItem = 0;
+
+    if ( item->findAndGetSequenceItem( DCM_RadionuclideCodeSequence,
+                                       rnItem ).good() )
+    {
+
+      if ( rnItem->findAndGetOFString( DCM_CodeMeaning, tmpString ).good() )
+      {
+
+        header.addAttribute( "radionuclide", tmpString.c_str() );
+
+      }
+
+    }
+
+    if ( item->findAndGetOFString( DCM_RadiopharmaceuticalStartTime,
+                                   tmpString ).good() )
+    {
+
+      header.addAttribute( "radiopharmaceutical_start_time", 
+                           tmpString.c_str() );
+
+    }
+
+    if ( item->findAndGetFloat64( DCM_RadionuclideTotalDose,
+                                  tmpDouble ).good() )
+    {
+
+      header.addAttribute( "radionuclide_total_dose", double( tmpDouble ) );
+
+    }
+
+    if ( item->findAndGetFloat64( DCM_RadionuclideHalfLife,
+                                  tmpDouble ).good() )
+    {
+
+      header.addAttribute( "radionuclide_half_life", double( tmpDouble ) );
+
+    }
+
+    if ( item->findAndGetFloat64( DCM_RadionuclidePositronFraction,
+                                  tmpDouble ).good() )
+    {
+
+      header.addAttribute( "radionuclide_positron_fraction", double( tmpDouble ) );
+
+    }
+
+  }
+
+  if ( dataset.findAndGetFloat64( DCM_TriggerTime,
+                                  tmpDouble ).good() )
+  {
+
+    header.addAttribute( "gate_time", int32_t( tmpDouble ) );
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_ReconstructionMethod,
+                                   tmpString ).good() )
+  {
+
+    header.addAttribute( "reconstruction_method", tmpString.c_str() );
+
+  }
+
+  std::string process_list = "";
+
+  if ( dataset.findAndGetOFStringArray( DCM_CorrectedImage, tmpString ).good() )
+  {
+
+    process_list = tmpString.c_str();
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_RandomsCorrectionMethod, 
+                                   tmpString ).good() )
+  {
+
+    if ( process_list.size() )
+    {
+
+      process_list += "\\";
+
+    }
+
+    process_list += tmpString.c_str();
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_AttenuationCorrectionMethod, 
+                                   tmpString ).good() )
+  {
+
+    if ( process_list.size() )
+    {
+
+      process_list += "\\";
+
+    }
+
+    process_list += tmpString.c_str();
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_ScatterCorrectionMethod, 
+                                   tmpString ).good() )
+  {
+
+    if ( process_list.size() )
+    {
+
+      process_list += "\\";
+
+    }
+
+    process_list += tmpString.c_str();
+
+  }
+
+  if ( process_list.size() )
+  {
+
+    header.addAttribute( "process_list", process_list );
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_SeriesType, tmpString, 0 ).good() )
+  {
+
+    header.addAttribute( "acquisition_mode", tmpString.c_str() );
+
+  }
+
+  if ( !tmpString.compare( "DYNAMIC" ) )
+  {
+
+    int32_t nb_t_pos = 1;
+    Uint16 tmpUint16;
+
+    if ( dataset.findAndGetUint16( DCM_NumberOfTimeSlices, tmpUint16 ).good() )
+    {
+
+      nb_t_pos = int32_t( tmpUint16 );
+
+    }
+
+    header.addAttribute( "nb_t_pos", nb_t_pos );
+
+    if ( dataset.findAndGetUint32( DCM_NumberOfTimeSlots, tmpUint ).good() )
+    {
+
+      header.addAttribute( "nb_gates", int32_t( tmpUint ) );
+
+    }
+
+  }
+
+  if ( dataset.findAndGetOFString( DCM_SeriesType, tmpString, 1 ).good() )
+  {
+
+    header.addAttribute( "category", tmpString.c_str() );
+
+  }
+
+  int32_t i, k = 0, n = datasetHeader.size();
+  int32_t dummyX, dummyY, step, sizeT = info.m_frames;
+  std::vector< int32_t > start_time( sizeT, 0 );
+  std::vector< int32_t > duration_time( sizeT, 0 );
+
+  info.m_patientOrientation.getOnDiskSize( dummyX, dummyY, step );
+
+  for ( i = 0; i < n; i += step )
+  {
+
+    datasetHeader.get( dataset, i );
+
+    if ( dataset.findAndGetSint32( DCM_ActualFrameDuration, tmpInt ).good() )
+    {
+
+      duration_time[ k++ ] = int32_t( tmpInt / 1000 );
+
+    }
+
+  }
+
+  for ( i = 1; i < sizeT; i++ )
+  {
+
+    start_time[ i ] = start_time[ i - 1 ] + duration_time[ i - 1 ];
+
+  }
+
+  header.addAttribute( "start_time", start_time );
+  header.addAttribute( "duration_time", duration_time );
 
   return true;
 
