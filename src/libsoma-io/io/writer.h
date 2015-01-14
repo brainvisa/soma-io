@@ -55,12 +55,12 @@ namespace soma
 
     ///	\brief Finds the correct format and writes the object
     ///
-    /// Options can be passed to specify some writing parameters. The most 
-    /// important is the format (\c "format" property): if it is specified,  
-    /// this format is tried first, so you can use it to force the format,  
-    /// otherwise it will be determined from the filename extension (if 
+    /// Options can be passed to specify some writing parameters. The most
+    /// important is the format (\c "format" property): if it is specified,
+    /// this format is tried first, so you can use it to force the format,
+    /// otherwise it will be determined from the filename extension (if
     /// available). If no extension and no format are given, the first
-    /// working format will be used. 
+    /// working format will be used.
     template <typename T>
     bool write( const T & obj, carto::Object options = carto::none() );
 
@@ -100,7 +100,7 @@ namespace soma
   template<class T> class Writer : public GenericWriter
   {
   public:
-    inline Writer() {};
+    inline Writer()                               : GenericWriter() {};
     inline Writer( carto::rc_ptr<DataSource> ds ) : GenericWriter( ds ) {}
     inline Writer( const std::string& filename )  : GenericWriter( filename ) {}
     inline Writer( std::ostream & stream )        : GenericWriter( stream ) {}

@@ -65,6 +65,7 @@ namespace soma
   //   C O N S T R U C T O R S
   //==========================================================================
   template<class T> Reader<T>::Reader()
+    : _datasourceinfo( new DataSourceInfo )
   {
   }
 
@@ -79,14 +80,14 @@ namespace soma
   }
 
   template<class T> Reader<T>::Reader( const std::string& filename )
-  : _datasourceinfo( new DataSourceInfo( 
-                  carto::rc_ptr<DataSource>( new FileDataSource( filename ) ) 
+  : _datasourceinfo( new DataSourceInfo(
+                  carto::rc_ptr<DataSource>( new FileDataSource( filename ) )
                    ) )
   {
   }
 
   template<class T> Reader<T>::Reader( std::istream & stream )
-  : _datasourceinfo( new DataSourceInfo( 
+  : _datasourceinfo( new DataSourceInfo(
                   carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) )
                    ) )
   {
@@ -152,7 +153,7 @@ namespace soma
       _datasourceinfo->list().dataSource()
         = carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) );
     } else {
-      _datasourceinfo->list().addDataSource( "default", 
+      _datasourceinfo->list().addDataSource( "default",
         carto::rc_ptr<DataSource>( new FileDataSource( filename, offset ) ) );
     }
   }
@@ -161,10 +162,10 @@ namespace soma
   void Reader<T>::attach( std::istream & stream )
   {
     if ( !_datasourceinfo->list().empty( "default" ) ) {
-      _datasourceinfo->list().dataSource() 
+      _datasourceinfo->list().dataSource()
           = carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) );
     } else {
-      _datasourceinfo->list().addDataSource( "default", 
+      _datasourceinfo->list().addDataSource( "default",
           carto::rc_ptr<DataSource>( new IStreamDataSource( stream ) ) );
     }
   }
@@ -188,7 +189,7 @@ namespace soma
       return DataSource::none();
     }
   }
-  
+
   template <typename T>
   void Reader<T>::flush()
   {
@@ -203,24 +204,24 @@ namespace soma
     if( _datasourceinfo->list().dataSource() )
       _datasourceinfo->list().dataSource()->close();
   }
-  
+
   //==========================================================================
   //   R E A D   M E T H O D S
   //==========================================================================
-  
+
   //--- useful typedef -------------------------------------------------------
   typedef std::multimap<std::string,std::string> multi_S;
   typedef std::set<std::string> set_S;
-  typedef std::pair<std::multimap<std::string, std::string>::const_iterator, 
+  typedef std::pair<std::multimap<std::string, std::string>::const_iterator,
       std::multimap<std::string, std::string>::const_iterator> pair_cit_S;
   //--------------------------------------------------------------------------
-  
+
   template<class T>
   bool Reader<T>::read( T & obj, carto::Object header,
                         int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
-    
+
     if( !header.isNone() )
       _datasourceinfo->header() = header;
 
@@ -228,7 +229,7 @@ namespace soma
       throw std::runtime_error( "Reader with no source of data" );
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
-    
+
     //// Reading URI /////////////////////////////////////////////////////////
     std::string uri = _datasourceinfo->list().dataSource()->url();
     std::string filename = FileUtil::uriFilename( uri );
@@ -238,7 +239,7 @@ namespace soma
                              .reset( new FileDataSource( filename ) );
       _options->copyProperties( urioptions );
     }
-    
+
     //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
     DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options,
@@ -406,7 +407,7 @@ namespace soma
       throw std::runtime_error( "Reader with no source of data" );
     if( !_options.get() )
       _options = carto::Object::value( carto::PropertySet() );
-    
+
     //// Reading URI /////////////////////////////////////////////////////////
     std::string uri = _datasourceinfo->list().dataSource()->url();
     std::string filename = FileUtil::uriFilename( uri );

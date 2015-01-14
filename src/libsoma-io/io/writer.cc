@@ -44,6 +44,7 @@ using namespace carto;
 using namespace std;
 
 GenericWriter::GenericWriter()
+  : _datasourceinfo( new DataSourceInfo )
 {
 }
 
@@ -57,7 +58,7 @@ GenericWriter::GenericWriter( rc_ptr<DataSource> ds )
 GenericWriter::GenericWriter( const string & filename )
   : _datasourceinfo ( new DataSourceInfo
                       ( rc_ptr<DataSource>
-                        ( new FileDataSource( filename ) ) 
+                        ( new FileDataSource( filename ) )
                       )
                     )
 {
@@ -67,7 +68,7 @@ GenericWriter::GenericWriter( const string & filename )
 GenericWriter::GenericWriter( ostream & stream )
   : _datasourceinfo ( new DataSourceInfo
                       ( rc_ptr<DataSource>
-                        ( new OStreamDataSource( stream ) ) 
+                        ( new OStreamDataSource( stream ) )
                       )
                     )
 {

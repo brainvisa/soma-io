@@ -256,8 +256,6 @@ namespace soma {
         for( y=0; y<vy; ++y )
         {
           // we move in the file
-          //at( ( sx * ( sy * ( sz * ( t + ot ) + z + oz )
-          //                  + y + oy ) + ox ) * sizeof(T) );
           setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
           // FIXME: stride[0] not taken into account for now
@@ -386,10 +384,10 @@ namespace soma {
       if( !open( DataSource::Write ) )
         throw carto::open_error( "data source not available", url() );
       T value[1] = {0};
-      //at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
-      setpos( dim[0]-2, dim[1]-1, dim[2]-1, dim[3]-1);
+      setpos( dim[0]-1, dim[1]-1, dim[2]-1, dim[3]-1);
+      localMsg( "book " + carto::toString((long)at()+sizeof(T)) );
       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
-            throw carto::eof_error( url() );
+        throw carto::eof_error( url() );
     }
 
     //------------------------------------------------------------------------
