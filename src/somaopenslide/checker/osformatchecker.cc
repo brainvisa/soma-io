@@ -99,8 +99,16 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   
   openslide_t *osimage;
   localMsg( "Opening image... " );
-  if( !( osimage = openslide_open( fname.c_str() ) ) ) {
+  
+  if( !(osimage = openslide_open( fname.c_str() )) ) {
+    localMsg( "OpenSlide can't open file: " + fname );
+    localMsg( "OpenSlide: not recognized format" );
+    throw format_mismatch_error( "Not a OpenSlide header", fname );
+  }
+  if( openslide_get_error( osimage ) ) {
     localMsg( "OpenSlide can't open file : " + fname );
+    cout << "OpenSlide: " + string( openslide_get_error( osimage ) ) << endl;
+    openslide_close( osimage );
     throw format_mismatch_error( "Not a OpenSlide header", fname );
   }
   localMsg( "Image opened." );

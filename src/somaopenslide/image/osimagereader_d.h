@@ -81,9 +81,16 @@ namespace soma {
 
     std::string fname = dsi.list().dataSource( "ima", 0 )->url();
     if( !( _osimage = openslide_open( fname.c_str() ) ) ) {
-      localMsg( "can't open file." );
+      localMsg( "OpenSlide can't open file" + fname );
       throw carto::open_error( "data source not available", fname );
     }
+    if( openslide_get_error( _osimage ) ) {
+      localMsg( "OpenSlide can't open file : " + fname );
+      localMsg( "OpenSlide: " + std::string( openslide_get_error( _osimage ) ) );
+      openslide_close( _osimage );
+      throw carto::open_error( "data source not available", fname );
+    }
+
   }
 
   template <typename T> 
