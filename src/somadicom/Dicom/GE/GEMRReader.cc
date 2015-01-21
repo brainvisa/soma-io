@@ -138,7 +138,7 @@ bool soma::GEMRReader::getHeader( soma::HeaderProxy& proxy,
                                           tmpFloat ).good() )
           {
 
-            direction[ 2 ] = double( tmpFloat );
+            direction[ 2 ] = -1.0 * double( tmpFloat );
 
           }
 

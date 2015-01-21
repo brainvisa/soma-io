@@ -133,6 +133,8 @@ bool soma::PhilipsEnhancedMRReader::getHeader(
 
                     }
 
+                    direction[ 2 ] *= -1.0;
+
                   }
 
                   directions[ index ] = direction;

@@ -104,6 +104,8 @@ bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
 
           }
 
+          direction[ 2 ] *= -1.0;
+
         }
 
         directions.push_back( direction );

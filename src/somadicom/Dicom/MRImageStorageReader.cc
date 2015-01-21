@@ -125,6 +125,8 @@ bool soma::MRImageStorageReader::getHeader(
 
           }
 
+          direction[ 2 ] *= -1.0;
+
         }
 
         directions.push_back( direction );
