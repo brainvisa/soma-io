@@ -51,7 +51,7 @@
 #include <vector>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
-#define localMsg( message ) cartoCondMsg( 4, message, "NIFTI1IMAGEREADER" )
+#define localMsg( message ) cartoCondMsg( 4, message, "NIFTIIMAGEREADER" )
 // localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 

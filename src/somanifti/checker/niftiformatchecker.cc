@@ -899,14 +899,23 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
     return;
   }
 
+  /* .bvec file is stored in the same orientation as disk storage, thus
+     needs to undergo storage_to_memory transform. */
+  std::vector< float > storage_to_memory;
+  header->getProperty( "storage_to_memory", storage_to_memory );
+  AffineTransformation3d s2m( storage_to_memory );
+
   unsigned i, n = bvals.size();
   vector<vector<float> > bvecs2( n );
   for( unsigned i=0; i<n; ++i )
   {
+    Point3df vdir1( bvecs[i], bvecs[i+n], bvecs[i+n*2] );
+    Point3df vdir2 = s2m.transform( vdir1 )
+      - s2m.transform( Point3df( 0, 0, 0 ) );
     vector<float> dir( 3 );
-    dir[0] = bvecs[i];
-    dir[1] = bvecs[i+n];
-    dir[2] = bvecs[i+n*2];
+    dir[0] = vdir2[0];
+    dir[1] = vdir2[1];
+    dir[2] = vdir2[2];
     bvecs2[i] = dir;
   }
 

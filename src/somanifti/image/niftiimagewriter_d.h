@@ -741,10 +741,16 @@ namespace soma
                                                     carto::Object header )
   {
     std::vector<float> bval;
-    std::vector<std::vector<float> > bvec;
+    std::vector<std::vector<float> > bvec, dbvec;
     if( header->getProperty( "b_values", bval )
       && header->getProperty( "diffusion_directions", bvec ) )
     {
+      AffineTransformation3d s2m, m2s;
+      Object storage_to_memory;
+      storage_to_memory = header->getProperty( "storage_to_memory" );
+      s2m = storage_to_memory;
+      m2s = s2m.inverse();
+
       if( bval.size() != bvec.size() )
       {
         std::cerr << "Inconsistency between diffusion_directions and b_values.\n";
@@ -761,7 +767,19 @@ namespace soma
       bvalfile->putch( '\n' );
       bvalfile->close();
 
-      // TODO: handle bvec coordinates system
+      // handle bvec coordinates system
+      for( i=0; i<n; ++i )
+      {
+        Point3df vec1( bvec[i][0],  bvec[i][1],  bvec[i][2] );
+        Point3df vec2 = m2s.transform( vec1 )
+          - m2s.transform( Point3df( 0, 0, 0 ) );
+        std::vector<float> vvec( 3, 0. );
+        vvec[0] = vec2[0];
+        vvec[1] = vec2[1];
+        vvec[2] = vec2[2];
+        dbvec.push_back( vvec );
+      }
+
       bvecfile->open( DataSource::Write );
       for( j=0; j<3; ++j )
       {
@@ -769,7 +787,7 @@ namespace soma
         {
           if( i != 0 )
             bvecfile->putch( ' ' );
-          AsciiDataSourceTraits<float>::write( *bvecfile, bvec[i][j] );
+          AsciiDataSourceTraits<float>::write( *bvecfile, dbvec[i][j] );
         }
         bvecfile->putch( '\n' );
       }
