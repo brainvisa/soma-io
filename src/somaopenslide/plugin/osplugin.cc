@@ -59,7 +59,7 @@ namespace soma {
 
 OSPlugin::OSPlugin() : Plugin()
 {
-    vector<string>  exts(8);
+    vector<string>  exts(9);
     exts[0] = "tif";    // Aperio, Trestle, Generic TIFF
     exts[1] = "tiff";   // Aperio, Trestle, Generic TIFF
     exts[2] = "svs";    // Aperio
@@ -68,13 +68,14 @@ OSPlugin::OSPlugin() : Plugin()
     exts[5] = "ndpi";   // Hamamatsu
     exts[6] = "scn";    // Leica
     exts[7] = "mrxs";   // MIRAX
-    
+    exts[8] = "czi";    // Zeiss
+
     ////////////////////////////////////////////////////////////////////////////
     ////                          C H E C K E R                             ////
     ////////////////////////////////////////////////////////////////////////////
-    
+
     DataSourceInfoLoader::registerFormat( "OpenSlide", new OSFormatChecker, exts );
-    
+
 }
 
 
