@@ -71,6 +71,7 @@ class PatientOrientation
     Vector m_resolution;
 
     AxialTransformation3d m_axialTransformation;
+    AxialTransformation3d m_flipTransformation;
     DicomTransformation3d m_dicomTransformation;
 
 };

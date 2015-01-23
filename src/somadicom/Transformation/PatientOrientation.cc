@@ -30,6 +30,7 @@ soma::PatientOrientation::PatientOrientation(
                           m_resolution( other.m_resolution ),
                           m_normalVector( other.m_normalVector ),
                           m_axialTransformation( other.m_axialTransformation ),
+                          m_flipTransformation( other.m_flipTransformation ),
                           m_dicomTransformation( other.m_dicomTransformation )
 {
 }
@@ -60,6 +61,7 @@ void soma::PatientOrientation::set( const soma::Vector& rowVector,
   m_axialTransformation = soma::AxialTransformation3d( rowVector,
                                                        columnVector,
                                                        normalVector );
+  m_flipTransformation = m_axialTransformation;
   m_dicomTransformation = soma::DicomTransformation3d( rowVector,
                                                        columnVector,
                                                        normalVector );
@@ -219,6 +221,6 @@ soma::PatientOrientation::getAxialTransformation() const
 soma::Transformation3d soma::PatientOrientation::getReferential() const
 {
 
-  return m_dicomTransformation * m_axialTransformation.inverse();
+  return m_dicomTransformation * m_flipTransformation.inverse();
 
 }
