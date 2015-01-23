@@ -109,8 +109,12 @@ bool soma::DicomIO::check( const std::string& fileName,
 
     std::string manufacturer;
     std::string sopClassUid;
+    bool noFlip = dataInfo.m_noFlip;
+    bool noDemosaic = dataInfo.m_noDemosaic;
 
     dataInfo.clear();
+    dataInfo.m_noFlip = noFlip;
+    dataInfo.m_noDemosaic = noDemosaic;
 
     if ( getInfo( selectedFile, manufacturer, sopClassUid ) )
     {
