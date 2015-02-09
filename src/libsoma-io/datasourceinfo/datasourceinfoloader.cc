@@ -522,14 +522,13 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base,
   if( FileUtil::extension( filename ) != "minf" )
     filename += ".minf";
 
-  Object  opts;
+  Object  opts = Object::value( PropertySet() );
   if (options.get()){
     localMsg( "Read minf using options ..." );
-    opts = options;
+    opts->copyProperties( options );
   }
   else {
     localMsg( "Read minf using default options ..." );
-    opts = Object::value( PropertySet() );
   }
   if( !opts->hasProperty( "syntaxset" ) )
     opts->setProperty( "syntaxset", minfSyntax() );

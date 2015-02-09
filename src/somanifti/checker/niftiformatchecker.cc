@@ -757,7 +757,7 @@ NiftiFormatChecker::~NiftiFormatChecker()
 
 DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
                                            DataSourceInfoLoader & /* f */,
-                                           Object /* options */) const
+                                           Object options ) const
 {
   bool doread = dsi.header().isNone() ;
   bool dolist = dsi.list().typecount() == 1 ;
@@ -830,7 +830,7 @@ DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
     string dtype;
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
-    DataSourceInfoLoader::readMinf( *minfds, dsi.header() );
+    DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
     dsi.header()->setProperty( "object_type", obtype );
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );
