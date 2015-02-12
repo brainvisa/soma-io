@@ -2,8 +2,12 @@
 #define _DicomReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/DataInfo.h>
+#else
+#include <Container/DataInfo.h>
+#endif
 
 #include <string>
 #include <vector>
@@ -16,10 +20,10 @@ namespace soma
 {
 
 
+class DatasetModule;
 class DirectoryParser;
 class DicomProxy;
 class DicomDatasetHeader;
-class Callback;
 class HeaderProxy;
 
 
@@ -34,28 +38,28 @@ class DicomReader
     virtual std::string getManufacturerName();
     virtual std::string getStorageUID() = 0;
 
-    virtual bool check( DirectoryParser& directory,
-                        std::vector< std::string >& fileList,
+    virtual bool check( const DatasetModule& datasetModule,
+                        DirectoryParser& directory,
                         DataInfo& dataInfo,
                         DicomDatasetHeader& datasetHeader );
     virtual bool getHeader( HeaderProxy& header, 
                             DataInfo& dataInfo,
                             DicomDatasetHeader& datasetHeader );
-    virtual bool read( const std::vector< std::string >& fileList, 
-                       DicomProxy& proxy,
-                       Callback* progress = 0 );
+    virtual bool read( DicomDatasetHeader& datasetHeader, DicomProxy& proxy );
 
   protected:
 
-    bool readHeader( const std::string& fileName );
+    bool readHeader( DicomDatasetHeader& datasetHeader );
 
-    virtual std::vector< std::string > sortFiles( DirectoryParser& directory );
+    virtual bool selectFiles( DirectoryParser& directory,
+                              const std::string& seriesIntanceUID,
+                              DicomDatasetHeader& datasetHeader ); 
+    virtual bool sortFiles( DicomDatasetHeader& datasetHeader );
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomProxy& proxy, Callback* progress ) = 0;
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy ) = 0;
    
-    DataInfo* m_dataInfo;
-    std::string m_seriesInstanceUID;
-    std::vector< std::string > m_slices;
+    DataInfo* _dataInfo;
 
 };
 

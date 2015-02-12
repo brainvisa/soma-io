@@ -2,11 +2,16 @@
 #define _Demosaicer_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Utils/StdInt.h>
-#include <soma-io/Dicom/soma_osconfig.h>
+#else
+#include <Container/Vector.h>
+#include <Utils/StdInt.h>
+#endif
 
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
 #include <dcmtk/dcmimage/diregist.h>
 
@@ -50,17 +55,17 @@ class Demosaicer
 
   private:
 
-    Vector m_rowVector;
-    Vector m_columnVector;
-    int32_t m_mosaicSizeX;
-    int32_t m_mosaicSizeY;
-    int32_t m_sizeX;
-    int32_t m_sizeY;
-    int32_t m_sizeZ;
-    int32_t m_divider;
-    double m_resolutionX;
-    double m_resolutionY;
-    double m_resolutionZ;
+    Vector _rowVector;
+    Vector _columnVector;
+    int32_t _mosaicSizeX;
+    int32_t _mosaicSizeY;
+    int32_t _sizeX;
+    int32_t _sizeY;
+    int32_t _sizeZ;
+    int32_t _divider;
+    double _resolutionX;
+    double _resolutionY;
+    double _resolutionZ;
 
 };
 

@@ -1,18 +1,19 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/MultiFrameContext.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
+#else
+#include <Dicom/MultiFrameContext.h>
+#include <Container/DicomProxy.h>
+#endif
 
 
 soma::MultiFrameContext::MultiFrameContext( DicomImage& dcmImage, 
                                             soma::DicomProxy& proxy,
-                                            bool fillSlices,
-                                            soma::Callback* progress )
-                       : carto::LoopContext(),
-                         m_dcmImage( dcmImage ),
-                         m_proxy( proxy ),
-                         m_fillSlices( fillSlices ),
-                         m_progress( progress ),
-                         m_count( 0 )
+                                            bool fillSlices )
+                       : soma::LoopContext(),
+                         _dcmImage( dcmImage ),
+                         _proxy( proxy ),
+                         _fillSlices( fillSlices )
 {
 }
 
@@ -20,132 +21,85 @@ soma::MultiFrameContext::MultiFrameContext( DicomImage& dcmImage,
 void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
 {
 
-  soma::DataInfo& info = m_proxy.getDataInfo();
-  int32_t bpp = info.m_bpp;
-  uint32_t sliceSize = info.m_sliceSize;
-  int32_t sizeX = info.m_width;
-  int32_t sizeY = info.m_height;
+  soma::DataInfo& info = _proxy.getDataInfo();
+  int32_t bpp = info._bpp;
+  uint32_t sliceSize = info._sliceSize;
+  int32_t sizeX = info._width;
   int32_t stopIndex = startIndex + count;
-  int32_t i, n;
-
-  if ( m_fillSlices )
-  {
-
-    n = info.m_slices - 1;
-
-  }
-  else
-  {
-
-    n = info.m_frames - 1;
-
-  }
+  int32_t startX = info._boundingBox.getLowerX();
+  int32_t startY = info._boundingBox.getLowerY();
+  int32_t startZ = info._boundingBox.getLowerZ();
+  int32_t startT = info._boundingBox.getLowerT();
+  int32_t endX = info._boundingBox.getUpperX() + 1;
+  int32_t endY = info._boundingBox.getUpperY() + 1;
+  int32_t offset = startIndex * sliceSize + startY * sizeX + startX;
+  int32_t lineShift = sizeX + startX - endX;
+  int32_t i;
 
   if ( bpp == 3 )
   {
 
-    int32_t offset = startIndex * sliceSize;
-    uint8_t** d = (uint8_t**)m_dcmImage.getInterData()->getData();
+    uint8_t** d = (uint8_t**)_dcmImage.getInterData()->getData();
     uint8_t* r = d[ 0 ] + offset;
     uint8_t* g = d[ 1 ] + offset;
     uint8_t* b = d[ 2 ] + offset;
     uint8_t* p;
 
-    if ( m_fillSlices )
+    if ( _fillSlices )
     {
 
-      if ( m_proxy.isMemoryMapped() )
+      for ( i = startIndex; i < stopIndex; i++ )
       {
 
-        for ( i = startIndex; i < stopIndex; i++  )
+        int32_t x, y;
+
+        for ( y = startY; y < endY; y++ )
         {
 
-          int32_t x, y;
-
-          for ( y = 0; y < sizeY; y++ )
+          for ( x = startX; x < endX; x++ )
           {
 
-            for ( x = 0; x < sizeX; x++ )
-            {
-
-              p = m_proxy( x, y, i );
-              *p++ = *r++;
-              *p++ = *g++;
-              *p++ = *b++;
-
-            }
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        i = count * sliceSize;
-        p = m_proxy( 0, 0, startIndex );
-
-        while ( i-- )
-        {
-
-          *p++ = *r++;
-          *p++ = *g++;
-          *p++ = *b++;
-
-        }
-
-      }
-
-    }
-    else
-    {
-
-      if ( m_proxy.isMemoryMapped() )
-      {
-
-        for ( i = startIndex; i < stopIndex; i++  )
-        {
-
-          int32_t x, y;
-
-          for ( y = 0; y < sizeY; y++ )
-          {
-
-            for ( x = 0; x < sizeX; x++ )
-            {
-
-              p = m_proxy( x, y, 0, i );
-              *p++ = *r++;
-              *p++ = *g++;
-              *p++ = *b++;
-
-            }
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( i = startIndex; i < stopIndex; i++  )
-        {
-
-          int32_t l = sliceSize;
-
-          p = m_proxy( 0, 0, 0, i );
-
-          while ( l-- )
-          {
-
+            p = _proxy( x - startX, y - startY, i - startZ );
             *p++ = *r++;
             *p++ = *g++;
             *p++ = *b++;
 
           }
 
+          r += lineShift;
+          g += lineShift;
+          b += lineShift;
+
+        }
+
+      }
+
+    }
+    else
+    {
+
+      for ( i = startIndex; i < stopIndex; i++ )
+      {
+
+        int32_t x, y;
+
+        for ( y = startY; y < endY; y++ )
+        {
+
+          for ( x = startX; x < endX; x++ )
+          {
+
+            p = _proxy( x - startX, y - startY, 0, i - startT );
+            *p++ = *r++;
+            *p++ = *g++;
+            *p++ = *b++;
+
+          }
+
+          r += lineShift;
+          g += lineShift;
+          b += lineShift;
+
         }
 
       }
@@ -153,94 +107,51 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
     }
 
   }
-  else if ( ( bpp == 2 ) && ( info.m_pixelRepresentation < 2 ) )
+  else if ( ( bpp == 2 ) && ( info._pixelRepresentation < 2 ) )
   {
 
-    uint8_t* d = (uint8_t*)m_dcmImage.getInterData()->getData() +
-                 startIndex * sliceSize;
+    uint8_t* d = (uint8_t*)_dcmImage.getInterData()->getData() + offset;
 
-    if ( m_fillSlices )
+    if ( _fillSlices )
     {
 
-      if ( m_proxy.isMemoryMapped() )
+      for ( i = startIndex; i < stopIndex; i++ )
       {
 
-        for ( i = startIndex; i < stopIndex; i++  )
+        int32_t x, y;
+
+        for ( y = startY; y < endY; y++, d += lineShift )
         {
 
-          int32_t x, y;
-
-          for ( y = 0; y < sizeY; y++ )
+          for ( x = startX; x < endX; x++ )
           {
 
-            for ( x = 0; x < sizeX; x++ )
-            {
-
-              *( (int16_t*)m_proxy( x, y, i ) ) = int16_t( *d++ );
-
-            }
+            *( (int16_t*)_proxy( x - startX, y - startY, i - startZ ) ) = 
+                                                                int16_t( *d++ );
 
           }
 
         }
 
       }
-      else
-      {
-
-        int16_t* p16 = (int16_t*)m_proxy( 0, 0, startIndex );
-
-        i = count * sliceSize;
-
-        while ( i-- )
-        {
-
-          *p16++ = int16_t( *d++ );
-
-        }
-
-       }
 
     }
     else
     {
 
-      if ( m_proxy.isMemoryMapped() )
+      for ( i = startIndex; i < stopIndex; i++ )
       {
 
-        for ( i = startIndex; i < stopIndex; i++  )
+        int32_t x, y;
+
+        for ( y = startY; y < endY; y++, d += lineShift )
         {
 
-          int32_t x, y;
-
-          for ( y = 0; y < sizeY; y++ )
+          for ( x = startX; x < endX; x++ )
           {
 
-            for ( x = 0; x < sizeX; x++ )
-            {
-
-              *( (int16_t*)m_proxy( x, y, 0, i ) ) = int16_t( *d++ );
-
-            }
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( i = startIndex; i < stopIndex; i++  )
-        {
-
-          int32_t l = sliceSize;
-          int16_t* p16 = (int16_t*)m_proxy( 0, 0, 0, i );
-
-          while ( l-- )
-          {
-
-            *p16++ = int16_t( *d++ );
+            *( (int16_t*)_proxy( x - startX, y - startY, 0, i - startT ) ) = 
+                                                                int16_t( *d++ );
 
           }
 
@@ -254,29 +165,30 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
   else
   {
 
-    sliceSize *= bpp;
+    uint8_t* d = (uint8_t*)_dcmImage.getInterData()->getData() + offset * bpp;
 
-    uint8_t* d = (uint8_t*)m_dcmImage.getInterData()->getData() +
-                 startIndex * sliceSize;
+    lineShift *= bpp;
 
-    if ( m_fillSlices )
+    if ( _fillSlices )
     {
 
-      if ( m_proxy.isMemoryMapped() )
+      if ( _proxy.isMemoryMapped() )
       {
 
-        for ( i = startIndex; i < stopIndex; i++  )
+        for ( i = startIndex; i < stopIndex; i++ )
         {
 
           int32_t x, y;
 
-          for ( y = 0; y < sizeY; y++ )
+          for ( y = startY; y < endY; y++, d += lineShift )
           {
 
-            for ( x = 0; x < sizeX; x++, d += bpp )
+            for ( x = startX; x < endX; x++, d += bpp )
             {
 
-              std::memcpy( m_proxy( x, y, i ), d, bpp );
+              std::memcpy( _proxy( x - startX, y - startY, i - startZ ), 
+                           d, 
+                           bpp );
 
             }
 
@@ -288,7 +200,21 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
       else
       {
 
-        std::memcpy( m_proxy( 0, 0, startIndex ), d, count * sliceSize );
+        int32_t length = bpp * ( endX - startX );
+        int32_t lineShift2 = sizeX * bpp;
+        int32_t y;
+
+        for ( i = startIndex; i < stopIndex; i++ )
+        {
+
+          for ( y = startY; y < endY; y++, d += lineShift2 )
+          {
+
+            std::memcpy( _proxy( 0, y - startY, i - startZ ), d, length );
+
+          }
+
+        }
 
       }
 
@@ -296,21 +222,23 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
     else
     {
 
-      if ( m_proxy.isMemoryMapped() )
+      if ( _proxy.isMemoryMapped() )
       {
 
-        for ( i = startIndex; i < stopIndex; i++  )
+        for ( i = startIndex; i < stopIndex; i++ )
         {
 
           int32_t x, y;
 
-          for ( y = 0; y < sizeY; y++ )
+          for ( y = startY; y < endY; y++, d += lineShift )
           {
 
-            for ( x = 0; x < sizeX; x++, d += bpp )
+            for ( x = startX; x < endX; x++, d += bpp )
             {
 
-              std::memcpy( m_proxy( x, y, 0, i ), d, bpp );
+              std::memcpy( _proxy( x - startX, y - startY, 0, i - startT ), 
+                           d, 
+                           bpp );
 
             }
 
@@ -322,10 +250,19 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
       else
       {
 
-        for ( i = startIndex; i < stopIndex; i++, d += sliceSize  )
+        int32_t length = bpp * ( endX - startX );
+        int32_t lineShift2 = sizeX * bpp;
+        int32_t y;
+
+        for ( i = startIndex; i < stopIndex; i++ )
         {
 
-          std::memcpy( m_proxy( 0, 0, 0, i ), d, sliceSize );
+          for ( y = startY; y < endY; y++, d += lineShift2 )
+          {
+
+            std::memcpy( _proxy( 0, y - startY, 0, i - startT ), d, length );
+
+          }
 
         }
 
@@ -334,17 +271,5 @@ void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
     }
 
   }
-
-  lock();
-  m_count += count;
-
-  if ( m_progress )
-  {
-
-    m_progress->execute( 6 + 94 * m_count / n );
-
-  }
-
-  unlock();
 
 }

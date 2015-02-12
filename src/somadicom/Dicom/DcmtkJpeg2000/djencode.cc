@@ -1,6 +1,12 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/djencode.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kcode.h>
+#else
+#include <Dicom/DcmtkJpeg2000/djencode.h>
+#include <Dicom/DcmtkJpeg2000/djcparam.h>
+#include <Dicom/DcmtkJpeg2000/dj2kcode.h>
+#endif
 
 #include <dcmtk/dcmdata/dccodec.h>
 #include <jasper/jas_version.h>

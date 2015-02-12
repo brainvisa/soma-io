@@ -1,4 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Container/Vector.h>
+#else
+#include <Container/Vector.h>
+#endif
 
 #include <cmath>
 #include <cassert>

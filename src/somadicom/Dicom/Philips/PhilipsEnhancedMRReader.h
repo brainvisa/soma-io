@@ -2,9 +2,14 @@
 #define _PhilipsEnhancedMRReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
+#else
+#include <Dicom/EnhancedMRImageStorageReader.h>
+#include <Pattern/Singleton.h>
+#endif
 
 
 class DcmDataset;
@@ -35,7 +40,7 @@ class PhilipsEnhancedMRReader : public EnhancedMRImageStorageReader,
 
     virtual bool buildIndexLut( DcmDataset* dataset );
 
-    int32_t m_tIndex;
+    int32_t _tIndex;
 
 };
 

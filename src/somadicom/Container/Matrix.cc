@@ -1,5 +1,10 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Container/Matrix.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Container/Matrix.h>
+#include <Utils/StdInt.h>
+#endif
 
 #include <cmath>
 

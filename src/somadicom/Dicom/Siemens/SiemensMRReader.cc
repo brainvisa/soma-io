@@ -1,4 +1,6 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Siemens/SiemensMRReader.h>
+#include <soma-io/Dicom/Siemens/SiemensDiffusionModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
@@ -6,11 +8,23 @@
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/System/DirectoryParser.h>
-#include <soma-io/Pattern/Callback.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/Siemens/SiemensMRReader.h>
+#include <Dicom/Siemens/SiemensDiffusionModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/Siemens/Demosaicer.h>
+#include <Dicom/Siemens/MosaicDataContext.h>
+#include <Dicom/DicomReaderFactory.h>
+#include <Container/DicomProxy.h>
+#include <Object/HeaderProxy.h>
+#include <System/DirectoryParser.h>
+#include <Thread/ThreadedLoop.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
@@ -19,8 +33,8 @@
 soma::SiemensMRReader::SiemensMRReader()
                      : soma::MRImageStorageReader(),
                        soma::Singleton< soma::SiemensMRReader >(),
-                       m_demosaicer( 0 ),
-                       m_sliceCount( 1 )
+                       _demosaicer( 0 ),
+                       _sliceCount( 1 )
 {
 }
 
@@ -28,7 +42,7 @@ soma::SiemensMRReader::SiemensMRReader()
 soma::SiemensMRReader::~SiemensMRReader()
 {
 
-  delete m_demosaicer;
+  delete _demosaicer;
 
 }
 
@@ -56,75 +70,14 @@ bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    DcmDataset dataset;
-    Sint32 tmpInt;
+    soma::SiemensDiffusionModule diffusionModule;
 
-    datasetHeader.get( dataset );
-
-    if ( dataset.findAndGetSint32( DcmTagKey( 0x0019, 0x100c ), 
-                                   tmpInt ).good() )
+    if ( diffusionModule.parseHeader( datasetHeader ) )
     {
 
-      int32_t i, n = datasetHeader.size();
-      std::vector< double > bValues;
-      std::vector< std::vector< double > > directions;
-      Float64 tmpFloat;
-
-      for ( i = 0; i < n; i++ )
-      {
-
-        datasetHeader.get( dataset, i );
-
-        if ( dataset.findAndGetSint32( DcmTagKey( 0x0019, 0x100c ),
-                                       tmpInt ).good() )
-        {
-
-          bValues.push_back( double( tmpInt ) );
-
-        }
-
-        std::vector< double > direction( 3, 0.0 );
-
-        if ( tmpInt > 0 )
-        {
-
-          int32_t d;
-
-          for ( d = 0; d < 3; d++ )
-          {
-
-            if ( dataset.findAndGetFloat64( DcmTagKey( 0x0019, 0x100e ),
-                                            tmpFloat,
-                                            d ).good() )
-            {
-
-              direction[ d ] = double( tmpFloat );
-
-            }
-
-          }
-
-          direction[ 2 ] *= -1.0;
-
-        }
-
-        directions.push_back( direction );
-
-      }
-
-      if ( bValues.size() )
-      {
-
-        proxy.addAttribute( "b_values", bValues );
-
-      }
-
-      if ( directions.size() )
-      {
-
-        proxy.addAttribute( "diffusion_directions", directions );
-
-      }
+      proxy.addAttribute( "b_values", diffusionModule.getBValues() );
+      proxy.addAttribute( "diffusion_directions", 
+                          diffusionModule.getDirections() );
 
     }
 
@@ -143,12 +96,12 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 
     OFString imageType;
 
-    if ( m_demosaicer )
+    if ( _demosaicer )
     {
 
-      delete m_demosaicer;
+      delete _demosaicer;
 
-      m_demosaicer = 0;
+      _demosaicer = 0;
 
     }
 
@@ -164,35 +117,34 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
                                         sliceCount ).good() )
         {
 
-          m_sliceCount = int32_t( sliceCount );
+          _sliceCount = int32_t( sliceCount );
 
         }
 
-        m_demosaicer = new soma::Demosaicer(
-                                           m_dataInfo->m_rowVec,
-                                           m_dataInfo->m_colVec,
-                                           m_dataInfo->m_width,
-                                           m_dataInfo->m_height,
-                                           m_dataInfo->m_slices,
-                                           m_sliceCount,
-                                           m_dataInfo->m_resolution.x,
-                                           m_dataInfo->m_resolution.y,
-                                           m_dataInfo->m_spacingBetweenSlices );
+        _demosaicer = new soma::Demosaicer( _dataInfo->_rowVec,
+                                            _dataInfo->_colVec,
+                                            _dataInfo->_width,
+                                            _dataInfo->_height,
+                                            _dataInfo->_slices,
+                                            _sliceCount,
+                                            _dataInfo->_resolution.x,
+                                            _dataInfo->_resolution.y,
+                                            _dataInfo->_spacingBetweenSlices );
 
-        if ( !m_demosaicer )
+        if ( !_demosaicer )
         {
 
           return false;
 
         }
 
-        if ( !m_dataInfo->m_noDemosaic )
+        if ( !_dataInfo->_noDemosaic )
         {
 
-          m_dataInfo->m_mosaic = true;
-          m_demosaicer->getSize( m_dataInfo->m_width, 
-                                 m_dataInfo->m_height,
-                                 m_dataInfo->m_slices );
+          _dataInfo->_mosaic = true;
+          _demosaicer->getSize( _dataInfo->_width, 
+                                _dataInfo->_height,
+                                _dataInfo->_slices );
 
         }
 
@@ -209,27 +161,26 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::SiemensMRReader::readData( soma::DicomProxy& proxy, 
-                                      soma::Callback* progress )
+bool soma::SiemensMRReader::readData( soma::DicomDatasetHeader& datasetHeader,
+                                      soma::DicomProxy& proxy )
 {
 
-  if ( !m_demosaicer || ( m_sliceCount == 1 ) )
+  if ( !_demosaicer || ( _sliceCount == 1 ) )
   {
 
-    return soma::MRImageStorageReader::readData( proxy, progress );
+    return soma::MRImageStorageReader::readData( datasetHeader, proxy );
 
   }
 
   if ( proxy.allocate() )
   {
 
-    soma::MosaicDataContext context( m_slices, 
-                                     proxy, 
-                                     *m_demosaicer,
-                                     progress );
-    carto::ThreadedLoop threadedLoop( &context,
-                                      0,
-                                      int32_t( m_slices.size() ) );
+    soma::DataInfo& info = proxy.getDataInfo();
+    int32_t startT = info._boundingBox.getLowerT();
+    int32_t frameCount = info._boundingBox.getUpperT() - startT + 1;
+
+    soma::MosaicDataContext context( datasetHeader, proxy, *_demosaicer );
+    soma::ThreadedLoop threadedLoop( &context, startT, frameCount );
 
     threadedLoop.launch();
 
@@ -242,22 +193,20 @@ bool soma::SiemensMRReader::readData( soma::DicomProxy& proxy,
 }
 
 
-std::vector< std::string > soma::SiemensMRReader::sortFiles( 
-                                              soma::DirectoryParser& directory )
+bool soma::SiemensMRReader::sortFiles( soma::DicomDatasetHeader& datasetHeader )
 {
 
-  std::vector< std::string > files = soma::MultiFileReader::sortFiles( 
-                                                                    directory );
+  bool status = soma::MultiFileReader::sortFiles( datasetHeader );
 
-  if ( m_demosaicer )
+  if ( _demosaicer )
   {
 
-    soma::Vector origin = m_demosaicer->demosaic( m_origin );
-    m_dataInfo->m_patientOrientation.setOrigin( origin );
+    soma::Vector origin = _demosaicer->demosaic( _origin );
+    _dataInfo->_patientOrientation.setOrigin( origin );
 
   }
 
-  return files;
+  return status;
 
 }
 

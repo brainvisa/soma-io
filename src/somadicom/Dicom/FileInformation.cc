@@ -1,11 +1,12 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/FileInformation.h>
+#else
+#include <Dicom/FileInformation.h>
+#endif
 
 
 soma::FileInformation::FileInformation()
-                     : m_instanceNumber( 0 ),
-                       m_echoTime( 0.0 ),
-                       m_slope( 1.0 ),
-                       m_intercept( 0.0 ),
-                       m_fileName( "" )
+                     : _bufferIndex( 0 ),
+                       _instanceNumber( 0 )
 {
 }

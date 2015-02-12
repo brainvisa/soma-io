@@ -2,7 +2,7 @@
 #define _DcmtkJpeg2000_dj2kcode_h_
 
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dccodec.h>
 #include <dcmtk/dcmdata/dcofsetl.h>
 #include <dcmtk/dcmimgle/diutils.h>

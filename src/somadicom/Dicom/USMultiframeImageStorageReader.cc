@@ -1,11 +1,20 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/USMultiframeImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/USMultiframeImageStorageReader.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#include <Dicom/MultiFrameContext.h>
+#include <Thread/ThreadedLoop.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -40,7 +49,7 @@ bool soma::USMultiframeImageStorageReader::readHeader( DcmDataset* dataset )
     if ( dataset->findAndGetSint32( DCM_NumberOfFrames, nFrames ).good() )
     {
 
-      m_dataInfo->m_frames = (int32_t)nFrames;
+      _dataInfo->_frames = (int32_t)nFrames;
 
     }
 
@@ -53,62 +62,43 @@ bool soma::USMultiframeImageStorageReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::USMultiframeImageStorageReader::readData( soma::DicomProxy& proxy,
-                                                     soma::Callback* progress )
+bool soma::USMultiframeImageStorageReader::readData( 
+                                        soma::DicomDatasetHeader& datasetHeader,
+                                        soma::DicomProxy& proxy)
 {
 
   if ( proxy.allocate() )
   {
 
-    if ( progress )
-    {
-
-      progress->execute( 2 );
-
-    }
-
+    std::string fileName = datasetHeader.getFileList().front();
     DcmFileFormat fileFormat;
 
-    if ( fileFormat.loadFile( m_slices[ 0 ].c_str() ).good() )
+    if ( fileFormat.loadFile( fileName.c_str() ).good() )
     {
-
-      if ( progress )
-      {
-
-        progress->execute( 6 );
-
-      }
 
       DcmDataset* dataset = fileFormat.getDataset();
       DicomImage dcmImage( &fileFormat, dataset->getOriginalXfer() );
 
       if ( dcmImage.getStatus() == EIS_Normal )
       {
-
+ 
         soma::DataInfo& info = proxy.getDataInfo();
-        info.m_pixelRepresentation = 
+        info._pixelRepresentation = 
                                    dcmImage.getInterData()->getRepresentation();
  
-        soma::MultiFrameContext context( dcmImage, proxy, false, progress );
-        carto::ThreadedLoop threadedLoop( &context, 0, info.m_frames );
+        soma::MultiFrameContext context( dcmImage, proxy, false );
+        soma::ThreadedLoop threadedLoop( &context, 0, info._frames );
 
         threadedLoop.launch();
 
-        if ( info.m_bpp < 3 )
+        if ( info._bpp < 3 )
         {
 
           double min = 0.0, max = 0.0;
 
           dcmImage.getMinMaxValues( min, max );
-          info.m_minimum = int32_t( min );
-          info.m_maximum = int32_t( max );
-
-        }
-
-        if ( progress )
-        {
-
-          progress->execute( 100 );
+          info._minimum = int32_t( min );
+          info._maximum = int32_t( max );
 
         }
 

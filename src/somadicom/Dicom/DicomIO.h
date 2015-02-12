@@ -2,14 +2,16 @@
 #define _DicomIO_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Pattern/Singleton.h>
+#include <soma-io/Dicom/DatasetModule.h>
+#else
+#include <Pattern/Singleton.h>
+#include <Dicom/DatasetModule.h>
+#endif
 
-#include <vector>
 #include <string>
-
-
-class DcmDataset;
 
 
 namespace soma
@@ -19,7 +21,6 @@ namespace soma
 class DataInfo;
 class DicomProxy;
 class DicomDatasetHeader;
-class Callback;
 class HeaderProxy;
 
 
@@ -30,15 +31,12 @@ class DicomIO : public Singleton< DicomIO >
 
     bool analyze( const std::string& fileName, DataInfo& dataInfo );
     bool check( const std::string& fileName,
-                std::vector< std::string >& fileList,
                 DataInfo& dataInfo,
                 DicomDatasetHeader& datasetHeader );
     bool getHeader( HeaderProxy& header, 
                     DataInfo& dataInfo,
                     DicomDatasetHeader& datasetHeader );
-    bool read( const std::vector< std::string >& fileList, 
-               DicomProxy& proxy, 
-               Callback* progress = 0 );
+    bool read( DicomDatasetHeader& datasetHeader, DicomProxy& proxy );
 
   protected:
 
@@ -49,12 +47,7 @@ class DicomIO : public Singleton< DicomIO >
 
   private:
 
-    bool getInfo( const std::string& filename,
-                  std::string& manufacturer,
-                  std::string& sopClassUid );
-    bool getInfo( DcmDataset* dataset,
-                  std::string& manufacturer,
-                  std::string& sopClassUid );
+    DatasetModule _datasetModule;
 
 };
 

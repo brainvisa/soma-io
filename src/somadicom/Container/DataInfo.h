@@ -2,11 +2,20 @@
 #define _DataInfo_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Transformation/PatientOrientation.h>
+#include <soma-io/Container/BoundingBox.h>
 #include <soma-io/Object/BinaryHeader.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Container/Vector.h>
+#include <Transformation/PatientOrientation.h>
+#include <Container/BoundingBox.h>
+#include <Object/BinaryHeader.h>
+#include <Utils/StdInt.h>
+#endif
 
 #include <vector>
 
@@ -27,44 +36,47 @@ class DataInfo
     void initialize();
     void clear();
 
-    int32_t m_depth;
-    int32_t m_bpp;
-    int32_t m_bitsStored;
-    int32_t m_pixelRepresentation;
-    bool m_monochrome;
+    int32_t _depth;
+    int32_t _bpp;
+    int32_t _bitsStored;
+    int32_t _pixelRepresentation;
+    int32_t _pixelPaddingValue;
+    bool _monochrome;
 
-    int32_t m_minimum;
-    int32_t m_maximum;
+    int32_t _minimum;
+    int32_t _maximum;
 
-    int32_t m_width;
-    int32_t m_height;
-    int32_t m_slices;
-    int32_t m_frames;
+    int32_t _width;
+    int32_t _height;
+    int32_t _slices;
+    int32_t _frames;
 
-    int32_t m_sliceSize;
-    int32_t m_volumeSize;
-    int32_t m_datasetSize;
+    int32_t _sliceSize;
+    int32_t _volumeSize;
+    int32_t _datasetSize;
 
-    Vector m_resolution;
-    double m_spacingBetweenSlices;
-    double m_repetitionTime;
+    Vector _resolution;
+    double _spacingBetweenSlices;
+    double _repetitionTime;
 
-    bool m_modalityLUTApplied;
-    std::vector< double > m_slope;
-    std::vector< double > m_intercept;
+    bool _modalityLUTApplied;
+    std::vector< double > _slope;
+    std::vector< double > _intercept;
 
-    int32_t m_fileCount;
+    int32_t _fileCount;
 
-    Vector m_rowVec;
-    Vector m_colVec;
-    Vector m_normVec;
+    Vector _rowVec;
+    Vector _colVec;
+    Vector _normVec;
 
-    PatientOrientation m_patientOrientation;
-    BinaryHeader m_datasetHeader;
+    PatientOrientation _patientOrientation;
+    BinaryHeader _datasetHeader;
 
-    bool m_mosaic;
-    bool m_noFlip;
-    bool m_noDemosaic;
+    BoundingBox< int32_t > _boundingBox;
+
+    bool _mosaic;
+    bool _noFlip;
+    bool _noDemosaic;
 
 };
 

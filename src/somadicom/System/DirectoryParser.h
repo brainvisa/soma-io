@@ -2,7 +2,9 @@
 #define _DirectoryParser_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#endif
 
 #include <string>
 #include <set>
@@ -23,15 +25,14 @@ class DirectoryParser
     std::string& getSelectedDirectory();
     std::set< std::string >& getFiles();
 
-    bool parse();
-
   private :
 
-    void parse( const std::string& dirName );
+    std::string getFirstFile();
+    void parse();
 
-    std::string m_selectedFile;
-    std::string m_selectedDir;
-    std::set< std::string > m_files;
+    std::string _selectedFile;
+    std::string _selectedDir;
+    std::set< std::string > _files;
 
 };
 

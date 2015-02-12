@@ -1,12 +1,26 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/MultiFileReader.h>
 #include <soma-io/System/DirectoryParser.h>
-#include <soma-io/Container/DataInfo.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Dicom/DicomSelectContext.h>
 #include <soma-io/Dicom/DicomSortContext.h>
+#include <soma-io/Dicom/DicomDataContext.h>
 #include <cartobase/thread/threadedLoop.h>
-#include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/MultiFileReader.h>
+#include <System/DirectoryParser.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#include <Dicom/DicomSelectContext.h>
+#include <Dicom/DicomSortContext.h>
+#include <Dicom/DicomDataContext.h>
+#include <Thread/ThreadedLoop.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -42,12 +56,12 @@ bool soma::MultiFileReader::readHeader( DcmDataset* dataset )
 
       std::istringstream iss( orientationStr );
 
-      iss >> m_dataInfo->m_rowVec.x
-          >> m_dataInfo->m_rowVec.y
-          >> m_dataInfo->m_rowVec.z
-          >> m_dataInfo->m_colVec.x
-          >> m_dataInfo->m_colVec.y
-          >> m_dataInfo->m_colVec.z;
+      iss >> _dataInfo->_rowVec.x
+          >> _dataInfo->_rowVec.y
+          >> _dataInfo->_rowVec.z
+          >> _dataInfo->_colVec.x
+          >> _dataInfo->_colVec.y
+          >> _dataInfo->_colVec.z;
 
     }
 
@@ -60,52 +74,83 @@ bool soma::MultiFileReader::readHeader( DcmDataset* dataset )
 }
 
 
-std::vector< std::string > soma::MultiFileReader::sortFiles( 
-                                              soma::DirectoryParser& directory )
+bool soma::MultiFileReader::selectFiles( 
+                                       soma::DirectoryParser& directory,
+                                       const std::string& seriesInstanceUID,
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
-  bool process = true;
+  int32_t n = int32_t( directory.getFiles().size() );
 
-  m_slices.clear();
-  m_positions.clear();
-  m_dataInfo->m_fileCount = 0;
-
-  if ( directory.getFiles().empty() )
+  if ( n )
   {
 
-    process = directory.parse();
+    int32_t fileCount = 0;
 
-  }
+    datasetHeader.clear();
+    datasetHeader.allocate( n );
 
-  if ( process )
-  {
-
-    int32_t nFiles = int32_t( directory.getFiles().size() );
-
-    std::multimap< double, soma::FileInformation > slices;
-    soma::DicomSortContext context( m_seriesInstanceUID, 
-                                    directory.getFiles(),
-                                    slices,
-                                    m_dataInfo->m_rowVec,
-                                    m_dataInfo->m_colVec,
-                                    m_dataInfo->m_fileCount );
-    carto::ThreadedLoop threadedLoop( &context, 0, nFiles );
+    soma::DicomSelectContext context( directory,
+                                      seriesInstanceUID,
+                                      datasetHeader,
+                                      fileCount );
+    soma::ThreadedLoop threadedLoop( &context, 0, n );
 
     threadedLoop.launch();
 
-    m_slices.resize( m_dataInfo->m_fileCount );
-    m_positions.resize( m_dataInfo->m_fileCount );
-    m_dataInfo->m_slope.resize( m_dataInfo->m_fileCount, 1.0 );
-    m_dataInfo->m_intercept.resize( m_dataInfo->m_fileCount, 0.0 );
-
-    m_dataInfo->m_frames = slices.count( slices.begin()->first );
-
-    int32_t dimZ = m_dataInfo->m_fileCount / m_dataInfo->m_frames;
-
-    if ( !m_dataInfo->m_mosaic )
+    if ( fileCount < n )
     {
 
-      m_dataInfo->m_slices = dimZ;
+      datasetHeader.trim();
+
+    }
+
+    if ( fileCount )
+    {
+
+      _dataInfo->_fileCount = fileCount;
+
+      return true;
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::MultiFileReader::sortFiles( soma::DicomDatasetHeader& datasetHeader )
+{
+
+  int32_t n = datasetHeader.size();
+
+  _positions.clear();
+
+  if ( n )
+  {
+
+    std::multimap< double, soma::FileInformation > slices;
+
+    soma::DicomSortContext context( datasetHeader,
+                                    slices,
+                                    _dataInfo->_rowVec,
+                                    _dataInfo->_colVec );
+    soma::ThreadedLoop threadedLoop( &context, 0, n );
+
+    threadedLoop.launch();
+
+    _positions.resize( n );
+
+    _dataInfo->_frames = slices.count( slices.begin()->first );
+
+    int32_t dimZ = n / _dataInfo->_frames;
+
+    if ( !_dataInfo->_mosaic )
+    {
+
+      _dataInfo->_slices = dimZ;
 
     }
 
@@ -125,7 +170,7 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
         std::map< int32_t, soma::FileInformation > orderedFiles;
 
-        orderedFiles.insert( std::make_pair( s->second.m_instanceNumber,
+        orderedFiles.insert( std::make_pair( s->second._instanceNumber,
                                              s->second ) );
         ordered.insert( std::make_pair( s->first, orderedFiles ) );
 
@@ -133,7 +178,7 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
       else
       {
 
-        m->second.insert( std::make_pair( s->second.m_instanceNumber,
+        m->second.insert( std::make_pair( s->second._instanceNumber,
                                           s->second ) );
 
       }
@@ -145,6 +190,7 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
     std::map< double, std::map< int32_t, soma::FileInformation > >::iterator
       o = ordered.begin(),
       oe = ordered.end();
+    std::vector< int32_t >& lut = datasetHeader.getLut();
     int32_t origin = 0;
 
     while ( o != oe )
@@ -158,10 +204,8 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
       while ( f != fe )
       {
 
-        m_slices[ pos ] = f->second.m_fileName;
-        m_positions[ pos ] = f->second.m_imagePosition;
-        m_dataInfo->m_slope[ pos ] = f->second.m_slope;
-        m_dataInfo->m_intercept[ pos ] = f->second.m_intercept;
+        lut[ pos ] = f->second._bufferIndex;
+        _positions[ pos ] = f->second._imagePosition;
         
         pos += dimZ;
         ++f;
@@ -175,8 +219,63 @@ std::vector< std::string > soma::MultiFileReader::sortFiles(
 
     setOrientation();
 
+    return true;
+
   }
 
-  return m_slices;
+  return false;
 
 }
+
+
+bool soma::MultiFileReader::readData( soma::DicomDatasetHeader& datasetHeader,
+                                      soma::DicomProxy& proxy, 
+                                      bool applyModalityLUT )
+{
+
+  if ( proxy.allocate() )
+  {
+
+    soma::DataInfo& info = proxy.getDataInfo();
+    int32_t i, k = 0, n = int32_t( datasetHeader.size() );
+    int32_t sizeX, sizeY, sizeZ;
+    int32_t startZ = info._boundingBox.getLowerZ();
+    int32_t endZ = info._boundingBox.getUpperZ() + 1;
+    int32_t startT = info._boundingBox.getLowerT();
+    int32_t endT = info._boundingBox.getUpperT() + 1;
+    std::vector< int32_t > selection( ( endZ - startZ ) * ( endT - startT ) );
+
+    info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+
+    for ( i = 0; i < n; i++ )
+    {
+
+      int32_t z = i % sizeZ;
+      int32_t t = i / sizeZ;
+
+      if ( ( z >= startZ ) && ( z < endZ ) && 
+           ( t >= startT ) && ( t < endT ) )
+      {
+
+        selection[ k++ ] = i;
+
+      }
+
+    }
+
+    soma::DicomDataContext context( datasetHeader, 
+                                    proxy, 
+                                    selection, 
+                                    applyModalityLUT );
+    soma::ThreadedLoop threadedLoop( &context, 0, int32_t( selection.size() ) );
+
+    threadedLoop.launch();
+
+    return true;
+
+  }
+
+  return false;
+
+}
+

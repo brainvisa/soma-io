@@ -1,4 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/System/DirectoryParser.h>
+#else
+#include <System/DirectoryParser.h>
+#endif
 
 #include <sstream>
 #include <sys/types.h>
@@ -8,8 +12,8 @@
 
 
 soma::DirectoryParser::DirectoryParser( const std::string& name )
-                     : m_selectedFile( "" ),
-                       m_selectedDir( "" )
+                     : _selectedFile( "" ),
+                       _selectedDir( "" )
 {
 
   struct stat file_stat;
@@ -20,22 +24,22 @@ soma::DirectoryParser::DirectoryParser( const std::string& name )
     if ( S_ISDIR( file_stat.st_mode ) )
     {
 
-      m_selectedDir = name;
-      parse( name );
+      _selectedDir = name;
+      _selectedFile = getFirstFile();
 
     }
     else if ( S_ISREG( file_stat.st_mode ) )
     {
 
-      m_selectedFile = name;
-      m_selectedDir = ".";
+      _selectedFile = name;
+      _selectedDir = ".";
 
       size_t pos = name.find_last_of( "/" );
 
       if ( pos != std::string::npos )
       {
 
-        m_selectedDir = name.substr( 0, pos );
+        _selectedDir = name.substr( 0, pos );
 
       }
 
@@ -43,18 +47,18 @@ soma::DirectoryParser::DirectoryParser( const std::string& name )
     else
     {
 
-      m_selectedDir = ".";
+      _selectedDir = ".";
 
       size_t pos = name.find_last_of( "/" );
 
       if ( pos != std::string::npos )
       {
 
-        m_selectedDir = name.substr( 0, pos );
+        _selectedDir = name.substr( 0, pos );
 
       }
 
-      parse( m_selectedDir );
+      _selectedFile = getFirstFile();
 
     }
 
@@ -63,32 +67,57 @@ soma::DirectoryParser::DirectoryParser( const std::string& name )
 }
 
 
-bool soma::DirectoryParser::parse()
+std::string soma::DirectoryParser::getFirstFile()
 {
 
-  if ( !m_selectedDir.empty() )
+  std::string fileName = "";
+
+  if ( !_selectedDir.empty() )
   {
 
-    m_files.clear();
+    DIR* directory = opendir( _selectedDir.c_str() );
 
-    parse( m_selectedDir );
+    if ( directory )
+    {
 
-    return true;
+      bool found = false;
+      struct dirent* item;
+      struct stat file_stat;
+
+      while ( !found && ( item = readdir( directory ) ) )
+      {
+
+        std::ostringstream fname;
+
+        fname << _selectedDir << "/" << item->d_name;
+        stat( fname.str().c_str(), &file_stat );
+
+        if ( S_ISREG( file_stat.st_mode ) )
+        {
+
+          fileName = fname.str();
+          found = true;
+
+        }
+
+      }
+
+    }
 
   }
 
-  return false;
+  return fileName;
 
 }
 
 
-void soma::DirectoryParser::parse( const std::string& dirName )
+void soma::DirectoryParser::parse()
 {
 
-  if ( !dirName.empty() )
+  if ( !_selectedDir.empty() )
   {
 
-    DIR* directory = opendir( dirName.c_str() );
+    DIR* directory = opendir( _selectedDir.c_str() );
 
     if ( directory )
     {
@@ -101,20 +130,13 @@ void soma::DirectoryParser::parse( const std::string& dirName )
 
         std::ostringstream fname;
 
-        fname << dirName << "/" << item->d_name;
+        fname << _selectedDir << "/" << item->d_name;
         stat( fname.str().c_str(), &file_stat );
 
         if ( S_ISREG( file_stat.st_mode ) )
         {
 
-          if ( m_selectedFile.empty() )
-          {
-
-            m_selectedFile = fname.str();
-
-          }
-
-          m_files.insert( fname.str() );
+          _files.insert( fname.str() );
 
         }
 
@@ -130,7 +152,7 @@ void soma::DirectoryParser::parse( const std::string& dirName )
 std::string& soma::DirectoryParser::getSelectedFile()
 {
 
-  return m_selectedFile;
+  return _selectedFile;
 
 }
 
@@ -138,7 +160,7 @@ std::string& soma::DirectoryParser::getSelectedFile()
 std::string& soma::DirectoryParser::getSelectedDirectory()
 {
 
-  return m_selectedDir;
+  return _selectedDir;
 
 }
 
@@ -146,6 +168,13 @@ std::string& soma::DirectoryParser::getSelectedDirectory()
 std::set< std::string >& soma::DirectoryParser::getFiles()
 {
 
-  return m_files;
+  if ( _files.empty() )
+  {
+
+    parse();
+
+  }
+
+  return _files;
 
 }

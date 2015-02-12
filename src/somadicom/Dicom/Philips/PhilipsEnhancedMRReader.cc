@@ -1,10 +1,22 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Philips/PhilipsEnhancedMRReader.h>
+#include <soma-io/Dicom/Philips/PhilipsEnhancedDiffusionModule.h>
+#include <soma-io/Dicom/Philips/PhilipsEnhancedIndexModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/Philips/PhilipsEnhancedMRReader.h>
+#include <Dicom/Philips/PhilipsEnhancedDiffusionModule.h>
+#include <Dicom/Philips/PhilipsEnhancedIndexModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/DicomReaderFactory.h>
+#include <Object/HeaderProxy.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -15,7 +27,7 @@ soma::PhilipsEnhancedMRReader::PhilipsEnhancedMRReader()
                              : soma::EnhancedMRImageStorageReader(),
                                soma::Singleton< 
                                               soma::PhilipsEnhancedMRReader >(),
-                               m_tIndex( 0 )
+                               _tIndex( 0 )
 {
 }
 
@@ -51,120 +63,14 @@ bool soma::PhilipsEnhancedMRReader::getHeader(
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    DcmDataset dataset;
-    DcmSequenceOfItems* seq = 0;
+    soma::PhilipsEnhancedDiffusionModule diffusionModule;
 
-    datasetHeader.get( dataset );
-
-    if ( dataset.findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
-                                     seq ).good() )
+    if ( diffusionModule.parseHeader( datasetHeader ) )
     {
 
-      uint32_t i, nItems = seq->card();
-      DcmSequenceOfItems* seqDiff = 0;
-      DcmItem* itemDiff = seq->getItem( 0 );
-
-      if ( itemDiff->findAndGetSequence( DCM_MRDiffusionSequence, 
-                                         seqDiff ).good() )
-      {
-
-        int32_t frameCount = info.m_frames;
-        std::vector< double > bValues( frameCount, 0.0 );
-        std::vector< std::vector< double > > directions( frameCount );
-        std::vector< int32_t > lut( frameCount, 0 );
-
-        for ( i = 0; i < nItems; i++ )
-        {
-
-          DcmItem* item = seq->getItem( i );
-          DcmItem* tmpItem = 0;
-
-          if ( item->findAndGetSequenceItem( DCM_FrameContentSequence,
-                                             tmpItem ).good() )
-          {
-
-            Uint32 tmpUint;
-
-            if ( tmpItem->findAndGetUint32( DCM_DimensionIndexValues,
-                                            tmpUint,
-                                            m_tIndex ).good() )
-            {
-
-              int32_t index = int32_t( tmpUint ) % frameCount;
-
-              if ( !lut[ index ] )
-              {
-
-                if ( item->findAndGetSequenceItem( DCM_MRDiffusionSequence,
-                                                   tmpItem ).good() )
-                {
-
-                  std::vector< double > direction( 3, 0.0 );
-                  Float64 tmpFloat;
-                  DcmItem* itemDir = 0;
-
-                  if ( tmpItem->findAndGetFloat64( DCM_DiffusionBValue, 
-                                                   tmpFloat ).good() )
-                  {
-
-                    bValues[ index ] = double( tmpFloat );
-
-                  }
-
-                  if ( tmpItem->findAndGetSequenceItem( 
-                                         DCM_DiffusionGradientDirectionSequence,
-                                         itemDir ).good() )
-                  {
-
-                    int32_t d;
-
-                    for ( d = 0; d < 3; d++ )
-                    {
-
-                      if ( itemDir->findAndGetFloat64( 
-                                               DCM_DiffusionGradientOrientation,
-                                               tmpFloat,
-                                               d ).good() )
-                      {
-
-                        direction[ d ] = double( tmpFloat );
-
-                      }
-
-                    }
-
-                    direction[ 2 ] *= -1.0;
-
-                  }
-
-                  directions[ index ] = direction;
-                  lut[ index ] = 1;
-
-                }
-
-              }
-
-            }
-
-          }
-
-        }
-
-        if ( bValues.size() )
-        {
-
-          proxy.addAttribute( "b_values", bValues );
-
-        }
-
-        if ( directions.size() )
-        {
-
-          proxy.addAttribute( "diffusion_directions", directions );
-
-        }
-
-      }
+      proxy.addAttribute( "b_values", diffusionModule.getBValues() );
+      proxy.addAttribute( "diffusion_directions", 
+                          diffusionModule.getDirections() );
 
     }
 
@@ -181,124 +87,32 @@ bool soma::PhilipsEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
   if ( dataset )
   {
 
-    int32_t nItems = 0;
-    DcmSequenceOfItems* seq = 0;
+    soma::PhilipsEnhancedIndexModule indexModule;
 
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
-                                      seq ).good() )
+    if ( indexModule.parseDataset( dataset ) )
     {
 
-      nItems = seq->card();
+      int32_t zMax = indexModule.getZCount();
+      int32_t frameCount = indexModule.getNumberOfFrames();
 
-      if ( nItems < 4 )
+      if ( zMax < frameCount )
       {
 
-        return soma::EnhancedMRImageStorageReader::buildIndexLut( dataset );
+        _dataInfo->_frames = frameCount / zMax;
+        _dataInfo->_slices = zMax;
+
+      }
+      else
+      {
+
+        _dataInfo->_slices = frameCount;
 
       }
 
-    }
+      _tIndex = indexModule.getTIndex();
+      _indexLut = indexModule.getIndices();
 
-    OFString tmpString;
-
-    if ( dataset->findAndGetOFString( DCM_ImageType, tmpString, 2 ).good() )
-    {
-
-      if ( !tmpString.compare( "DIFFUSION" ) )
-      {
-
-        int32_t zIndex = 0;
-        int32_t frameCount = m_dataInfo->m_slices;
-        int32_t i;
-        DcmTagKey inStackPos( DCM_InStackPositionNumber );
-        DcmTagKey diffGradDir( DCM_DiffusionGradientOrientation );
-
-        for ( i = 0; i < nItems; i++ )
-        {
-
-          DcmItem* item = seq->getItem( i );
-
-           if ( item->findAndGetOFString( DCM_DimensionIndexPointer, 
-                                          tmpString ).good() )
-           {
-
-             if ( !tmpString.compare( inStackPos.toString() ) )
-             {
-
-               zIndex = i;
-
-             }
-             else if ( !tmpString.compare( diffGradDir.toString() ) )
-             {
-
-               m_tIndex = i;
-
-             }
-
-           }
-
-        }
-
-        if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence,
-                                          seq ).good() )
-        {
-
-          uint32_t i, nItems = seq->card();
-          std::vector< std::pair< int32_t, int32_t > > tmpLut( nItems );
-          int32_t zMax = 0;
-
-          for ( i = 0; i < nItems; i++ )
-          {
-
-            DcmItem* item = seq->getItem( i );
-            DcmItem* tmpItem = 0;
-
-            if ( item->findAndGetSequenceItem( DCM_FrameContentSequence,
-                                               tmpItem ).good() )
-            {
-
-              Uint32 z, t;
-
-              tmpItem->findAndGetUint32( DCM_DimensionIndexValues, z, zIndex );
-              tmpItem->findAndGetUint32( DCM_DimensionIndexValues, 
-                                         t, 
-                                         m_tIndex );
-
-              if  ( int32_t( z ) > zMax )
-              {
-
-                zMax = z;
-
-              }
-
-              tmpLut[ i ] = std::make_pair( z - 1, t );
-
-            }
-
-          }
-
-          if ( zMax < frameCount )
-          {
-
-            m_dataInfo->m_frames = frameCount / zMax;
-            m_dataInfo->m_slices = zMax;
-
-          }
-
-          for ( i = 0; i < nItems; i++ )
-          {
-
-            m_indexLut[ i ] = 
-                          ( tmpLut[ i ].second % m_dataInfo->m_frames ) * zMax +
-                          tmpLut[ i ].first;
-
-          }
-
-        }
- 
-        return true;
-
-      }
+      return true;
 
     }
 

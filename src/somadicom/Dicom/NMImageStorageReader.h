@@ -2,8 +2,12 @@
 #define _NMImageStorageReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Dicom/DicomReader.h>
+#include <soma-io/Dicom/MultiSliceReader.h>
+#else
+#include <Dicom/MultiSliceReader.h>
+#endif
 
 
 class DcmDataset;
@@ -13,7 +17,7 @@ namespace soma
 {
 
 
-class NMImageStorageReader : public DicomReader
+class NMImageStorageReader : public MultiSliceReader
 {
 
   public:
@@ -29,7 +33,8 @@ class NMImageStorageReader : public DicomReader
     NMImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
 
 };
 

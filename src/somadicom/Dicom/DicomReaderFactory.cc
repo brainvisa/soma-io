@@ -1,11 +1,20 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Dicom/DicomReader.h>
+#include <soma-io/Dicom/DatasetModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/System/DirectoryParser.h>
-#include <soma-io/Pattern/Callback.h>
+#else
+#include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomReader.h>
+#include <Dicom/DatasetModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#include <Object/HeaderProxy.h>
+#include <System/DirectoryParser.h>
+#endif
 
 #include <iostream>
 
@@ -26,15 +35,15 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
     std::string storageUID = reader->getStorageUID();
     std::map< std::string, std::map< std::string,
                                      soma::DicomReader* > >::iterator
-      m = m_readers.find( manufacturer );
+      m = _readers.find( manufacturer );
 
-    if ( m == m_readers.end() )
+    if ( m == _readers.end() )
     {
 
       std::map< std::string, soma::DicomReader* > readers;
 
       readers.insert( std::make_pair( storageUID, reader ) );
-      m_readers.insert( std::make_pair( manufacturer, readers ) );
+      _readers.insert( std::make_pair( manufacturer, readers ) );
 
       return true;
 
@@ -63,22 +72,22 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
 }
 
 
-bool soma::DicomReaderFactory::check( const std::string& manufacturer,
-                                      const std::string& storageUID,
+bool soma::DicomReaderFactory::check( const soma::DatasetModule& datasetModule,
                                       soma::DirectoryParser& directory,
-                                      std::vector< std::string >& fileList,
                                       soma::DataInfo& dataInfo,
                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
-  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+  soma::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
 
-    return reader->check( directory, fileList, dataInfo, datasetHeader );
+    return reader->check( datasetModule, directory, dataInfo, datasetHeader );
 
   }
+
+  std::cout << "Reader for this dataset not supported yet" << std::endl;
 
   return false;
 
@@ -86,14 +95,13 @@ bool soma::DicomReaderFactory::check( const std::string& manufacturer,
 
 
 bool soma::DicomReaderFactory::getHeader( 
-                                       const std::string& manufacturer,
-                                       const std::string& storageUID,
+                                       const soma::DatasetModule& datasetModule,
                                        soma::HeaderProxy& header,
                                        soma::DataInfo& dataInfo,
                                        soma::DicomDatasetHeader& datasetHeader )
 {
 
-  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+  soma::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
@@ -107,19 +115,17 @@ bool soma::DicomReaderFactory::getHeader(
 }
 
 
-bool soma::DicomReaderFactory::read( const std::string& manufacturer,
-                                     const std::string& storageUID,
-                                     const std::vector< std::string >& fileList,
-                                     soma::DicomProxy& proxy,
-                                     soma::Callback* progress )
+bool soma::DicomReaderFactory::read( const soma::DatasetModule& datasetModule,
+                                     soma::DicomDatasetHeader& datasetHeader,
+                                     soma::DicomProxy& proxy )
 {
 
-  soma::DicomReader* reader = getReader( manufacturer, storageUID );
+  soma::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
 
-    return reader->read( fileList, proxy, progress );
+    return reader->read( datasetHeader, proxy );
 
   }
 
@@ -129,36 +135,36 @@ bool soma::DicomReaderFactory::read( const std::string& manufacturer,
 
 
 soma::DicomReader* soma::DicomReaderFactory::getReader(
-                                                const std::string& manufacturer,
-                                                const std::string& storageUID )
+                                      const soma::DatasetModule& datasetModule )
 {
 
   std::map< std::string, std::map< std::string,
                                    soma::DicomReader* > >::const_iterator
-    m = m_readers.find( manufacturer );
+    m = _readers.find( datasetModule.getManufacturer() );
 
-  if ( m == m_readers.end() )
+  if ( m == _readers.end() )
   {
 
-    m = m_readers.find( "Generic" );
+    m = _readers.find( "Generic" );
 
   }
 
-  if ( m != m_readers.end() )
+  if ( m != _readers.end() )
   {
 
     std::map< std::string, soma::DicomReader* >::const_iterator
-      r = m->second.find( storageUID );
+      r = m->second.find( datasetModule.getSOPClassUID() );
 
-    if ( ( r == m->second.end() ) && ( manufacturer != "Generic" ) )
+    if ( ( r == m->second.end() ) && 
+         ( datasetModule.getManufacturer() != "Generic" ) )
     {
 
-      m = m_readers.find( "Generic" );
+      m = _readers.find( "Generic" );
 
-      if ( m != m_readers.end() )
+      if ( m != _readers.end() )
       {
 
-        r = m->second.find( storageUID );
+        r = m->second.find( datasetModule.getSOPClassUID() );
 
       }
 

@@ -1,5 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Transformation/Transformation3d.h>
-#include <soma-io/Utils/StdInt.h>
+#else
+#include <Transformation/Transformation3d.h>
+#endif
 
 #include <cassert>
 
@@ -26,8 +29,8 @@ soma::Transformation3d::Transformation3d( const Transformation3d& other )
     for ( i = 0; i < 4; i++ )
     {
 
-      m_direct[ j ][ i ] = other.m_direct[ j ][ i ];
-      m_inverse[ j ][ i ] = other.m_inverse[ j ][ i ];
+      _direct[ j ][ i ] = other._direct[ j ][ i ];
+      _inverse[ j ][ i ] = other._inverse[ j ][ i ];
 
     }
 
@@ -48,76 +51,76 @@ void soma::Transformation3d::setItems(
                                   double sx, double sy, double sz, double w )
 {
 
-  m_direct[ 0 ][ 0 ] = r00;
-  m_direct[ 0 ][ 1 ] = r01;
-  m_direct[ 0 ][ 2 ] = r02;
-  m_direct[ 0 ][ 3 ] = tx;
-  m_direct[ 1 ][ 0 ] = r10;
-  m_direct[ 1 ][ 1 ] = r11;
-  m_direct[ 1 ][ 2 ] = r12;
-  m_direct[ 1 ][ 3 ] = ty;
-  m_direct[ 2 ][ 0 ] = r20;
-  m_direct[ 2 ][ 1 ] = r21;
-  m_direct[ 2 ][ 2 ] = r22;
-  m_direct[ 2 ][ 3 ] = tz;
-  m_direct[ 3 ][ 0 ] = sx;
-  m_direct[ 3 ][ 1 ] = sy;
-  m_direct[ 3 ][ 2 ] = sz;
-  m_direct[ 3 ][ 3 ] = w;
+  _direct[ 0 ][ 0 ] = r00;
+  _direct[ 0 ][ 1 ] = r01;
+  _direct[ 0 ][ 2 ] = r02;
+  _direct[ 0 ][ 3 ] = tx;
+  _direct[ 1 ][ 0 ] = r10;
+  _direct[ 1 ][ 1 ] = r11;
+  _direct[ 1 ][ 2 ] = r12;
+  _direct[ 1 ][ 3 ] = ty;
+  _direct[ 2 ][ 0 ] = r20;
+  _direct[ 2 ][ 1 ] = r21;
+  _direct[ 2 ][ 2 ] = r22;
+  _direct[ 2 ][ 3 ] = tz;
+  _direct[ 3 ][ 0 ] = sx;
+  _direct[ 3 ][ 1 ] = sy;
+  _direct[ 3 ][ 2 ] = sz;
+  _direct[ 3 ][ 3 ] = w;
 
-  invert( m_direct, m_inverse );
+  invert( _direct, _inverse );
 
 }
 
 
 void soma::Transformation3d::getDirect( 
                      const double fromX, const double fromY, const double fromZ,
-                     double& toX, double& toY, double& toZ )
+                     double& toX, double& toY, double& toZ ) const
 {
 
-  double h = m_direct[ 3 ][ 0 ] * fromX + 
-             m_direct[ 3 ][ 1 ] * fromY +
-             m_direct[ 3 ][ 2 ] * fromZ +
-             m_direct[ 3 ][ 3 ];
+  double h = _direct[ 3 ][ 0 ] * fromX + 
+             _direct[ 3 ][ 1 ] * fromY +
+             _direct[ 3 ][ 2 ] * fromZ +
+             _direct[ 3 ][ 3 ];
 
-  toX = ( m_direct[ 0 ][ 0 ] * fromX + 
-          m_direct[ 0 ][ 1 ] * fromY + 
-          m_direct[ 0 ][ 2 ] * fromZ +
-          m_direct[ 0 ][ 3 ] ) / h;
-  toY = ( m_direct[ 1 ][ 0 ] * fromX + 
-          m_direct[ 1 ][ 1 ] * fromY + 
-          m_direct[ 1 ][ 2 ] * fromZ +
-          m_direct[ 1 ][ 3 ] ) / h;
-  toZ = ( m_direct[ 2 ][ 0 ] * fromX + 
-          m_direct[ 2 ][ 1 ] * fromY + 
-          m_direct[ 2 ][ 2 ] * fromZ +
-          m_direct[ 2 ][ 3 ] ) / h;
+  toX = ( _direct[ 0 ][ 0 ] * fromX + 
+          _direct[ 0 ][ 1 ] * fromY + 
+          _direct[ 0 ][ 2 ] * fromZ +
+          _direct[ 0 ][ 3 ] ) / h;
+  toY = ( _direct[ 1 ][ 0 ] * fromX + 
+          _direct[ 1 ][ 1 ] * fromY + 
+          _direct[ 1 ][ 2 ] * fromZ +
+          _direct[ 1 ][ 3 ] ) / h;
+  toZ = ( _direct[ 2 ][ 0 ] * fromX + 
+          _direct[ 2 ][ 1 ] * fromY + 
+          _direct[ 2 ][ 2 ] * fromZ +
+          _direct[ 2 ][ 3 ] ) / h;
 
 }
 
 
 void soma::Transformation3d::getInverse( 
                            const double toX, const double toY, const double toZ,
-                           double& fromX, double& fromY, double& fromZ )
+                           double& fromX, double& fromY, double& fromZ ) const
 {
 
-  double h = m_inverse[ 3 ][ 0 ] * toX + 
-             m_inverse[ 3 ][ 1 ] * toY +
-             m_inverse[ 3 ][ 2 ] * toZ +
-             m_inverse[ 3 ][ 3 ];
+  double h = _inverse[ 3 ][ 0 ] * toX + 
+             _inverse[ 3 ][ 1 ] * toY +
+             _inverse[ 3 ][ 2 ] * toZ +
+             _inverse[ 3 ][ 3 ];
 
-  fromX = ( m_inverse[ 0 ][ 0 ] * toX + 
-            m_inverse[ 0 ][ 1 ] * toY + 
-            m_inverse[ 0 ][ 2 ] * toZ +
-            m_inverse[ 0 ][ 3 ] ) / h;
-  fromY = ( m_inverse[ 1 ][ 0 ] * toX + 
-            m_inverse[ 1 ][ 1 ] * toY + 
-            m_inverse[ 1 ][ 2 ] * toZ +
-            m_inverse[ 1 ][ 3 ] ) / h;
-  fromZ = ( m_inverse[ 2 ][ 0 ] * toX + 
-            m_inverse[ 2 ][ 1 ] * toY + 
-            m_inverse[ 2 ][ 2 ] * toZ +
-            m_inverse[ 2 ][ 3 ] ) / h;
+  fromX = ( _inverse[ 0 ][ 0 ] * toX + 
+            _inverse[ 0 ][ 1 ] * toY + 
+            _inverse[ 0 ][ 2 ] * toZ +
+            _inverse[ 0 ][ 3 ] ) / h;
+  fromY = ( _inverse[ 1 ][ 0 ] * toX + 
+            _inverse[ 1 ][ 1 ] * toY + 
+            _inverse[ 1 ][ 2 ] * toZ +
+            _inverse[ 1 ][ 3 ] ) / h;
+  fromZ = ( _inverse[ 2 ][ 0 ] * toX + 
+            _inverse[ 2 ][ 1 ] * toY + 
+            _inverse[ 2 ][ 2 ] * toZ +
+            _inverse[ 2 ][ 3 ] ) / h;
 
 }
 
@@ -128,7 +131,7 @@ double soma::Transformation3d::getDirectCoefficient( int32_t j,
 
   assert( ( i >= 0 ) && ( i < 4 ) && ( j >= 0 ) && ( j < 4 ) );
 
-  return m_direct[ j ][ i ];
+  return _direct[ j ][ i ];
 
 }
 
@@ -139,7 +142,7 @@ double soma::Transformation3d::getInverseCoefficient( int32_t j,
 
   assert( ( i >= 0 ) && ( i < 4 ) && ( j >= 0 ) && ( j < 4 ) );
 
-  return m_inverse[ j ][ i ];
+  return _inverse[ j ][ i ];
 
 }
 
@@ -149,25 +152,25 @@ std::vector< double > soma::Transformation3d::getDirectCoefficients() const
 
   std::vector< double > coef( 16 );
 
-  coef[ 0 ] = m_direct[ 0 ][ 0 ];
-  coef[ 1 ] = m_direct[ 0 ][ 1 ];
-  coef[ 2 ] = m_direct[ 0 ][ 2 ];
-  coef[ 3 ] = m_direct[ 0 ][ 3 ];
+  coef[ 0 ] = _direct[ 0 ][ 0 ];
+  coef[ 1 ] = _direct[ 0 ][ 1 ];
+  coef[ 2 ] = _direct[ 0 ][ 2 ];
+  coef[ 3 ] = _direct[ 0 ][ 3 ];
 
-  coef[ 4 ] = m_direct[ 1 ][ 0 ];
-  coef[ 5 ] = m_direct[ 1 ][ 1 ];
-  coef[ 6 ] = m_direct[ 1 ][ 2 ];
-  coef[ 7 ] = m_direct[ 1 ][ 3 ];
+  coef[ 4 ] = _direct[ 1 ][ 0 ];
+  coef[ 5 ] = _direct[ 1 ][ 1 ];
+  coef[ 6 ] = _direct[ 1 ][ 2 ];
+  coef[ 7 ] = _direct[ 1 ][ 3 ];
 
-  coef[ 8 ] = m_direct[ 2 ][ 0 ];
-  coef[ 9 ] = m_direct[ 2 ][ 1 ];
-  coef[ 10 ] = m_direct[ 2 ][ 2 ];
-  coef[ 11 ] = m_direct[ 2 ][ 3 ];
+  coef[ 8 ] = _direct[ 2 ][ 0 ];
+  coef[ 9 ] = _direct[ 2 ][ 1 ];
+  coef[ 10 ] = _direct[ 2 ][ 2 ];
+  coef[ 11 ] = _direct[ 2 ][ 3 ];
 
-  coef[ 12 ] = m_direct[ 3 ][ 0 ];
-  coef[ 13 ] = m_direct[ 3 ][ 1 ];
-  coef[ 14 ] = m_direct[ 3 ][ 2 ];
-  coef[ 15 ] = m_direct[ 3 ][ 3 ];
+  coef[ 12 ] = _direct[ 3 ][ 0 ];
+  coef[ 13 ] = _direct[ 3 ][ 1 ];
+  coef[ 14 ] = _direct[ 3 ][ 2 ];
+  coef[ 15 ] = _direct[ 3 ][ 3 ];
 
   return coef;
 
@@ -186,8 +189,8 @@ soma::Transformation3d soma::Transformation3d::inverse() const
     for ( i = 0; i < 4; i++ )
     {
     
-      t.m_direct[ j ][ i ] = m_inverse[ j ][ i ];
-      t.m_inverse[ j ][ i ] = m_direct[ j ][ i ];
+      t._direct[ j ][ i ] = _inverse[ j ][ i ];
+      t._inverse[ j ][ i ] = _direct[ j ][ i ];
     
     }
   

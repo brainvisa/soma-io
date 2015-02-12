@@ -108,7 +108,6 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     soma::DicomDatasetHeader datasetHeader( dataInfo );
 
     if ( !soma::DicomIO::getInstance().check( imaname, 
-                                              fileList, 
                                               dataInfo,
                                               datasetHeader ) )
     {
@@ -121,8 +120,8 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     fdi.open();
 
     vector< string >::const_iterator
-      f = fileList.begin(),
-      fe = fileList.end();
+      f = datasetHeader.getFileList().begin(),
+      fe = datasetHeader.getFileList().end();
 
     while ( f != fe )
     {
@@ -136,12 +135,12 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     string         type;
     vector<float>  vs(4, 1.); // voxel size
 
-    vs[ 0 ] = dataInfo.m_resolution.x;
-    vs[ 1 ] = dataInfo.m_resolution.y;
-    vs[ 2 ] = dataInfo.m_resolution.z;
-    vs[ 3 ] = dataInfo.m_repetitionTime;
+    vs[ 0 ] = dataInfo._resolution.x;
+    vs[ 1 ] = dataInfo._resolution.y;
+    vs[ 2 ] = dataInfo._resolution.z;
+    vs[ 3 ] = dataInfo._repetitionTime;
 
-    switch ( dataInfo.m_bpp )
+    switch ( dataInfo._bpp )
     {
 
       case 1:
@@ -149,7 +148,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
         break;
 
       case 2:
-        type = ( dataInfo.m_pixelRepresentation & 1 ) ? "S16" : "U16";
+        type = ( dataInfo._pixelRepresentation & 1 ) ? "S16" : "U16";
         break;
 
       case 3:

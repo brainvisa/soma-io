@@ -1,4 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Container/DataInfoCache.h>
+#else
+#include <Container/DataInfoCache.h>
+#endif
 
 
 soma::DataInfoCache::DataInfoCache()
@@ -10,7 +14,7 @@ soma::DataInfoCache::DataInfoCache()
 soma::DataInfo& soma::DataInfoCache::getDataInfo()
 {
 
-  return m_info;
+  return _info;
 
 }
 
@@ -18,7 +22,7 @@ soma::DataInfo& soma::DataInfoCache::getDataInfo()
 void soma::DataInfoCache::clear()
 {
 
-  m_info.clear();
+  _info.clear();
 
 }
 

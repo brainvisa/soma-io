@@ -2,9 +2,14 @@
 #define _DicomTransformation3d_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Transformation/Transformation3d.h>
 #include <soma-io/Container/Vector.h>
+#else
+#include <Transformation/Transformation3d.h>
+#include <Container/Vector.h>
+#endif
 
 
 namespace soma

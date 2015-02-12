@@ -2,8 +2,13 @@
 #define _DcmtkJpeg2000_djencode_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
+#else
+#include <Dicom/DcmtkJpeg2000/dj2kutil.h>
+#include <Dicom/DcmtkJpeg2000/djcparam.h>
+#endif
 
 #include <dcmtk/ofstd/oftypes.h>
 #include <dcmtk/dcmdata/dctypes.h>

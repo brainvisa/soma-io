@@ -2,9 +2,12 @@
 #define _Matrix_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-
 #include <soma-io/Container/Vector.h>
+#else
+#include <Container/Vector.h>
+#endif
 
 
 namespace soma

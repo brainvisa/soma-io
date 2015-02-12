@@ -1,10 +1,20 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Philips/PhilipsPTReader.h>
+#include <soma-io/Dicom/Philips/PhilipsNuclearModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/Philips/PhilipsPTReader.h>
+#include <Dicom/Philips/PhilipsNuclearModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/DicomReaderFactory.h>
+#include <Object/HeaderProxy.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
@@ -43,28 +53,15 @@ bool soma::PhilipsPTReader::getHeader( soma::HeaderProxy& proxy,
   }
 
   DcmDataset dataset;
-  OFString tmpString;
+  soma::PhilipsNuclearModule nuclearModule;
 
   datasetHeader.get( dataset );
  
-  if ( dataset.findAndGetOFString( DCM_Units, tmpString ).good() )
+  if ( nuclearModule.parseDataset( &dataset ) )
   {
 
-    if ( !tmpString.compare( "CNTS" ) )
-    {
-
-      Float64 tmpDouble;
-
-      if ( dataset.findAndGetFloat64( DcmTagKey( 0x7053, 0x1009 ), 
-                                      tmpDouble ).good() )
-      {
-
-        proxy.addAttribute( "image_unit", m_unitNames[ "BQML" ] );
-        proxy.addAttribute( "scale_factor", double( tmpDouble ) );
-
-      }
-
-    }
+    proxy.addAttribute( "image_unit", nuclearModule.getUnits() );
+    proxy.addAttribute( "scale_factor", nuclearModule.getScaleFactor() );
 
   }
 

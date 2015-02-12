@@ -2,11 +2,14 @@
 #define _FileInformation_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/Vector.h>
 #include <soma-io/Utils/StdInt.h>
-
-#include <string>
+#else
+#include <Container/Vector.h>
+#include <Utils/StdInt.h>
+#endif
 
 
 namespace soma
@@ -20,12 +23,9 @@ class FileInformation
 
     FileInformation();
 
-    int32_t m_instanceNumber;
-    double m_echoTime;
-    double m_slope;
-    double m_intercept;
-    Vector m_imagePosition;
-    std::string m_fileName;
+    int32_t _bufferIndex;
+    int32_t _instanceNumber;
+    Vector _imagePosition;
 
 };
 

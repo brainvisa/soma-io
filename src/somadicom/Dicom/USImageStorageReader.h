@@ -2,8 +2,12 @@
 #define _USImageStorageReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/USReader.h>
+#else
+#include <Dicom/USReader.h>
+#endif
 
 #include <string>
 
@@ -15,8 +19,8 @@ namespace soma
 {
 
 
+class DicomDatasetHeader;
 class DicomProxy;
-class Callback;
 
 
 class USImageStorageReader : public USReader
@@ -30,7 +34,8 @@ class USImageStorageReader : public USReader
 
     USImageStorageReader();
 
-    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
 
 };
 

@@ -1,5 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Transformation/DicomTransformation3d.h>
-#include <soma-io/Container/Vector.h>
+#else
+#include <Transformation/DicomTransformation3d.h>
+#endif
 
 
 soma::DicomTransformation3d::DicomTransformation3d()
@@ -19,7 +22,7 @@ soma::DicomTransformation3d::DicomTransformation3d(
   setItems(  rowCosine.x,  columnCosine.x,  normal.x,  origin.x,
              rowCosine.y,  columnCosine.y,  normal.y,  origin.y,
             -rowCosine.z, -columnCosine.z, -normal.z, -origin.z,
-            0.0,          0.0,             0.0,       1.0 );
+             0.0,          0.0,             0.0,       1.0 );
 
 }
 
@@ -35,10 +38,10 @@ void soma::DicomTransformation3d::setTranslation(
                                                const soma::Vector& translation )
 {
 
-  m_direct[ 0 ][ 3 ] = translation.x;
-  m_direct[ 1 ][ 3 ] = translation.y;
-  m_direct[ 2 ][ 3 ] = -translation.z;
+  _direct[ 0 ][ 3 ] = translation.x;
+  _direct[ 1 ][ 3 ] = translation.y;
+  _direct[ 2 ][ 3 ] = -translation.z;
 
-  invert( m_direct, m_inverse );
+  invert( _direct, _inverse );
 
 }

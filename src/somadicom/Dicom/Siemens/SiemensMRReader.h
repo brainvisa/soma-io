@@ -2,9 +2,14 @@
 #define _SiemensMRReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MRImageStorageReader.h>
 #include <soma-io/Pattern/Singleton.h>
+#else
+#include <Dicom/MRImageStorageReader.h>
+#include <Pattern/Singleton.h>
+#endif
 
 
 class DcmDataset;
@@ -14,7 +19,6 @@ namespace soma
 {
 
 
-class DirectoryParser;
 class Demosaicer;
 
 
@@ -38,14 +42,15 @@ class SiemensMRReader : public MRImageStorageReader,
     ~SiemensMRReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
 
-    virtual std::vector< std::string > sortFiles( DirectoryParser& directory );
+    bool sortFiles( DicomDatasetHeader& datasetHeader );
 
   private:
 
-    Demosaicer* m_demosaicer;
-    int32_t m_sliceCount;
+    Demosaicer* _demosaicer;
+    int32_t _sliceCount;
 
 };
 

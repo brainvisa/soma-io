@@ -2,7 +2,11 @@
 #define _DcmtkJpeg2000_djdecode_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
+#else
+#include <Dicom/DcmtkJpeg2000/dj2kutil.h>
+#endif
 
 #include <dcmtk/ofstd/oftypes.h>
 

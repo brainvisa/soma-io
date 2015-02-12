@@ -1,33 +1,55 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Container/DicomProxy.h>
+#else
+#include <Container/DicomProxy.h>
+#endif
 
 #include <cstring>
 #include <cassert>
 
+#ifdef __SSE2__
+#include <immintrin.h>
+#endif
 
+
+#ifdef SOMA_IO_DICOM
 soma::DicomProxy::DicomProxy( soma::DataInfo* info )
-                : m_buffer( 0 ),
-                  m_dataOwner( true )
+                : _buffer( 0 ),
+                  _dataOwner( true )
+#else
+soma::DicomProxy::DicomProxy( soma::DataInfo* info )
+                : soma::Model(),
+                  _buffer( 0 ),
+                  _dataOwner( true )
+#endif
 {
 
   if ( info )
   {
 
-    m_info = *info;
+    _info = *info;
 
   }
 
 }
 
 
+#ifdef SOMA_IO_DICOM
 soma::DicomProxy::DicomProxy( uint8_t* ptr, soma::DataInfo* info  )
-                : m_buffer( ptr ),
-                  m_dataOwner( false )
+                : _buffer( ptr ),
+                  _dataOwner( false )
+#else
+soma::DicomProxy::DicomProxy( uint8_t* ptr, soma::DataInfo* info  )
+                : soma::Model(),
+                  _buffer( ptr ),
+                  _dataOwner( false )
+#endif
 {
 
   if ( info )
   {
 
-    m_info = *info;
+    _info = *info;
 
   }
 
@@ -45,7 +67,7 @@ soma::DicomProxy::~DicomProxy()
 bool soma::DicomProxy::allocate( soma::DataInfo* info )
 {
 
-  if ( m_buffer )
+  if ( _buffer )
   {
 
     destroy();
@@ -55,53 +77,57 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
   if ( info )
   {
 
-    m_info = *info;
+    _info = *info;
 
   }
 
-  m_info.initialize();
+  _info.initialize();
 
-  if ( m_dataOwner )
+  if ( _dataOwner )
   {
 
-    m_buffer = new uint8_t[ m_info.m_datasetSize * m_info.m_bpp ];
+#ifdef __SSE2__
+    _buffer = (uint8_t*)_mm_malloc( _info._datasetSize * _info._bpp, 16 );
+#else
+    _buffer = new uint8_t[ _info._datasetSize * _info._bpp ];
+#endif
 
   }
 
-  if ( !m_buffer )
+  if ( !_buffer )
   {
 
     return false;
 
   }
 
-  std::memset( m_buffer, 
+  std::memset( _buffer, 
                0, 
-               m_info.m_datasetSize * m_info.m_bpp * sizeof( uint8_t ) );
+               _info._datasetSize * _info._bpp * sizeof( uint8_t ) );
 
   int32_t y, z, t;
-  int32_t dimY = m_info.m_height;
-  int32_t dimZ = m_info.m_slices;
-  int32_t dimT = m_info.m_frames;
-  int32_t scanline = m_info.m_width * m_info.m_bpp;
-  uint8_t* p = m_buffer;
+  int32_t dimY = _info._height;
+  int32_t dimZ = _info._slices;
+  int32_t dimT = _info._frames;
+  int32_t scanline = _info._width * _info._bpp;
+  uint8_t* p = _buffer;
 
-  m_lineAccess.resize( dimT );
+  _lineAccess.resize( dimT );
 
   for ( t = 0; t < dimT; t++ )
   {
 
-    m_lineAccess[ t ].resize( dimZ );
+    _lineAccess[ t ].resize( dimZ );
 
     for ( z = 0; z < dimZ; z++ )
     {
 
-      m_lineAccess[ t ][ z ].resize( dimY );
+      _lineAccess[ t ][ z ].resize( dimY );
 
       for ( y = 0; y < dimY; y++, p += scanline )
       {
 
-        m_lineAccess[ t ][ z ][ y ] = p;
+        _lineAccess[ t ][ z ][ y ] = p;
 
       }
 
@@ -117,24 +143,35 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
 void soma::DicomProxy::destroy()
 {
 
-  if ( m_dataOwner )
+  if ( _dataOwner )
   {
 
-    delete[] m_buffer;
+#ifdef __SSE2__
+    _mm_free( _buffer );
+#else
+    delete [] _buffer;
+#endif
 
-    m_buffer = 0;
+    _buffer = 0;
 
   }
 
-  m_lineAccess.clear();
+  _lineAccess.clear();
 
 }
 
 
-bool soma::DicomProxy::isNull()
+bool soma::DicomProxy::isNull() const
 {
 
-  return m_buffer ? false : true;
+  if ( _buffer )
+  {
+
+    return false;
+
+  }
+
+  return true;
 
 }
 
@@ -150,7 +187,7 @@ bool soma::DicomProxy::isMemoryMapped() const
 soma::DataInfo& soma::DicomProxy::getDataInfo()
 {
 
-  return m_info;
+  return _info;
 
 }
 
@@ -158,7 +195,7 @@ soma::DataInfo& soma::DicomProxy::getDataInfo()
 soma::BinaryHeader& soma::DicomProxy::getBinaryHeader()
 {
 
-  return m_info.m_datasetHeader;
+  return _info._datasetHeader;
 
 }
 
@@ -169,12 +206,12 @@ uint8_t* soma::DicomProxy::operator()( int32_t x,
                                        int32_t t )
 {
 
-  assert( ( x >= 0 ) && ( x < m_info.m_width ) );
-  assert( ( y >= 0 ) && ( y < m_info.m_height ) );
-  assert( ( z >= 0 ) && ( z < m_info.m_slices ) );
-  assert( ( t >= 0 ) && ( t < m_info.m_frames ) );
+  assert( ( x >= 0 ) && ( x < _info._width ) );
+  assert( ( y >= 0 ) && ( y < _info._height ) );
+  assert( ( z >= 0 ) && ( z < _info._slices ) );
+  assert( ( t >= 0 ) && ( t < _info._frames ) );
 
-  return m_lineAccess[ t ][ z ][ y ] + x * m_info.m_bpp;
+  return _lineAccess[ t ][ z ][ y ] + x * _info._bpp;
 
 }
 

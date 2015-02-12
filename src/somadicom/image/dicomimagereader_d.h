@@ -37,7 +37,9 @@
 #include <soma-io/image/dicomimagereader.h>                 // class declaration
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DataInfoCache.h>
+#include <soma-io/Container/BoundingBox.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader.h>                             // heritage
@@ -102,18 +104,33 @@ namespace soma {
   //==========================================================================
   template <typename T>
   void DicomImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                                  std::vector<int> & /* pos */,
-                                  std::vector<int> & /* size */,
+                                  std::vector<int> & pos,
+                                  std::vector<int> & size,
                                   std::vector<long> & /* stride */,
                                   carto::Object      /* options */ )
   {
+
     if ( dest )
     {
 
       if( _sizes.empty() )
         updateParams( dsi );
 
-      std::vector< std::string > fileList;
+      // region position
+      int ox = pos[ 0 ];
+      int oy = pos[ 1 ];
+      int oz = pos[ 2 ];
+      int ot = pos[ 3 ];
+
+      // region opposite position
+      int lx = ox + size[ 0 ] - 1;
+      int ly = oy + size[ 1 ] - 1;
+      int lz = oz + size[ 2 ] - 1;
+      int lt = ot + size[ 3 ] - 1;
+
+      soma::DataInfo& info = soma::DataInfoCache::getInstance().getDataInfo();
+      soma::DicomDatasetHeader datasetHeader( info );
+      std::vector< std::string >& fileList = datasetHeader.getFileList();
       int i, count = dsi.list().size( "dicom" );
 
       for ( i = 0; i < count; i++ )
@@ -125,10 +142,16 @@ namespace soma {
     
       if ( !fileList.empty() )
       {
-        DicomProxy data( (uint8_t*)dest,
-                         &soma::DataInfoCache::getInstance().getDataInfo() );
-        DicomIO::getInstance().read( fileList, data );
+
+        BoundingBox< int32_t > bbox( ox, lx, oy, ly, oz, lz, ot, lt );
+
+        info._boundingBox = info._patientOrientation.getInverseBoundingBox( 
+                                                                         bbox );
+
+        DicomProxy data( (uint8_t*)dest, &info );
+        DicomIO::getInstance().read( datasetHeader, data );
         soma::DataInfoCache::getInstance().clear();
+
       }
     }
   }

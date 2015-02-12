@@ -2,8 +2,12 @@
 #define _MRImageStorageReader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MultiFileReader.h>
+#else
+#include <Dicom/MultiFileReader.h>
+#endif
 
 
 class DcmDataset;
@@ -29,7 +33,8 @@ class MRImageStorageReader : public MultiFileReader
     MRImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
 
 };
 

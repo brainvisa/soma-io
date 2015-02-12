@@ -2,6 +2,7 @@
 #define _CartoHeader_h_
 
 
+#include <soma-io/config/soma_config.h>
 #include <soma-io/Object/HeaderProxy.h>
 
 #include <cartobase/object/object.h>
@@ -24,20 +25,20 @@ class CartoHeader : public HeaderProxy
     void addAttribute( const std::string& name, const std::string& value );
 
     void addAttribute( const std::string& name, 
-                       std::vector< int32_t >& value );
+                       const std::vector< int32_t >& value );
     void addAttribute( const std::string& name, 
-                       std::vector< double >& value );
+                       const std::vector< double >& value );
     void addAttribute( const std::string& name, 
-                       std::vector< std::string >& value );
+                       const std::vector< std::string >& value );
 
     void addAttribute( const std::string& name, 
-                       std::vector< std::vector< double > >& value );
+                       const std::vector< std::vector< double > >& value );
 
     bool hasAttribute( const std::string& name );
 
   private:
 
-    carto::Object m_header;
+    carto::Object _header;
 
 };
 

@@ -2,8 +2,12 @@
 #define _EnhancedMRImageStorageRerader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/MultiSliceReader.h>
+#else
+#include <Dicom/MultiSliceReader.h>
+#endif
 
 #include <string>
 
@@ -27,11 +31,12 @@ class EnhancedMRImageStorageReader : public MultiSliceReader
     EnhancedMRImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomProxy& proxy, Callback* progress = 0 );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
 
     virtual bool buildIndexLut( DcmDataset* dataset );
 
-    std::vector< int32_t > m_indexLut;
+    std::vector< int32_t > _indexLut;
 
 };
 

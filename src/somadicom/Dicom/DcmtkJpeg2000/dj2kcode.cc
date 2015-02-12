@@ -1,6 +1,12 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kcode.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djrparam.h>
+#else
+#include <Dicom/DcmtkJpeg2000/dj2kcode.h>
+#include <Dicom/DcmtkJpeg2000/djcparam.h>
+#include <Dicom/DcmtkJpeg2000/djrparam.h>
+#endif
 
 #include <dcmtk/ofstd/ofstream.h>
 #include <dcmtk/ofstd/offile.h>

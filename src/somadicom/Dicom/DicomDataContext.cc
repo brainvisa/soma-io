@@ -1,8 +1,14 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DicomDataContext.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
+#else
+#include <Dicom/DicomDataContext.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
@@ -14,18 +20,17 @@
 
 
 soma::DicomDataContext::DicomDataContext( 
-                                   const std::vector< std::string >& files,
-                                   soma::DicomProxy& proxy,
-                                   bool applyModalityLUT,
-                                   soma::Callback* progress )
-                      : carto::LoopContext(),
-                        m_files( files ),
-                        m_proxy( proxy ),
-                        m_progress( progress ),
-                        m_count( 0 )
+                                        soma::DicomDatasetHeader& datasetHeader,
+                                        soma::DicomProxy& proxy,
+                                        const std::vector< int32_t >& selection,
+                                        bool applyModalityLUT )
+                      : soma::LoopContext(),
+                        _datasetHeader( datasetHeader ),
+                        _proxy( proxy ),
+                        _selection( selection )
 {
 
-  m_proxy.getDataInfo().m_modalityLUTApplied = applyModalityLUT;
+  _proxy.getDataInfo()._modalityLUTApplied = applyModalityLUT;
 
 }
 
@@ -34,30 +39,59 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
   int32_t i, stopIndex = startIndex + count;
-  soma::DataInfo& info = m_proxy.getDataInfo();
+  soma::DataInfo& info = _proxy.getDataInfo();
   int32_t px, py, pz, sizeX, sizeY, sizeZ;
-  int32_t bpp = info.m_bpp;
-  int32_t min = ( 1 << info.m_depth ) - 1;
-  int32_t max = 1 - ( 1 << info.m_depth );
+  int32_t bpp = info._bpp;
+  int32_t min = ( 1 << info._depth ) - 1;
+  int32_t max = 1 - ( 1 << info._depth );
+  int32_t startX = info._boundingBox.getLowerX();
+  int32_t startY = info._boundingBox.getLowerY();
+  int32_t endX = info._boundingBox.getUpperX() + 1;
+  int32_t endY = info._boundingBox.getUpperY() + 1;
   unsigned long flags = 0;
+  soma::BoundingBox< int32_t > outBoundingBox;
 
-  info.m_patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+  info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
 
-  int32_t n = sizeZ * info.m_frames - 1;
+  int32_t offset = startY * sizeX + startX;
+  int32_t lineShift = sizeX + startX - endX;
 
-  if ( !info.m_modalityLUTApplied )
+  if ( !info._modalityLUTApplied )
   {
 
     flags |= CIF_IgnoreModalityTransformation;
 
   }
 
+  if ( info._noFlip )
+  {
+
+    outBoundingBox = info._boundingBox;
+
+  }
+  else
+  {
+
+    outBoundingBox =
+           info._patientOrientation.getDirectBoundingBox( info._boundingBox );
+
+  }
+
+  int32_t bbLowerX = outBoundingBox.getLowerX();
+  int32_t bbLowerY = outBoundingBox.getLowerY();
+  int32_t bbLowerZ = outBoundingBox.getLowerZ();
+  int32_t bbLowerT = outBoundingBox.getLowerT();
+
+  std::vector< std::string >& fileList = _datasetHeader.getFileList();
+  std::vector< int32_t >& lut = _datasetHeader.getLut();
+
   for ( i = startIndex; i < stopIndex; i++ )
   {
 
+    int32_t index = _selection[ i ];
     DcmFileFormat fileFormat;
 
-    if ( fileFormat.loadFile( m_files[ i ].c_str() ).good() )
+    if ( fileFormat.loadFile( fileList[ lut[ index ] ].c_str() ).good() )
     {
 
       DcmDataset* dataset = fileFormat.getDataset();
@@ -67,15 +101,14 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
       {
 
         int32_t x, y;
-        int32_t z = i % sizeZ;
-        int32_t t = i / sizeZ;
+        int32_t z = index % sizeZ;
+        int32_t t = index / sizeZ;
         double dMin = 0.0, dMax = 0.0;
-        uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData();
         int32_t representation = dcmImage.getInterData()->getRepresentation();
 
         dcmImage.getMinMaxValues( dMin, dMax );
 
-        info.m_pixelRepresentation = representation;
+        info._pixelRepresentation = representation;
 
         if ( int32_t( dMin ) < min )
         {
@@ -91,19 +124,90 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
 
         }
 
-        if ( ( bpp == 2 ) && ( representation < 2 ) )
+        if ( bpp == 3 )
         {
 
-          if ( info.m_noFlip )
+          uint8_t** d = (uint8_t**)dcmImage.getInterData()->getData();
+          uint8_t* r = d[ 0 ] + offset;
+          uint8_t* g = d[ 1 ] + offset;
+          uint8_t* b = d[ 2 ] + offset;
+ 
+          if ( info._noFlip )
           {
 
-            for ( y = 0; y < sizeY; y++ )
+            for ( y = startY; y < endY; y++ )
             {
 
-              for ( x = 0; x < sizeX; x++ )
+              for ( x = startX; x < endX; x++ )
               {
 
-                *( (int16_t*)m_proxy( x, y, z, t ) ) = (int16_t)*pIn++;
+                uint8_t* pOut = _proxy( x - bbLowerX, 
+                                        y - bbLowerY, 
+                                        z - bbLowerZ, 
+                                        t - bbLowerT );
+
+                *pOut++ = *r++;
+                *pOut++ = *g++;
+                *pOut = *b++;
+
+              }
+
+              r += lineShift;
+              g += lineShift;
+              b += lineShift;
+
+            }
+
+          }
+          else
+          {
+
+            for ( y = startY; y < endY; y++ )
+            {
+
+              for ( x = startX; x < endX; x++ )
+              {
+
+                info._patientOrientation.getDirect( x, y, z, px, py, pz );
+
+                uint8_t* pOut = _proxy( px - bbLowerX, 
+                                        py - bbLowerY, 
+                                        pz - bbLowerZ, 
+                                        t - bbLowerT );
+
+                *pOut++ = *r++;
+                *pOut++ = *g++;
+                *pOut = *b++;
+
+              }
+
+              r += lineShift;
+              g += lineShift;
+              b += lineShift;
+
+            }
+
+          }
+
+        }
+        else if ( ( bpp == 2 ) && ( representation < 2 ) )
+        {
+
+          uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData() + offset;
+
+          if ( info._noFlip )
+          {
+
+            for ( y = startY; y < endY; y++, pIn += lineShift )
+            {
+
+              for ( x = startX; x < endX; x++ )
+              {
+
+                *( (int16_t*)_proxy( x - bbLowerX, 
+                                     y - bbLowerY, 
+                                     z - bbLowerZ, 
+                                     t - bbLowerT ) ) = (int16_t)*pIn++;
 
               }
 
@@ -113,15 +217,18 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
           else
           {
 
-            for ( y = 0; y < sizeY; y++ )
+            for ( y = startY; y < endY; y++, pIn += lineShift )
             {
 
-              for ( x = 0; x < sizeX; x++ )
+              for ( x = startX; x < endX; x++ )
               {
 
-                info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
+                info._patientOrientation.getDirect( x, y, z, px, py, pz );
 
-                *( (uint16_t*)m_proxy( px, py, pz, t ) ) = (uint16_t)*pIn++;
+                *( (uint16_t*)_proxy( px - bbLowerX, 
+                                      py - bbLowerY, 
+                                      pz - bbLowerZ, 
+                                      t - bbLowerT ) ) = (uint16_t)*pIn++;
 
               }
 
@@ -133,19 +240,28 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
         else
         {
 
-          if ( info.m_noFlip )
+          uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData() + 
+                         offset * bpp;
+          int32_t lineShift2 = lineShift * bpp;
+
+          if ( info._noFlip )
           {
 
-            if ( m_proxy.isMemoryMapped() )
+            if ( _proxy.isMemoryMapped() )
             {
 
-              for ( y = 0; y < sizeY; y++ )
+              for ( y = startY; y < endY; y++, pIn += lineShift2 )
               {
 
-                for ( x = 0; x < sizeX; x++, pIn += bpp )
+                for ( x = startX; x < endX; x++, pIn += bpp )
                 {
 
-                  std::memcpy( m_proxy( x, y, z, t ), pIn, bpp );
+                  std::memcpy( _proxy( x - bbLowerX, 
+                                       y - bbLowerY, 
+                                       z - bbLowerZ, 
+                                       t - bbLowerT ), 
+                               pIn, 
+                               bpp );
 
                 }
 
@@ -155,9 +271,21 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
             else
             {
 
-              std::memcpy( m_proxy( 0, 0, z, t ), 
-                           pIn, 
-                           info.m_sliceSize * bpp );
+              int32_t length = bpp * ( endX - startX );
+
+              lineShift2 = sizeX * bpp;
+
+              for ( y = startY; y < endY; y++, pIn += lineShift2 )
+              {
+
+                std::memcpy( _proxy( startX - bbLowerX, 
+                                     y - bbLowerY, 
+                                     z - bbLowerZ, 
+                                     t - bbLowerT ), 
+                             pIn, 
+                             length );
+
+              }
 
             }
 
@@ -165,14 +293,19 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
           else
           {
 
-            for ( y = 0; y < sizeY; y++ )
+            for ( y = startY; y < endY; y++, pIn += lineShift2 )
             {
 
-              for ( x = 0; x < sizeX; x++, pIn += bpp )
+              for ( x = startX; x < endX; x++, pIn += bpp )
               {
 
-                info.m_patientOrientation.getDirect( x, y, z, px, py, pz );
-                std::memcpy( m_proxy( px, py, pz, t ), pIn, bpp );
+                info._patientOrientation.getDirect( x, y, z, px, py, pz );
+                std::memcpy( _proxy( px - bbLowerX, 
+                                     py - bbLowerY, 
+                                     pz - bbLowerZ, 
+                                     t - bbLowerT ), 
+                             pIn, 
+                             bpp );
 
               }
 
@@ -182,18 +315,6 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
 
         }
 
-        lock();
-        m_count++;
-
-        if ( m_progress )
-        {
-
-          m_progress->execute( 6 + 94 * m_count / n );
-
-        }
-
-        unlock();
-
       }
 
     }
@@ -202,17 +323,17 @@ void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
 
   lock();
 
-  if ( min < info.m_minimum )
+  if ( min < info._minimum )
   {
 
-    info.m_minimum = min;
+    info._minimum = min;
 
   }
 
-  if ( max > info.m_maximum )
+  if ( max > info._maximum )
   {
 
-    info.m_maximum = max;
+    info._maximum = max;
 
   }
 

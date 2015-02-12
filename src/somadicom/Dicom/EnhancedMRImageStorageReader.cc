@@ -1,11 +1,22 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Dicom/EnhancedIndexModule.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
 #include <soma-io/Dicom/MultiSliceContext.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/EnhancedMRImageStorageReader.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/EnhancedIndexModule.h>
+#include <Container/DicomProxy.h>
+#include <Dicom/MultiSliceContext.h>
+#include <Thread/ThreadedLoop.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -37,17 +48,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
   if ( dataset )
   {
 
-    Sint32 frameCount = 1;
-
-    if ( dataset->findAndGetSint32( DCM_NumberOfFrames, frameCount ).good() )
-    {
-
-      m_dataInfo->m_slices = (int32_t)frameCount;
-
-    }
-
-    m_indexLut.resize( frameCount );
-
     if ( !buildIndexLut( dataset ) )
     {
 
@@ -63,14 +63,14 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
       uint32_t i, nItems = seq->card();
       bool found = false;
 
-      m_positions.resize( nItems );
-      m_dataInfo->m_slope.resize( nItems, 1.0 );
-      m_dataInfo->m_intercept.resize( nItems, 0.0 );
+      _positions.resize( nItems );
+      _dataInfo->_slope.resize( nItems, 1.0 );
+      _dataInfo->_intercept.resize( nItems, 0.0 );
 
       for ( i = 0; i < nItems; i++ )
       {
 
-        int32_t index = m_indexLut[ i ];
+        int32_t index = _indexLut[ i ];
         DcmItem* item = seq->getItem( i );
         DcmItem* tmpItem = 0;
 
@@ -98,12 +98,12 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
             std::istringstream iss( orientationStr );
 
-            iss >> m_dataInfo->m_rowVec.x
-                >> m_dataInfo->m_rowVec.y
-                >> m_dataInfo->m_rowVec.z
-                >> m_dataInfo->m_colVec.x
-                >> m_dataInfo->m_colVec.y
-                >> m_dataInfo->m_colVec.z;
+            iss >> _dataInfo->_rowVec.x
+                >> _dataInfo->_rowVec.y
+                >> _dataInfo->_rowVec.z
+                >> _dataInfo->_colVec.x
+                >> _dataInfo->_colVec.y
+                >> _dataInfo->_colVec.z;
 
             found = true;
 
@@ -139,7 +139,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
                 >> position.y
                 >> position.z;
 
-            m_positions[ index ] = position;
+            _positions[ index ] = position;
 
           }
 
@@ -154,7 +154,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
           if ( tmpItem->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
           {
 
-            m_dataInfo->m_slope[ index ] = (double)tmpFloat;
+            _dataInfo->_slope[ index ] = (double)tmpFloat;
 
           }
 
@@ -162,7 +162,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
                                            tmpFloat ).good() )
           {
 
-            m_dataInfo->m_intercept[ index ] = (double)tmpFloat;
+            _dataInfo->_intercept[ index ] = (double)tmpFloat;
 
           }
 
@@ -183,31 +183,19 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::EnhancedMRImageStorageReader::readData( soma::DicomProxy& proxy,
-                                                   soma::Callback* progress )
+bool soma::EnhancedMRImageStorageReader::readData(
+                                        soma::DicomDatasetHeader& datasetHeader,
+                                        soma::DicomProxy& proxy )
 {
 
   if ( proxy.allocate() )
   {
 
-    if ( progress )
-    {
-
-      progress->execute( 2 );
-
-    }
-
+    std::string fileName = datasetHeader.getFileList().front();
     DcmFileFormat fileFormat;
 
-    if ( fileFormat.loadFile( m_slices[ 0 ].c_str() ).good() )
+    if ( fileFormat.loadFile( fileName.c_str() ).good() )
     {
-
-      if ( progress )
-      {
-
-        progress->execute( 6 );
-
-      }
 
       soma::DataInfo& info = proxy.getDataInfo();
       DcmDataset* dataset = fileFormat.getDataset();
@@ -218,38 +206,58 @@ bool soma::EnhancedMRImageStorageReader::readData( soma::DicomProxy& proxy,
       if ( dcmImage.getStatus() == EIS_Normal )
       {
 
-        int32_t tmp1, tmp2, nSlices;
+        int32_t i, k = 0;
+        int32_t sizeX, sizeY, sizeZ;
+        int32_t startZ = info._boundingBox.getLowerZ();
+        int32_t endZ = info._boundingBox.getUpperZ() + 1;
+        int32_t startT = info._boundingBox.getLowerT();
+        int32_t endT = info._boundingBox.getUpperT() + 1;
+        std::vector< int32_t > selection( ( endZ - startZ ) * 
+                                          ( endT - startT ) );
 
-        info.m_modalityLUTApplied = false;
-        info.m_pixelRepresentation = 
+        info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+
+        int32_t n = sizeZ * info._frames;
+
+        for ( i = 0; i < n; i++ )
+        {
+
+          int32_t index = _indexLut[ i ];
+          int32_t z = index % sizeZ;
+          int32_t t = index / sizeZ;
+
+          if ( ( z >= startZ ) && ( z < endZ ) && 
+               ( t >= startT ) && ( t < endT ) )
+          {
+
+            selection[ k++ ] = i;
+
+          }
+
+        }
+
+        info._modalityLUTApplied = false;
+        info._pixelRepresentation = 
                                    dcmImage.getInterData()->getRepresentation();
-        info.m_patientOrientation.getOnDiskSize( tmp1, tmp2, nSlices );
 
         soma::MultiSliceContext context( dcmImage, 
                                          proxy, 
-                                         m_indexLut, 
-                                         progress );
-        carto::ThreadedLoop threadedLoop( &context, 
-                                          0, 
-                                          nSlices * info.m_frames );
+                                         _indexLut, 
+                                         selection );
+        soma::ThreadedLoop threadedLoop( &context, 
+                                         0, 
+                                         int32_t( selection.size() ) );
 
         threadedLoop.launch();
 
-        if ( info.m_bpp < 3 )
+        if ( info._bpp < 3 )
         {
 
           double min = 0.0, max = 0.0;
 
           dcmImage.getMinMaxValues( min, max );
-          info.m_minimum = int32_t( min );
-          info.m_maximum = int32_t( max );
-
-        }
-
-        if ( progress )
-        {
-
-          progress->execute( 100 );
+          info._minimum = int32_t( min );
+          info._maximum = int32_t( max );
 
         }
 
@@ -272,140 +280,37 @@ bool soma::EnhancedMRImageStorageReader::buildIndexLut( DcmDataset* dataset )
   if ( dataset )
   {
 
-    int32_t zIndex = -1, tIndex = 0, dim = 0;
-    int32_t frameCount = m_dataInfo->m_slices;
-    DcmSequenceOfItems* seq = 0;
+    soma::EnhancedIndexModule indexModule;
 
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
-                                      seq ).good() )
+    if ( indexModule.parseDataset( dataset ) )
     {
 
-      dim = seq->card();
-
-      // Generic version only support up to 4D data structure.
-      // Any other data organisation have to be described in a derived class.
-      if ( dim > 3 )
-      {
-
-        return false;
-
-      }
-
-      int32_t i;
-      DcmTagKey stackID( DCM_StackID );
-      DcmTagKey inStackPos( DCM_InStackPositionNumber );
-
-      for ( i = 0; i < dim; i++ )
-      {
-
-        OFString tmpString;
-        DcmItem* item = seq->getItem( i );
-
-         if ( item->findAndGetOFString( DCM_DimensionIndexPointer, 
-                                        tmpString ).good() )
-         {
-
-           if ( !tmpString.compare( inStackPos.toString() ) )
-           {
-
-             zIndex = i;
-
-           }
-           else if ( tmpString.compare( stackID.toString() ) )
-           {
-
-             tIndex = i;
-
-           }
-
-         }
-
-      }
-
-    }
-
-    if ( zIndex < 0 )
-    {
-
-      return false;
-
-    }
-
-    if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
-                                      seq ).good() )
-    {
-
-      uint32_t i, nItems = seq->card();
-      std::vector< std::pair< int32_t, int32_t > > tmpLut( nItems );
-      int32_t zMax = 0;
-
-      for ( i = 0; i < nItems; i++ )
-      {
-
-        DcmItem* item = seq->getItem( i );
-        DcmItem* tmpItem = 0;
-
-        if ( item->findAndGetSequenceItem( DCM_FrameContentSequence,
-                                           tmpItem ).good() )
-        {
-
-          Uint32 z, t = 1;
-
-          tmpItem->findAndGetUint32( DCM_DimensionIndexValues, z, zIndex );
-
-          if ( dim == 3 )
-          {
-
-            tmpItem->findAndGetUint32( DCM_DimensionIndexValues, t, tIndex );
-
-          }
-
-          if  ( int32_t( z ) > zMax )
-          {
-
-            zMax = z;
-
-          }
-
-          tmpLut[ i ] = std::make_pair( z - 1, t - 1 );
-
-        }
-
-      }
-
-      for ( i = 0; i < nItems; i++ )
-      {
-
-        m_indexLut[ i ] = tmpLut[ i ].second * zMax + tmpLut[ i ].first;
-
-      }
+      int32_t zMax = indexModule.getZCount();
+      int32_t frameCount = indexModule.getNumberOfFrames();
 
       if ( zMax < frameCount )
       {
 
-        m_dataInfo->m_frames = frameCount / zMax;
-        m_dataInfo->m_slices = zMax;
+        _dataInfo->_frames = frameCount / zMax;
+        _dataInfo->_slices = zMax;
 
       }
-
-    }
-    else
-    {
-
-      int32_t i;
-
-      for ( i = 0; i < frameCount; i++ )
+      else
       {
 
-        m_indexLut[ i ] = i;
+        _dataInfo->_slices = frameCount;
 
       }
+
+      _indexLut = indexModule.getIndices();
+
+      return true;
 
     }
 
   }
 
-  return true;
+  return false;
 
 }
 

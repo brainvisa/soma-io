@@ -1,26 +1,53 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DicomReader.h>
+#include <soma-io/Dicom/DatasetModule.h>
+#include <soma-io/Dicom/IdentifyingModule.h>
+#include <soma-io/Dicom/PatientModule.h>
+#include <soma-io/Dicom/RelationshipModule.h>
+#include <soma-io/Dicom/ImageModule.h>
+#include <soma-io/Dicom/ModalityLutModule.h>
+#include <soma-io/Dicom/AcquisitionModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
-#include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/DicomReader.h>
+#include <Dicom/DatasetModule.h>
+#include <Dicom/IdentifyingModule.h>
+#include <Dicom/PatientModule.h>
+#include <Dicom/RelationshipModule.h>
+#include <Dicom/ImageModule.h>
+#include <Dicom/ModalityLutModule.h>
+#include <Dicom/AcquisitionModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <System/DirectoryParser.h>
+#include <Container/DicomProxy.h>
+#include <Object/HeaderProxy.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
+#include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmimgle/dcmimage.h>
 #include <dcmtk/dcmimage/diregist.h>
-#include <dcmtk/dcmdata/dcpixel.h>
-#include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 #include <sstream>
 #include <ctime>
 
+//#define DEBUG
+#ifdef DEBUG
+#include <sys/time.h>
+#include <iostream>
+#endif
+
 
 soma::DicomReader::DicomReader()
-                 : m_dataInfo( 0 )
+                 : _dataInfo( 0 )
 {
 }
 
@@ -38,55 +65,67 @@ std::string soma::DicomReader::getManufacturerName()
 }
 
 
-bool soma::DicomReader::check( soma::DirectoryParser& directory,
-                               std::vector< std::string >& fileList,
+bool soma::DicomReader::check( const soma::DatasetModule& datasetModule,
+                               soma::DirectoryParser& directory,
                                soma::DataInfo& dataInfo,
                                soma::DicomDatasetHeader& datasetHeader )
 {
 
+#ifdef DEBUG
+  struct timeval tv_start;
+  struct timeval tv_1;
+  struct timeval tv_2;
+  struct timeval tv_3;
+
+  gettimeofday( &tv_start, NULL );
+#endif
+
+  bool noFlip = dataInfo._noFlip;
+  bool noDemosaic = dataInfo._noDemosaic;
   std::string selectedFile = directory.getSelectedFile();
 
-  if ( !selectedFile.empty() )
+  _dataInfo = &dataInfo;
+  _dataInfo->clear();
+  _dataInfo->_noFlip = noFlip;
+  _dataInfo->_noDemosaic = noDemosaic;
+
+  if ( selectFiles( directory, 
+                    datasetModule.getSeriesInstanceUID(), 
+                    datasetHeader ) )
   {
 
-    m_dataInfo = &dataInfo;
+#ifdef DEBUG
+      gettimeofday( &tv_1, NULL );
+#endif
 
-    m_seriesInstanceUID.clear();
-    m_slices.clear();
-
-    if ( readHeader( selectedFile ) )
+    if ( readHeader( datasetHeader ) )
     {
 
-      fileList = sortFiles( directory );
+#ifdef DEBUG
+      gettimeofday( &tv_2, NULL );
+#endif
 
-      if ( fileList.size() )
+      if ( sortFiles( datasetHeader ) )
       {
 
-        int32_t i = 0;
-        std::vector< std::string >::iterator
-          f = fileList.begin(),
-          fe = fileList.end();
+#ifdef DEBUG
+        gettimeofday( &tv_3, NULL );
 
-        datasetHeader.allocate( m_dataInfo->m_fileCount );
+        double d1 = (double)( tv_1.tv_sec + tv_1.tv_usec / 1000000.0 - 
+                              tv_start.tv_sec - tv_start.tv_usec / 1000000.0 );
+        double d2 = (double)( tv_2.tv_sec + tv_2.tv_usec / 1000000.0 - 
+                              tv_1.tv_sec - tv_1.tv_usec / 1000000.0 );
+        double d3 = (double)( tv_3.tv_sec + tv_3.tv_usec / 1000000.0 - 
+                              tv_2.tv_sec - tv_2.tv_usec / 1000000.0 );
+        double dT = (double)( tv_3.tv_sec + tv_3.tv_usec / 1000000.0 - 
+                              tv_start.tv_sec - tv_start.tv_usec / 1000000.0 );
+        std::cout << "Check time : " << dT << " s " << std::endl;
+        std::cout << "  - file selection  : " << d1 << " s" << std::endl;
+        std::cout << "  - header analysis : " << d2 << " s" << std::endl;
+        std::cout << "  - sort files      : " << d3 << " s" << std::endl;
+#endif
 
-        while ( f != fe )
-        {
-
-          DcmFileFormat fileFormat;
-
-          if ( fileFormat.loadFile( f->c_str() ).good() )
-          {
-
-            datasetHeader.add( fileFormat.getDataset(), i );
-
-          }
-          
-          ++f;
-          i++;
-
-        }
-
-        m_dataInfo->initialize();
+        _dataInfo->initialize();
 
         return true;
 
@@ -106,193 +145,75 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
                                    soma::DicomDatasetHeader& datasetHeader )
 {
 
-  header.addAttribute( "sizeX", info.m_width );
-  header.addAttribute( "sizeY", info.m_height );
-  header.addAttribute( "sizeZ", info.m_slices );
-  header.addAttribute( "sizeT", info.m_frames );
+  header.addAttribute( "sizeX", info._width );
+  header.addAttribute( "sizeY", info._height );
+  header.addAttribute( "sizeZ", info._slices );
+  header.addAttribute( "sizeT", info._frames );
 
-  header.addAttribute( "resolutionX", info.m_resolution.x );
-  header.addAttribute( "resolutionY", info.m_resolution.y );
-  header.addAttribute( "resolutionZ", info.m_resolution.z );
-  header.addAttribute( "resolutionT", info.m_repetitionTime );
+  header.addAttribute( "resolutionX", info._resolution.x );
+  header.addAttribute( "resolutionY", info._resolution.y );
+  header.addAttribute( "resolutionZ", info._resolution.z );
+  header.addAttribute( "resolutionT", info._repetitionTime );
 
-  header.addAttribute( "series_instance_uid", m_seriesInstanceUID );
+  soma::IdentifyingModule identifyingModule;
 
-  if ( info.m_slope.size() > 0 )
+  if ( identifyingModule.parseHeader( datasetHeader ) )
   {
 
-    header.addAttribute( "rescale_slope", info.m_slope );
+    header.addAttribute( "study_date", identifyingModule.getStudyDate() );
+    header.addAttribute( "series_date", identifyingModule.getSeriesDate() );
+    header.addAttribute( "acquisition_date", 
+                         identifyingModule.getAcquisitionDate() );
+    header.addAttribute( "study_time", identifyingModule.getStudyTime() );
+    header.addAttribute( "series_time", identifyingModule.getSeriesTime() );
+    header.addAttribute( "acquisition_time", 
+                         identifyingModule.getAcquisitionTimes() );
+    header.addAttribute( "modality", identifyingModule.getModality() );
+    header.addAttribute( "manufacturer", identifyingModule.getManufacturer() );
+    header.addAttribute( "institution_name", 
+                         identifyingModule.getInstitutionName() );
+    header.addAttribute( "series_description", 
+                         identifyingModule.getSeriesDescription() );
+    header.addAttribute( "zero_start_time", 
+                         identifyingModule.getZeroStartTime() );
 
   }
 
-  if ( info.m_intercept.size() > 0 )
-  {
-
-    header.addAttribute( "rescale_intercept", info.m_intercept );
-
-  }
-
-  OFString tmpString;
-  Sint32 tmpInt;
   DcmDataset dataset;
+  soma::PatientModule patientModule;
+  soma::RelationshipModule relationshipModule;
+  soma::ModalityLutModule modalityLutModule;
 
   datasetHeader.get( dataset );
 
-  if ( dataset.findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
+  if ( patientModule.parseDataset( &dataset ) )
   {
 
-    header.addAttribute( "manufacturer", tmpString.c_str() );
+    header.addAttribute( "patient_name", patientModule.getName() );
+    header.addAttribute( "patient_id", patientModule.getId() );
 
   }
 
-#if OFFIS_DCMTK_VERSION_NUMBER >= 360
-  if ( dataset.findAndGetOFString( DCM_PatientName, tmpString ).good() )
-#else
-  if ( dataset.findAndGetOFString( DCM_PatientsName, tmpString ).good() )
-#endif
+  if ( relationshipModule.parseHeader( datasetHeader ) )
   {
 
-    header.addAttribute( "patient_name", tmpString.c_str() );
-
-  }
-  
-  if ( dataset.findAndGetOFString( DCM_StudyDate, tmpString ).good() )
-  {
-
-    header.addAttribute( "study_date", tmpString.c_str() );
+    header.addAttribute( "series_instance_uid", 
+                         relationshipModule.getSeriesInstanceUID() );
+    header.addAttribute( "study_id", relationshipModule.getStudyId() );
+    header.addAttribute( "series_number", 
+                         relationshipModule.getSeriesNumber() );
+    header.addAttribute( "acquisition_number", 
+                         relationshipModule.getAcquisitionNumber() );
 
   }
 
-  if ( dataset.findAndGetOFString( DCM_StudyTime, tmpString ).good() )
+  if ( modalityLutModule.parseHeader( datasetHeader ) )
   {
 
-    header.addAttribute( "study_time", tmpString.c_str() );
-
-  }
-
-  if ( dataset.findAndGetOFString( DCM_PatientID, tmpString ).good() )
-  {
-
-    header.addAttribute( "patient_id", tmpString.c_str() );
-
-  }
-
-  if ( dataset.findAndGetOFString( DCM_StudyID, tmpString ).good() )
-  {
-
-    header.addAttribute( "study_id", tmpString.c_str() );
-
-  }
-
-  if ( dataset.findAndGetSint32( DCM_SeriesNumber, tmpInt ).good() )
-  {
-
-    header.addAttribute( "series_number", int32_t( tmpInt ) );
-
-  }
-
-  if ( dataset.findAndGetOFString( DCM_SeriesDescription, tmpString ).good() )
-  {
-
-    header.addAttribute( "series_description", tmpString.c_str() );
-
-  }
-
-  if ( dataset.findAndGetOFString( DCM_Modality, tmpString ).good() )
-  {
-
-    header.addAttribute( "modality", tmpString.c_str() );
-
-  }
-
-  if ( dataset.findAndGetOFString( DCM_InstitutionName, tmpString ).good() )
-  {
-
-    header.addAttribute( "institution_name", tmpString.c_str() );
-
-  }
-
-  std::string dateStr;
-  if ( dataset.findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
-  {
-
-    dateStr = tmpString.c_str();
-    header.addAttribute( "acquisition_date", dateStr );
-
-  }
-
-  int32_t i, n = datasetHeader.size();
-  std::vector< std::string > acquisitionTimes;
-
-  for ( i = 0; i < n; i++ )
-  {
-
-    datasetHeader.get( dataset, i );
-
-    if ( dataset.findAndGetOFString( DCM_AcquisitionTime, tmpString ).good() )
-    {
-
-      acquisitionTimes.push_back( tmpString.c_str() );
-
-    }
-
-  }
-
-  std::string timeStr;
-  if ( acquisitionTimes.size() )
-  {
-
-    timeStr = acquisitionTimes[ 0 ];
-    header.addAttribute( "acquisition_time", acquisitionTimes );
-
-  }
-
-  if ( !timeStr.empty() )
-  {
-
-    int32_t hour, minute, second, zeroStartTime = 0;
-    std::istringstream iss;
-
-    iss.str( timeStr.substr( 0, 2 ) );
-    iss >> hour;
-    iss.clear();
-    iss.str( timeStr.substr( 2, 2 ) );
-    iss >> minute;
-    iss.clear();
-    iss.str( timeStr.substr( 4, 2 ) );
-    iss >> second;
-
-    if ( dateStr.empty() )
-    {
-
-      zeroStartTime = ( hour * 60 + minute ) * 60 + second;
-
-    }
-    else
-    {
-
-      struct tm t;
-
-      t.tm_hour = hour;
-      t.tm_min = minute;
-      t.tm_sec = second;
-      // t.tm_isdst = -1;
-
-      iss.clear();
-      iss.str( dateStr.substr( 0, 4 ) );
-      iss >> t.tm_year;
-      iss.clear();
-      iss.str( dateStr.substr( 4, 2 ) );
-      iss >> t.tm_mon;
-      iss.clear();
-      iss.str( dateStr.substr( 6, 2 ) );
-      iss >> t.tm_mday;
-
-      zeroStartTime = int32_t( mktime( &t ) );
-
-    }
-
-    header.addAttribute( "zero_start_time", zeroStartTime );
+    header.addAttribute( "rescale_intercept",  
+                         modalityLutModule.getRescaleIntercept());
+    header.addAttribute( "rescale_slope", 
+                         modalityLutModule.getRescaleSlope() );
 
   }
 
@@ -301,39 +222,31 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 }
 
 
-bool soma::DicomReader::read( const std::vector< std::string >& fileList, 
-                              soma::DicomProxy& proxy, 
-                              soma::Callback* progress )
+bool soma::DicomReader::read( soma::DicomDatasetHeader& datasetHeader, 
+                              soma::DicomProxy& proxy )
 {
 
-  if ( progress )
+  if ( datasetHeader.size() )
   {
 
-    progress->execute( 0 );
+#ifdef DEBUG
+    struct timeval tv_start;
+    struct timeval tv_1;
 
-  }
-
-  if ( !fileList.empty() )
-  {
-
-    m_slices = fileList;
-
-    if ( progress )
-    {
-
-      progress->execute( 6 );
-
-    }
+    gettimeofday( &tv_start, NULL );
+#endif
 
     // read dataset
-    bool status = readData( proxy, progress );
+    bool status = readData( datasetHeader, proxy );
 
-    if ( progress )
-    {
+#ifdef DEBUG
+    gettimeofday( &tv_1, NULL );
 
-      progress->execute( 100 );
-
-    }
+    double d1 = (double)( tv_1.tv_sec + tv_1.tv_usec / 1000000.0 - 
+                          tv_start.tv_sec - tv_start.tv_usec / 1000000.0 );
+    std::cout << "Read time : " << std::endl;
+    std::cout << "  - data read       : " << d1 << " s" << std::endl;
+#endif
 
     return status;
 
@@ -344,196 +257,113 @@ bool soma::DicomReader::read( const std::vector< std::string >& fileList,
 }
 
 
-bool soma::DicomReader::readHeader( const std::string& fileName )
+bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 {
 
-  DcmFileFormat header;
-  OFCondition status = header.loadFile( fileName.c_str() );
-
-  if ( status.bad() )
+  if ( datasetHeader.size() )
   {
 
-    return false;
+    DcmDataset dataset;
+    soma::ImageModule imageModule;
 
-  }
+    datasetHeader.get( dataset );
 
-  DcmDataset* dataset = header.getDataset();
-
-  if ( !dataset )
-  {
-
-    return false;
-
-  }
-
-  OFString tmpString;
-
-  if ( dataset->findAndGetOFString( DCM_SeriesInstanceUID, tmpString ).good() )
-  {
-
-    m_seriesInstanceUID = tmpString.c_str();
-
-  }
-  else
-  {
-
-    return false;
-
-  }
-  
-  Uint16 tmpShort;
-  if ( dataset->findAndGetUint16( DCM_Columns, tmpShort ).good() )
-  {
-
-    m_dataInfo->m_width = (int32_t)tmpShort;
-
-  }
-  else
-  {
-
-    return false;
-
-  }
-
-  if ( dataset->findAndGetUint16( DCM_Rows, tmpShort ).good() )
-  {
-
-    m_dataInfo->m_height = (int32_t)tmpShort;
-
-  }
-  else
-  {
-
-    return false;
-
-  }
-
-  if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
-  {
-
-    m_dataInfo->m_depth = int32_t( tmpShort < 8 ? 8 : tmpShort );
-
-  }
-  else
-  {
-
-    return false;
-
-  }
-
-  if ( dataset->findAndGetUint16( DCM_BitsStored, tmpShort ).good() )
-  {
-
-    m_dataInfo->m_bitsStored = int32_t( tmpShort < 8 ? 8 : tmpShort );
-
-  }
-  else
-  {
-
-    return false;
-
-  }
-
-  if ( dataset->findAndGetOFString( DCM_PhotometricInterpretation, 
-                                    tmpString ).good() )
-  {
-
-    m_dataInfo->m_monochrome = false;
-
-    if ( !tmpString.compare( "MONOCHROME1" ) || 
-         !tmpString.compare( "MONOCHROME2" ) )
+    if ( imageModule.parseDataset( &dataset ) )
     {
 
-      m_dataInfo->m_monochrome = true;
+      int32_t depth = imageModule.getBitsAllocated();
+
+      _dataInfo->_width = imageModule.getColumns();
+      _dataInfo->_height = imageModule.getRows();
+      _dataInfo->_resolution.x = imageModule.getPixelSpacingX();
+      _dataInfo->_resolution.y = imageModule.getPixelSpacingY();
+      _dataInfo->_depth = depth < 8 ? 8 : depth;
+      _dataInfo->_bitsStored = imageModule.getBitsStored();
+      _dataInfo->_monochrome = imageModule.isMonochrome();
+
+    }
+    else
+    {
+
+      return false;
 
     }
 
-  }
-  else
-  {
+    soma::AcquisitionModule acquisitionModule;
 
-    return false;
-
-  }
-
-  Float64 tmpFloat;
-  if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpFloat, 0 ).good() )
-  {
-
-    m_dataInfo->m_resolution.x = (double)tmpFloat;
-
-  }
-
-  if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpFloat, 1 ).good() )
-  {
-
-    m_dataInfo->m_resolution.y = (double)tmpFloat;
-
-  }
-
-  if ( dataset->findAndGetFloat64( DCM_SpacingBetweenSlices,
-                                   tmpFloat ).good() )
-  {
-
-    m_dataInfo->m_spacingBetweenSlices = (double)tmpFloat;
-
-  }
-  else
-  {
-
-    if ( dataset->findAndGetFloat64( DCM_SliceThickness, tmpFloat ).good() )
+    if ( acquisitionModule.parseDataset( &dataset ) )
     {
 
-      m_dataInfo->m_spacingBetweenSlices = (double)tmpFloat;
+      if ( acquisitionModule.getSpacingBetweenSlices() > 0.0 )
+      {
+
+        _dataInfo->_spacingBetweenSlices = 
+                                    acquisitionModule.getSpacingBetweenSlices();
+
+      }
+      else if ( acquisitionModule.getSliceThickness() > 0.0 )
+      {
+
+        _dataInfo->_spacingBetweenSlices = 
+                                          acquisitionModule.getSliceThickness();
+
+      }
 
     }
 
-  }
+    _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
+    _dataInfo->_minimum = ( 1 << _dataInfo->_bitsStored ) - 1;
+    _dataInfo->_maximum = 1 - ( 1 << _dataInfo->_bitsStored );
 
-  if ( dataset->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
-  {
-
-    m_dataInfo->m_slope.push_back( (double)tmpFloat );
-
-  }
-  else
-  {
-
-    m_dataInfo->m_slope.push_back( 1.0 );
+    return readHeader( &dataset );
 
   }
 
-  if ( dataset->findAndGetFloat64( DCM_RescaleIntercept, tmpFloat ).good() )
-  {
-
-     m_dataInfo->m_intercept.push_back( (double)tmpFloat );
-
-  }
-  else
-  {
-
-     m_dataInfo->m_intercept.push_back( 0.0 );
-
-  }
-
-  m_dataInfo->m_resolution.z = m_dataInfo->m_spacingBetweenSlices;
-
-  m_dataInfo->m_minimum = ( 1 << m_dataInfo->m_bitsStored ) - 1;
-  m_dataInfo->m_maximum = 1 - ( 1 << m_dataInfo->m_bitsStored );
-
-  return readHeader( dataset );
+  return false;
 
 }
 
 
-std::vector< std::string > soma::DicomReader::sortFiles( 
-                                              soma::DirectoryParser& directory )
+bool soma::DicomReader::selectFiles( soma::DirectoryParser& directory,
+                                     const std::string& /* seriesInstanceUID */,
+                                     soma::DicomDatasetHeader& datasetHeader )
 {
 
-  m_slices.push_back( directory.getSelectedFile() );
-  m_dataInfo->m_fileCount = 1;
+  std::string fileName = directory.getSelectedFile();
 
-  return m_slices;
+  if ( fileName.size() )
+  {
+
+    DcmFileFormat header;
+
+    if ( header.loadFile( fileName.c_str() ).good() )
+    {
+
+      datasetHeader.clear();
+
+      if ( datasetHeader.add( header.getDataset(), fileName ) )
+      {
+
+        _dataInfo->_fileCount = 1;
+
+        return true;
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::DicomReader::sortFiles( 
+                                 soma::DicomDatasetHeader& /* datasetHeader */ )
+{
+
+  return true;
 
 }
 

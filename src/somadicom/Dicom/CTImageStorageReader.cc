@@ -1,13 +1,20 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/CTImageStorageReader.h>
+#include <soma-io/Dicom/CTModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
-#include <soma-io/Pattern/Callback.h>
-#include <soma-io/Dicom/DicomDataContext.h>
-#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/CTImageStorageReader.h>
+#include <Dicom/CTModule.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#include <Object/HeaderProxy.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
@@ -28,28 +35,35 @@ std::string soma::CTImageStorageReader::getStorageUID()
 
 
 bool soma::CTImageStorageReader::getHeader( 
-                                       soma::HeaderProxy& header, 
+                                       soma::HeaderProxy& proxy, 
                                        soma::DataInfo& info,
                                        soma::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( header, info, datasetHeader ) )
+  if ( !soma::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
 
   }
 
-  Float64 tmpDouble;
   DcmDataset dataset;
+  soma::CTModule ctModule;
 
   datasetHeader.get( dataset );
 
-  if ( dataset.findAndGetFloat64( DCM_ReconstructionDiameter, 
-                                  tmpDouble ).good() )
+  if ( ctModule.parseDataset( &dataset ) )
   {
 
-    header.addAttribute( "reconstruction_diameter", double( tmpDouble ) );
+    proxy.addAttribute( "reconstruction_diameter", 
+                        ctModule.getReconstructionDiameter() );
+
+  }
+
+  if ( info._pixelPaddingValue )
+  {
+
+    proxy.addAttribute( "pixel_padding_value", info._pixelPaddingValue );
 
   }
 
@@ -58,37 +72,13 @@ bool soma::CTImageStorageReader::getHeader(
 }
 
 
-bool soma::CTImageStorageReader::readHeader( DcmDataset* dataset )
+bool soma::CTImageStorageReader::readData(
+                                        soma::DicomDatasetHeader& datasetHeader, 
+                                        soma::DicomProxy& proxy )
 {
 
-  m_dataInfo->m_slices = int32_t( m_slices.size() );
-
-  return soma::MultiFileReader::readHeader( dataset );
-
-}
-
-
-bool soma::CTImageStorageReader::readData( soma::DicomProxy& proxy,
-                                           soma::Callback* progress )
-{
-
-  if ( proxy.allocate() )
-  {
-
-    soma::DicomDataContext context( m_slices, 
-                                    proxy, 
-                                    false,
-                                    progress );
-    carto::ThreadedLoop threadedLoop( &context,
-                                      0,
-                                      int32_t( m_slices.size() ) );
-
-    threadedLoop.launch();
-
-    return true;
-
-  }
-
-  return false;
+  return soma::MultiFileReader::readData( datasetHeader,
+                                          proxy, 
+                                          false );
 
 }

@@ -2,8 +2,12 @@
 #define _BinaryHeader_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Utils/StdInt.h>
+#endif
 
 #include <string>
 #include <vector>
@@ -38,8 +42,13 @@ class BinaryHeader
 
     int32_t getCount() const;
 
+    std::vector< int32_t >& getLut();
+
     void resize( uint32_t n, Buffer buffer = Buffer( 0, 0 ) );
     bool allocate( uint32_t index, uint32_t length );
+    bool allocate( Buffer& buffer, uint32_t length );
+    void add( Buffer& buffer );
+    void trim();
     void clear();
 
     void setFormat( const std::string& format );
@@ -47,8 +56,9 @@ class BinaryHeader
 
   protected:
 
-    std::vector< Buffer > m_buffers;
-    std::string m_format;
+    std::vector< Buffer > _buffers;
+    std::vector< int32_t > _lut;
+    std::string _format;
 
 };
 

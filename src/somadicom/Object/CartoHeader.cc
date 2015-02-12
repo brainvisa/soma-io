@@ -5,14 +5,14 @@
 
 soma::CartoHeader::CartoHeader( carto::Object header )
                  : soma::HeaderProxy(),
-                   m_header( header )
+                   _header( header )
 {
 }
 
 void soma::CartoHeader::addAttribute( const std::string& name, int32_t value )
 {
 
-  m_header->setProperty( name, value );
+  _header->setProperty( name, value );
 
 }
 
@@ -20,7 +20,7 @@ void soma::CartoHeader::addAttribute( const std::string& name, int32_t value )
 void soma::CartoHeader::addAttribute( const std::string& name, double value )
 {
 
-  m_header->setProperty( name, float( value ) );
+  _header->setProperty( name, float( value ) );
 
 }
 
@@ -29,43 +29,43 @@ void soma::CartoHeader::addAttribute( const std::string& name,
                                       const std::string& value )
 {
 
-  m_header->setProperty( name, value );
+  _header->setProperty( name, value );
 
 }
 
 
 void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      std::vector< int32_t >& value )
+                                      const std::vector< int32_t >& value )
 {
 
-  m_header->setProperty( name, value );
+  _header->setProperty( name, value );
 
 }
 
 
 void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      std::vector< double >& value )
+                                      const std::vector< double >& value )
 {
 
   std::vector< float > vec( value.begin(), value.end() );
 
-  m_header->setProperty( name, vec );
+  _header->setProperty( name, vec );
 
 }
 
 
 void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      std::vector< std::string >& value )
+                                      const std::vector< std::string >& value )
 {
 
-  m_header->setProperty( name, value );
+  _header->setProperty( name, value );
 
 }
 
 
 void soma::CartoHeader::addAttribute( 
-                                   const std::string& name, 
-                                   std::vector< std::vector< double > >& value )
+                             const std::string& name, 
+                             const std::vector< std::vector< double > >& value )
 {
 
   int32_t i = 0;
@@ -82,7 +82,7 @@ void soma::CartoHeader::addAttribute(
 
   }
 
-  m_header->setProperty( name, vecvec );
+  _header->setProperty( name, vecvec );
 
 }
 
@@ -90,7 +90,7 @@ void soma::CartoHeader::addAttribute(
 bool soma::CartoHeader::hasAttribute( const std::string& name )
 {
 
-  return m_header->hasProperty( name );
+  return _header->hasProperty( name );
 
 }
 

@@ -1,10 +1,14 @@
 #ifndef _DataInfoCache_h_
 #define _DataInfoCache_h_
 
-
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Pattern/Singleton.h>
 #include <soma-io/Container/DataInfo.h>
+#else
+#include <Pattern/Singleton.h>
+#include <Container/DataInfo.h>
+#endif
 
 
 namespace soma
@@ -28,7 +32,7 @@ class DataInfoCache : public Singleton< DataInfoCache >
 
   private:
 
-    DataInfo m_info;
+    DataInfo _info;
 
 };
 

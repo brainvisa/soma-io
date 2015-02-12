@@ -9,51 +9,77 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h
 
 set( _headers
   checker/dicomformatchecker.h
+  Container/BoundingBox.h
   Container/DataInfo.h
   Container/DataInfoCache.h
   Container/DicomProxy.h
   Container/Matrix.h
   Container/Vector.h
+  Dicom/AcquisitionModule.h
+  Dicom/CRImageStorageReader.h
   Dicom/CTImageStorageReader.h
+  Dicom/CTModule.h
+  Dicom/DatasetModule.h
   Dicom/DicomDataContext.h
   Dicom/DicomDatasetHeader.h
   Dicom/DicomIO.h
-  Dicom/DicomReaderFactory.h
+  Dicom/DicomModule.h
   Dicom/DicomReader.h
+  Dicom/DicomReaderFactory.h
+  Dicom/DicomSelectContext.h
   Dicom/DicomSortContext.h
+  Dicom/DiffusionModule.h
+  Dicom/EnhancedIndexModule.h
+  Dicom/EnhancedModalityLutModule.h
   Dicom/EnhancedMRImageStorageReader.h
   Dicom/FileInformation.h
+  Dicom/GE/GEDiffusionModule.h
   Dicom/GE/GEMRReader.h
+  Dicom/GenericCRReader.h
   Dicom/GenericCTReader.h
   Dicom/GenericEnhancedMRReader.h
   Dicom/GenericMRReader.h
   Dicom/GenericNMReader.h
   Dicom/GenericPTReader.h
+  Dicom/GenericSCReader.h
   Dicom/GenericUSMultiframeReader.h
   Dicom/GenericUSReader.h
+  Dicom/IdentifyingModule.h
+  Dicom/ImageModule.h
+  Dicom/ModalityLutModule.h
   Dicom/MRImageStorageReader.h
+  Dicom/MRModule.h
   Dicom/MultiFileReader.h
   Dicom/MultiFrameContext.h
   Dicom/MultiSliceContext.h
   Dicom/MultiSliceReader.h
   Dicom/NMImageStorageReader.h
+  Dicom/NuclearModule.h
+  Dicom/PatientModule.h
+  Dicom/Philips/PhilipsDiffusionModule.h
+  Dicom/Philips/PhilipsEnhancedDiffusionModule.h
+  Dicom/Philips/PhilipsEnhancedIndexModule.h
   Dicom/Philips/PhilipsEnhancedMRReader.h
   Dicom/Philips/PhilipsMRReader.h
+  Dicom/Philips/PhilipsNuclearModule.h
   Dicom/Philips/PhilipsPTReader.h
   Dicom/PTImageStorageReader.h
+  Dicom/RadiopharmaceuticalModule.h
+  Dicom/RelationshipModule.h
+  Dicom/SCImageStorageReader.h
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
+  Dicom/Siemens/SiemensDiffusionModule.h
   Dicom/Siemens/SiemensMRReader.h
-  Dicom/soma_osconfig.h
   Dicom/USImageStorageReader.h
   Dicom/USMultiframeImageStorageReader.h
   Dicom/USReader.h
+  Dicom/USRegionSpatialModule.h
   image/dicomimagereader.h
   image/dicomimagereader_d.h
   Object/BinaryHeader.h
   Object/CartoHeader.h
   Object/HeaderProxy.h
-  Pattern/Callback.h
   Pattern/Singleton.h
   plugin/dicomplugin.h
   System/DirectoryParser.h
@@ -66,49 +92,76 @@ set( _headers
 
 set( _sources
   checker/dicomformatchecker.cc
+  Container/BoundingBox.cc
   Container/DataInfo.cc
   Container/DataInfoCache.cc
   Container/DicomProxy.cc
   Container/Matrix.cc
   Container/Vector.cc
+  Dicom/AcquisitionModule.cc
+  Dicom/CRImageStorageReader.cc
   Dicom/CTImageStorageReader.cc
+  Dicom/CTModule.cc
+  Dicom/DatasetModule.cc
   Dicom/DicomDataContext.cc
   Dicom/DicomDatasetHeader.cc
   Dicom/DicomIO.cc
+  Dicom/DicomModule.cc
   Dicom/DicomReader.cc
   Dicom/DicomReaderFactory.cc
+  Dicom/DicomSelectContext.cc
   Dicom/DicomSortContext.cc
+  Dicom/DiffusionModule.cc
+  Dicom/EnhancedIndexModule.cc
+  Dicom/EnhancedModalityLutModule.cc
   Dicom/EnhancedMRImageStorageReader.cc
   Dicom/FileInformation.cc
+  Dicom/GE/GEDiffusionModule.cc
   Dicom/GE/GEMRReader.cc
+  Dicom/GenericCRReader.cc
   Dicom/GenericCTReader.cc
   Dicom/GenericEnhancedMRReader.cc
   Dicom/GenericMRReader.cc
   Dicom/GenericNMReader.cc
   Dicom/GenericPTReader.cc
+  Dicom/GenericSCReader.cc
   Dicom/GenericUSMultiframeReader.cc
   Dicom/GenericUSReader.cc
+  Dicom/IdentifyingModule.cc
+  Dicom/ImageModule.cc
+  Dicom/ModalityLutModule.cc
   Dicom/MRImageStorageReader.cc
+  Dicom/MRModule.cc
   Dicom/MultiFileReader.cc
   Dicom/MultiFrameContext.cc
   Dicom/MultiSliceContext.cc
   Dicom/MultiSliceReader.cc
   Dicom/NMImageStorageReader.cc
+  Dicom/NuclearModule.cc
+  Dicom/PatientModule.cc
+  Dicom/Philips/PhilipsDiffusionModule.cc
+  Dicom/Philips/PhilipsEnhancedDiffusionModule.cc
+  Dicom/Philips/PhilipsEnhancedIndexModule.cc
   Dicom/Philips/PhilipsEnhancedMRReader.cc
   Dicom/Philips/PhilipsMRReader.cc
+  Dicom/Philips/PhilipsNuclearModule.cc
   Dicom/Philips/PhilipsPTReader.cc
   Dicom/PTImageStorageReader.cc
+  Dicom/RadiopharmaceuticalModule.cc
+  Dicom/RelationshipModule.cc
+  Dicom/SCImageStorageReader.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
+  Dicom/Siemens/SiemensDiffusionModule.cc
   Dicom/Siemens/SiemensMRReader.cc
   Dicom/USImageStorageReader.cc
   Dicom/USMultiframeImageStorageReader.cc
   Dicom/USReader.cc
+  Dicom/USRegionSpatialModule.cc
   image/dicomimagereader.cc
   Object/BinaryHeader.cc
   Object/CartoHeader.cc
   Object/HeaderProxy.cc
-  Pattern/Callback.cc
   plugin/dicomplugin.cc
   System/DirectoryParser.cc
   Transformation/AxialTransformation3d.cc
@@ -140,6 +193,8 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
         Dicom/DcmtkJpeg2000/djencode.cc
         Dicom/DcmtkJpeg2000/djrparam.cc )
 endif()
+
+add_definitions( -DSOMA_IO_DICOM -DHAVE_CONFIG_H )
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMADICOM_HEADERS ${_headers} PARENT_SCOPE)

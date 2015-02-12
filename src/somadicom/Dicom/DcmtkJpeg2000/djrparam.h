@@ -2,7 +2,7 @@
 #define _DcmtkJpeg2000_djrparam_h_
 
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcpixel.h>
 
 

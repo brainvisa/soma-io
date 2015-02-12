@@ -2,7 +2,9 @@
 #define _Vector_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#endif
 
 #include <iostream>
 

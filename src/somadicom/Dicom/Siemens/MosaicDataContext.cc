@@ -1,9 +1,16 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
+#else
+#include <Dicom/Siemens/MosaicDataContext.h>
+#include <Dicom/Siemens/Demosaicer.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcpixel.h>
@@ -13,16 +20,13 @@
 
 
 soma::MosaicDataContext::MosaicDataContext( 
-                                   const std::vector< std::string >& files,
-                                   soma::DicomProxy& proxy,
-                                   soma::Demosaicer& demosaicer,
-                                   soma::Callback* progress )
-                       : carto::LoopContext(),
-                         m_files( files ),
-                         m_proxy( proxy ),
-                         m_demosaicer( demosaicer ),
-                         m_progress( progress ),
-                         m_count( 0 )
+                                        soma::DicomDatasetHeader& datasetHeader,
+                                        soma::DicomProxy& proxy,
+                                        soma::Demosaicer& demosaicer )
+                       : soma::LoopContext(),
+                         _datasetHeader( datasetHeader ),
+                         _proxy( proxy ),
+                         _demosaicer( demosaicer )
 {
 }
 
@@ -30,18 +34,20 @@ soma::MosaicDataContext::MosaicDataContext(
 void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
-  soma::DataInfo& info = m_proxy.getDataInfo();
+  soma::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
-  int32_t n = info.m_frames - 1;
-  int32_t min = ( 1 << info.m_depth ) - 1;
-  int32_t max = 1 - ( 1 << info.m_depth );
+  int32_t min = ( 1 << info._depth ) - 1;
+  int32_t max = 1 - ( 1 << info._depth );
+
+  std::vector< std::string >& fileList = _datasetHeader.getFileList();
+  std::vector< int32_t >& lut = _datasetHeader.getLut();
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
 
     DcmFileFormat fileFormat;
 
-    if ( fileFormat.loadFile( m_files[ i ].c_str() ).good() )
+    if ( fileFormat.loadFile( fileList[ lut[ i ] ].c_str() ).good() )
     {
 
       DcmDataset* dataset = fileFormat.getDataset();
@@ -68,19 +74,7 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 
         }
 
-        m_demosaicer.demosaic( dcmImage, m_proxy, 0, i );
-                             
-        lock();
-        m_count++;
-
-        if ( m_progress )
-        {
-
-          m_progress->execute( 6 + 94 * m_count / n );
-
-        }
-
-        unlock();
+        _demosaicer.demosaic( dcmImage, _proxy, 0, i );
 
       }
 
@@ -90,17 +84,17 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 
   lock();
 
-  if ( min < info.m_minimum )
+  if ( min < info._minimum )
   {
 
-    info.m_minimum = min;
+    info._minimum = min;
 
   }
 
-  if ( max > info.m_maximum )
+  if ( max > info._maximum )
   {
 
-    info.m_maximum = max;
+    info._maximum = max;
 
   }
 

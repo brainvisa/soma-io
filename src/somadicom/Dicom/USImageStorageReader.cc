@@ -1,9 +1,16 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/USImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Pattern/Callback.h>
 #include <soma-io/Utils/StdInt.h>
+#else
+#include <Dicom/USImageStorageReader.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Container/DicomProxy.h>
+#include <Utils/StdInt.h>
+#endif
 
-#include <soma-io/Dicom/soma_osconfig.h>
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -26,31 +33,19 @@ std::string soma::USImageStorageReader::getStorageUID()
 }
 
 
-bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
-                                           soma::Callback* progress )
+bool soma::USImageStorageReader::readData( 
+                                        soma::DicomDatasetHeader& datasetHeader,
+                                        soma::DicomProxy& proxy )
 {
 
   if ( proxy.allocate() )
   {
 
-    if ( progress )
-    {
-
-      progress->execute( 10 );
-
-    }
-
+    std::string fileName = datasetHeader.getFileList().front();
     DcmFileFormat fileFormat;
 
-    if ( fileFormat.loadFile( m_slices[ 0 ].c_str() ).good() )
+    if ( fileFormat.loadFile( fileName.c_str() ).good() )
     {
-
-      if ( progress )
-      {
-
-        progress->execute( 30 );
-
-      }
 
       DcmDataset* dataset = fileFormat.getDataset();
       DicomImage dcmImage( &fileFormat, dataset->getOriginalXfer() );
@@ -59,43 +54,60 @@ bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
       {
 
         soma::DataInfo& info = proxy.getDataInfo();
-        int32_t bpp = info.m_bpp;
-        uint32_t sliceSize = info.m_sliceSize;
-        uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData();
+        int32_t bpp = info._bpp;
+        int32_t sizeX = info._width;
+        int32_t startX = info._boundingBox.getLowerX();
+        int32_t startY = info._boundingBox.getLowerY();
+        int32_t endX = info._boundingBox.getUpperX() + 1;
+        int32_t endY = info._boundingBox.getUpperY() + 1;
+        int32_t offset = startY * sizeX + startX;
+        int32_t lineShift = sizeX + startX - endX;
         int32_t representation = dcmImage.getInterData()->getRepresentation();
 
-        if ( ( bpp == 2 ) && ( representation < 2 ) )
+        if ( bpp == 3 )
         {
 
-          if ( proxy.isMemoryMapped() )
+          uint8_t** d = (uint8_t**)dcmImage.getInterData()->getData();
+          uint8_t* r = d[ 0 ] + offset;
+          uint8_t* g = d[ 1 ] + offset;
+          uint8_t* b = d[ 2 ] + offset;
+          uint8_t* p;
+          int32_t x, y;
+
+          for ( y = startY; y < endY; y++ )
           {
 
-            int32_t sizeX = info.m_width;
-            int32_t sizeY = info.m_height;
-            int32_t x, y;
-
-            for ( y = 0; y < sizeY; y++ )
+            for ( x = startX; x < endX; x++ )
             {
 
-              for ( x = 0; x < sizeX; x++ )
-              {
-
-                *( (int16_t*)proxy( x, y ) ) = int16_t( *pIn++ );
-
-              }
+              p = proxy( x - startX, y - startY );
+              *p++ = *r++;
+              *p++ = *g++;
+              *p++ = *b++;
 
             }
 
+            r += lineShift;
+            g += lineShift;
+            b += lineShift;
+
           }
-          else
+
+        }
+        else if ( ( bpp == 2 ) && ( representation < 2 ) )
+        {
+
+          uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData() + offset;
+          int32_t x, y;
+
+          for ( y = startY; y < endY; y++, pIn += lineShift )
           {
 
-            uint16_t* p = (uint16_t*)proxy( 0 );
-
-            while ( sliceSize-- )
+            for ( x = startX; x < endX; x++ )
             {
 
-              *p++ = (uint16_t)*pIn++;
+              *( (int16_t*)proxy( x - startX, y - startY ) ) = 
+                                                              int16_t( *pIn++ );
 
             }
 
@@ -105,20 +117,23 @@ bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
         else
         {
 
+          uint8_t* pIn = (uint8_t*)dcmImage.getInterData()->getData() + 
+                         offset * bpp;
+
+          lineShift *= bpp;
+
           if ( proxy.isMemoryMapped() )
           {
 
-            int32_t sizeX = info.m_width;
-            int32_t sizeY = info.m_height;
             int32_t x, y;
 
-            for ( y = 0; y < sizeY; y++ )
+            for ( y = startY; y < endY; y++, pIn += lineShift )
             {
 
-              for ( x = 0; x < sizeX; x++, pIn += bpp )
+              for ( x = startX; x < endX; x++, pIn += bpp )
               {
 
-                std::memcpy( proxy( x, y ), pIn, bpp );
+                std::memcpy( proxy( x - startX, y - startY ), pIn, bpp );
 
               }
 
@@ -128,13 +143,22 @@ bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
           else
           {
 
-            std::memcpy( proxy( 0 ), pIn, sliceSize * bpp );
+            int32_t length = bpp * ( endX - startX );
+            int32_t lineShift2 = sizeX * bpp;
+            int32_t y;
+
+            for ( y = startY; y < endY; y++, pIn += lineShift2 )
+            {
+
+              std::memcpy( proxy( 0, y - startY ), pIn, length );
+
+            }
 
           }
 
         }
 
-        info.m_pixelRepresentation = representation;
+        info._pixelRepresentation = representation;
 
         if ( bpp < 3 )
         {
@@ -142,15 +166,8 @@ bool soma::USImageStorageReader::readData( soma::DicomProxy& proxy,
           double min = 0.0, max = 0.0;
 
           dcmImage.getMinMaxValues( min, max );
-          info.m_minimum = int32_t( min );
-          info.m_maximum = int32_t( max );
-
-        }
-
-        if ( progress )
-        {
-
-          progress->execute( 70 );
+          info._minimum = int32_t( min );
+          info._maximum = int32_t( max );
 
         }
 

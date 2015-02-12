@@ -1,4 +1,8 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/djrparam.h>
+#else
+#include <Dicom/DcmtkJpeg2000/djrparam.h>
+#endif
 
 #include <dcmtk/ofstd/ofstd.h>
 

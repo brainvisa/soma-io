@@ -1,29 +1,34 @@
+#ifdef SOMA_IO_DICOM
 #include <soma-io/Container/DataInfo.h>
+#else
+#include <Container/DataInfo.h>
+#endif
 
 
 soma::DataInfo::DataInfo()
-              : m_depth( 8 ),
-                m_bitsStored( 8 ),
-                m_pixelRepresentation( 0 ),
-                m_monochrome( true ),
-                m_minimum( 0 ),
-                m_maximum( 0 ),
-                m_width( 1 ),
-                m_height( 1 ),
-                m_slices( 1 ),
-                m_frames( 1 ),
-                m_spacingBetweenSlices( 1.0 ),
-                m_repetitionTime( 1.0 ),
-                m_modalityLUTApplied( true ),
-                m_fileCount( 0 ),
-                m_mosaic( false ),
-                m_noFlip( false ),
-                m_noDemosaic( false )
+              : _depth( 8 ),
+                _bitsStored( 8 ),
+                _pixelRepresentation( 0 ),
+                _pixelPaddingValue( 0 ),
+                _monochrome( true ),
+                _minimum( 0 ),
+                _maximum( 0 ),
+                _width( 1 ),
+                _height( 1 ),
+                _slices( 1 ),
+                _frames( 1 ),
+                _spacingBetweenSlices( 1.0 ),
+                _repetitionTime( 1.0 ),
+                _modalityLUTApplied( true ),
+                _fileCount( 0 ),
+                _mosaic( false ),
+                _noFlip( false ),
+                _noDemosaic( false )
 {
 
-  m_resolution = soma::Vector( 1.0, 1.0, 1.0 );
-  m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
-  m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  _resolution = soma::Vector( 1.0, 1.0, 1.0 );
+  _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
+  _colVec = soma::Vector( 0.0, 1.0, 0.0 );
 
   initialize();
 
@@ -31,28 +36,30 @@ soma::DataInfo::DataInfo()
 
 
 soma::DataInfo::DataInfo( const soma::DataInfo& other )
-              : m_depth( other.m_depth ),
-                m_bitsStored( other.m_bitsStored ),
-                m_pixelRepresentation( other.m_pixelRepresentation ),
-                m_monochrome( other.m_monochrome ),
-                m_minimum( other.m_minimum ),
-                m_maximum( other.m_maximum ),
-                m_width( other.m_width ),
-                m_height( other.m_height ),
-                m_slices( other.m_slices ),
-                m_frames( other.m_frames ),
-                m_resolution( other.m_resolution ),
-                m_spacingBetweenSlices( other.m_spacingBetweenSlices ),
-                m_repetitionTime( other.m_repetitionTime ),
-                m_modalityLUTApplied( other.m_modalityLUTApplied ),
-                m_fileCount( other.m_fileCount ),
-                m_rowVec( other.m_rowVec ),
-                m_colVec( other.m_colVec ),
-                m_patientOrientation( other.m_patientOrientation ),
-                m_datasetHeader( other.m_datasetHeader ),
-                m_mosaic( other.m_mosaic ),
-                m_noFlip( other.m_noFlip ),
-                m_noDemosaic( other.m_noDemosaic )
+              : _depth( other._depth ),
+                _bitsStored( other._bitsStored ),
+                _pixelRepresentation( other._pixelRepresentation ),
+                _pixelPaddingValue( other._pixelPaddingValue ),
+                _monochrome( other._monochrome ),
+                _minimum( other._minimum ),
+                _maximum( other._maximum ),
+                _width( other._width ),
+                _height( other._height ),
+                _slices( other._slices ),
+                _frames( other._frames ),
+                _resolution( other._resolution ),
+                _spacingBetweenSlices( other._spacingBetweenSlices ),
+                _repetitionTime( other._repetitionTime ),
+                _modalityLUTApplied( other._modalityLUTApplied ),
+                _fileCount( other._fileCount ),
+                _rowVec( other._rowVec ),
+                _colVec( other._colVec ),
+                _patientOrientation( other._patientOrientation ),
+                _datasetHeader( other._datasetHeader ),
+                _boundingBox( other._boundingBox ),
+                _mosaic( other._mosaic ),
+                _noFlip( other._noFlip ),
+                _noDemosaic( other._noDemosaic )
 {
 
   initialize();
@@ -68,33 +75,35 @@ soma::DataInfo::~DataInfo()
 void soma::DataInfo::clear()
 {
 
-  m_depth = 8;
-  m_bpp = 0;
-  m_bitsStored = 8;
-  m_pixelRepresentation = 0;
-  m_monochrome = true;
-  m_minimum = 0;
-  m_maximum = 0;
-  m_width = 1;
-  m_height = 1;
-  m_slices = 1;
-  m_frames = 1;
-  m_sliceSize = 0;
-  m_volumeSize = 0;
-  m_datasetSize = 0;
-  m_resolution = soma::Vector( 1.0, 1.0, 1.0 );
-  m_spacingBetweenSlices = 1.0;
-  m_repetitionTime = 1.0;
-  m_modalityLUTApplied = true;
-  m_fileCount = 0;
-  m_slope.clear();
-  m_intercept.clear();
-  m_rowVec = soma::Vector( 1.0, 0.0, 0.0 );
-  m_colVec = soma::Vector( 0.0, 1.0, 0.0 );
-  m_datasetHeader.clear();
-  m_mosaic = false;
-  m_noFlip = false;
-  m_noDemosaic = false;
+  _depth = 8;
+  _bpp = 0;
+  _bitsStored = 8;
+  _pixelRepresentation = 0;
+  _pixelPaddingValue = 0;
+  _monochrome = true;
+  _minimum = 0;
+  _maximum = 0;
+  _width = 1;
+  _height = 1;
+  _slices = 1;
+  _frames = 1;
+  _sliceSize = 0;
+  _volumeSize = 0;
+  _datasetSize = 0;
+  _resolution = soma::Vector( 1.0, 1.0, 1.0 );
+  _spacingBetweenSlices = 1.0;
+  _repetitionTime = 1.0;
+  _modalityLUTApplied = true;
+  _fileCount = 0;
+  _slope.clear();
+  _intercept.clear();
+  _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
+  _colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  _datasetHeader.clear();
+  _boundingBox = soma::BoundingBox< int32_t >();
+  _mosaic = false;
+  _noFlip = false;
+  _noDemosaic = false;
 
 }
 
@@ -102,25 +111,43 @@ void soma::DataInfo::clear()
 void soma::DataInfo::initialize()
 {
 
-  m_bpp = m_depth / 8;
+  _bpp = _depth / 8;
 
-  if ( !m_monochrome && ( m_bpp < 3 ) )
+  if ( !_monochrome && ( _bpp < 3 ) )
   {
 
-    m_bpp *= 3;
+    _bpp *= 3;
 
   }
 
-  if ( !m_maximum )
+  if ( !_maximum )
   {
 
-    m_maximum = ( 1 << m_depth ) - 1;
+    _maximum = ( 1 << _depth ) - 1;
 
   }
 
-  m_sliceSize = m_width * m_height;
-  m_volumeSize = m_sliceSize * m_slices;
-  m_datasetSize = m_volumeSize * m_frames;
-  m_normVec = m_rowVec.cross( m_colVec );
+  _sliceSize = _width * _height;
+  _volumeSize = _sliceSize * _slices;
+  _datasetSize = _volumeSize * _frames;
+  _normVec = _rowVec.cross( _colVec );
+
+  if ( ( _boundingBox.getLowerX() == 0 ) &&
+       ( _boundingBox.getLowerY() == 0 ) &&
+       ( _boundingBox.getLowerZ() == 0 ) &&
+       ( _boundingBox.getUpperX() == 0 ) &&
+       ( _boundingBox.getUpperY() == 0 ) &&
+       ( _boundingBox.getUpperZ() == 0 ) )
+  {
+
+    int32_t sizeX, sizeY, sizeZ;
+
+    _patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+    _boundingBox = soma::BoundingBox< int32_t >( 0, sizeX - 1,
+                                                 0, sizeY - 1,
+                                                 0, sizeZ - 1,
+                                                 0, _frames - 1 );
+
+  }
 
 }

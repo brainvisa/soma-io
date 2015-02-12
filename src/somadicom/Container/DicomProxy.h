@@ -2,8 +2,13 @@
 #define _DicomProxy_h_
 
 
+#ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/DataInfo.h>
+#else
+#include <Pattern/Model.h>
+#include <Container/DataInfo.h>
+#endif
 
 #include <vector>
 
@@ -12,18 +17,22 @@ namespace soma
 {
 
 
+#ifdef SOMA_IO_DICOM
 class DicomProxy
+#else
+class DicomProxy : public Model
+#endif
 {
 
   public:
 
     DicomProxy( DataInfo* info = 0 );
-    DicomProxy( uint8_t* ptr, DataInfo* info = 0  );
+    DicomProxy( uint8_t* ptr, DataInfo* info = 0 );
     ~DicomProxy();
 
     virtual bool allocate( DataInfo* info = 0 );
     virtual void destroy();
-    virtual bool isNull();
+    virtual bool isNull() const;
     virtual bool isMemoryMapped() const;
 
     DataInfo& getDataInfo();
@@ -37,11 +46,11 @@ class DicomProxy
 
   protected:
 
-    uint8_t* m_buffer;
-    bool m_dataOwner;
-    DataInfo m_info;
+    uint8_t* _buffer;
+    bool _dataOwner;
+    DataInfo _info;
 
-    std::vector< std::vector< std::vector< uint8_t* > > > m_lineAccess;
+    std::vector< std::vector< std::vector< uint8_t* > > > _lineAccess;
 
 };
 
