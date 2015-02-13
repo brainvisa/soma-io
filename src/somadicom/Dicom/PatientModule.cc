@@ -86,7 +86,7 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
     if ( dataset->findAndGetFloat64( DCM_PatientWeight, tmpDouble ).good() )
 #else
-    if ( dataset->findAndGetFloat64( DCM_PatientsWeights, tmpDouble ).good() )
+    if ( dataset->findAndGetFloat64( DCM_PatientsWeight, tmpDouble ).good() )
 #endif
     {
 
