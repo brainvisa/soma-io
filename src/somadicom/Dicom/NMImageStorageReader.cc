@@ -167,8 +167,6 @@ bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    setOrientation();
-
     return true;
 
   }

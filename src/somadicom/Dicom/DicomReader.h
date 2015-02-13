@@ -51,6 +51,7 @@ class DicomReader
 
     bool readHeader( DicomDatasetHeader& datasetHeader );
 
+    virtual void setOrientation();
     virtual bool selectFiles( DirectoryParser& directory,
                               const std::string& seriesIntanceUID,
                               DicomDatasetHeader& datasetHeader ); 

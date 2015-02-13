@@ -324,6 +324,33 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 }
 
 
+void soma::DicomReader::setOrientation()
+{
+
+  _dataInfo->_patientOrientation.set( _dataInfo->_rowVec,
+                                      _dataInfo->_colVec,
+                                      _dataInfo->_normVec,
+                                      _dataInfo->_origin,
+                                      _dataInfo->_width,
+                                      _dataInfo->_height,
+                                      _dataInfo->_slices,
+                                      _dataInfo->_resolution );
+
+  if ( !_dataInfo->_noFlip )
+  {
+
+    _dataInfo->_patientOrientation.getSize( _dataInfo->_width,
+                                            _dataInfo->_height,
+                                            _dataInfo->_slices );
+    _dataInfo->_patientOrientation.getResolution( _dataInfo->_resolution.x,
+                                                  _dataInfo->_resolution.y,
+                                                  _dataInfo->_resolution.z );
+
+  }
+
+}
+
+
 bool soma::DicomReader::selectFiles( soma::DirectoryParser& directory,
                                      const std::string& /* seriesInstanceUID */,
                                      soma::DicomDatasetHeader& datasetHeader )
@@ -362,6 +389,8 @@ bool soma::DicomReader::selectFiles( soma::DirectoryParser& directory,
 bool soma::DicomReader::sortFiles( 
                                  soma::DicomDatasetHeader& /* datasetHeader */ )
 {
+
+  setOrientation();
 
   return true;
 

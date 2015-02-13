@@ -201,7 +201,7 @@ bool soma::SiemensMRReader::sortFiles( soma::DicomDatasetHeader& datasetHeader )
   if ( _demosaicer )
   {
 
-    soma::Vector origin = _demosaicer->demosaic( _origin );
+    soma::Vector origin = _demosaicer->demosaic( _dataInfo->_origin );
     _dataInfo->_patientOrientation.setOrigin( origin );
 
   }

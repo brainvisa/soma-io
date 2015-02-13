@@ -29,6 +29,8 @@ soma::DataInfo::DataInfo()
   _resolution = soma::Vector( 1.0, 1.0, 1.0 );
   _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   _colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  _normVec = soma::Vector( 0.0, 0.0, 1.0 );
+  _origin = soma::Vector( 0.0, 0.0, 0.0 );
 
   initialize();
 
@@ -54,6 +56,8 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 _fileCount( other._fileCount ),
                 _rowVec( other._rowVec ),
                 _colVec( other._colVec ),
+                _normVec( other._normVec ),
+                _origin( other._origin ),
                 _patientOrientation( other._patientOrientation ),
                 _datasetHeader( other._datasetHeader ),
                 _boundingBox( other._boundingBox ),
@@ -99,6 +103,8 @@ void soma::DataInfo::clear()
   _intercept.clear();
   _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   _colVec = soma::Vector( 0.0, 1.0, 0.0 );
+  _normVec = soma::Vector( 0.0, 0.0, 1.0 );
+  _origin = soma::Vector( 0.0, 0.0, 0.0 );
   _datasetHeader.clear();
   _boundingBox = soma::BoundingBox< int32_t >();
   _mosaic = false;
@@ -130,7 +136,6 @@ void soma::DataInfo::initialize()
   _sliceSize = _width * _height;
   _volumeSize = _sliceSize * _slices;
   _datasetSize = _volumeSize * _frames;
-  _normVec = _rowVec.cross( _colVec );
 
   if ( ( _boundingBox.getLowerX() == 0 ) &&
        ( _boundingBox.getLowerY() == 0 ) &&

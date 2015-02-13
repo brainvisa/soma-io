@@ -69,9 +69,9 @@ bool soma::MultiSliceReader::getHeader(
 void soma::MultiSliceReader::setOrientation()
 {
 
+  soma::Vector origin( 0.0, 0.0, 0.0 );
   soma::Vector normalVec = _dataInfo->_rowVec.cross( _dataInfo->_colVec );
 
-  _origin = soma::Vector( 0.0, 0.0, 0.0 );
   _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
 
   if ( !_positions.empty() )
@@ -99,7 +99,7 @@ void soma::MultiSliceReader::setOrientation()
       p = _positions.begin(),
       pe = _positions.end();
 
-    _origin = *p;
+    origin = *p;
 
     while ( p != pe )
     {
@@ -110,7 +110,7 @@ void soma::MultiSliceReader::setOrientation()
       {
 
         minPos = dotProduct;
-        _origin = *p;
+        origin = *p;
 
       }
       else if ( dotProduct > maxPos )
@@ -133,26 +133,10 @@ void soma::MultiSliceReader::setOrientation()
 
   }
 
-  _dataInfo->_patientOrientation.set( _dataInfo->_rowVec,
-                                      _dataInfo->_colVec,
-                                      normalVec,
-                                      _origin,
-                                      _dataInfo->_width,
-                                      _dataInfo->_height,
-                                      _dataInfo->_slices,
-                                      _dataInfo->_resolution );
+  _dataInfo->_normVec = normalVec;
+  _dataInfo->_origin = origin;
 
-  if ( !_dataInfo->_noFlip )
-  {
-
-    _dataInfo->_patientOrientation.getSize( _dataInfo->_width,
-                                            _dataInfo->_height,
-                                            _dataInfo->_slices );
-    _dataInfo->_patientOrientation.getResolution( _dataInfo->_resolution.x,
-                                                  _dataInfo->_resolution.y,
-                                                  _dataInfo->_resolution.z );
-
-  }
+  soma::DicomReader::setOrientation();
 
 }
 

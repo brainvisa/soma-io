@@ -33,7 +33,6 @@ class MultiSliceReader : public DicomReader
   protected:
 
     std::vector< Vector > _positions;
-    Vector _origin;
 
 };
 

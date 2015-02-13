@@ -172,8 +172,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    setOrientation();
-
     return true;
 
   }
