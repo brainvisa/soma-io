@@ -39,8 +39,7 @@
 #include <sstream>
 #include <ctime>
 
-//#define DEBUG
-#ifdef DEBUG
+#ifdef MINI_VIEWER
 #include <sys/time.h>
 #include <iostream>
 #endif
@@ -71,7 +70,7 @@ bool soma::DicomReader::check( const soma::DatasetModule& datasetModule,
                                soma::DicomDatasetHeader& datasetHeader )
 {
 
-#ifdef DEBUG
+#ifdef MINI_VIEWER
   struct timeval tv_start;
   struct timeval tv_1;
   struct timeval tv_2;
@@ -94,21 +93,21 @@ bool soma::DicomReader::check( const soma::DatasetModule& datasetModule,
                     datasetHeader ) )
   {
 
-#ifdef DEBUG
-      gettimeofday( &tv_1, NULL );
+#ifdef MINI_VIEWER
+    gettimeofday( &tv_1, NULL );
 #endif
 
     if ( readHeader( datasetHeader ) )
     {
 
-#ifdef DEBUG
+#ifdef MINI_VIEWER
       gettimeofday( &tv_2, NULL );
 #endif
 
       if ( sortFiles( datasetHeader ) )
       {
 
-#ifdef DEBUG
+#ifdef MINI_VIEWER
         gettimeofday( &tv_3, NULL );
 
         double d1 = (double)( tv_1.tv_sec + tv_1.tv_usec / 1000000.0 - 
@@ -229,7 +228,7 @@ bool soma::DicomReader::read( soma::DicomDatasetHeader& datasetHeader,
   if ( datasetHeader.size() )
   {
 
-#ifdef DEBUG
+#ifdef MINI_VIEWER
     struct timeval tv_start;
     struct timeval tv_1;
 
@@ -239,7 +238,7 @@ bool soma::DicomReader::read( soma::DicomDatasetHeader& datasetHeader,
     // read dataset
     bool status = readData( datasetHeader, proxy );
 
-#ifdef DEBUG
+#ifdef MINI_VIEWER
     gettimeofday( &tv_1, NULL );
 
     double d1 = (double)( tv_1.tv_sec + tv_1.tv_usec / 1000000.0 - 
@@ -280,6 +279,7 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
       _dataInfo->_depth = depth < 8 ? 8 : depth;
       _dataInfo->_bitsStored = imageModule.getBitsStored();
       _dataInfo->_monochrome = imageModule.isMonochrome();
+      _dataInfo->_pixelPaddingValue = imageModule.getPixelPaddingValue();
 
     }
     else
