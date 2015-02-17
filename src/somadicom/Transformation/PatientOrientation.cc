@@ -99,7 +99,9 @@ void soma::PatientOrientation::set( const soma::Vector& rowVector,
   _resolution.y = std::fabs( _resolution.y );
   _resolution.z = std::fabs( _resolution.z );
 
-  if ( rowVector.cross( columnVector ).dot( normalVector ) > 0.0 )
+  if ( !std::abs( int32_t( _axialTransformation.getDirectCoefficient( 1, 
+                                                                      2 ) ) ) &&
+       rowVector.cross( columnVector ).dot( normalVector ) > 0.0 )
   {
 
     _axialTransformation.setTranslation( soma::Vector( double( _sizeX - 1 ),
