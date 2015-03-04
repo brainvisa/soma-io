@@ -1,4 +1,6 @@
-include_directories( ${TIFF_INCLUDE_DIR} )
+if( TIFF_FOUND )
+  include_directories( ${TIFF_INCLUDE_DIR} )
+endif()
 
 BRAINVISA_ADD_EXECUTABLE(cartoAlgorithm_test       cartoAlgorithm_test/algorithm_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(cartoConversion_test      cartoConversion_test/conversion_test.cc HELP_GENERATE FALSE)
@@ -20,10 +22,6 @@ BRAINVISA_ADD_EXECUTABLE(somaDSList_test           somaDSList_test/dslist_test.c
 BRAINVISA_ADD_EXECUTABLE(somaRGB_test              somaRGB_test/rgb_test.cc HELP_GENERATE FALSE)
 BRAINVISA_ADD_EXECUTABLE(somaGetPluginFile_test    somaGetPluginFile_test/getpluginfile_test.cc HELP_GENERATE FALSE)
 
-# Plugins test
-BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test   somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
-BRAINVISA_ADD_EXECUTABLE(somaTiffFormatCheck_test  somaTiffFormatCheck_test/tiffcheck_test.cc HELP_GENERATE FALSE)
-BRAINVISA_ADD_EXECUTABLE(somaTiffIR_test           somaTiffIR_test/tiffir_test.cc HELP_GENERATE FALSE)
 #   BRAINVISA_ADD_EXECUTABLE(somaDSILoader_test      somaDSILoader_test/dsiloader_test.cc HELP_GENERATE FALSE)
 #   BRAINVISA_ADD_EXECUTABLE(somaGisIR_test          somaGisIR_test/gisir_test.cc HELP_GENERATE FALSE)
 #   BRAINVISA_ADD_EXECUTABLE(somaPartialIO_test      somaPartialIO_test/partialio_test.cc HELP_GENERATE FALSE)
@@ -50,9 +48,16 @@ TARGET_LINK_LIBRARIES(somaDSList_test           soma-io)
 TARGET_LINK_LIBRARIES(somaRGB_test              soma-io)
 TARGET_LINK_LIBRARIES(somaGetPluginFile_test    soma-io)
 
+# Plugins test
+BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test   somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
 TARGET_LINK_LIBRARIES(somaGisFormatCheck_test   soma-io cartobase)
-TARGET_LINK_LIBRARIES(somaTiffFormatCheck_test  soma-io cartobase somatiff)
-TARGET_LINK_LIBRARIES(somaTiffIR_test           soma-io cartobase somatiff)
+if( TIFF_FOUND )
+  BRAINVISA_ADD_EXECUTABLE(somaTiffFormatCheck_test  somaTiffFormatCheck_test/tiffcheck_test.cc HELP_GENERATE FALSE)
+  BRAINVISA_ADD_EXECUTABLE(somaTiffIR_test           somaTiffIR_test/tiffir_test.cc HELP_GENERATE FALSE)
+  TARGET_LINK_LIBRARIES(somaTiffFormatCheck_test  soma-io cartobase somatiff)
+  TARGET_LINK_LIBRARIES(somaTiffIR_test           soma-io cartobase somatiff)
+endif()
+
 
 #   TARGET_LINK_LIBRARIES(somaDSILoader_test      ${SOMA-IO_LIBRARIES})
 #   TARGET_LINK_LIBRARIES(somaGisIR_test          ${SOMA-IO_LIBRARIES})
