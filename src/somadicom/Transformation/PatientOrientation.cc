@@ -180,18 +180,18 @@ soma::PatientOrientation::getDirectBoundingBox(
                                  double( boundingBox.getLowerY() ),
                                  double( boundingBox.getLowerZ() ),
                                  x, y, z );
-  outBoundingBox.setLowerX( std::abs( int32_t( x + 0.5 ) ) );
-  outBoundingBox.setLowerY( std::abs( int32_t( y + 0.5 ) ) );
-  outBoundingBox.setLowerZ( std::abs( int32_t( z + 0.5 ) ) );
+  outBoundingBox.setLowerX( std::abs( int32_t( x ) ) );
+  outBoundingBox.setLowerY( std::abs( int32_t( y ) ) );
+  outBoundingBox.setLowerZ( std::abs( int32_t( z ) ) );
   outBoundingBox.setLowerT( boundingBox.getLowerT() );
 
   _flipTransformation.getDirect( double( boundingBox.getUpperX() ),
                                  double( boundingBox.getUpperY() ),
                                  double( boundingBox.getUpperZ() ),
                                  x, y, z );
-  outBoundingBox.setUpperX( std::abs( int32_t( x + 0.5 ) ) );
-  outBoundingBox.setUpperY( std::abs( int32_t( y + 0.5 ) ) );
-  outBoundingBox.setUpperZ( std::abs( int32_t( z + 0.5 ) ) );
+  outBoundingBox.setUpperX( std::abs( int32_t( x ) ) );
+  outBoundingBox.setUpperY( std::abs( int32_t( y ) ) );
+  outBoundingBox.setUpperZ( std::abs( int32_t( z ) ) );
   outBoundingBox.setUpperT( boundingBox.getUpperT() );
 
   return outBoundingBox;
@@ -211,18 +211,18 @@ soma::PatientOrientation::getInverseBoundingBox(
                                   double( boundingBox.getLowerY() ),
                                   double( boundingBox.getLowerZ() ),
                                   x, y, z );
-  outBoundingBox.setLowerX( std::abs( int32_t( x + 0.5 ) ) );
-  outBoundingBox.setLowerY( std::abs( int32_t( y + 0.5 ) ) );
-  outBoundingBox.setLowerZ( std::abs( int32_t( z + 0.5 ) ) );
+  outBoundingBox.setLowerX( std::abs( int32_t( x ) ) );
+  outBoundingBox.setLowerY( std::abs( int32_t( y ) ) );
+  outBoundingBox.setLowerZ( std::abs( int32_t( z ) ) );
   outBoundingBox.setLowerT( boundingBox.getLowerT() );
 
   _flipTransformation.getInverse( double( boundingBox.getUpperX() ),
                                   double( boundingBox.getUpperY() ),
                                   double( boundingBox.getUpperZ() ),
                                   x, y, z );
-  outBoundingBox.setUpperX( std::abs( int32_t( x + 0.5 ) ) );
-  outBoundingBox.setUpperY( std::abs( int32_t( y + 0.5 ) ) );
-  outBoundingBox.setUpperZ( std::abs( int32_t( z + 0.5 ) ) );
+  outBoundingBox.setUpperX( std::abs( int32_t( x ) ) );
+  outBoundingBox.setUpperY( std::abs( int32_t( y ) ) );
+  outBoundingBox.setUpperZ( std::abs( int32_t( z ) ) );
   outBoundingBox.setUpperT( boundingBox.getUpperT() );
 
   return outBoundingBox;
