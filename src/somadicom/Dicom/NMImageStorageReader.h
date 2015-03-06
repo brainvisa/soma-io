@@ -33,8 +33,6 @@ class NMImageStorageReader : public MultiSliceReader
     NMImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
 
 };
 

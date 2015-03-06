@@ -4,9 +4,11 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#include <soma-io/Dicom/ImagePixel.h>
 #include <cartobase/thread/loopContext.h>
 #include <soma-io/Utils/StdInt.h>
 #else
+#include <Dicom/ImagePixel.h>
 #include <Thread/LoopContext.h>
 #include <Utils/StdInt.h>
 #endif
@@ -37,8 +39,10 @@ class MosaicDataContext : public LoopContext
 
   private:
 
-    DicomDatasetHeader& _datasetHeader;
+    std::vector< std::string >& _fileList;
+    std::vector< int32_t >& _lut;
     DicomProxy& _proxy;
+    ImagePixel::Parameters _parameters;
     Demosaicer& _demosaicer;
 
 };

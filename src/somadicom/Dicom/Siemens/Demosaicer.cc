@@ -1,10 +1,12 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
-#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Dicom/Siemens/MosaicDicomImage.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Transformation/PatientOrientation.h>
 #else
 #include <Dicom/Siemens/Demosaicer.h>
-#include <Container/DicomProxy.h>
+#include <Dicom/Siemens/MosaicDicomImage.h>
+#include <Container/DataInfo.h>
 #include <Transformation/PatientOrientation.h>
 #endif
 
@@ -66,6 +68,14 @@ int32_t soma::Demosaicer::getMosaicSize()
 }
 
 
+int32_t soma::Demosaicer::getMosaicSizeX()
+{
+
+  return _mosaicSizeX;
+
+}
+
+
 void soma::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
 {
 
@@ -76,64 +86,24 @@ void soma::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
 }
 
 
-void soma::Demosaicer::demosaic( DicomImage& dcmImage,
-                                 soma::DicomProxy& data,
+void soma::Demosaicer::demosaic( soma::MosaicDicomImage& dicomImage,
+                                 soma::DataInfo& info,
                                  int32_t slice,
                                  int32_t t )
 {
 
-  const uint8_t* m = (const uint8_t*)dcmImage.getInterData()->getData();
-
-  data.getDataInfo()._pixelRepresentation = 
-                                   dcmImage.getInterData()->getRepresentation();
-
-  demosaic( m, data, slice, t );
-
-}
-
-
-void soma::Demosaicer::demosaic( const uint8_t* mosaic,
-                                 soma::DicomProxy& data,
-                                 int32_t slice,
-                                 int32_t t )
-{
-
-  int32_t x, y, px, py, pz;
-  soma::DataInfo& info = data.getDataInfo();
+  int32_t divider = _divider;
   int32_t startX = info._boundingBox.getLowerX();
   int32_t startY = info._boundingBox.getLowerY();
-  int32_t endX = info._boundingBox.getUpperX() + 1;
-  int32_t endY = info._boundingBox.getUpperY() + 1;
-  int32_t lineShift = _mosaicSizeX + startX - endX;
-  int32_t divider = _divider;
-  soma::BoundingBox< int32_t > outBoundingBox;
+  int32_t baseOffset = startY * _mosaicSizeX + startX;
 
   if ( info._noDemosaic )
   {
 
     divider = 1;
-    lineShift = 0;
+    dicomImage.setLineShift( 0 );
 
   }
-
-  if ( info._noFlip )
-  {
-
-    outBoundingBox = info._boundingBox;
-
-  }
-  else
-  {
-
-    outBoundingBox =
-           info._patientOrientation.getDirectBoundingBox( info._boundingBox );
-
-  }
-
-  int32_t bbLowerX = outBoundingBox.getLowerX();
-  int32_t bbLowerY = outBoundingBox.getLowerY();
-  int32_t bbLowerZ = outBoundingBox.getLowerZ();
-  int32_t bbLowerT = outBoundingBox.getLowerT();
 
   if ( divider > 1 )
   {
@@ -143,136 +113,12 @@ void soma::Demosaicer::demosaic( const uint8_t* mosaic,
     int32_t endZ = info._boundingBox.getUpperZ() + 1;
     int32_t sliceSize = _mosaicSizeX * _sizeY;
 
-    if ( ( info._bpp == 2 ) && ( info._pixelRepresentation < 2 ) )
+    for ( z = startZ; z < endZ; z++ )
     {
 
-      if ( info._noFlip )
-      {
-
-        for ( z = startZ; z < endZ; z++ )
-        {
-
-          const uint8_t* slicePtr = mosaic + ( z / _divider ) * sliceSize +
-                                             ( z % _divider ) * _sizeX + 
-                                             startY * _mosaicSizeX + startX;
-
-          for ( y = startY; y < endY; y++, slicePtr += lineShift )
-          {
-
-            for ( x = startX; x < endX; x++ )
-            {
-
-              *( (uint16_t*)data( x - bbLowerX, 
-                                  y - bbLowerY, 
-                                  z - bbLowerZ, 
-                                  t - bbLowerT ) ) = (uint16_t)*slicePtr++;
-
-            }
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( z = startZ; z < endZ; z++ )
-        {
-
-          const uint8_t* slicePtr = mosaic + ( z / _divider ) * sliceSize +
-                                             ( z % _divider ) * _sizeX + 
-                                             startY * _mosaicSizeX + startX;
-
-          for ( y = startY; y < endY; y++, slicePtr += lineShift )
-          {
-
-            for ( x = startX; x < endX; x++ )
-            {
-
-              info._patientOrientation.getDirect( x, y, z, px, py, pz );
-              *( (uint16_t*)data( px - bbLowerX, 
-                                  py - bbLowerY, 
-                                  pz - bbLowerZ, 
-                                  t - bbLowerT ) ) = (uint16_t)*slicePtr++;
-
-            }
-
-          }
-
-        }
-
-      }
-
-    }
-    else
-    {
-
-      lineShift *= info._bpp;
-
-      if ( info._noFlip )
-      {
-
-        for ( z = startZ; z < endZ; z++ )
-        {
-
-          const uint8_t* slicePtr = mosaic + ( ( z / _divider ) * sliceSize +
-                                               ( z % _divider ) * _sizeX + 
-                                               startY * _mosaicSizeX + 
-                                               startX ) * info._bpp;
-
-          for ( y = startY; y < endY; y++, slicePtr += lineShift )
-          {
-
-            for ( x = startX; x < endX; x++, slicePtr += info._bpp )
-            {
-
-              std::memcpy( data( x - bbLowerX, 
-                                 y - bbLowerY, 
-                                 z - bbLowerZ, 
-                                 t - bbLowerT ), 
-                           slicePtr, 
-                           info._bpp );
-
-            }
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( z = startZ; z < endZ; z++ )
-        {
-
-          const uint8_t* slicePtr = mosaic + ( ( z / _divider ) * sliceSize +
-                                               ( z % _divider ) * _sizeX + 
-                                               startY * _mosaicSizeX + 
-                                               startX ) * info._bpp;
-
-          for ( y = startY; y < endY; y++, slicePtr += lineShift )
-          {
-
-            for ( x = startX; x < endX; x++, slicePtr += info._bpp )
-            {
-
-              info._patientOrientation.getDirect( x, y, z, px, py, pz );
-              std::memcpy( data( px - bbLowerX, 
-                                 py - bbLowerY, 
-                                 pz - bbLowerZ, 
-                                 t - bbLowerT ), 
-                           slicePtr, 
-                           info._bpp );
-
-            }
-
-          }
-
-        }
-
-      }
+      dicomImage.setOffset( ( z / _divider ) * sliceSize +
+                            ( z % _divider ) * _sizeX + baseOffset );
+      dicomImage.fill( z, t );
 
     }
 
@@ -280,105 +126,8 @@ void soma::Demosaicer::demosaic( const uint8_t* mosaic,
   else
   {
 
-    if ( ( info._bpp == 2 ) && ( info._pixelRepresentation < 2 ) )
-    {
-
-      const uint8_t* slicePtr = mosaic + startY * _mosaicSizeX + startX;
-
-      if ( info._noFlip )
-      {
-
-        for ( y = startY; y < endY; y++, slicePtr += lineShift )
-        {
-
-          for ( x = startX; x < endX; x++ )
-          {
-
-            *( (uint16_t*)data( x - bbLowerX, 
-                                y - bbLowerY, 
-                                slice - bbLowerZ, 
-                                t - bbLowerT ) ) = (uint16_t)*slicePtr++;
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( y = startY; y < endY; y++, slicePtr += lineShift )
-        {
-
-          for ( x = startX; x < endX; x++ )
-          {
-
-            info._patientOrientation.getDirect( x, y, slice, px, py, pz );
-            *( (uint16_t*)data( px - bbLowerX, 
-                                py - bbLowerY, 
-                                pz - bbLowerZ, 
-                                t - bbLowerT ) ) = (uint16_t)*slicePtr++;
-
-          }
-
-        }
-
-      }
-
-    }
-    else
-    {
-
-      const uint8_t* slicePtr = mosaic + ( startY * _mosaicSizeX + startX ) * 
-                                         info._bpp;
-
-      lineShift *= info._bpp;
-
-      if ( info._noFlip )
-      {
-
-        for ( y = startY; y < endY; y++, slicePtr += lineShift )
-        {
-
-          for ( x = startX; x < endX; x++, slicePtr += info._bpp )
-          {
-
-            std::memcpy( data( x - bbLowerX, 
-                               y - bbLowerY, 
-                               slice - bbLowerZ, 
-                               t - bbLowerT ), 
-                         slicePtr, 
-                         info._bpp );
-
-          }
-
-        }
-
-      }
-      else
-      {
-
-        for ( y = startY; y < endY; y++, slicePtr += lineShift )
-        {
-
-          for ( x = startX; x < endX; x++, slicePtr += info._bpp )
-          {
-
-            info._patientOrientation.getDirect( x, y, slice, px, py, pz );
-            std::memcpy( data( px - bbLowerX, 
-                               py - bbLowerY, 
-                               pz - bbLowerZ, 
-                               t - bbLowerT ), 
-                         slicePtr, 
-                         info._bpp );
-
-          }
-
-        }
-
-      }
-
-    }
+    dicomImage.setOffset( baseOffset );
+    dicomImage.fill( slice, t );
 
   }
 

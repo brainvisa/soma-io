@@ -11,16 +11,13 @@
 #include <Utils/StdInt.h>
 #endif
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
-
 
 namespace soma
 {
 
 
-class DicomProxy;
+//class MultiFrameDicomImage;
+class DicomImage;
 
 
 class MultiFrameContext : public LoopContext
@@ -28,17 +25,15 @@ class MultiFrameContext : public LoopContext
 
   public:
 
-    MultiFrameContext( DicomImage& dcmImage, 
-                       DicomProxy& proxy,
-                       bool fillSlices = false );
+    //MultiFrameContext( MultiFrameDicomImage& dicomImage );
+    MultiFrameContext( DicomImage& dicomImage );
 
     void doIt( int32_t startIndex, int32_t count );
 
   private:
 
-    DicomImage& _dcmImage;
-    DicomProxy& _proxy;
-    bool _fillSlices;
+    //MultiFrameDicomImage& _dicomImage;
+    DicomImage& _dicomImage;
 
 };
 

@@ -2,13 +2,14 @@
 #define _DcmtkJpeg2000_djdecode_h_
 
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/ofstd/oftypes.h>
+
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 #else
 #include <Dicom/DcmtkJpeg2000/dj2kutil.h>
 #endif
-
-#include <dcmtk/ofstd/oftypes.h>
 
 
 class DJ2KCodecParameter;
@@ -39,8 +40,7 @@ public:
    */
   static void cleanup();
 
-  /** get version information of the CharLS library.
-   *  Typical output format: "CharLS, Revision 55020 (modified)"
+  /** get version information of the Jasper library.
    *  @return name and version number of the CharLS library
    */
   static OFString getLibraryVersionString();

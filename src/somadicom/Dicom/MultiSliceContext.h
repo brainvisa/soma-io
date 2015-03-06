@@ -11,10 +11,6 @@
 #include <Utils/StdInt.h>
 #endif
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
-
 #include <vector>
 
 
@@ -22,7 +18,7 @@ namespace soma
 {
 
 
-class DicomProxy;
+class MultiSliceDicomImage;
 
 
 class MultiSliceContext : public LoopContext
@@ -30,8 +26,7 @@ class MultiSliceContext : public LoopContext
 
   public:
 
-    MultiSliceContext( DicomImage& dcmImage, 
-                       DicomProxy& proxy,
+    MultiSliceContext( MultiSliceDicomImage& dcmImage, 
                        const std::vector< int32_t >& indexLut,
                        const std::vector< int32_t >& selection );
 
@@ -39,8 +34,7 @@ class MultiSliceContext : public LoopContext
 
   private:
 
-    DicomImage& _dcmImage;
-    DicomProxy& _proxy;
+    MultiSliceDicomImage& _dicomImage;
     const std::vector< int32_t >& _indexLut;
     const std::vector< int32_t >& _selection;
 

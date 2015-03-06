@@ -27,25 +27,34 @@ class ImageModule : public DicomModule
 
     bool parseDataset( DcmDataset* dataset );
 
+    int32_t getSamplesPerPixel() const;
     const std::string& getPhotometricInterpretation() const;
-    bool isMonochrome() const;
+    int32_t getPlanarConfiguration() const;
     int32_t getRows() const;
     int32_t getColumns() const;
     double getPixelSpacingX() const;
     double getPixelSpacingY() const;
     int32_t getBitsAllocated() const;
     int32_t getBitsStored() const;
+    int32_t getPixelRepresentation() const;
+    int32_t getSmallestPixelValue() const;
+    int32_t getLargestPixelValue() const;
     int32_t getPixelPaddingValue() const;
 
   private:
 
+    int32_t _samplesPerPixel;
     std::string _photometricInterpretation;
+    int32_t _planarConfiguration;
     int32_t _rows;
     int32_t _columns;
     double _pixelSpacingX;
     double _pixelSpacingY;
     int32_t _bitsAllocated;
     int32_t _bitsStored;
+    int32_t _pixelRepresentation;
+    int32_t _smallestPixelValue;
+    int32_t _largestPixelValue;
     int32_t _pixelPaddingValue;
 
 };

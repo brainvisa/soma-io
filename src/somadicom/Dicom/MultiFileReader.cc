@@ -21,7 +21,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcfilefo.h>
+#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -229,8 +229,7 @@ bool soma::MultiFileReader::sortFiles( soma::DicomDatasetHeader& datasetHeader )
 
 
 bool soma::MultiFileReader::readData( soma::DicomDatasetHeader& datasetHeader,
-                                      soma::DicomProxy& proxy, 
-                                      bool applyModalityLUT )
+                                      soma::DicomProxy& proxy )
 {
 
   if ( proxy.allocate() )
@@ -263,13 +262,18 @@ bool soma::MultiFileReader::readData( soma::DicomDatasetHeader& datasetHeader,
 
     }
 
-    soma::DicomDataContext context( datasetHeader, 
-                                    proxy, 
-                                    selection, 
-                                    applyModalityLUT );
+    soma::DicomDataContext context( datasetHeader, proxy, selection );
     soma::ThreadedLoop threadedLoop( &context, 0, int32_t( selection.size() ) );
 
     threadedLoop.launch();
+
+    if ( ( info._bpp < 3 ) && ( info._minimum >= info._maximum ) )
+    {
+
+      info._minimum = 0;
+      info._maximum = ( 1 << info._bitsStored ) - 1;
+
+    }
 
     return true;
 

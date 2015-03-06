@@ -9,14 +9,14 @@
 
 // global definitions for logging mechanism provided by the oflog module
 
-extern OFLogger DCM_dcmjp2kLogger;
+OFLogger DCM_dcmjp2kGetLogger();
 
-#define DCMJP2K_TRACE(msg) OFLOG_TRACE(DCM_dcmjp2kLogger, msg)
-#define DCMJP2K_DEBUG(msg) OFLOG_DEBUG(DCM_dcmjp2kLogger, msg)
-#define DCMJP2K_INFO(msg)  OFLOG_INFO(DCM_dcmjp2kLogger, msg)
-#define DCMJP2K_WARN(msg)  OFLOG_WARN(DCM_dcmjp2kLogger, msg)
-#define DCMJP2K_ERROR(msg) OFLOG_ERROR(DCM_dcmjp2kLogger, msg)
-#define DCMJP2K_FATAL(msg) OFLOG_FATAL(DCM_dcmjp2kLogger, msg)
+#define DCMJP2K_TRACE(msg) OFLOG_TRACE(DCM_dcmjp2kGetLogger(), msg)
+#define DCMJP2K_DEBUG(msg) OFLOG_DEBUG(DCM_dcmjp2kGetLogger(), msg)
+#define DCMJP2K_INFO(msg)  OFLOG_INFO(DCM_dcmjp2kGetLogger(), msg)
+#define DCMJP2K_WARN(msg)  OFLOG_WARN(DCM_dcmjp2kGetLogger(), msg)
+#define DCMJP2K_ERROR(msg) OFLOG_ERROR(DCM_dcmjp2kGetLogger(), msg)
+#define DCMJP2K_FATAL(msg) OFLOG_FATAL(DCM_dcmjp2kGetLogger(), msg)
 
 
 /** describes the condition under which a compressed or decompressed image

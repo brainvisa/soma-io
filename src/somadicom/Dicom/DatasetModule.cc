@@ -12,7 +12,10 @@
 soma::DatasetModule::DatasetModule()
                    : soma::DicomModule(),
                      _manufacturer( "Generic" ),
-                     _sopClassUID( "" )
+                     _sopClassUID( "" ),
+                     _seriesInstanceUID( "" ),
+                     _samplesPerPixel( 0 ),
+                     _bitsAllocated( 0 )
 {
 }
 
@@ -42,6 +45,26 @@ bool soma::DatasetModule::parseDataset( DcmDataset* dataset )
 
     }
 
+    if ( dataset->findAndGetUint16( DCM_SamplesPerPixel, tmpShort ).good() )
+    {
+
+      _samplesPerPixel = int32_t( tmpShort );
+
+    }
+
+    if ( dataset->findAndGetOFString( DCM_PhotometricInterpretation, 
+                                      tmpString ).good() )
+    {
+
+      if ( !tmpString.compare( "PALETTE COLOR" ) )
+      {
+
+        _samplesPerPixel = 3;
+
+      }
+
+    }
+
     if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
     {
 
@@ -49,7 +72,8 @@ bool soma::DatasetModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesInstanceUID, tmpString ).good() )
+    if ( dataset->findAndGetOFString( DCM_SeriesInstanceUID, 
+                                      tmpString ).good() )
     {
 
       _seriesInstanceUID = tmpString.c_str();
@@ -89,10 +113,17 @@ const std::string& soma::DatasetModule::getSeriesInstanceUID() const
 }
 
 
+int32_t soma::DatasetModule::getSamplesPerPixel() const
+{
+
+  return _samplesPerPixel;
+
+}
+
+
 int32_t soma::DatasetModule::getBitsAllocated() const
 {
 
   return _bitsAllocated;
 
 }
-

@@ -60,25 +60,6 @@ bool soma::CTImageStorageReader::getHeader(
 
   }
 
-  if ( info._pixelPaddingValue )
-  {
-
-    proxy.addAttribute( "pixel_padding_value", info._pixelPaddingValue );
-
-  }
-
   return true;
-
-}
-
-
-bool soma::CTImageStorageReader::readData(
-                                        soma::DicomDatasetHeader& datasetHeader, 
-                                        soma::DicomProxy& proxy )
-{
-
-  return soma::MultiFileReader::readData( datasetHeader,
-                                          proxy, 
-                                          false );
 
 }

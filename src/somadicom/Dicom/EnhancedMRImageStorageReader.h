@@ -12,9 +12,6 @@
 #include <string>
 
 
-class DcmDataset;
-
-
 namespace soma
 {
 
@@ -31,12 +28,8 @@ class EnhancedMRImageStorageReader : public MultiSliceReader
     EnhancedMRImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
 
     virtual bool buildIndexLut( DcmDataset* dataset );
-
-    std::vector< int32_t > _indexLut;
 
 };
 

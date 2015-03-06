@@ -30,15 +30,3 @@ std::string soma::SCImageStorageReader::getStorageUID()
   return UID_SecondaryCaptureImageStorage;
 
 }
-
-
-bool soma::SCImageStorageReader::readData(
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy )
-{
-
-  return soma::MultiFileReader::readData( datasetHeader,
-                                          proxy, 
-                                          false );
-
-}

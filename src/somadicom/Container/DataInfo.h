@@ -37,11 +37,11 @@ class DataInfo
     void clear();
 
     int32_t _depth;
+    int32_t _spp;
     int32_t _bpp;
     int32_t _bitsStored;
     int32_t _pixelRepresentation;
-    int32_t _pixelPaddingValue;
-    bool _monochrome;
+    bool _invertLut;
 
     int32_t _minimum;
     int32_t _maximum;
@@ -59,7 +59,6 @@ class DataInfo
     double _spacingBetweenSlices;
     double _repetitionTime;
 
-    bool _modalityLUTApplied;
     std::vector< double > _slope;
     std::vector< double > _intercept;
 

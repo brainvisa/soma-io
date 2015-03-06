@@ -2,28 +2,19 @@
 #include <soma-io/Dicom/NMImageStorageReader.h>
 #include <soma-io/Dicom/PatientModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
-#include <soma-io/Dicom/MultiFrameContext.h>
-#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/NMImageStorageReader.h>
 #include <Dicom/PatientModule.h>
 #include <Dicom/DicomDatasetHeader.h>
-#include <Container/DicomProxy.h>
 #include <Object/HeaderProxy.h>
-#include <Dicom/MultiFrameContext.h>
-#include <Thread/ThreadedLoop.h>
 #include <Utils/StdInt.h>
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 
@@ -167,66 +158,7 @@ bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    return true;
-
-  }
-
-  return false;
-
-}
-
-
-bool soma::NMImageStorageReader::readData( 
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy )
-{
-
-  if ( proxy.allocate() )
-  {
-
-    std::string fileName = datasetHeader.getFileList().front();
-    DcmFileFormat fileFormat;
-
-    if ( fileFormat.loadFile( fileName.c_str() ).good() )
-    {
-
-      soma::DataInfo& info = proxy.getDataInfo();
-      DcmDataset* dataset = fileFormat.getDataset();
-      DicomImage dcmImage( &fileFormat, 
-                           dataset->getOriginalXfer(),
-                           CIF_IgnoreModalityTransformation );
-
-      if ( dcmImage.getStatus() == EIS_Normal )
-      {
-
-        int32_t startZ = info._boundingBox.getLowerZ();
-        int32_t sliceCount = info._boundingBox.getUpperZ() - startZ + 1;
-
-        info._modalityLUTApplied = false;
-        info._pixelRepresentation = 
-                                   dcmImage.getInterData()->getRepresentation();
-
-        soma::MultiFrameContext context( dcmImage, proxy, true );
-        soma::ThreadedLoop threadedLoop( &context, startZ, sliceCount );
-
-        threadedLoop.launch();
-
-        if ( info._bpp < 3 )
-        {
-
-          double min = 0.0, max = 0.0;
-
-          dcmImage.getMinMaxValues( min, max );
-          info._minimum = int32_t( min );
-          info._maximum = int32_t( max );
-
-        }
-
-        return true;
-
-      }
-
-    }
+    return soma::MultiSliceReader::readHeader( dataset );
 
   }
 

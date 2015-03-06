@@ -7,8 +7,17 @@
 #include <dcmtk/dcmdata/dcerror.h>
 
 
-OFLogger DCM_dcmjp2kLogger = OFLog::getLogger( "dcmtk.dcmjp2k" );
+OFLogger DCM_dcmjp2kGetLogger()
+{
 
+  // We don't just use a global variable, because constructors of globals are
+  // executed in random order. This guarantees that the OFLogger is constructed
+  // before first use.
+  static OFLogger DCM_dcmjp2kLogger = OFLog::getLogger( "dcmtk.dcmjp2k" );
+
+  return DCM_dcmjp2kLogger;
+
+}
 
 #define MAKE_DCMJP2K_ERROR( number, name, description ) \
 const OFConditionConst ECC_##name( OFM_dcmjp2k, number, OF_error, description ); \

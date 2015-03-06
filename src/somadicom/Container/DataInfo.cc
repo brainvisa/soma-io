@@ -7,10 +7,10 @@
 
 soma::DataInfo::DataInfo()
               : _depth( 8 ),
+                _spp( 1 ),
                 _bitsStored( 8 ),
                 _pixelRepresentation( 0 ),
-                _pixelPaddingValue( 0 ),
-                _monochrome( true ),
+                _invertLut( false ),
                 _minimum( 0 ),
                 _maximum( 0 ),
                 _width( 1 ),
@@ -19,7 +19,6 @@ soma::DataInfo::DataInfo()
                 _frames( 1 ),
                 _spacingBetweenSlices( 1.0 ),
                 _repetitionTime( 1.0 ),
-                _modalityLUTApplied( true ),
                 _fileCount( 0 ),
                 _mosaic( false ),
                 _noFlip( false ),
@@ -39,10 +38,10 @@ soma::DataInfo::DataInfo()
 
 soma::DataInfo::DataInfo( const soma::DataInfo& other )
               : _depth( other._depth ),
+                _spp( other._spp ),
                 _bitsStored( other._bitsStored ),
                 _pixelRepresentation( other._pixelRepresentation ),
-                _pixelPaddingValue( other._pixelPaddingValue ),
-                _monochrome( other._monochrome ),
+                _invertLut( other._invertLut ),
                 _minimum( other._minimum ),
                 _maximum( other._maximum ),
                 _width( other._width ),
@@ -52,7 +51,6 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 _resolution( other._resolution ),
                 _spacingBetweenSlices( other._spacingBetweenSlices ),
                 _repetitionTime( other._repetitionTime ),
-                _modalityLUTApplied( other._modalityLUTApplied ),
                 _fileCount( other._fileCount ),
                 _rowVec( other._rowVec ),
                 _colVec( other._colVec ),
@@ -80,11 +78,11 @@ void soma::DataInfo::clear()
 {
 
   _depth = 8;
-  _bpp = 0;
+  _spp = 1;
+  _bpp = 1;
   _bitsStored = 8;
   _pixelRepresentation = 0;
-  _pixelPaddingValue = 0;
-  _monochrome = true;
+  _invertLut = false;
   _minimum = 0;
   _maximum = 0;
   _width = 1;
@@ -97,7 +95,6 @@ void soma::DataInfo::clear()
   _resolution = soma::Vector( 1.0, 1.0, 1.0 );
   _spacingBetweenSlices = 1.0;
   _repetitionTime = 1.0;
-  _modalityLUTApplied = true;
   _fileCount = 0;
   _slope.clear();
   _intercept.clear();
@@ -117,14 +114,7 @@ void soma::DataInfo::clear()
 void soma::DataInfo::initialize()
 {
 
-  _bpp = _depth / 8;
-
-  if ( !_monochrome && ( _bpp < 3 ) )
-  {
-
-    _bpp *= 3;
-
-  }
+  _bpp = ( _depth >> 3 ) * _spp;
 
   if ( !_maximum )
   {

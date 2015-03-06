@@ -11,13 +11,18 @@
 
 soma::ImageModule::ImageModule()
                  : soma::DicomModule(),
+                   _samplesPerPixel( 0 ),
                    _photometricInterpretation( "" ),
+                   _planarConfiguration( 0 ),
                    _rows( 0 ),
                    _columns( 0 ),
                    _pixelSpacingX( 1.0 ),
                    _pixelSpacingY( 1.0 ),
                    _bitsAllocated( 0 ),
                    _bitsStored( 0 ),
+                   _pixelRepresentation( 0 ),
+                   _smallestPixelValue( 0 ),
+                   _largestPixelValue( 0 ),
                    _pixelPaddingValue( 0 )
 {
 }
@@ -34,17 +39,39 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
     Sint16 tmpInt16;
     Float64 tmpDouble;
 
+    if ( dataset->findAndGetUint16( DCM_SamplesPerPixel, tmpUint16 ).good() )
+    {
+
+      _samplesPerPixel = int32_t( tmpUint16 );
+
+    }
+
     if ( dataset->findAndGetOFString( DCM_PhotometricInterpretation, 
                                       tmpString ).good() )
     {
 
       _photometricInterpretation = tmpString.c_str();
 
+      if ( _photometricInterpretation == "PALETTE COLOR" )
+      {
+
+        _samplesPerPixel = 3;
+
+      }
+
     }
     else
     {
 
       return false;
+
+    }
+
+    if ( dataset->findAndGetUint16( DCM_PlanarConfiguration, 
+                                    tmpUint16 ).good() )
+    {
+
+      _planarConfiguration = int32_t( tmpUint16 );
 
     }
 
@@ -100,6 +127,48 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
+    if ( dataset->findAndGetUint16( DCM_PixelRepresentation, 
+                                    tmpUint16 ).good() )
+    {
+
+      _pixelRepresentation = int32_t( tmpUint16 );
+
+    }
+
+    _smallestPixelValue = 0;
+
+    if ( dataset->findAndGetUint16( DCM_SmallestImagePixelValue, 
+                                    tmpUint16 ).good() )
+    {
+
+      _smallestPixelValue = int32_t( tmpUint16 );
+
+    }
+    else if ( dataset->findAndGetSint16( DCM_SmallestImagePixelValue, 
+                                         tmpInt16 ).good() )
+    {
+
+      _smallestPixelValue = int32_t( tmpInt16 );
+
+    }
+
+    _largestPixelValue = 0;
+
+    if ( dataset->findAndGetUint16( DCM_LargestImagePixelValue, 
+                                    tmpUint16 ).good() )
+    {
+
+      _largestPixelValue = int32_t( tmpUint16 );
+
+    }
+    else if ( dataset->findAndGetSint16( DCM_LargestImagePixelValue, 
+                                         tmpInt16 ).good() )
+    {
+
+      _largestPixelValue = int32_t( tmpInt16 );
+
+    }
+
     if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 0 ).good() )
     {
 
@@ -130,6 +199,14 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 }
 
 
+int32_t soma::ImageModule::getSamplesPerPixel() const
+{
+
+  return _samplesPerPixel;
+
+}
+
+
 const std::string& soma::ImageModule::getPhotometricInterpretation() const
 {
 
@@ -138,18 +215,10 @@ const std::string& soma::ImageModule::getPhotometricInterpretation() const
 }
 
 
-bool soma::ImageModule::isMonochrome() const
+int32_t soma::ImageModule::getPlanarConfiguration() const
 {
 
-  if ( ( _photometricInterpretation == "MONOCHROME1" ) ||
-       ( _photometricInterpretation == "MONOCHROME2" ) )
-  {
-
-    return true;
-
-  }
-
-  return false;
+  return _planarConfiguration;
 
 }
 
@@ -202,10 +271,33 @@ int32_t soma::ImageModule::getBitsStored() const
 }
 
 
+int32_t soma::ImageModule::getPixelRepresentation() const
+{
+
+  return _pixelRepresentation;
+
+}
+
+
+int32_t soma::ImageModule::getSmallestPixelValue() const
+{
+
+  return _smallestPixelValue;
+
+}
+
+
+int32_t soma::ImageModule::getLargestPixelValue() const
+{
+
+  return _largestPixelValue;
+
+}
+
+
 int32_t soma::ImageModule::getPixelPaddingValue() const
 {
 
   return _pixelPaddingValue;
 
 }
-

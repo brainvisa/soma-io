@@ -12,15 +12,14 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 
 
 namespace soma
 {
 
 
-class DicomProxy;
+class MosaicDicomImage;
+class DataInfo;
 
 
 class Demosaicer
@@ -40,14 +39,11 @@ class Demosaicer
     virtual ~Demosaicer();
 
     int32_t getMosaicSize();
+    int32_t getMosaicSizeX();
     void getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ );
 
-    void demosaic( DicomImage& dcmImage,
-                   DicomProxy& data,
-                   int32_t slice,
-                   int32_t t );
-    void demosaic( const uint8_t* mosaic, 
-                   DicomProxy& data, 
+    void demosaic( MosaicDicomImage& dicomImage,
+                   DataInfo& data,
                    int32_t slice,
                    int32_t t );
 

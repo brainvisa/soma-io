@@ -1,15 +1,19 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/USMultiframeImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DicomProxy.h>
+//#include <soma-io/Dicom/MultiFrameDicomImage.h>
+#include <soma-io/Dicom/DicomImage.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/USMultiframeImageStorageReader.h>
 #include <Dicom/DicomDatasetHeader.h>
-#include <Container/DicomProxy.h>
+//#include <Dicom/MultiFrameDicomImage.h>
+#include <Dicom/DicomImage.h>
 #include <Dicom/MultiFrameContext.h>
+#include <Container/DicomProxy.h>
 #include <Thread/ThreadedLoop.h>
 #include <Utils/StdInt.h>
 #endif
@@ -18,8 +22,6 @@
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 
@@ -71,40 +73,41 @@ bool soma::USMultiframeImageStorageReader::readData(
   {
 
     std::string fileName = datasetHeader.getFileList().front();
-    DcmFileFormat fileFormat;
+    soma::ImagePixel::Parameters parameters( proxy );
+    //soma::MultiFrameDicomImage dicomImage( proxy, parameters );
+    soma::DicomImage dicomImage( proxy, parameters );
 
-    if ( fileFormat.loadFile( fileName.c_str() ).good() )
+    if ( dicomImage.load( fileName ) )
     {
 
-      DcmDataset* dataset = fileFormat.getDataset();
-      DicomImage dcmImage( &fileFormat, dataset->getOriginalXfer() );
+      soma::DataInfo& info = proxy.getDataInfo();
+      int32_t startT = info._boundingBox.getLowerT();
+      int32_t count = info._boundingBox.getUpperT() - startT + 1;
+      int32_t min = 0.0, max = 0.0;
 
-      if ( dcmImage.getStatus() == EIS_Normal )
+      soma::MultiFrameContext context( dicomImage );
+      soma::ThreadedLoop threadedLoop( &context, startT, count );
+
+      threadedLoop.launch();
+
+      dicomImage.getMinMaxValues( min, max );
+
+      if ( min != max )
       {
- 
-        soma::DataInfo& info = proxy.getDataInfo();
-        info._pixelRepresentation = 
-                                   dcmImage.getInterData()->getRepresentation();
- 
-        soma::MultiFrameContext context( dcmImage, proxy, false );
-        soma::ThreadedLoop threadedLoop( &context, 0, info._frames );
 
-        threadedLoop.launch();
-
-        if ( info._bpp < 3 )
-        {
-
-          double min = 0.0, max = 0.0;
-
-          dcmImage.getMinMaxValues( min, max );
-          info._minimum = int32_t( min );
-          info._maximum = int32_t( max );
-
-        }
-
-        return true;
+        info._minimum = int32_t( min );
+        info._maximum = int32_t( max );
 
       }
+      else
+      {
+
+        info._minimum = 0;
+        info._maximum = ( 1 << info._bitsStored ) - 1;
+
+      }
+
+      return true;
 
     }
 

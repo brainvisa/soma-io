@@ -32,8 +32,6 @@
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcxfer.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 #include <sstream>
@@ -277,9 +275,9 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
       _dataInfo->_resolution.x = imageModule.getPixelSpacingX();
       _dataInfo->_resolution.y = imageModule.getPixelSpacingY();
       _dataInfo->_depth = depth < 8 ? 8 : depth;
+      _dataInfo->_spp = imageModule.getSamplesPerPixel();
       _dataInfo->_bitsStored = imageModule.getBitsStored();
-      _dataInfo->_monochrome = imageModule.isMonochrome();
-      _dataInfo->_pixelPaddingValue = imageModule.getPixelPaddingValue();
+      _dataInfo->_pixelRepresentation = imageModule.getPixelRepresentation();
 
     }
     else

@@ -34,9 +34,7 @@ class MultiFileReader : public MultiSliceReader
                       const std::string& seriesInstanceUID,
                       DicomDatasetHeader& datasetHeader );
     virtual bool sortFiles( DicomDatasetHeader& datasetHeader );
-    bool readData( DicomDatasetHeader& datasetHeader,
-                   DicomProxy& proxy, 
-                   bool applyModalityLUT = false );
+    bool readData( DicomDatasetHeader& datasetHeader, DicomProxy& proxy );
 
 };
 

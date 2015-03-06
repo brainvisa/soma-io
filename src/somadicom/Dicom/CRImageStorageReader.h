@@ -26,8 +26,6 @@ class CRImageStorageReader : public MultiFileReader
     CRImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
 
 };
 

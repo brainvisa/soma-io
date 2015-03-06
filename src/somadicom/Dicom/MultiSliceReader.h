@@ -10,6 +10,9 @@
 #endif
 
 
+class DcmDataset;
+
+
 namespace soma
 {
 
@@ -32,6 +35,13 @@ class MultiSliceReader : public DicomReader
 
   protected:
 
+    virtual bool readHeader( DcmDataset* dataset );
+    virtual bool readData( DicomDatasetHeader& datasetHeader,
+                           DicomProxy& proxy );
+
+    virtual bool buildIndexLut( DcmDataset* dataset );
+
+    std::vector< int32_t > _indexLut;
     std::vector< Vector > _positions;
 
 };

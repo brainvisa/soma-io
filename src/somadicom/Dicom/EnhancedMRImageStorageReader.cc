@@ -1,31 +1,18 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
-#include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/EnhancedIndexModule.h>
-#include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Dicom/MultiSliceContext.h>
-#include <cartobase/thread/threadedLoop.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/EnhancedMRImageStorageReader.h>
-#include <Dicom/DicomDatasetHeader.h>
 #include <Dicom/EnhancedIndexModule.h>
-#include <Container/DicomProxy.h>
-#include <Dicom/MultiSliceContext.h>
-#include <Thread/ThreadedLoop.h>
 #include <Utils/StdInt.h>
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 #include <dcmtk/dcmdata/dcuid.h>
 #include <dcmtk/dcmdata/dcsequen.h>
-
-#include <map>
 
 
 soma::EnhancedMRImageStorageReader::EnhancedMRImageStorageReader()
@@ -55,17 +42,129 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
+    bool found = false;
+    bool rescale = false;
+    DcmItem* seqItem = 0;
+
+    if ( dataset->findAndGetSequenceItem( DCM_SharedFunctionalGroupsSequence,
+                                          seqItem ).good() )
+    {
+
+      DcmItem* item = 0;
+
+      if ( seqItem->findAndGetSequenceItem( DCM_PlaneOrientationSequence,
+                                            item ).good() )
+      {
+
+        OFString tmpString;
+
+        if ( item->findAndGetOFStringArray( DCM_ImageOrientationPatient,
+                                            tmpString ).good() )
+        {
+
+          std::string orientationStr = tmpString.c_str();
+          size_t pos = orientationStr.find( "\\" );
+
+          while ( pos != std::string::npos )
+          {
+
+            orientationStr[ pos ] = ' ';
+            pos = orientationStr.find( "\\" );
+
+          }
+
+          std::istringstream iss( orientationStr );
+
+          iss >> _dataInfo->_rowVec.x
+              >> _dataInfo->_rowVec.y
+              >> _dataInfo->_rowVec.z
+              >> _dataInfo->_colVec.x
+              >> _dataInfo->_colVec.y
+              >> _dataInfo->_colVec.z;
+
+          found = true;
+
+        }
+
+      }
+
+      if ( seqItem->findAndGetSequenceItem( DCM_PixelMeasuresSequence,
+                                            item ).good() )
+      {
+
+        Float64 tmpDouble;
+
+        if ( item->findAndGetFloat64( DCM_SliceThickness, tmpDouble ).good() )
+        {
+
+          _dataInfo->_spacingBetweenSlices = double( tmpDouble );
+          _dataInfo->_resolution.z = double( tmpDouble );
+
+        }
+
+        if ( item->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 0 ).good() )
+        {
+
+          _dataInfo->_resolution.x = double( tmpDouble );
+
+        }
+
+        if ( item->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 1 ).good() )
+        {
+
+          _dataInfo->_resolution.y = double( tmpDouble );
+
+        }
+
+      }
+
+      if ( seqItem->findAndGetSequenceItem( 
+                                           DCM_PixelValueTransformationSequence,
+                                           item ).good() )
+      {
+
+        Float64 tmpDouble;
+
+        rescale = true;
+        _dataInfo->_slope.resize( 1, 1.0 );
+        _dataInfo->_intercept.resize( 1, 0.0 );
+
+
+        if ( item->findAndGetFloat64( DCM_RescaleSlope, tmpDouble ).good() )
+        {
+
+          _dataInfo->_slope[ 0 ] = double( tmpDouble );
+
+        }
+
+        if ( item->findAndGetFloat64( DCM_RescaleIntercept, tmpDouble ).good() )
+        {
+
+          _dataInfo->_intercept[ 0 ] = double( tmpDouble );
+
+        }
+
+      }
+
+    }
+
     DcmSequenceOfItems* seq = 0;
+
     if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
                                       seq ).good() )
     {
 
       uint32_t i, nItems = seq->card();
-      bool found = false;
 
       _positions.resize( nItems );
-      _dataInfo->_slope.resize( nItems, 1.0 );
-      _dataInfo->_intercept.resize( nItems, 0.0 );
+
+      if ( !rescale )
+      {
+
+        _dataInfo->_slope.resize( nItems, 1.0 );
+        _dataInfo->_intercept.resize( nItems, 0.0 );
+
+      }
 
       for ( i = 0; i < nItems; i++ )
       {
@@ -145,7 +244,8 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
         }
 
-        if ( item->findAndGetSequenceItem( DCM_PixelValueTransformationSequence,
+        if ( !rescale &&
+             item->findAndGetSequenceItem( DCM_PixelValueTransformationSequence,
                                            tmpItem ).good() )
         {
 
@@ -173,97 +273,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
     }
 
     return true;
-
-  }
-
-  return false;
-
-}
-
-
-bool soma::EnhancedMRImageStorageReader::readData(
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy )
-{
-
-  if ( proxy.allocate() )
-  {
-
-    std::string fileName = datasetHeader.getFileList().front();
-    DcmFileFormat fileFormat;
-
-    if ( fileFormat.loadFile( fileName.c_str() ).good() )
-    {
-
-      soma::DataInfo& info = proxy.getDataInfo();
-      DcmDataset* dataset = fileFormat.getDataset();
-      DicomImage dcmImage( &fileFormat, 
-                           dataset->getOriginalXfer(),
-                           CIF_IgnoreModalityTransformation );
-
-      if ( dcmImage.getStatus() == EIS_Normal )
-      {
-
-        int32_t i, k = 0;
-        int32_t sizeX, sizeY, sizeZ;
-        int32_t startZ = info._boundingBox.getLowerZ();
-        int32_t endZ = info._boundingBox.getUpperZ() + 1;
-        int32_t startT = info._boundingBox.getLowerT();
-        int32_t endT = info._boundingBox.getUpperT() + 1;
-        std::vector< int32_t > selection( ( endZ - startZ ) * 
-                                          ( endT - startT ) );
-
-        info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
-
-        int32_t n = sizeZ * info._frames;
-
-        for ( i = 0; i < n; i++ )
-        {
-
-          int32_t index = _indexLut[ i ];
-          int32_t z = index % sizeZ;
-          int32_t t = index / sizeZ;
-
-          if ( ( z >= startZ ) && ( z < endZ ) && 
-               ( t >= startT ) && ( t < endT ) )
-          {
-
-            selection[ k++ ] = i;
-
-          }
-
-        }
-
-        info._modalityLUTApplied = false;
-        info._pixelRepresentation = 
-                                   dcmImage.getInterData()->getRepresentation();
-
-        soma::MultiSliceContext context( dcmImage, 
-                                         proxy, 
-                                         _indexLut, 
-                                         selection );
-        soma::ThreadedLoop threadedLoop( &context, 
-                                         0, 
-                                         int32_t( selection.size() ) );
-
-        threadedLoop.launch();
-
-        if ( info._bpp < 3 )
-        {
-
-          double min = 0.0, max = 0.0;
-
-          dcmImage.getMinMaxValues( min, max );
-          info._minimum = int32_t( min );
-          info._maximum = int32_t( max );
-
-        }
-
-        return true;
-
-      }
-
-    }
 
   }
 
@@ -311,4 +320,3 @@ bool soma::EnhancedMRImageStorageReader::buildIndexLut( DcmDataset* dataset )
   return false;
 
 }
-

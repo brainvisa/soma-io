@@ -2,6 +2,10 @@
 #define _DcmtkJpeg2000_djencode_h_
 
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/ofstd/oftypes.h>
+#include <dcmtk/dcmdata/dctypes.h>
+
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
@@ -9,9 +13,6 @@
 #include <Dicom/DcmtkJpeg2000/dj2kutil.h>
 #include <Dicom/DcmtkJpeg2000/djcparam.h>
 #endif
-
-#include <dcmtk/ofstd/oftypes.h>
-#include <dcmtk/dcmdata/dctypes.h>
 
 
 class DJ2KCodecParameter;
@@ -24,8 +25,7 @@ class DJ2KEncoderRegistration
 
   public:
 
-  static void registerCodecs(
-    J2K_UIDCreation uidCreation = EJ2KUC_default );
+  static void registerCodecs( J2K_UIDCreation uidCreation = EJ2KUC_default );
 
   static void cleanup();
 

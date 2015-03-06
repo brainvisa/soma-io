@@ -29,9 +29,6 @@ class CTImageStorageReader : public MultiFileReader
 
     CTImageStorageReader();
 
-    virtual bool readData( DicomDatasetHeader& datasetHeader, 
-                           DicomProxy& proxy );
-
 };
 
 

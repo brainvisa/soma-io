@@ -83,13 +83,39 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
 
   _info.initialize();
 
+  soma::BoundingBox< int32_t > outBoundingBox;
+
+  if ( _info._noFlip )
+  {
+
+    outBoundingBox = _info._boundingBox;
+
+  }
+  else
+  {
+
+    outBoundingBox =
+           _info._patientOrientation.getDirectBoundingBox( _info._boundingBox );
+
+  }
+
+  int32_t dimX = outBoundingBox.getUpperX() - 
+                 outBoundingBox.getLowerX() + 1;
+  int32_t dimY = outBoundingBox.getUpperY() - 
+                 outBoundingBox.getLowerY() + 1;
+  int32_t dimZ = outBoundingBox.getUpperZ() - 
+                 outBoundingBox.getLowerZ() + 1;
+  int32_t dimT = outBoundingBox.getUpperT() - 
+                 outBoundingBox.getLowerT() + 1;
+  int32_t datasetSize = dimX * dimY * dimZ * dimT;
+
   if ( _dataOwner )
   {
 
 #ifdef __SSE2__
-    _buffer = (uint8_t*)_mm_malloc( _info._datasetSize * _info._bpp, 16 );
+    _buffer = (uint8_t*)_mm_malloc( datasetSize * _info._bpp, 16 );
 #else
-    _buffer = new uint8_t[ _info._datasetSize * _info._bpp ];
+    _buffer = new uint8_t[ datasetSize * _info._bpp ];
 #endif
 
   }
@@ -101,16 +127,11 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
 
   }
 
-  std::memset( _buffer, 
-               0, 
-               _info._datasetSize * _info._bpp * sizeof( uint8_t ) );
-
   int32_t y, z, t;
-  int32_t dimY = _info._height;
-  int32_t dimZ = _info._slices;
-  int32_t dimT = _info._frames;
-  int32_t scanline = _info._width * _info._bpp;
+  int32_t scanline = dimX * _info._bpp;
   uint8_t* p = _buffer;
+
+  std::memset( _buffer, 0, datasetSize * _info._bpp * sizeof( uint8_t ) );
 
   _lineAccess.resize( dimT );
 

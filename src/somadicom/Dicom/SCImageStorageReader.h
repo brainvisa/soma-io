@@ -25,9 +25,6 @@ class SCImageStorageReader : public MultiFileReader
 
     SCImageStorageReader();
 
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
-
 };
 
 

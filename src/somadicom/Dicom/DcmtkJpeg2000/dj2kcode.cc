@@ -1,3 +1,5 @@
+#include <dcmtk/config/osconfig.h>
+
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kcode.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>

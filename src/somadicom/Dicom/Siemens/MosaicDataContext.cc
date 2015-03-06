@@ -1,22 +1,16 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
+#include <soma-io/Dicom/Siemens/MosaicDicomImage.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
 #else
 #include <Dicom/Siemens/MosaicDataContext.h>
+#include <Dicom/Siemens/MosaicDicomImage.h>
 #include <Dicom/Siemens/Demosaicer.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <Container/DicomProxy.h>
 #endif
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcfilefo.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcpixel.h>
-#include <dcmtk/dcmdata/dcxfer.h>
-#include <dcmtk/dcmimgle/dcmimage.h>
-#include <dcmtk/dcmimage/diregist.h>
 
 
 soma::MosaicDataContext::MosaicDataContext( 
@@ -24,57 +18,55 @@ soma::MosaicDataContext::MosaicDataContext(
                                         soma::DicomProxy& proxy,
                                         soma::Demosaicer& demosaicer )
                        : soma::LoopContext(),
-                         _datasetHeader( datasetHeader ),
+                         _fileList( datasetHeader.getFileList() ),
+                         _lut( datasetHeader.getLut() ),
                          _proxy( proxy ),
                          _demosaicer( demosaicer )
 {
+
+  _parameters = soma::ImagePixel::Parameters( proxy );
+
 }
 
 
 void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
+  soma::MosaicDicomImage dicomImage( _proxy, 
+                                     _parameters,
+                                     _demosaicer.getMosaicSizeX() );
   soma::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
-  int32_t min = ( 1 << info._depth ) - 1;
-  int32_t max = 1 - ( 1 << info._depth );
-
-  std::vector< std::string >& fileList = _datasetHeader.getFileList();
-  std::vector< int32_t >& lut = _datasetHeader.getLut();
+  int32_t min = 0;
+  int32_t max = 0;
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
 
-    DcmFileFormat fileFormat;
-
-    if ( fileFormat.loadFile( fileList[ lut[ i ] ].c_str() ).good() )
+    if ( dicomImage.load( _fileList[ _lut[ i ] ] ) )
     {
 
-      DcmDataset* dataset = fileFormat.getDataset();
-      DicomImage dcmImage( &fileFormat, dataset->getOriginalXfer() );
+      int32_t dMin = 0, dMax = 0;
 
-      if ( dcmImage.getStatus() == EIS_Normal )
+      _demosaicer.demosaic( dicomImage, info, 0, i );
+      dicomImage.getMinMaxValues( dMin, dMax );
+
+      if ( dMin != dMax )
       {
 
-        double dMin = 0.0, dMax = 0.0;
-
-        dcmImage.getMinMaxValues( dMin, dMax );
-
-        if ( int32_t( dMin ) < min )
+        if ( dMin < min )
         {
 
-          min = int32_t( dMin );
+          min = dMin;
 
         }
 
-        if ( int32_t( dMax ) > max )
+        if ( dMax > max )
         {
 
-          max = int32_t( dMax );
+          max = dMax;
 
         }
-
-        _demosaicer.demosaic( dcmImage, _proxy, 0, i );
 
       }
 
@@ -82,22 +74,27 @@ void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 
   }
 
-  lock();
-
-  if ( min < info._minimum )
+  if ( min != max )
   {
 
-    info._minimum = min;
+    lock();
+
+    if ( min < info._minimum )
+    {
+
+      info._minimum = min;
+
+    }
+
+    if ( max > info._maximum )
+    {
+
+      info._maximum = max;
+
+    }
+
+    unlock();
 
   }
-
-  if ( max > info._maximum )
-  {
-
-    info._maximum = max;
-
-  }
-
-  unlock();
 
 }

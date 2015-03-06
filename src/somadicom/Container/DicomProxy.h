@@ -39,10 +39,10 @@ class DicomProxy : public Model
 
     virtual BinaryHeader& getBinaryHeader();
 
-    virtual uint8_t* operator() ( int32_t x,
-                                  int32_t y = 0, 
-                                  int32_t z = 0, 
-                                  int32_t t = 0 );
+    virtual uint8_t* operator()( int32_t x,
+                                 int32_t y = 0, 
+                                 int32_t z = 0, 
+                                 int32_t t = 0 );
 
   protected:
 

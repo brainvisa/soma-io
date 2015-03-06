@@ -102,15 +102,3 @@ bool soma::MRImageStorageReader::readHeader( DcmDataset* dataset )
   return false;
 
 }
-
-
-bool soma::MRImageStorageReader::readData( 
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy )
-{
-
-  return soma::MultiFileReader::readData( datasetHeader, 
-                                          proxy, 
-                                          true );
-
-}

@@ -32,9 +32,6 @@ class PTImageStorageReader : public MultiFileReader
 
     PTImageStorageReader();
 
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
-
 };
 
 

@@ -9,6 +9,7 @@ BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h
 
 set( _headers
   checker/dicomformatchecker.h
+  Color/Rgba.h
   Container/BoundingBox.h
   Container/DataInfo.h
   Container/DataInfoCache.h
@@ -16,12 +17,16 @@ set( _headers
   Container/Matrix.h
   Container/Vector.h
   Dicom/AcquisitionModule.h
+  Dicom/Bruker/BrukerEnhancedIndexModule.h
+  Dicom/Bruker/BrukerEnhancedMRReader.h
+  Dicom/ColorLut.h
   Dicom/CRImageStorageReader.h
   Dicom/CTImageStorageReader.h
   Dicom/CTModule.h
   Dicom/DatasetModule.h
   Dicom/DicomDataContext.h
   Dicom/DicomDatasetHeader.h
+  Dicom/DicomImage.h
   Dicom/DicomIO.h
   Dicom/DicomModule.h
   Dicom/DicomReader.h
@@ -46,15 +51,21 @@ set( _headers
   Dicom/GenericUSReader.h
   Dicom/IdentifyingModule.h
   Dicom/ImageModule.h
+  Dicom/ImagePixel.h
   Dicom/ModalityLutModule.h
+  Dicom/MonochromeImage.h
   Dicom/MRImageStorageReader.h
   Dicom/MRModule.h
   Dicom/MultiFileReader.h
   Dicom/MultiFrameContext.h
+  Dicom/MultiFrameDicomImage.h
   Dicom/MultiSliceContext.h
+  Dicom/MultiSliceDicomImage.h
   Dicom/MultiSliceReader.h
   Dicom/NMImageStorageReader.h
   Dicom/NuclearModule.h
+  Dicom/PaletteImage.h
+  Dicom/PaletteModule.h
   Dicom/PatientModule.h
   Dicom/Philips/PhilipsDiffusionModule.h
   Dicom/Philips/PhilipsEnhancedDiffusionModule.h
@@ -66,9 +77,11 @@ set( _headers
   Dicom/PTImageStorageReader.h
   Dicom/RadiopharmaceuticalModule.h
   Dicom/RelationshipModule.h
+  Dicom/RGBImage.h
   Dicom/SCImageStorageReader.h
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
+  Dicom/Siemens/MosaicDicomImage.h
   Dicom/Siemens/SiemensDiffusionModule.h
   Dicom/Siemens/SiemensMRReader.h
   Dicom/USImageStorageReader.h
@@ -92,6 +105,7 @@ set( _headers
 
 set( _sources
   checker/dicomformatchecker.cc
+  Color/Rgba.cc
   Container/BoundingBox.cc
   Container/DataInfo.cc
   Container/DataInfoCache.cc
@@ -99,12 +113,16 @@ set( _sources
   Container/Matrix.cc
   Container/Vector.cc
   Dicom/AcquisitionModule.cc
+  Dicom/Bruker/BrukerEnhancedIndexModule.cc
+  Dicom/Bruker/BrukerEnhancedMRReader.cc
+  Dicom/ColorLut.cc
   Dicom/CRImageStorageReader.cc
   Dicom/CTImageStorageReader.cc
   Dicom/CTModule.cc
   Dicom/DatasetModule.cc
   Dicom/DicomDataContext.cc
   Dicom/DicomDatasetHeader.cc
+  Dicom/DicomImage.cc
   Dicom/DicomIO.cc
   Dicom/DicomModule.cc
   Dicom/DicomReader.cc
@@ -129,15 +147,21 @@ set( _sources
   Dicom/GenericUSReader.cc
   Dicom/IdentifyingModule.cc
   Dicom/ImageModule.cc
+  Dicom/ImagePixel.cc
   Dicom/ModalityLutModule.cc
+  Dicom/MonochromeImage.cc
   Dicom/MRImageStorageReader.cc
   Dicom/MRModule.cc
   Dicom/MultiFileReader.cc
   Dicom/MultiFrameContext.cc
+  Dicom/MultiFrameDicomImage.cc
   Dicom/MultiSliceContext.cc
+  Dicom/MultiSliceDicomImage.cc
   Dicom/MultiSliceReader.cc
   Dicom/NMImageStorageReader.cc
   Dicom/NuclearModule.cc
+  Dicom/PaletteImage.cc
+  Dicom/PaletteModule.cc
   Dicom/PatientModule.cc
   Dicom/Philips/PhilipsDiffusionModule.cc
   Dicom/Philips/PhilipsEnhancedDiffusionModule.cc
@@ -149,9 +173,11 @@ set( _sources
   Dicom/PTImageStorageReader.cc
   Dicom/RadiopharmaceuticalModule.cc
   Dicom/RelationshipModule.cc
+  Dicom/RGBImage.cc
   Dicom/SCImageStorageReader.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
+  Dicom/Siemens/MosaicDicomImage.cc
   Dicom/Siemens/SiemensDiffusionModule.cc
   Dicom/Siemens/SiemensMRReader.cc
   Dicom/USImageStorageReader.cc
@@ -184,14 +210,14 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
   )
 
   set ( _sources 
-        ${_sources}
-        Dicom/DcmtkJpeg2000/dj2kcodd.cc
-        Dicom/DcmtkJpeg2000/dj2kcode.cc
-        Dicom/DcmtkJpeg2000/dj2kutil.cc
-        Dicom/DcmtkJpeg2000/djcparam.cc
-        Dicom/DcmtkJpeg2000/djdecode.cc
-        Dicom/DcmtkJpeg2000/djencode.cc
-        Dicom/DcmtkJpeg2000/djrparam.cc )
+    ${_sources}
+    Dicom/DcmtkJpeg2000/dj2kcodd.cc
+    Dicom/DcmtkJpeg2000/dj2kcode.cc
+    Dicom/DcmtkJpeg2000/dj2kutil.cc
+    Dicom/DcmtkJpeg2000/djcparam.cc
+    Dicom/DcmtkJpeg2000/djdecode.cc
+    Dicom/DcmtkJpeg2000/djencode.cc
+    Dicom/DcmtkJpeg2000/djrparam.cc )
 endif()
 
 add_definitions( -DSOMA_IO_DICOM -DHAVE_CONFIG_H )

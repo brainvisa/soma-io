@@ -1,10 +1,18 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/MultiSliceReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Dicom/MultiSliceDicomImage.h>
+#include <soma-io/Dicom/MultiSliceContext.h>
+#include <cartobase/thread/threadedLoop.h>
+#include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
 #else
 #include <Dicom/MultiSliceReader.h>
 #include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/MultiSliceDicomImage.h>
+#include <Dicom/MultiSliceContext.h>
+#include <Thread/ThreadedLoop.h>
+#include <Container/DicomProxy.h>
 #include <Object/HeaderProxy.h>
 #endif
 
@@ -140,3 +148,122 @@ void soma::MultiSliceReader::setOrientation()
 
 }
 
+
+bool soma::MultiSliceReader::readHeader( DcmDataset* dataset )
+{
+
+  if ( dataset )
+  {
+
+    return buildIndexLut( dataset );
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::MultiSliceReader::readData( soma::DicomDatasetHeader& datasetHeader,
+                                       soma::DicomProxy& proxy )
+{
+
+  if ( proxy.allocate() )
+  {
+
+    std::string fileName = datasetHeader.getFileList().front();
+    soma::ImagePixel::Parameters parameters( proxy );
+    soma::MultiSliceDicomImage dicomImage( proxy, parameters );
+
+    if ( dicomImage.load( fileName ) )
+    {
+
+      soma::DataInfo& info = proxy.getDataInfo();
+      int32_t i, k = 0;
+      int32_t sizeX, sizeY, sizeZ;
+      int32_t startZ = info._boundingBox.getLowerZ();
+      int32_t endZ = info._boundingBox.getUpperZ() + 1;
+      int32_t startT = info._boundingBox.getLowerT();
+      int32_t endT = info._boundingBox.getUpperT() + 1;
+      std::vector< int32_t > selection( ( endZ - startZ ) * ( endT - startT ) );
+
+      info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+
+      int32_t n = sizeZ * info._frames;
+
+      for ( i = 0; i < n; i++ )
+      {
+
+        int32_t index = _indexLut[ i ];
+        int32_t z = index % sizeZ;
+        int32_t t = index / sizeZ;
+
+        if ( ( z >= startZ ) && ( z < endZ ) && 
+             ( t >= startT ) && ( t < endT ) )
+        {
+
+          selection[ k++ ] = i;
+
+        }
+
+      }
+
+      soma::MultiSliceContext context( dicomImage, _indexLut, selection );
+      soma::ThreadedLoop threadedLoop( &context, 
+                                       0, 
+                                       int32_t( selection.size() ) );
+
+      threadedLoop.launch();
+
+      if ( info._bpp < 3 )
+      {
+
+        int32_t min = 0.0, max = 0.0;
+
+        dicomImage.getMinMaxValues( min, max );
+
+        if ( min != max )
+        {
+
+          info._minimum = int32_t( min );
+          info._maximum = int32_t( max );
+
+        }
+        else
+        {
+
+          info._minimum = 0;
+          info._maximum = ( 1 << info._bitsStored ) - 1;
+
+        }
+
+      }
+
+      return true;
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
+bool soma::MultiSliceReader::buildIndexLut( DcmDataset* /* dataset */ )
+{
+
+  int32_t i, n = _dataInfo->_slices * _dataInfo->_frames;
+
+  _indexLut.resize( n );
+
+  for ( i = 0; i < n; i++ )
+  {
+
+    _indexLut[ i ] = i;
+
+  }
+
+  return true;
+
+}

@@ -208,15 +208,3 @@ bool soma::PTImageStorageReader::getHeader(
   return true;
 
 }
-
-
-bool soma::PTImageStorageReader::readData(
-                                        soma::DicomDatasetHeader& datasetHeader, 
-                                        soma::DicomProxy& proxy )
-{
-
-  return soma::MultiFileReader::readData( datasetHeader,
-                                          proxy, 
-                                          false );
-
-}
