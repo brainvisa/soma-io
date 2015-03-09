@@ -15,6 +15,7 @@
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
+#include <dcmtk/dcmdata/dcvr.h>
 
 #include <string>
 
@@ -47,7 +48,7 @@ class DicomImage
 
   protected:
 
-    void chooseImagePixel( const std::string& photometric );
+    void chooseImagePixel( const std::string& photometric, DcmEVR evr );
 
     DicomProxy& _proxy;
     ImagePixel::Parameters& _parameters;
@@ -58,6 +59,7 @@ class DicomImage
     ImagePixel* _image;
     ImageModule _imageModule;
     std::string _photometric;
+    DcmEVR _dcmEVR;
     void* _imagePtr;
 
 };

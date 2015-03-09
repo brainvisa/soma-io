@@ -17,6 +17,7 @@
 #include <dcmtk/dcmdata/dcpixel.h>
 #include <dcmtk/dcmdata/dcxfer.h>
 #include <dcmtk/dcmdata/dcstack.h>
+#include <dcmtk/dcmdata/dcuid.h>
 
 
 soma::DicomImage::DicomImage( soma::DicomProxy& proxy,
@@ -27,6 +28,7 @@ soma::DicomImage::DicomImage( soma::DicomProxy& proxy,
                   _pixelData( 0 ),
                   _image( 0 ),
                   _photometric( "" ),
+                  _dcmEVR( EVR_OB ),
                   _imagePtr( 0 )
 {
 
@@ -73,7 +75,8 @@ bool soma::DicomImage::load( const std::string& fileName )
           if ( _pixelData && _imageModule.parseDataset( _dataset ) )
           {
 
-            chooseImagePixel( _imageModule.getPhotometricInterpretation() );
+            chooseImagePixel( _imageModule.getPhotometricInterpretation(),
+                              _pixelData->getVR() );
 
             if ( _image )
             {
@@ -119,11 +122,15 @@ void soma::DicomImage::getImagePtr()
                                            0, stack ).good() )
     {
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
       OFString photo;
 
       _pixelData->getDecompressedColorModel( _dataset, photo );
 
-      chooseImagePixel( photo.c_str() );
+      chooseImagePixel( photo.c_str(), _pixelData->getVR() );
+#else
+      chooseImagePixel( _photometric, _pixelData->getVR() );
+#endif
 
     }
 
@@ -186,22 +193,25 @@ void soma::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
 }
 
 
-void soma::DicomImage::chooseImagePixel( const std::string& photometric )
+void soma::DicomImage::chooseImagePixel( const std::string& photometric,
+                                         DcmEVR evr )
 {
 
-  if ( !photometric.empty() && ( _photometric != photometric ) )
+  if ( !photometric.empty() && 
+       ( ( _photometric != photometric ) || ( _dcmEVR != evr ) ) )
   {
 
     delete _image;
 
     _image = 0;
     _photometric = photometric;
+    _dcmEVR = evr;
 
     if ( ( _photometric == "MONOCHROME1" ) ||
          ( _photometric == "MONOCHROME2" ) )
     {
 
-      if ( _pixelData->getVR() == EVR_OW )
+      if ( _dcmEVR == EVR_OW )
       {
 
         _image = new soma::MonochromeImage< uint16_t >( _proxy );

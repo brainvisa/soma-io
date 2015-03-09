@@ -10,6 +10,7 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcpixel.h>
 #include <dcmtk/dcmdata/dccodec.h>
+#include <dcmtk/dcmdata/dcuid.h>
 
 
 soma::MultiFrameDicomImage::MultiFrameDicomImage(
@@ -56,6 +57,7 @@ void soma::MultiFrameDicomImage::fillSlab( int32_t start, int32_t count )
                                                     dseq ).good() )
     {
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
       if ( DcmCodec::determineStartFragment( start, 
                                              info._frames, 
                                              dseq, 
@@ -87,6 +89,7 @@ void soma::MultiFrameDicomImage::fillSlab( int32_t start, int32_t count )
         }
 
       }
+#endif
 
     }
 
