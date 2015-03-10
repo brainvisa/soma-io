@@ -264,12 +264,12 @@ soma::Transformation3d soma::PatientOrientation::getReferential() const
 
   soma::Transformation3d m = 
                          _dicomTransformation * _scaledTransformation.inverse();
+  std::vector< double > c = m.getDirectCoefficients();
 
-  double tx = -m.getDirectCoefficient( 0, 3 );
-  double ty = -m.getDirectCoefficient( 1, 3 );
-
-  m.setDirectCoefficient( 0, 3, tx, false );
-  m.setDirectCoefficient( 1, 3, ty );
+  m.setItems( -c[ 0 ],  -c[ 1 ],  c[ 2 ],  -c[ 3 ],
+              -c[ 4 ],  -c[ 5 ],  c[ 6 ],  -c[ 7 ],
+              -c[ 8 ],  -c[ 9 ],  c[ 10 ],  c[ 11 ],
+               c[ 12 ],  c[ 13 ], c[ 14 ],  c[ 15 ] );
 
   return m;
 
