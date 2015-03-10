@@ -75,8 +75,7 @@ bool soma::DicomImage::load( const std::string& fileName )
           if ( _pixelData && _imageModule.parseDataset( _dataset ) )
           {
 
-            chooseImagePixel( _imageModule.getPhotometricInterpretation(),
-                              _pixelData->getVR() );
+            chooseImagePixel( _imageModule.getPhotometricInterpretation() );
 
             if ( _image )
             {
@@ -126,17 +125,16 @@ void soma::DicomImage::getImagePtr()
       OFString photo;
 
       _pixelData->getDecompressedColorModel( _dataset, photo );
-
-      chooseImagePixel( photo.c_str(), _pixelData->getVR() );
+      chooseImagePixel( photo.c_str() );
 #else
-      chooseImagePixel( _photometric, _pixelData->getVR() );
+      chooseImagePixel( _photometric );
 #endif
 
     }
 
   }
 
-  if ( _pixelData->getVR() == EVR_OW )
+  if ( _dcmEVR == EVR_OW )
   {
 
     Uint16* ptr = 0;
@@ -193,21 +191,21 @@ void soma::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
 }
 
 
-void soma::DicomImage::chooseImagePixel( const std::string& photometric,
-                                         DcmEVR evr )
+void soma::DicomImage::chooseImagePixel( const std::string& photometric )
 {
 
   if ( !photometric.empty() && 
-       ( ( _photometric != photometric ) || ( _dcmEVR != evr ) ) )
+       ( ( _photometric != photometric ) || 
+         ( _dcmEVR != _pixelData->getVR() ) ) )
   {
 
     delete _image;
 
     _image = 0;
     _photometric = photometric;
-    _dcmEVR = evr;
+    _dcmEVR = _pixelData->getVR();
 
-    if ( ( _photometric == "MONOCHROME1" ) ||
+    if ( ( _photometric == "MONOCHROME1" ) || 
          ( _photometric == "MONOCHROME2" ) )
     {
 

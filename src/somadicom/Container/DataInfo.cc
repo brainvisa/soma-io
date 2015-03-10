@@ -28,7 +28,6 @@ soma::DataInfo::DataInfo()
   _resolution = soma::Vector( 1.0, 1.0, 1.0 );
   _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   _colVec = soma::Vector( 0.0, 1.0, 0.0 );
-  _normVec = soma::Vector( 0.0, 0.0, 1.0 );
   _origin = soma::Vector( 0.0, 0.0, 0.0 );
 
   initialize();
@@ -54,7 +53,6 @@ soma::DataInfo::DataInfo( const soma::DataInfo& other )
                 _fileCount( other._fileCount ),
                 _rowVec( other._rowVec ),
                 _colVec( other._colVec ),
-                _normVec( other._normVec ),
                 _origin( other._origin ),
                 _patientOrientation( other._patientOrientation ),
                 _datasetHeader( other._datasetHeader ),
@@ -100,7 +98,6 @@ void soma::DataInfo::clear()
   _intercept.clear();
   _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   _colVec = soma::Vector( 0.0, 1.0, 0.0 );
-  _normVec = soma::Vector( 0.0, 0.0, 1.0 );
   _origin = soma::Vector( 0.0, 0.0, 0.0 );
   _datasetHeader.clear();
   _boundingBox = soma::BoundingBox< int32_t >();
@@ -138,6 +135,7 @@ void soma::DataInfo::initialize()
     int32_t sizeX, sizeY, sizeZ;
 
     _patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
+
     _boundingBox = soma::BoundingBox< int32_t >( 0, sizeX - 1,
                                                  0, sizeY - 1,
                                                  0, sizeZ - 1,

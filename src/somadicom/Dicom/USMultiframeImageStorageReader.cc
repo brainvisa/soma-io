@@ -1,8 +1,7 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/USMultiframeImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-//#include <soma-io/Dicom/MultiFrameDicomImage.h>
-#include <soma-io/Dicom/DicomImage.h>
+#include <soma-io/Dicom/MultiFrameDicomImage.h>
 #include <soma-io/Dicom/MultiFrameContext.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <cartobase/thread/threadedLoop.h>
@@ -10,8 +9,7 @@
 #else
 #include <Dicom/USMultiframeImageStorageReader.h>
 #include <Dicom/DicomDatasetHeader.h>
-//#include <Dicom/MultiFrameDicomImage.h>
-#include <Dicom/DicomImage.h>
+#include <Dicom/MultiFrameDicomImage.h>
 #include <Dicom/MultiFrameContext.h>
 #include <Container/DicomProxy.h>
 #include <Thread/ThreadedLoop.h>
@@ -74,8 +72,7 @@ bool soma::USMultiframeImageStorageReader::readData(
 
     std::string fileName = datasetHeader.getFileList().front();
     soma::ImagePixel::Parameters parameters( proxy );
-    //soma::MultiFrameDicomImage dicomImage( proxy, parameters );
-    soma::DicomImage dicomImage( proxy, parameters );
+    soma::MultiFrameDicomImage dicomImage( proxy, parameters );
 
     if ( dicomImage.load( fileName ) )
     {

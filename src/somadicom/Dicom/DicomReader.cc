@@ -327,7 +327,6 @@ void soma::DicomReader::setOrientation()
 
   _dataInfo->_patientOrientation.set( _dataInfo->_rowVec,
                                       _dataInfo->_colVec,
-                                      _dataInfo->_normVec,
                                       _dataInfo->_origin,
                                       _dataInfo->_width,
                                       _dataInfo->_height,

@@ -16,8 +16,7 @@ namespace soma
 {
 
 
-//class MultiFrameDicomImage;
-class DicomImage;
+class MultiFrameDicomImage;
 
 
 class MultiFrameContext : public LoopContext
@@ -25,15 +24,13 @@ class MultiFrameContext : public LoopContext
 
   public:
 
-    //MultiFrameContext( MultiFrameDicomImage& dicomImage );
-    MultiFrameContext( DicomImage& dicomImage );
+    MultiFrameContext( MultiFrameDicomImage& dicomImage );
 
     void doIt( int32_t startIndex, int32_t count );
 
   private:
 
-    //MultiFrameDicomImage& _dicomImage;
-    DicomImage& _dicomImage;
+    MultiFrameDicomImage& _dicomImage;
 
 };
 

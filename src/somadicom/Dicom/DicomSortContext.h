@@ -39,7 +39,7 @@ class DicomSortContext : public LoopContext
 
     DicomDatasetHeader& _datasetHeader;
     std::multimap< double, FileInformation >& _slices;
-    Vector _absNormal;
+    Vector _normal;
 
 };
 

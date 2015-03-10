@@ -24,7 +24,6 @@ class DicomTransformation3d : public Transformation3d
     DicomTransformation3d();
     DicomTransformation3d( const Vector& rowCosine,
                            const Vector& columnCosine,
-                           const Vector& normal,
                            const Vector& origin = Vector( 0.0, 0.0, 0.0 ) );
     DicomTransformation3d( const DicomTransformation3d& other );
 

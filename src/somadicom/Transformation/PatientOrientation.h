@@ -5,10 +5,12 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Container/BoundingBox.h>
+#include <soma-io/Transformation/FlipTransformation3d.h>
 #include <soma-io/Transformation/AxialTransformation3d.h>
 #include <soma-io/Transformation/DicomTransformation3d.h>
 #else
 #include <Container/BoundingBox.h>
+#include <Transformation/FlipTransformation3d.h>
 #include <Transformation/AxialTransformation3d.h>
 #include <Transformation/DicomTransformation3d.h>
 #endif
@@ -29,7 +31,6 @@ class PatientOrientation
 
     void set( const Vector& rowVector,
               const Vector& columnVector,
-              const Vector& normalVector,
               const Vector& origin,
               int32_t sizeX,
               int32_t sizeY,
@@ -67,10 +68,6 @@ class PatientOrientation
 
   private:
 
-    bool _axialAcquisition;
-
-    Vector _normalVector;
-
     int32_t _onDiskSizeX;
     int32_t _onDiskSizeY;
     int32_t _onDiskSizeZ;
@@ -81,8 +78,9 @@ class PatientOrientation
     int32_t _sizeZ;
     Vector _resolution;
 
+    FlipTransformation3d _flipTransformation;
     AxialTransformation3d _axialTransformation;
-    AxialTransformation3d _flipTransformation;
+    AxialTransformation3d _scaledTransformation;
     DicomTransformation3d _dicomTransformation;
 
 };

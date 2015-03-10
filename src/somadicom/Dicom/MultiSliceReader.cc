@@ -21,7 +21,7 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
-#include <limits>
+#include <cmath>
 
 
 soma::MultiSliceReader::MultiSliceReader()
@@ -57,9 +57,6 @@ bool soma::MultiSliceReader::getHeader(
 
   std::vector< double > transformation = 
          dataInfo._patientOrientation.getReferential().getDirectCoefficients();
-  transformation[ 3 ] *= -1.0;
-  transformation[ 7 ] *= -1.0;
-  transformation[ 11 ] *= -1.0;
   std::vector< std::vector< double > > transformations;
   transformations.push_back( transformation );
   header.addAttribute( "transformations", transformations );
@@ -78,70 +75,28 @@ void soma::MultiSliceReader::setOrientation()
 {
 
   soma::Vector origin( 0.0, 0.0, 0.0 );
-  soma::Vector normalVec = _dataInfo->_rowVec.cross( _dataInfo->_colVec );
 
   _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
 
   if ( !_positions.empty() )
   {
 
-    if ( _positions.size() > 1 )
+    int32_t lastZ = _dataInfo->_slices - 1;
+
+    origin = _positions[ 0 ];
+
+    if ( lastZ > 0 )
     {
 
-      soma::Vector normVec = _positions[ 1 ] - _positions[ 0 ];
+      soma::Vector normalVec = _dataInfo->_rowVec.cross( _dataInfo->_colVec );
+      double p = std::fabs( normalVec.dot( _positions[ lastZ ] - origin ) );
 
-      if ( normVec.getNorm() > 0.0 )
-      {
-
-        normVec.normalize();
-        normalVec = normVec;
-
-      }
-
-    }
-
-    double minPos = std::numeric_limits< double >::max();
-    double maxPos = -std::numeric_limits< double >::max();
-    double n = (double)_dataInfo->_slices - 1.0;
-    std::vector< soma::Vector >::iterator 
-      p = _positions.begin(),
-      pe = _positions.end();
-
-    origin = *p;
-
-    while ( p != pe )
-    {
-
-      double dotProduct = normalVec.dot( *p );
-
-      if ( dotProduct < minPos )
-      {
-
-        minPos = dotProduct;
-        origin = *p;
-
-      }
-      else if ( dotProduct > maxPos )
-      {
-
-        maxPos = dotProduct;
-
-      }
-
-      ++p;
-
-    }
-
-    if ( ( n >= 1.0 ) && ( maxPos > minPos ) )
-    {
-
-      _dataInfo->_resolution.z = ( maxPos - minPos ) / n;
+      _dataInfo->_resolution.z = p / double( lastZ );
 
     }
 
   }
 
-  _dataInfo->_normVec = normalVec;
   _dataInfo->_origin = origin;
 
   soma::DicomReader::setOrientation();

@@ -66,7 +66,6 @@ class DataInfo
 
     Vector _rowVec;
     Vector _colVec;
-    Vector _normVec;
     Vector _origin;
 
     PatientOrientation _patientOrientation;

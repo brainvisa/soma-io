@@ -41,6 +41,13 @@ class Transformation3d
     double getDirectCoefficient( int32_t j, int32_t i ) const;
     double getInverseCoefficient( int32_t j, int32_t i ) const;
 
+    void setDirectCoefficient( int32_t j, int32_t i, 
+                               double value,
+                               bool update = true );
+    void setInverseCoefficient( int32_t j, int32_t i, 
+                                double value,
+                                bool update = true );
+
     std::vector< double > getDirectCoefficients() const;
 
     Transformation3d inverse() const;

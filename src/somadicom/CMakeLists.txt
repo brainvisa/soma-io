@@ -98,6 +98,7 @@ set( _headers
   System/DirectoryParser.h
   Transformation/AxialTransformation3d.h
   Transformation/DicomTransformation3d.h
+  Transformation/FlipTransformation3d.h
   Transformation/PatientOrientation.h
   Transformation/Transformation3d.h
   Utils/StdInt.h
@@ -192,6 +193,7 @@ set( _sources
   System/DirectoryParser.cc
   Transformation/AxialTransformation3d.cc
   Transformation/DicomTransformation3d.cc
+  Transformation/FlipTransformation3d.cc
   Transformation/PatientOrientation.cc
   Transformation/Transformation3d.cc
 )

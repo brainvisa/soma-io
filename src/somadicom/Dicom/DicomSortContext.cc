@@ -22,8 +22,7 @@ soma::DicomSortContext::DicomSortContext(
                         _slices( slices )
 {
 
-  _absNormal = 
-          rowVector.cross( columnVector ).mainDirection().absoluteCoordinates();
+  _normal = rowVector.cross( columnVector );
 
 }
 
@@ -76,7 +75,7 @@ void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
           >> fileInfo._imagePosition.y
           >> fileInfo._imagePosition.z;
 
-      index = _absNormal.dot( fileInfo._imagePosition );
+      index = _normal.dot( fileInfo._imagePosition );
 
     }
 

@@ -48,7 +48,7 @@ class DicomImage
 
   protected:
 
-    void chooseImagePixel( const std::string& photometric, DcmEVR evr );
+    void chooseImagePixel( const std::string& photometric );
 
     DicomProxy& _proxy;
     ImagePixel::Parameters& _parameters;

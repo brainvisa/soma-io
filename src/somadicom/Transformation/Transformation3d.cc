@@ -147,6 +147,46 @@ double soma::Transformation3d::getInverseCoefficient( int32_t j,
 }
 
 
+void soma::Transformation3d::setDirectCoefficient( int32_t j, 
+                                                   int32_t i,
+                                                   double value,
+                                                   bool update )
+{
+
+  assert( ( i >= 0 ) && ( i < 4 ) && ( j >= 0 ) && ( j < 4 ) );
+
+  _direct[ j ][ i ] = value;
+
+  if ( update )
+  {
+
+    invert( _direct, _inverse );
+
+  }
+
+}
+
+
+void soma::Transformation3d::setInverseCoefficient( int32_t j, 
+                                                    int32_t i,
+                                                    double value,
+                                                    bool update )
+{
+
+  assert( ( i >= 0 ) && ( i < 4 ) && ( j >= 0 ) && ( j < 4 ) );
+
+  _inverse[ j ][ i ] = value;
+
+  if ( update )
+  {
+
+    invert( _inverse, _direct );
+
+  }
+
+}
+
+
 std::vector< double > soma::Transformation3d::getDirectCoefficients() const
 {
 
