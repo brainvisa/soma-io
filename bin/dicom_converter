@@ -254,7 +254,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             convfilesByTime.update({t: os.path.join( d, os.listdir( d )[0] ) })
 
         if outfile == None:
-          outfile = os.path.join( args.output, os.path.basename( convfilesByTime[0] ) )
+          outfile = os.path.join(args.output, os.path.basename(convfilesByTime[sorted(convfilesByTime.keys())[0]]))
 
         if(mergeDynSeries):
           check_call( [ 'AimsTCat',
