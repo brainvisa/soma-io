@@ -81,17 +81,22 @@ void soma::MultiSliceReader::setOrientation()
   if ( !_positions.empty() )
   {
 
-    int32_t lastZ = _dataInfo->_slices - 1;
-
     origin = _positions[ 0 ];
 
-    if ( lastZ > 0 )
+    if ( !_dataInfo->_mosaic )
     {
 
-      soma::Vector normalVec = _dataInfo->_rowVec.cross( _dataInfo->_colVec );
-      double p = std::fabs( normalVec.dot( _positions[ lastZ ] - origin ) );
+      int32_t lastZ = _dataInfo->_slices - 1;
 
-      _dataInfo->_resolution.z = p / double( lastZ );
+      if ( lastZ > 0 )
+      {
+
+        soma::Vector normalVec = _dataInfo->_rowVec.cross( _dataInfo->_colVec );
+        double p = std::fabs( normalVec.dot( _positions[ lastZ ] - origin ) );
+
+        _dataInfo->_resolution.z = p / double( lastZ );
+
+      }
 
     }
 
