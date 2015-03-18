@@ -34,8 +34,7 @@ class Demosaicer
                 int32_t sizeZ,
                 int32_t sliceCount,
                 double resolutionX,
-                double resolutionY,
-                double resolutionZ );
+                double resolutionY );
     virtual ~Demosaicer();
 
     int32_t getMosaicSize();
@@ -61,7 +60,6 @@ class Demosaicer
     int32_t _divider;
     double _resolutionX;
     double _resolutionY;
-    double _resolutionZ;
 
 };
 

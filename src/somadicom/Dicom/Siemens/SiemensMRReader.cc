@@ -128,8 +128,7 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
                                             _dataInfo->_slices,
                                             _sliceCount,
                                             _dataInfo->_resolution.x,
-                                            _dataInfo->_resolution.y,
-                                            _dataInfo->_spacingBetweenSlices );
+                                            _dataInfo->_resolution.y );
 
         if ( !_demosaicer )
         {

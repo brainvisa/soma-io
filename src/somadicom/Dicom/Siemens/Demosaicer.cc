@@ -20,8 +20,7 @@ soma::Demosaicer::Demosaicer( const soma::Vector& rowCosine,
                               int32_t sizeZ,
                               int32_t sliceCount,
                               double resolutionX,
-                              double resolutionY,
-                              double resolutionZ )
+                              double resolutionY )
                 : _rowVector( rowCosine ),
                   _columnVector( columnCosine ),
                   _mosaicSizeX( sizeX ),
@@ -31,8 +30,7 @@ soma::Demosaicer::Demosaicer( const soma::Vector& rowCosine,
                   _sizeZ( sizeZ ),
                   _divider( 1 ),
                   _resolutionX( resolutionX ),
-                  _resolutionY( resolutionY ),
-                  _resolutionZ( resolutionZ )
+                  _resolutionY( resolutionY )
 {
 
   if ( ( _sizeZ == 1 ) && ( sliceCount > 1 ) )
