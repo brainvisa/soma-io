@@ -7,7 +7,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -22,15 +22,15 @@ soma::USRegionSpatialModule::USRegionSpatialModule()
 }
 
 
-bool soma::USRegionSpatialModule::parseDataset( DcmDataset* dataset )
+bool soma::USRegionSpatialModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     DcmSequenceOfItems* seq = 0;
 
-    if ( dataset->findAndGetSequence( DCM_SequenceOfUltrasoundRegions, 
+    if ( dcmItem->findAndGetSequence( DCM_SequenceOfUltrasoundRegions, 
                                       seq ).good() )
     {
 

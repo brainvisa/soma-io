@@ -40,6 +40,11 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
     if ( m == _readers.end() )
     {
 
+#ifdef MINI_VIEWER
+      std::cout << "Register reader : " << manufacturer
+                << " - " << storageUID << std::endl;
+#endif
+
       std::map< std::string, soma::DicomReader* > readers;
 
       readers.insert( std::make_pair( storageUID, reader ) );
@@ -56,6 +61,11 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
 
       if ( r == m->second.end() )
       {
+
+#ifdef MINI_VIEWER
+        std::cout << "Register reader : " << manufacturer
+                  << " - " << storageUID << std::endl;
+#endif
 
         m->second.insert( std::make_pair( storageUID, reader ) );
 

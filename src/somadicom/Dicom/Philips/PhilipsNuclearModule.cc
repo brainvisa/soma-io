@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -15,13 +15,13 @@ soma::PhilipsNuclearModule::PhilipsNuclearModule()
 }
 
 
-bool soma::PhilipsNuclearModule::parseDataset( DcmDataset* dataset )
+bool soma::PhilipsNuclearModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
-    if ( soma::NuclearModule::parseDataset( dataset ) )
+    if ( soma::NuclearModule::parseItem( dcmItem ) )
     {
 
       if ( _units == _unitNames[ "CNTS" ] )
@@ -29,7 +29,7 @@ bool soma::PhilipsNuclearModule::parseDataset( DcmDataset* dataset )
 
         Float64 tmpDouble;
 
-        if ( dataset->findAndGetFloat64( DcmTagKey( 0x7053, 0x1009 ), 
+        if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x7053, 0x1009 ), 
                                          tmpDouble ).good() )
         {
 

@@ -21,7 +21,7 @@ class USRegionSpatialModule : public DicomModule
 
     USRegionSpatialModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     double getPhysicalDeltaX() const;
     double getPhysicalDeltaY() const;

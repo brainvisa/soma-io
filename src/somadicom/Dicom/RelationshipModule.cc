@@ -21,30 +21,30 @@ soma::RelationshipModule::RelationshipModule()
 }
 
 
-bool soma::RelationshipModule::parseDataset( DcmDataset* dataset )
+bool soma::RelationshipModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
     Sint32 tmpInt;
 
-    if ( dataset->findAndGetOFString( DCM_SeriesInstanceUID, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SeriesInstanceUID, tmpString ).good() )
     {
 
       _seriesInstanceUID = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_StudyID, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_StudyID, tmpString ).good() )
     {
 
       _studyId = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetSint32( DCM_SeriesNumber, tmpInt ).good() )
+    if ( dcmItem->findAndGetSint32( DCM_SeriesNumber, tmpInt ).good() )
     {
 
       _seriesNumber = int32_t( tmpInt );
@@ -76,7 +76,7 @@ bool soma::RelationshipModule::parseHeader(
     _acquisitionNumber.clear();
     datasetHeader.get( dataset );
 
-    if ( parseDataset( &dataset ) )
+    if ( parseItem( &dataset ) )
     {
 
       for ( i = 0; i < n; i++ )

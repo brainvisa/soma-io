@@ -52,7 +52,7 @@ bool soma::CTImageStorageReader::getHeader(
 
   datasetHeader.get( dataset );
 
-  if ( ctModule.parseDataset( &dataset ) )
+  if ( ctModule.parseItem( &dataset ) )
   {
 
     proxy.addAttribute( "reconstruction_diameter", 

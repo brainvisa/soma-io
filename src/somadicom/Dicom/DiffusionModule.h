@@ -25,7 +25,7 @@ class DiffusionModule : public DicomModule
 
     DiffusionModule();
 
-    virtual bool parseDataset( DcmDataset* dataset );
+    virtual bool parseItem( DcmItem* dcmItem );
     
     bool parseHeader( DicomDatasetHeader& datasetHeader );
 

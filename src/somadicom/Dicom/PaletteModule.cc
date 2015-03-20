@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -15,19 +15,19 @@ soma::PaletteModule::PaletteModule()
 }
 
 
-bool soma::PaletteModule::parseDataset( DcmDataset* dataset )
+bool soma::PaletteModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
-    _red.initialize( dataset, 
+    _red.initialize( dcmItem, 
                      DCM_RedPaletteColorLookupTableDescriptor,
                      DCM_RedPaletteColorLookupTableData );
-    _green.initialize( dataset,
+    _green.initialize( dcmItem,
                        DCM_GreenPaletteColorLookupTableDescriptor,
                        DCM_GreenPaletteColorLookupTableData );
-    _blue.initialize( dataset,
+    _blue.initialize( dcmItem,
                       DCM_BluePaletteColorLookupTableDescriptor,
                       DCM_BluePaletteColorLookupTableData );
 

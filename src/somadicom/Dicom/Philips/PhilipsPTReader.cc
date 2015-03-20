@@ -57,7 +57,7 @@ bool soma::PhilipsPTReader::getHeader( soma::HeaderProxy& proxy,
 
   datasetHeader.get( dataset );
  
-  if ( nuclearModule.parseDataset( &dataset ) )
+  if ( nuclearModule.parseItem( &dataset ) )
   {
 
     proxy.addAttribute( "image_unit", nuclearModule.getUnits() );

@@ -21,7 +21,7 @@ class GEDiffusionModule : public DiffusionModule
 
     GEDiffusionModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
 };
 

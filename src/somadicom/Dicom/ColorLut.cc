@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcxfer.h>
 
@@ -24,18 +24,18 @@ soma::ColorLut::~ColorLut()
 }
 
 
-void soma::ColorLut::initialize( DcmDataset* dataset, 
+void soma::ColorLut::initialize( DcmItem* item, 
                                  const DcmTagKey& descriptor, 
                                  const DcmTagKey& data )
 {
 
-  if ( dataset )
+  if ( item )
   {
 
     Uint16 tmpUShort;
     Sint16 tmpShort;
 
-    if ( dataset->findAndGetUint16( descriptor, tmpUShort, 0 ).good() )
+    if ( item->findAndGetUint16( descriptor, tmpUShort, 0 ).good() )
     {
 
       _count = uint32_t( tmpUShort );
@@ -44,7 +44,7 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
     else
     {
 
-      if ( dataset->findAndGetSint16( descriptor, tmpShort, 0 ).good() )
+      if ( item->findAndGetSint16( descriptor, tmpShort, 0 ).good() )
       {
 
         _count = uint32_t( OFstatic_cast( Uint16, tmpShort ) );
@@ -53,7 +53,7 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
 
     }
 
-    if ( dataset->findAndGetUint16( descriptor, tmpUShort, 1 ).good() )
+    if ( item->findAndGetUint16( descriptor, tmpUShort, 1 ).good() )
     {
 
       _first = int32_t( tmpUShort );
@@ -62,7 +62,7 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
     else
     {
 
-      if ( dataset->findAndGetSint16( descriptor, tmpShort, 1 ).good() )
+      if ( item->findAndGetSint16( descriptor, tmpShort, 1 ).good() )
       {
 
         _first = int32_t( OFstatic_cast( Uint16, tmpShort ) );
@@ -71,7 +71,7 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
 
     }
 
-    if ( dataset->findAndGetUint16( descriptor, tmpUShort, 2 ).good() )
+    if ( item->findAndGetUint16( descriptor, tmpUShort, 2 ).good() )
     {
 
       _bits = int32_t( tmpUShort );
@@ -80,7 +80,7 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
     else
     {
 
-      if ( dataset->findAndGetSint16( descriptor, tmpShort, 2 ).good() )
+      if ( item->findAndGetSint16( descriptor, tmpShort, 2 ).good() )
       {
 
         _bits = int32_t( OFstatic_cast( Uint16, tmpShort ) );
@@ -91,9 +91,9 @@ void soma::ColorLut::initialize( DcmDataset* dataset,
 
     unsigned long lutCount = 0;
 
-    if ( dataset->findAndGetUint16Array( data, 
-                                         (const Uint16*&)_lut, 
-                                         &lutCount ).good() )
+    if ( item->findAndGetUint16Array( data, 
+                                      (const Uint16*&)_lut, 
+                                      &lutCount ).good() )
     {
 
       if ( _lut && ( lutCount > 0 ) )

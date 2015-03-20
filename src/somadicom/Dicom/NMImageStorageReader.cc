@@ -53,7 +53,7 @@ bool soma::NMImageStorageReader::getHeader(
 
   datasetHeader.get( dataset );
 
-  if ( patientModule.parseDataset( &dataset ) )
+  if ( patientModule.parseItem( &dataset ) )
   {
 
     header.addAttribute( "patient_birthdate", patientModule.getBirthDate() );

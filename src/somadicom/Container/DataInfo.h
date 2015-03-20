@@ -59,9 +59,6 @@ class DataInfo
     double _spacingBetweenSlices;
     double _repetitionTime;
 
-    std::vector< double > _slope;
-    std::vector< double > _intercept;
-
     int32_t _fileCount;
 
     Vector _rowVec;

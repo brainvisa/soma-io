@@ -7,7 +7,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -18,18 +18,18 @@ soma::PhilipsEnhancedDiffusionModule::PhilipsEnhancedDiffusionModule()
 }
 
 
-bool soma::PhilipsEnhancedDiffusionModule:: parseDataset( DcmDataset* dataset )
+bool soma::PhilipsEnhancedDiffusionModule:: parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
-    int32_t frameCount, zCount, tIndex = 0;
+    int32_t frameCount = 1, zCount = 1, tIndex = 0;
     OFString tmpString;
     Sint32 tmpInt;
     DcmSequenceOfItems* seq = 0;
 
-    if ( dataset->findAndGetOFString( DCM_ImageType, tmpString, 2 ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_ImageType, tmpString, 2 ).good() )
     {
 
       if ( tmpString.compare( "DIFFUSION" ) )
@@ -41,14 +41,14 @@ bool soma::PhilipsEnhancedDiffusionModule:: parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
+    if ( dcmItem->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
     {
 
       frameCount = int32_t( tmpInt );
 
     }
 
-    if ( dataset->findAndGetSint32( DcmTagKey( 0x2001, 0x1018 ), 
+    if ( dcmItem->findAndGetSint32( DcmTagKey( 0x2001, 0x1018 ), 
                                     tmpInt ).good() )
     {
 
@@ -56,7 +56,7 @@ bool soma::PhilipsEnhancedDiffusionModule:: parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
+    if ( dcmItem->findAndGetSequence( DCM_DimensionIndexSequence,
                                       seq ).good() )
     {
 
@@ -85,7 +85,7 @@ bool soma::PhilipsEnhancedDiffusionModule:: parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
+    if ( dcmItem->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
                                       seq ).good() )
     {
 

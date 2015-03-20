@@ -17,31 +17,37 @@ soma::EnhancedIndexModule::EnhancedIndexModule()
                            _numberOfFrames( 0 ),
                            _zIndex( -1 ),
                            _tIndex( 0 ),
-                           _zCount( 0 )
+                           _zCount( 0 ),
+                           _tCount( 1 )
 {
 }
 
 
-bool soma::EnhancedIndexModule::parseDataset( DcmDataset* dataset )
+bool soma::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
-    int32_t dim = 0;
     Sint32 tmpInt;
-    DcmSequenceOfItems* seq = 0;
 
-    if ( dataset->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
+    if ( dcmItem->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
     {
 
       _numberOfFrames = int32_t( tmpInt );
 
     }
+    else
+    {
 
-    _indices.resize( _numberOfFrames );
+      return false;
 
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
+    }
+
+    int32_t dim = 0;
+    DcmSequenceOfItems* seq = 0;
+
+    if ( dcmItem->findAndGetSequence( DCM_DimensionIndexSequence,
                                       seq ).good() )
     {
 
@@ -96,7 +102,9 @@ bool soma::EnhancedIndexModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
+    _indices.resize( _numberOfFrames );
+
+    if ( dcmItem->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
                                       seq ).good() )
     {
 
@@ -134,6 +142,20 @@ bool soma::EnhancedIndexModule::parseDataset( DcmDataset* dataset )
           }
 
           tmpLut[ i ] = std::make_pair( z - 1, t - 1 );
+
+        }
+
+      }
+
+      if ( _zCount < _numberOfFrames )
+      {
+
+        _tCount = _numberOfFrames / _zCount;
+
+        if ( _numberOfFrames % _zCount )
+        {
+
+          _tCount++;
 
         }
 
@@ -181,7 +203,7 @@ bool soma::EnhancedIndexModule::parseHeader(
 
     datasetHeader.get( dataset );
 
-    return parseDataset( &dataset );
+    return parseItem( &dataset );
 
   }
 
@@ -218,6 +240,14 @@ int32_t soma::EnhancedIndexModule::getZCount() const
 {
 
   return _zCount;
+
+}
+
+
+int32_t soma::EnhancedIndexModule::getTCount() const
+{
+
+  return _tCount;
 
 }
 

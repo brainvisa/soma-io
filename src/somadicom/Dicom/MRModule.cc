@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -19,36 +19,36 @@ soma::MRModule::MRModule()
 }
 
 
-bool soma::MRModule::parseDataset( DcmDataset* dataset )
+bool soma::MRModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Float64 tmpDouble;
 
-    if ( dataset->findAndGetFloat64( DCM_RepetitionTime, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_RepetitionTime, tmpDouble ).good() )
     {
 
       _tr = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_EchoTime, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_EchoTime, tmpDouble ).good() )
     {
 
       _te = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_InversionTime, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_InversionTime, tmpDouble ).good() )
     {
 
       _ti = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_FlipAngle, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_FlipAngle, tmpDouble ).good() )
     {
 
       _flipAngle = double( tmpDouble );

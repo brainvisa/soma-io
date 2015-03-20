@@ -18,15 +18,15 @@ soma::DiffusionModule::DiffusionModule()
 }
 
 
-bool soma::DiffusionModule::parseDataset( DcmDataset* dataset )
+bool soma::DiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     DcmItem* item = 0;
 
-    if ( dataset->findAndGetSequenceItem( DCM_MRDiffusionSequence, 
+    if ( dcmItem->findAndGetSequenceItem( DCM_MRDiffusionSequence, 
                                           item ).good() )
     {
 
@@ -100,7 +100,7 @@ bool soma::DiffusionModule::parseHeader(
     {
 
       datasetHeader.get( dataset, i );
-      status &= parseDataset( &dataset );
+      status &= parseItem( &dataset );
 
     }
 

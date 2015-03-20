@@ -17,15 +17,15 @@ soma::PhilipsDiffusionModule::PhilipsDiffusionModule()
 }
 
 
-bool soma::PhilipsDiffusionModule::parseDataset( DcmDataset* dataset )
+bool soma::PhilipsDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Float32 tmpFloat;
     
-    if ( dataset->findAndGetFloat32( DcmTagKey( 0x2001, 0x1003 ), 
+    if ( dcmItem->findAndGetFloat32( DcmTagKey( 0x2001, 0x1003 ), 
                                      tmpFloat ).good() )
     {
 
@@ -36,7 +36,7 @@ bool soma::PhilipsDiffusionModule::parseDataset( DcmDataset* dataset )
       if ( tmpFloat > 0.0f )
       {
 
-        if ( dataset->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b0 ),
+        if ( dcmItem->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b0 ),
                                          tmpFloat ).good() )
         {
 
@@ -44,7 +44,7 @@ bool soma::PhilipsDiffusionModule::parseDataset( DcmDataset* dataset )
 
         }
 
-        if ( dataset->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b1 ),
+        if ( dcmItem->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b1 ),
                                          tmpFloat ).good() )
         {
 
@@ -52,7 +52,7 @@ bool soma::PhilipsDiffusionModule::parseDataset( DcmDataset* dataset )
 
         }
 
-        if ( dataset->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b2 ),
+        if ( dcmItem->findAndGetFloat32( DcmTagKey( 0x2005, 0x10b2 ),
                                          tmpFloat ).good() )
         {
 

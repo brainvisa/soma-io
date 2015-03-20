@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -15,15 +15,15 @@ soma::GEDiffusionModule::GEDiffusionModule()
 }
 
 
-bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
+bool soma::GEDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Sint32 tmpInt;
     
-    if ( dataset->findAndGetSint32( DcmTagKey( 0x0043, 0x1039 ), 
+    if ( dcmItem->findAndGetSint32( DcmTagKey( 0x0043, 0x1039 ), 
                                     tmpInt, 
                                     0 ).good() )
     {
@@ -39,7 +39,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
         Float64 tmpDouble;
         std::string encodingDirection = "COL";
 
-        if ( dataset->findAndGetOFString( DCM_InPlanePhaseEncodingDirection,
+        if ( dcmItem->findAndGetOFString( DCM_InPlanePhaseEncodingDirection,
                                           tmpString ).good() )
         {
 
@@ -50,7 +50,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
         if ( encodingDirection == "COL" )
         {
 
-          if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bb ),
+          if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bb ),
                                            tmpDouble ).good() )
           {
 
@@ -58,7 +58,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
 
           }
 
-          if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bc ),
+          if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bc ),
                                            tmpDouble ).good() )
           {
 
@@ -70,7 +70,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
         else if (  encodingDirection == "ROW" )
         {
 
-          if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bb ),
+          if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bb ),
                                            tmpDouble ).good() )
           {
 
@@ -78,7 +78,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
 
           }
 
-          if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bc ),
+          if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bc ),
                                            tmpDouble ).good() )
           {
 
@@ -88,7 +88,7 @@ bool soma::GEDiffusionModule::parseDataset( DcmDataset* dataset )
 
         }
 
-        if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bd ),
+        if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x10bd ),
                                          tmpDouble ).good() )
         {
 

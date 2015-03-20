@@ -21,7 +21,7 @@ class MRModule : public DicomModule
 
     MRModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     double getTR() const;
     double getTE() const;

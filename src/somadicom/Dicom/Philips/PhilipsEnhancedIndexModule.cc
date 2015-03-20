@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -16,34 +16,16 @@ soma::PhilipsEnhancedIndexModule::PhilipsEnhancedIndexModule()
 }
 
 
-bool soma::PhilipsEnhancedIndexModule::parseDataset( DcmDataset* dataset )
+bool soma::PhilipsEnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     int32_t nItems = 0;
-    Sint32 tmpInt;
     DcmSequenceOfItems* seq = 0;
 
-    if ( dataset->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
-    {
-
-      _numberOfFrames = int32_t( tmpInt );
-
-    }
-
-    if ( dataset->findAndGetSint32( DcmTagKey( 0x2001, 0x1018 ), 
-                                    tmpInt ).good() )
-    {
-
-      _zCount = int32_t( tmpInt );
-
-    }
-
-    _indices.resize( _numberOfFrames );
-
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
+    if ( dcmItem->findAndGetSequence( DCM_DimensionIndexSequence,
                                       seq ).good() )
     {
 
@@ -52,15 +34,54 @@ bool soma::PhilipsEnhancedIndexModule::parseDataset( DcmDataset* dataset )
       if ( nItems < 4 )
       {
 
-        return soma::EnhancedIndexModule::parseDataset( dataset );
+        return soma::EnhancedIndexModule::parseItem( dcmItem );
 
       }
  
     }
 
+    Sint32 tmpInt;
+
+    if ( dcmItem->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
+    {
+
+      _numberOfFrames = int32_t( tmpInt );
+
+    }
+    else
+    {
+
+      return false;
+
+    }
+
+    if ( dcmItem->findAndGetSint32( DcmTagKey( 0x2001, 0x1018 ), 
+                                    tmpInt ).good() )
+    {
+
+      _zCount = int32_t( tmpInt );
+
+    }
+
+    if ( _zCount < _numberOfFrames )
+    {
+
+      _tCount = _numberOfFrames / _zCount;
+
+      if ( _numberOfFrames % _zCount )
+      {
+
+        _tCount++;
+
+      }
+
+    }
+
+    _indices.resize( _numberOfFrames );
+
     OFString tmpString;
 
-    if ( dataset->findAndGetOFString( DCM_ImageType, tmpString, 2 ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_ImageType, tmpString, 2 ).good() )
     {
 
       if ( !tmpString.compare( "DIFFUSION" ) )
@@ -103,12 +124,11 @@ bool soma::PhilipsEnhancedIndexModule::parseDataset( DcmDataset* dataset )
 
         }
 
-        if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence,
+        if ( dcmItem->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence,
                                           seq ).good() )
         {
 
           uint32_t i, nItems = seq->card();
-          int32_t frames = _numberOfFrames / _zCount;
 
           for ( i = 0; i < nItems; i++ )
           {
@@ -127,7 +147,7 @@ bool soma::PhilipsEnhancedIndexModule::parseDataset( DcmDataset* dataset )
                                          t, 
                                          _tIndex );
 
-              _indices[ i ] = ( t % frames ) * _zCount + z - 1;
+              _indices[ i ] = ( t % _tCount ) * _zCount + z - 1;
 
             }
 

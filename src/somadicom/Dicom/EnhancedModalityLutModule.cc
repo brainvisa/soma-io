@@ -24,6 +24,33 @@ bool soma::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
   if ( dataset )
   {
 
+    DcmItem* seqItem = 0;
+
+    if ( dataset->findAndGetSequenceItem( DCM_SharedFunctionalGroupsSequence,
+                                          seqItem ).good() )
+    {
+
+      DcmItem* item = 0;
+
+      if ( seqItem->findAndGetSequenceItem( 
+                                           DCM_PixelValueTransformationSequence,
+                                           item ).good() )
+      {
+
+        _rescaleIntercept.clear();
+        _rescaleSlope.clear();
+
+        if ( parseItem( item ) )
+        {
+
+          return true;
+
+        }
+
+      }
+
+    }
+
     DcmSequenceOfItems* seq = 0;
     if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence, 
                                       seq ).good() )
@@ -31,8 +58,8 @@ bool soma::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
 
       uint32_t i, nItems = seq->card();
 
-      _rescaleIntercept.resize( nItems, 0.0 );
-      _rescaleSlope.resize( nItems, 1.0 );
+      _rescaleIntercept.clear();
+      _rescaleSlope.clear();
 
       for ( i = 0; i < nItems; i++ )
       {
@@ -44,21 +71,11 @@ bool soma::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
                                            tmpItem ).good() )
         {
 
-          Float64 tmpDouble;
-
-          if ( tmpItem->findAndGetFloat64( DCM_RescaleIntercept,
-                                           tmpDouble ).good() )
+          if ( !parseItem( tmpItem ) )
           {
 
-            _rescaleIntercept[ i ] = double( tmpDouble );
-
-          }
-
-          if ( tmpItem->findAndGetFloat64( DCM_RescaleSlope, 
-                                           tmpDouble ).good() )
-          {
-
-            _rescaleSlope[ i ] = double( tmpDouble );
+            _rescaleIntercept.push_back( 0.0 );
+            _rescaleSlope.push_back( 1.0 );
 
           }
 

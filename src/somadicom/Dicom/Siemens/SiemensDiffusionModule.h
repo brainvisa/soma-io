@@ -21,7 +21,7 @@ class SiemensDiffusionModule : public DiffusionModule
 
     SiemensDiffusionModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     int32_t getStep( DicomDatasetHeader& datasetHeader );
 

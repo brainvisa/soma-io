@@ -6,6 +6,9 @@
 #include <Dicom/USRegionSpatialModule.h>
 #endif
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dcdatset.h>
+
 
 soma::USReader::USReader()
               : soma::DicomReader()
@@ -25,7 +28,7 @@ bool soma::USReader::readHeader( DcmDataset* dataset )
 
       soma::USRegionSpatialModule spatialModule;
 
-      if ( spatialModule.parseDataset( dataset ) )
+      if ( spatialModule.parseItem( dataset ) )
       {
 
         _dataInfo->_resolution.x = spatialModule.getPhysicalDeltaX();

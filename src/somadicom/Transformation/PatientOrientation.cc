@@ -264,9 +264,10 @@ soma::Transformation3d soma::PatientOrientation::getReferential() const
 
   soma::Transformation3d m = 
                          _dicomTransformation * _scaledTransformation.inverse();
+
   std::vector< double > c = m.getDirectCoefficients();
 
-  // From Dicom to Nifti, only reverse X and Y coordinates
+  // Changing from Dicom to Nifti referential only requires X and Y inversions
   m.setItems( -c[ 0 ],  -c[ 1 ],  -c[ 2 ],  -c[ 3 ],
               -c[ 4 ],  -c[ 5 ],  -c[ 6 ],  -c[ 7 ],
                c[ 8 ],   c[ 9 ],   c[ 10 ],  c[ 11 ],

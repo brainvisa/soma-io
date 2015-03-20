@@ -1,10 +1,18 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
+#include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Dicom/EnhancedModalityLutModule.h>
 #include <soma-io/Dicom/EnhancedIndexModule.h>
+#include <soma-io/Container/DataInfo.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/EnhancedMRImageStorageReader.h>
+#include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/EnhancedModalityLutModule.h>
 #include <Dicom/EnhancedIndexModule.h>
+#include <Container/DataInfo.h>
+#include <Object/HeaderProxy.h>
 #include <Utils/StdInt.h>
 #endif
 
@@ -29,6 +37,41 @@ std::string soma::EnhancedMRImageStorageReader::getStorageUID()
 }
 
 
+bool soma::EnhancedMRImageStorageReader::getHeader(
+                                       soma::HeaderProxy& proxy,
+                                       soma::DataInfo& info,
+                                       soma::DicomDatasetHeader& datasetHeader )
+{
+
+  if ( !soma::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
+  {
+
+    return false;
+
+  }
+
+  if ( !proxy.hasAttribute( "rescale_intercept" ) )
+  {
+
+    soma::EnhancedModalityLutModule modalityLutModule;
+
+    if ( modalityLutModule.parseHeader( datasetHeader ) )
+    {
+
+      proxy.addAttribute( "rescale_intercept",  
+                           modalityLutModule.getRescaleIntercept());
+      proxy.addAttribute( "rescale_slope", 
+                           modalityLutModule.getRescaleSlope() );
+
+    }
+
+  }
+
+  return true;
+
+}
+
+
 bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
@@ -43,7 +86,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
     }
 
     bool found = false;
-    bool rescale = false;
     DcmItem* seqItem = 0;
 
     if ( dataset->findAndGetSequenceItem( DCM_SharedFunctionalGroupsSequence,
@@ -118,34 +160,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
       }
 
-      if ( seqItem->findAndGetSequenceItem( 
-                                           DCM_PixelValueTransformationSequence,
-                                           item ).good() )
-      {
-
-        Float64 tmpDouble;
-
-        rescale = true;
-        _dataInfo->_slope.resize( 1, 1.0 );
-        _dataInfo->_intercept.resize( 1, 0.0 );
-
-
-        if ( item->findAndGetFloat64( DCM_RescaleSlope, tmpDouble ).good() )
-        {
-
-          _dataInfo->_slope[ 0 ] = double( tmpDouble );
-
-        }
-
-        if ( item->findAndGetFloat64( DCM_RescaleIntercept, tmpDouble ).good() )
-        {
-
-          _dataInfo->_intercept[ 0 ] = double( tmpDouble );
-
-        }
-
-      }
-
     }
 
     DcmSequenceOfItems* seq = 0;
@@ -156,15 +170,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
       uint32_t i, nItems = seq->card();
 
-      _positions.resize( nItems );
-
-      if ( !rescale )
-      {
-
-        _dataInfo->_slope.resize( nItems, 1.0 );
-        _dataInfo->_intercept.resize( nItems, 0.0 );
-
-      }
+      _positions.resize( _dataInfo->_slices * _dataInfo->_frames );
 
       for ( i = 0; i < nItems; i++ )
       {
@@ -244,30 +250,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
         }
 
-        if ( !rescale &&
-             item->findAndGetSequenceItem( DCM_PixelValueTransformationSequence,
-                                           tmpItem ).good() )
-        {
-
-          Float64 tmpFloat;
-
-          if ( tmpItem->findAndGetFloat64( DCM_RescaleSlope, tmpFloat ).good() )
-          {
-
-            _dataInfo->_slope[ index ] = (double)tmpFloat;
-
-          }
-
-          if ( tmpItem->findAndGetFloat64( DCM_RescaleIntercept,
-                                           tmpFloat ).good() )
-          {
-
-            _dataInfo->_intercept[ index ] = (double)tmpFloat;
-
-          }
-
-        }
-
       }
 
     }
@@ -289,26 +271,11 @@ bool soma::EnhancedMRImageStorageReader::buildIndexLut( DcmDataset* dataset )
 
     soma::EnhancedIndexModule indexModule;
 
-    if ( indexModule.parseDataset( dataset ) )
+    if ( indexModule.parseItem( dataset ) )
     {
 
-      int32_t zMax = indexModule.getZCount();
-      int32_t frameCount = indexModule.getNumberOfFrames();
-
-      if ( zMax < frameCount )
-      {
-
-        _dataInfo->_frames = frameCount / zMax;
-        _dataInfo->_slices = zMax;
-
-      }
-      else
-      {
-
-        _dataInfo->_slices = frameCount;
-
-      }
-
+      _dataInfo->_slices = indexModule.getZCount();
+      _dataInfo->_frames = indexModule.getTCount();
       _indexLut = indexModule.getIndices();
 
       return true;

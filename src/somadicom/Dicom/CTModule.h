@@ -21,7 +21,7 @@ class CTModule : public DicomModule
 
     CTModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     double getReconstructionDiameter() const;
 

@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -28,10 +28,10 @@ soma::ImageModule::ImageModule()
 }
 
 
-bool soma::ImageModule::parseDataset( DcmDataset* dataset )
+bool soma::ImageModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
@@ -39,14 +39,14 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
     Sint16 tmpInt16;
     Float64 tmpDouble;
 
-    if ( dataset->findAndGetUint16( DCM_SamplesPerPixel, tmpUint16 ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_SamplesPerPixel, tmpUint16 ).good() )
     {
 
       _samplesPerPixel = int32_t( tmpUint16 );
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_PhotometricInterpretation, 
+    if ( dcmItem->findAndGetOFString( DCM_PhotometricInterpretation, 
                                       tmpString ).good() )
     {
 
@@ -67,7 +67,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_PlanarConfiguration, 
+    if ( dcmItem->findAndGetUint16( DCM_PlanarConfiguration, 
                                     tmpUint16 ).good() )
     {
 
@@ -75,7 +75,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_Rows, tmpUint16 ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_Rows, tmpUint16 ).good() )
     {
 
       _rows = int32_t( tmpUint16 );
@@ -88,7 +88,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_Columns, tmpUint16 ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_Columns, tmpUint16 ).good() )
     {
 
       _columns = int32_t( tmpUint16 );
@@ -101,7 +101,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpUint16 ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_BitsAllocated, tmpUint16 ).good() )
     {
 
       _bitsAllocated = int32_t( tmpUint16 );
@@ -114,7 +114,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_BitsStored, tmpUint16 ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_BitsStored, tmpUint16 ).good() )
     {
 
       _bitsStored = int32_t( tmpUint16 );
@@ -127,7 +127,7 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_PixelRepresentation, 
+    if ( dcmItem->findAndGetUint16( DCM_PixelRepresentation, 
                                     tmpUint16 ).good() )
     {
 
@@ -137,14 +137,14 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     _smallestPixelValue = 0;
 
-    if ( dataset->findAndGetUint16( DCM_SmallestImagePixelValue, 
+    if ( dcmItem->findAndGetUint16( DCM_SmallestImagePixelValue, 
                                     tmpUint16 ).good() )
     {
 
       _smallestPixelValue = int32_t( tmpUint16 );
 
     }
-    else if ( dataset->findAndGetSint16( DCM_SmallestImagePixelValue, 
+    else if ( dcmItem->findAndGetSint16( DCM_SmallestImagePixelValue, 
                                          tmpInt16 ).good() )
     {
 
@@ -154,14 +154,14 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     _largestPixelValue = 0;
 
-    if ( dataset->findAndGetUint16( DCM_LargestImagePixelValue, 
+    if ( dcmItem->findAndGetUint16( DCM_LargestImagePixelValue, 
                                     tmpUint16 ).good() )
     {
 
       _largestPixelValue = int32_t( tmpUint16 );
 
     }
-    else if ( dataset->findAndGetSint16( DCM_LargestImagePixelValue, 
+    else if ( dcmItem->findAndGetSint16( DCM_LargestImagePixelValue, 
                                          tmpInt16 ).good() )
     {
 
@@ -169,21 +169,21 @@ bool soma::ImageModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 0 ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 0 ).good() )
     {
 
       _pixelSpacingX = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 1 ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_PixelSpacing, tmpDouble, 1 ).good() )
     {
 
       _pixelSpacingY = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetSint16( DCM_PixelPaddingValue, tmpInt16 ).good() )
+    if ( dcmItem->findAndGetSint16( DCM_PixelPaddingValue, tmpInt16 ).good() )
     {
 
       _pixelPaddingValue = int32_t( tmpInt16 );

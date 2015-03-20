@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -20,10 +20,10 @@ soma::DatasetModule::DatasetModule()
 }
 
 
-bool soma::DatasetModule::parseDataset( DcmDataset* dataset )
+bool soma::DatasetModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
@@ -31,28 +31,28 @@ bool soma::DatasetModule::parseDataset( DcmDataset* dataset )
 
     _manufacturer = "Generic";
 
-    if ( dataset->findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
     {
 
       _manufacturer = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SOPClassUID, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SOPClassUID, tmpString ).good() )
     {
 
       _sopClassUID = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_SamplesPerPixel, tmpShort ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_SamplesPerPixel, tmpShort ).good() )
     {
 
       _samplesPerPixel = int32_t( tmpShort );
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_PhotometricInterpretation, 
+    if ( dcmItem->findAndGetOFString( DCM_PhotometricInterpretation, 
                                       tmpString ).good() )
     {
 
@@ -65,14 +65,14 @@ bool soma::DatasetModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_BitsAllocated, tmpShort ).good() )
     {
 
       _bitsAllocated = int32_t( tmpShort );
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesInstanceUID, 
+    if ( dcmItem->findAndGetOFString( DCM_SeriesInstanceUID, 
                                       tmpString ).good() )
     {
 

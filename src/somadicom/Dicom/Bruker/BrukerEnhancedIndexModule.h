@@ -21,7 +21,7 @@ class BrukerEnhancedIndexModule : public EnhancedIndexModule
 
     BrukerEnhancedIndexModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
 };
 

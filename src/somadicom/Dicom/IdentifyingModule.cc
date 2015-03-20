@@ -29,71 +29,71 @@ soma::IdentifyingModule::IdentifyingModule()
 }
 
 
-bool soma::IdentifyingModule::parseDataset( DcmDataset* dataset )
+bool soma::IdentifyingModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
 
-    if ( dataset->findAndGetOFString( DCM_StudyDate, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_StudyDate, tmpString ).good() )
     {
 
       _studyDate = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesDate, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SeriesDate, tmpString ).good() )
     {
 
       _seriesDate = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_AcquisitionDate, tmpString ).good() )
     {
 
       _acquisitionDate = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_StudyTime, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_StudyTime, tmpString ).good() )
     {
 
       _studyTime = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesTime, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SeriesTime, tmpString ).good() )
     {
 
       _seriesTime = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_Modality, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_Modality, tmpString ).good() )
     {
 
       _modality = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_Manufacturer, tmpString ).good() )
     {
 
       _manufacturer = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_InstitutionName, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_InstitutionName, tmpString ).good() )
     {
 
       _institutionName = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesDescription, 
+    if ( dcmItem->findAndGetOFString( DCM_SeriesDescription, 
                                       tmpString ).good() )
     {
 
@@ -126,7 +126,7 @@ bool soma::IdentifyingModule::parseHeader(
     _acquisitionTimes.clear();
     datasetHeader.get( dataset );
 
-    if ( parseDataset( &dataset ) )
+    if ( parseItem( &dataset ) )
     {
 
       for ( i = 0; i < n; i++ )

@@ -56,7 +56,7 @@ bool soma::MRImageStorageReader::getHeader(
 
   datasetHeader.get( dataset );
 
-  if ( mrModule.parseDataset( &dataset ) )
+  if ( mrModule.parseItem( &dataset ) )
   {
 
     proxy.addAttribute( "tr", mrModule.getTR() );

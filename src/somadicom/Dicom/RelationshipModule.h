@@ -26,7 +26,7 @@ class RelationshipModule : public DicomModule
 
     RelationshipModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
     bool parseHeader( DicomDatasetHeader& datasetHeader );
 
     const std::string& getSeriesInstanceUID() const;

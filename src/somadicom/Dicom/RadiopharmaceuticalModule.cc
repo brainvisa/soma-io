@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -22,14 +22,14 @@ soma::RadiopharmaceuticalModule::RadiopharmaceuticalModule()
 }
 
 
-bool soma::RadiopharmaceuticalModule::parseDataset( DcmDataset* dataset )
+bool soma::RadiopharmaceuticalModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     DcmItem* item = 0;
-    if ( dataset->findAndGetSequenceItem( 
+    if ( dcmItem->findAndGetSequenceItem( 
                                      DCM_RadiopharmaceuticalInformationSequence,
                                      item ).good() )
     {

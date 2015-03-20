@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcsequen.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
@@ -16,26 +16,30 @@ soma::BrukerEnhancedIndexModule::BrukerEnhancedIndexModule()
 }
 
 
-bool soma::BrukerEnhancedIndexModule::parseDataset( DcmDataset* dataset )
+bool soma::BrukerEnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     int32_t nItems = 0;
     Sint32 tmpInt;
     DcmSequenceOfItems* seq = 0;
 
-    if ( dataset->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
+    if ( dcmItem->findAndGetSint32( DCM_NumberOfFrames, tmpInt ).good() )
     {
 
       _numberOfFrames = int32_t( tmpInt );
 
     }
+    else
+    {
 
-    _indices.resize( _numberOfFrames );
+      return false;
 
-    if ( dataset->findAndGetSequence( DCM_DimensionIndexSequence,
+    }
+
+    if ( dcmItem->findAndGetSequence( DCM_DimensionIndexSequence,
                                       seq ).good() )
     {
 
@@ -44,7 +48,7 @@ bool soma::BrukerEnhancedIndexModule::parseDataset( DcmDataset* dataset )
       if ( nItems < 4 )
       {
 
-        return soma::EnhancedIndexModule::parseDataset( dataset );
+        return soma::EnhancedIndexModule::parseItem( dcmItem );
 
       }
 
@@ -81,7 +85,9 @@ bool soma::BrukerEnhancedIndexModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence,
+    _indices.resize( _numberOfFrames );
+
+    if ( dcmItem->findAndGetSequence( DCM_PerFrameFunctionalGroupsSequence,
                                       seq ).good() )
     {
 
@@ -114,6 +120,20 @@ bool soma::BrukerEnhancedIndexModule::parseDataset( DcmDataset* dataset )
             _zCount = z;
 
           }
+
+        }
+
+      }
+
+      if ( _zCount < _numberOfFrames )
+      {
+
+        _tCount = _numberOfFrames / _zCount;
+
+        if ( _numberOfFrames % _zCount )
+        {
+
+          _tCount++;
 
         }
 

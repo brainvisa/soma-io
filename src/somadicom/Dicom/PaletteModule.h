@@ -27,7 +27,7 @@ class PaletteModule : public DicomModule
 
     PaletteModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     Rgba operator()( int32_t index );
 

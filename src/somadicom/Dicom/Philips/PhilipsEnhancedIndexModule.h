@@ -21,7 +21,7 @@ class PhilipsEnhancedIndexModule : public EnhancedIndexModule
 
     PhilipsEnhancedIndexModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
 };
 

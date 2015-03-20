@@ -23,7 +23,7 @@ class PatientModule : public DicomModule
 
     PatientModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     const std::string& getName() const;
     const std::string& getId() const;

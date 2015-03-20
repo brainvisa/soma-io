@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -17,22 +17,22 @@ soma::AcquisitionModule::AcquisitionModule()
 }
 
 
-bool soma::AcquisitionModule::parseDataset( DcmDataset* dataset )
+bool soma::AcquisitionModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Float64 tmpDouble;
 
-    if ( dataset->findAndGetFloat64( DCM_SliceThickness, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_SliceThickness, tmpDouble ).good() )
     {
 
       _sliceThickness = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_SpacingBetweenSlices,
+    if ( dcmItem->findAndGetFloat64( DCM_SpacingBetweenSlices,
                                      tmpDouble ).good() )
     {
 

@@ -25,13 +25,14 @@ class EnhancedIndexModule : public DicomModule
 
     EnhancedIndexModule();
 
-    virtual bool parseDataset( DcmDataset* dataset );
+    virtual bool parseItem( DcmItem* dcmItem );
     bool parseHeader( DicomDatasetHeader& datasetHeader );
 
     int32_t getNumberOfFrames() const;
     int32_t getZIndex() const;
     int32_t getTIndex() const;
     int32_t getZCount() const;
+    int32_t getTCount() const;
     const std::vector< int32_t >& getIndices() const;
 
   protected:
@@ -40,6 +41,7 @@ class EnhancedIndexModule : public DicomModule
     int32_t _zIndex;
     int32_t _tIndex;
     int32_t _zCount;
+    int32_t _tCount;
     std::vector< int32_t > _indices;
 
 };

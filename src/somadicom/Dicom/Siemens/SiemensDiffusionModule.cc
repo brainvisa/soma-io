@@ -7,7 +7,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -17,15 +17,15 @@ soma::SiemensDiffusionModule::SiemensDiffusionModule()
 }
 
 
-bool soma::SiemensDiffusionModule::parseDataset( DcmDataset* dataset )
+bool soma::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Sint32 tmpInt;
 
-    if ( dataset->findAndGetSint32( DcmTagKey( 0x0019, 0x100c ),
+    if ( dcmItem->findAndGetSint32( DcmTagKey( 0x0019, 0x100c ),
                                     tmpInt ).good() )
     {
 
@@ -42,7 +42,7 @@ bool soma::SiemensDiffusionModule::parseDataset( DcmDataset* dataset )
         for ( d = 0; d < 3; d++ )
         {
 
-          if ( dataset->findAndGetFloat64( DcmTagKey( 0x0019, 0x100e ),
+          if ( dcmItem->findAndGetFloat64( DcmTagKey( 0x0019, 0x100e ),
                                            tmpDouble,
                                            d ).good() )
           {

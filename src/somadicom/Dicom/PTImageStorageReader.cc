@@ -69,7 +69,7 @@ bool soma::PTImageStorageReader::getHeader(
 
   datasetHeader.get( dataset );
 
-  if ( patientModule.parseDataset( &dataset ) )
+  if ( patientModule.parseItem( &dataset ) )
   {
 
     header.addAttribute( "patient_sex", patientModule.getSex() );
@@ -87,7 +87,7 @@ bool soma::PTImageStorageReader::getHeader(
 
   }
 
-  if ( nuclearModule.parseDataset( &dataset ) )
+  if ( nuclearModule.parseItem( &dataset ) )
   {
 
     const std::string& mode = nuclearModule.getAcquisitionMode();
@@ -139,7 +139,7 @@ bool soma::PTImageStorageReader::getHeader(
 
   }
 
-  if ( radiopharmaModule.parseDataset( &dataset ) )
+  if ( radiopharmaModule.parseItem( &dataset ) )
   {
 
     header.addAttribute( "radiopharmaceutical", 

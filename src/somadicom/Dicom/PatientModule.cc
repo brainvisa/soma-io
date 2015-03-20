@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
@@ -22,19 +22,19 @@ soma::PatientModule::PatientModule()
 }
 
 
-bool soma::PatientModule::parseDataset( DcmDataset* dataset )
+bool soma::PatientModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
     Float64 tmpDouble;
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
-    if ( dataset->findAndGetOFString( DCM_PatientName, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientName, tmpString ).good() )
 #else
-    if ( dataset->findAndGetOFString( DCM_PatientsName, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientsName, tmpString ).good() )
 #endif
     {
 
@@ -42,7 +42,7 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_PatientID, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientID, tmpString ).good() )
     {
 
       _id = tmpString.c_str();
@@ -50,9 +50,9 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
     }
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
-    if ( dataset->findAndGetOFString( DCM_PatientBirthDate, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientBirthDate, tmpString ).good() )
 #else
-    if ( dataset->findAndGetOFString( DCM_PatientsBirthDate, 
+    if ( dcmItem->findAndGetOFString( DCM_PatientsBirthDate, 
                                       tmpString ).good() )
 #endif
     {
@@ -62,9 +62,9 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
     }
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
-    if ( dataset->findAndGetOFString( DCM_PatientSex, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientSex, tmpString ).good() )
 #else
-    if ( dataset->findAndGetOFString( DCM_PatientsSex, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientsSex, tmpString ).good() )
 #endif
     {
 
@@ -73,9 +73,9 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
     }
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
-    if ( dataset->findAndGetOFString( DCM_PatientAge, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientAge, tmpString ).good() )
 #else
-    if ( dataset->findAndGetOFString( DCM_PatientsAge, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_PatientsAge, tmpString ).good() )
 #endif
     {
 
@@ -84,9 +84,9 @@ bool soma::PatientModule::parseDataset( DcmDataset* dataset )
     }
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
-    if ( dataset->findAndGetFloat64( DCM_PatientWeight, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_PatientWeight, tmpDouble ).good() )
 #else
-    if ( dataset->findAndGetFloat64( DCM_PatientsWeight, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_PatientsWeight, tmpDouble ).good() )
 #endif
     {
 

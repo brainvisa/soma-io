@@ -12,6 +12,9 @@
 #include <vector>
 
 
+class DcmDataset;
+
+
 namespace soma
 {
 
@@ -23,7 +26,8 @@ class ModalityLutModule : public DicomModule
 
     ModalityLutModule();
 
-    virtual bool parseDataset( DcmDataset* dataset );
+    virtual bool parseItem( DcmItem* dcmItem );
+    virtual bool parseDataset( DcmDataset* dadaset );
     bool parseHeader( DicomDatasetHeader& datasetHeader );
 
     const std::vector< double >& getRescaleIntercept() const;

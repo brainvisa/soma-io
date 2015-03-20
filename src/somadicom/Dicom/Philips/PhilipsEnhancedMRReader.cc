@@ -89,26 +89,11 @@ bool soma::PhilipsEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
 
     soma::PhilipsEnhancedIndexModule indexModule;
 
-    if ( indexModule.parseDataset( dataset ) )
+    if ( indexModule.parseItem( dataset ) )
     {
 
-      int32_t zMax = indexModule.getZCount();
-      int32_t frameCount = indexModule.getNumberOfFrames();
-
-      if ( zMax < frameCount )
-      {
-
-        _dataInfo->_frames = frameCount / zMax;
-        _dataInfo->_slices = zMax;
-
-      }
-      else
-      {
-
-        _dataInfo->_slices = frameCount;
-
-      }
-
+      _dataInfo->_slices = indexModule.getZCount();
+      _dataInfo->_frames = indexModule.getTCount();
       _tIndex = indexModule.getTIndex();
       _indexLut = indexModule.getIndices();
 

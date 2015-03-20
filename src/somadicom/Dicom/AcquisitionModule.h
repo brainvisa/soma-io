@@ -21,7 +21,7 @@ class AcquisitionModule : public DicomModule
 
     AcquisitionModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     double getSliceThickness() const;
     double getSpacingBetweenSlices() const;

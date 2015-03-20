@@ -48,26 +48,11 @@ bool soma::BrukerEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
 
     soma::BrukerEnhancedIndexModule indexModule;
 
-    if ( indexModule.parseDataset( dataset ) )
+    if ( indexModule.parseItem( dataset ) )
     {
 
-      int32_t zMax = indexModule.getZCount();
-      int32_t frameCount = indexModule.getNumberOfFrames();
-
-      if ( zMax < frameCount )
-      {
-
-        _dataInfo->_frames = frameCount / zMax;
-        _dataInfo->_slices = zMax;
-
-      }
-      else
-      {
-
-        _dataInfo->_slices = frameCount;
-
-      }
-
+      _dataInfo->_slices = indexModule.getZCount();
+      _dataInfo->_frames = indexModule.getTCount();
       _indexLut = indexModule.getIndices();
 
       return true;

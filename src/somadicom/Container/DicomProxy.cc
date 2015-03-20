@@ -5,7 +5,6 @@
 #endif
 
 #include <cstring>
-#include <cassert>
 
 #ifdef __SSE2__
 #include <immintrin.h>
@@ -226,11 +225,6 @@ uint8_t* soma::DicomProxy::operator()( int32_t x,
                                        int32_t z, 
                                        int32_t t )
 {
-
-  assert( ( x >= 0 ) && ( x < _info._width ) );
-  assert( ( y >= 0 ) && ( y < _info._height ) );
-  assert( ( z >= 0 ) && ( z < _info._slices ) );
-  assert( ( t >= 0 ) && ( t < _info._frames ) );
 
   return _lineAccess[ t ][ z ][ y ] + x * _info._bpp;
 

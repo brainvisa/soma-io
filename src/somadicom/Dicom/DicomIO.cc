@@ -26,7 +26,6 @@
 #ifndef SOMA_IO_DICOM
 #include <dcmtk/dcmjpls/djdecode.h>
 #endif
-#include <dcmtk/dcmimage/diregist.h>
 
 
 soma::DicomIO::DicomIO()
@@ -80,12 +79,14 @@ bool soma::DicomIO::analyze( const std::string& fileName,
     if ( header.loadFile( selectedFile.c_str() ).good() )
     {
 
-      if ( _datasetModule.parseDataset( header.getDataset() ) )
+      if ( _datasetModule.parseItem( header.getDataset() ) )
       {
 
         int32_t bits = _datasetModule.getBitsAllocated();
 
         dataInfo._depth = bits < 8 ? 8 : bits;
+        dataInfo._spp = _datasetModule.getSamplesPerPixel();
+        dataInfo._bpp = ( dataInfo._depth >> 3 ) * dataInfo._spp;
 
         return true;
 

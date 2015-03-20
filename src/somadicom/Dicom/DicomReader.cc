@@ -183,7 +183,7 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 
   datasetHeader.get( dataset );
 
-  if ( patientModule.parseDataset( &dataset ) )
+  if ( patientModule.parseItem( &dataset ) )
   {
 
     header.addAttribute( "patient_name", patientModule.getName() );
@@ -265,7 +265,7 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 
     datasetHeader.get( dataset );
 
-    if ( imageModule.parseDataset( &dataset ) )
+    if ( imageModule.parseItem( &dataset ) )
     {
 
       int32_t depth = imageModule.getBitsAllocated();
@@ -289,7 +289,7 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 
     soma::AcquisitionModule acquisitionModule;
 
-    if ( acquisitionModule.parseDataset( &dataset ) )
+    if ( acquisitionModule.parseItem( &dataset ) )
     {
 
       if ( acquisitionModule.getSpacingBetweenSlices() > 0.0 )

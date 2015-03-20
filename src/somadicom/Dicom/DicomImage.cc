@@ -72,7 +72,7 @@ bool soma::DicomImage::load( const std::string& fileName )
 
           _pixelData = OFstatic_cast( DcmPixelData*, element );
 
-          if ( _pixelData && _imageModule.parseDataset( _dataset ) )
+          if ( _pixelData && _imageModule.parseItem( _dataset ) )
           {
 
             chooseImagePixel( _imageModule.getPhotometricInterpretation() );

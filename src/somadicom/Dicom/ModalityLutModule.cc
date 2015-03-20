@@ -19,24 +19,24 @@ soma::ModalityLutModule::ModalityLutModule()
 }
 
 
-bool soma::ModalityLutModule::parseDataset( DcmDataset* dataset )
+bool soma::ModalityLutModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Float64 tmpDouble;
     double intercept = 0.0;
     double slope = 1.0;
 
-    if ( dataset->findAndGetFloat64( DCM_RescaleIntercept, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_RescaleIntercept, tmpDouble ).good() )
     {
 
       intercept = double( tmpDouble );
 
     }
 
-    if ( dataset->findAndGetFloat64( DCM_RescaleSlope, tmpDouble ).good() )
+    if ( dcmItem->findAndGetFloat64( DCM_RescaleSlope, tmpDouble ).good() )
     {
 
       slope = double( tmpDouble );
@@ -51,6 +51,14 @@ bool soma::ModalityLutModule::parseDataset( DcmDataset* dataset )
   }
 
   return false;
+
+}
+
+
+bool soma::ModalityLutModule::parseDataset( DcmDataset* dataset )
+{
+
+  return parseItem( dataset );
 
 }
 

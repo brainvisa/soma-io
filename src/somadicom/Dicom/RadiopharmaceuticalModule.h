@@ -23,7 +23,7 @@ class RadiopharmaceuticalModule : public DicomModule
 
     RadiopharmaceuticalModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     const std::string& getRadiopharmaceutical() const;
     const std::string& getRadiopharmaceuticalStartTime() const;

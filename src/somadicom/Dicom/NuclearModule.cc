@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -45,51 +45,51 @@ soma::NuclearModule::NuclearModule()
 }
 
 
-bool soma::NuclearModule::parseDataset( DcmDataset* dataset )
+bool soma::NuclearModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     OFString tmpString;
     Uint16 tmpShort;
 
-    if ( dataset->findAndGetUint16( DCM_NumberOfTimeSlots, tmpShort ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_NumberOfTimeSlots, tmpShort ).good() )
     {
 
       _numberOfTimeSlots = int32_t( tmpShort );
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_NumberOfSlices, tmpShort ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_NumberOfSlices, tmpShort ).good() )
     {
 
       _numberOfSlices = int32_t( tmpShort );
 
     }
 
-    if ( dataset->findAndGetUint16( DCM_NumberOfTimeSlices, tmpShort ).good() )
+    if ( dcmItem->findAndGetUint16( DCM_NumberOfTimeSlices, tmpShort ).good() )
     {
 
       _numberOfTimeSlices = int32_t( tmpShort );
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesType, tmpString, 0 ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SeriesType, tmpString, 0 ).good() )
     {
 
       _acquisitionMode = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_SeriesType, tmpString, 1 ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_SeriesType, tmpString, 1 ).good() )
     {
 
       _category = tmpString.c_str();
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_Units, tmpString ).good() )
+    if ( dcmItem->findAndGetOFString( DCM_Units, tmpString ).good() )
     {
 
       _units = _unitNames[ tmpString.c_str() ];
@@ -98,7 +98,7 @@ bool soma::NuclearModule::parseDataset( DcmDataset* dataset )
 
     _correctionMethod = "";
 
-    if ( dataset->findAndGetOFString( DCM_RandomsCorrectionMethod, 
+    if ( dcmItem->findAndGetOFString( DCM_RandomsCorrectionMethod, 
                                       tmpString ).good() )
     {
 
@@ -106,22 +106,7 @@ bool soma::NuclearModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_AttenuationCorrectionMethod, 
-                                      tmpString ).good() )
-    {
-
-      if ( _correctionMethod.size() )
-      {
-
-        _correctionMethod += "\\";
-
-      }
-
-      _correctionMethod += tmpString.c_str();
-
-    }
-
-    if ( dataset->findAndGetOFString( DCM_ScatterCorrectionMethod, 
+    if ( dcmItem->findAndGetOFString( DCM_AttenuationCorrectionMethod, 
                                       tmpString ).good() )
     {
 
@@ -136,7 +121,22 @@ bool soma::NuclearModule::parseDataset( DcmDataset* dataset )
 
     }
 
-    if ( dataset->findAndGetOFString( DCM_ReconstructionMethod,
+    if ( dcmItem->findAndGetOFString( DCM_ScatterCorrectionMethod, 
+                                      tmpString ).good() )
+    {
+
+      if ( _correctionMethod.size() )
+      {
+
+        _correctionMethod += "\\";
+
+      }
+
+      _correctionMethod += tmpString.c_str();
+
+    }
+
+    if ( dcmItem->findAndGetOFString( DCM_ReconstructionMethod,
                                       tmpString ).good() )
     {
 

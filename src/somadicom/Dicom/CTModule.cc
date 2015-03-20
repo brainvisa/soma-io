@@ -5,7 +5,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -16,15 +16,15 @@ soma::CTModule::CTModule()
 }
 
 
-bool soma::CTModule::parseDataset( DcmDataset* dataset )
+bool soma::CTModule::parseItem( DcmItem* dcmItem )
 {
 
-  if ( dataset )
+  if ( dcmItem )
   {
 
     Float64 tmpDouble;
 
-    if ( dataset->findAndGetFloat64( DCM_ReconstructionDiameter, 
+    if ( dcmItem->findAndGetFloat64( DCM_ReconstructionDiameter, 
                                      tmpDouble ).good() )
     {
 

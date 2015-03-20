@@ -26,7 +26,7 @@ class NuclearModule : public DicomModule
 
     NuclearModule();
 
-    virtual bool parseDataset( DcmDataset* dataset );
+    virtual bool parseItem( DcmItem* dcmItem );
 
     double getScaleFactor() const;
     int32_t getNumberOfTimeSlots() const;

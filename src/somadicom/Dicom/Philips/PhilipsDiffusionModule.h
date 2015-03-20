@@ -21,7 +21,7 @@ class PhilipsDiffusionModule : public DiffusionModule
 
     PhilipsDiffusionModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
   protected:
 

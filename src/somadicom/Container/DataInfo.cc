@@ -94,8 +94,6 @@ void soma::DataInfo::clear()
   _spacingBetweenSlices = 1.0;
   _repetitionTime = 1.0;
   _fileCount = 0;
-  _slope.clear();
-  _intercept.clear();
   _rowVec = soma::Vector( 1.0, 0.0, 0.0 );
   _colVec = soma::Vector( 0.0, 1.0, 0.0 );
   _origin = soma::Vector( 0.0, 0.0, 0.0 );

@@ -25,7 +25,7 @@ class DatasetModule : public DicomModule
 
     DatasetModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     const std::string& getManufacturer() const;
     const std::string& getSOPClassUID() const;

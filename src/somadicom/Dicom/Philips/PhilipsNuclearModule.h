@@ -21,7 +21,7 @@ class PhilipsNuclearModule : public NuclearModule
 
     PhilipsNuclearModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
 };
 

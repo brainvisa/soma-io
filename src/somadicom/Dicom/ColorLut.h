@@ -10,7 +10,7 @@
 #endif
 
 
-class DcmDataset;
+class DcmItem;
 class DcmTagKey;
 
 
@@ -26,7 +26,7 @@ class ColorLut
     ColorLut();
     virtual ~ColorLut();
 
-    void initialize( DcmDataset* dataset, 
+    void initialize( DcmItem* item, 
                      const DcmTagKey& descriptor, 
                      const DcmTagKey& data );
 

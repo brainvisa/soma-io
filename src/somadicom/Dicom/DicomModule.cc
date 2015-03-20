@@ -7,7 +7,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
+#include <dcmtk/dcmdata/dcitem.h>
 
 
 soma::DicomModule::DicomModule()
@@ -20,7 +20,7 @@ soma::DicomModule::~DicomModule()
 }
 
 
-bool soma::DicomModule::parseDataset( DcmDataset* /* dataset */ )
+bool soma::DicomModule::parseItem( DcmItem* /* dcmItem */ )
 {
 
   return true;

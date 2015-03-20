@@ -25,7 +25,7 @@ class ImageModule : public DicomModule
 
     ImageModule();
 
-    bool parseDataset( DcmDataset* dataset );
+    bool parseItem( DcmItem* dcmItem );
 
     int32_t getSamplesPerPixel() const;
     const std::string& getPhotometricInterpretation() const;

@@ -149,7 +149,8 @@ bool soma::MultiSliceReader::readData( soma::DicomDatasetHeader& datasetHeader,
 
       info._patientOrientation.getOnDiskSize( sizeX, sizeY, sizeZ );
 
-      int32_t n = sizeZ * info._frames;
+      //int32_t n = sizeZ * info._frames;
+      int32_t n = int32_t( _indexLut.size() );
 
       for ( i = 0; i < n; i++ )
       {

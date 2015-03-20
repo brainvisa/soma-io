@@ -7,7 +7,7 @@
 #endif
 
 
-class DcmDataset;
+class DcmItem;
 
 
 namespace soma
@@ -25,7 +25,7 @@ class DicomModule
     DicomModule();
     virtual ~DicomModule();
 
-    virtual bool parseDataset( DcmDataset* dataset );
+    virtual bool parseItem( DcmItem* dcmItem );
     virtual bool parseHeader( DicomDatasetHeader& datasetHeader );
 
 };

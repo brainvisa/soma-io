@@ -22,7 +22,7 @@ bool soma::PaletteImage::initialize( DcmDataset* dataset )
   if ( dataset )
   {
 
-    return _paletteModule.parseDataset( dataset );
+    return _paletteModule.parseItem( dataset );
 
   }
 
