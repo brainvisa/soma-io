@@ -27,6 +27,8 @@
 #include <dcmtk/dcmjpls/djdecode.h>
 #endif
 
+#include <fstream>
+
 
 soma::DicomIO::DicomIO()
              : soma::Singleton< soma::DicomIO >()
@@ -71,7 +73,7 @@ bool soma::DicomIO::analyze( const std::string& fileName,
   soma::DirectoryParser directory( fileName );
   std::string selectedFile = directory.getSelectedFile();
 
-  if ( !selectedFile.empty() )
+  if ( checkDicom( selectedFile ) )
   {
 
     DcmFileFormat header;
@@ -148,3 +150,49 @@ bool soma::DicomIO::read( soma::DicomDatasetHeader& datasetHeader,
 
 }
 
+
+bool soma::DicomIO::checkDicom( const std::string& fileName )
+{
+
+  if ( !fileName.empty() )
+  {
+
+    std::ifstream ifs( fileName.c_str(), std::ifstream::binary );
+
+    if ( ifs.good() )
+    {
+
+      int32_t length = 0;
+      uint8_t dcmTest[] = { 0x44, 0x49, 0x43, 0x4D };
+      uint8_t value[] = { 0, 0, 0, 0 };
+      int32_t* dcmTestInt = (int32_t*)dcmTest;
+      int32_t* valueInt = (int32_t*)value;
+
+      ifs.seekg( 0, ifs.end );
+
+      length = ifs.tellg();
+
+      if ( length > 132 )
+      {
+
+        ifs.seekg( 128, ifs.beg );
+        ifs.read( (char*)value, 4 );
+
+      }
+
+      ifs.close();
+
+      if ( *dcmTestInt == *valueInt )
+      {
+
+        return true;
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}

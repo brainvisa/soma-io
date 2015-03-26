@@ -47,6 +47,8 @@ class DicomIO : public Singleton< DicomIO >
 
   private:
 
+    bool checkDicom( const std::string& fileName );
+
     DatasetModule _datasetModule;
 
 };

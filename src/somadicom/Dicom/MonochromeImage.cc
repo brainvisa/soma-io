@@ -66,7 +66,7 @@ void soma::MonochromeImage< T >::fill(
         int32_t length = ( endX - startX ) * sizeof( T );
         int32_t y;
 
-        for ( y = startY; y < endY; y++, pIn += offsetParameters.lineShift )
+        for ( y = startY; y < endY; y++, pIn += parameters.sizeX )
         {
 
           std::memcpy( _proxy( startX, y, slice, t ), pIn, length );
