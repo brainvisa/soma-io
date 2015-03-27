@@ -19,7 +19,7 @@ soma::FlipTransformation3d::FlipTransformation3d(
 
   soma::Vector rowVec = rowCosine.mainDirection().absoluteCoordinates();
   soma::Vector columnVec = columnCosine.mainDirection().absoluteCoordinates();
-  soma::Vector normalVec = rowVec.cross( columnVec );
+  soma::Vector normalVec = rowVec.cross( columnVec ).absoluteCoordinates();
 
   initialize( normalVec );
 
