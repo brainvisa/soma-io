@@ -35,16 +35,27 @@ endif()
 find_package( DCMTK )
 find_package( Jasper )
 # find_package( TIFF ) # already done
-find_package( PNG12 )
-if( DCMTK_FOUND AND JASPER_FOUND AND TIFF_FOUND AND PNG12_FOUND )
+# find_package( PNG12 )
+if( DCMTK_FOUND )
+  if (DCMTK_oflog_INCLUDE_DIR)
+    # JPEG 2000 support is only available
+    # for DICOM version >= 3.6, i.e. when
+    # DCMTK_oflog_INCLUDE_DIR exists.
+    set(SOMA_DICOM_JPEG2000_SUPPORT 1)
+  endif()
+
   BRAINVISA_DEPENDENCY( RUN DEPENDS dcmtk RUN )
-  BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
-#  BRAINVISA_DEPENDENCY( RUN DEPENDS tiff RUN )
-  BRAINVISA_DEPENDENCY( RUN DEPENDS libpng12 RUN )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS dcmtk DEV )
-  BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
+
+  if(JASPER_FOUND AND SOMA_DICOM_JPEG2000_SUPPORT)
+    BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
+    BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
+  endif()
+
+#  BRAINVISA_DEPENDENCY( RUN DEPENDS tiff RUN )
+#  BRAINVISA_DEPENDENCY( RUN DEPENDS libpng12 RUN )
 #  BRAINVISA_DEPENDENCY( DEV RECOMMENDS tiff DEV )
-  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libpng12 DEV )
+#  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libpng12 DEV )
 endif()
 
 find_package( ZLIB )
@@ -127,7 +138,7 @@ endif()
 if( TIFF_FOUND )
   add_subdirectory( src/somatiff )
 endif()
-if( DCMTK_FOUND AND JASPER_FOUND AND TIFF_FOUND AND PNG12_FOUND )
+if( DCMTK_FOUND )
   add_subdirectory( src/somadicom )
 endif()
 add_subdirectory( src/tests )

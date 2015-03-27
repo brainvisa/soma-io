@@ -1,7 +1,3 @@
-if (DCMTK_oflog_INCLUDE_DIR)
-  set(SOMA_DICOM_JPEG2000_SUPPORT 1)
-endif()
-
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/somadicom.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h"
                    DESTINATION "include/soma-io/config"
@@ -198,8 +194,9 @@ set( _sources
   Transformation/Transformation3d.cc
 )
 
-if (SOMA_DICOM_JPEG2000_SUPPORT)
-  # Add JPEG 2000 support for Dicom
+if (SOMA_DICOM_JPEG2000_SUPPORT AND JASPER_FOUND)
+  # Add JPEG 2000 support only for DICOM version >= 3.6
+  # and it JASPER dependency was found
   set ( _headers
     ${_headers}
     Dicom/DcmtkJpeg2000/dj2kcodd.h
@@ -229,7 +226,18 @@ set(SOMADICOM_HEADERS ${_headers} PARENT_SCOPE)
 add_library( somadicom SHARED ${_sources} )
 add_dependencies( somadicom ${headersTarget} )
 set_property( TARGET somadicom PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( somadicom soma-io cartobase ${DCMTK_LIBRARIES} ${JASPER_LIBRARIES} ${TIFF_LIBRARIES} ${PNG12_LIBRARIES})
+
+set( SOMADICOM_DEP_LIBARIES ${DCMTK_LIBRARIES} )
+
+if (SOMA_DICOM_JPEG2000_SUPPORT AND JASPER_FOUND)
+    # Add JPEG 2000 support only for DICOM version >= 3.6
+    # and it JASPER dependency was found
+    set( SOMADICOM_DEP_LIBARIES ${SOMADICOM_DEP_LIBARIES}
+                                ${JASPER_LIBRARIES} )
+endif()
+
+target_link_libraries( somadicom soma-io cartobase ${SOMADICOM_DEP_LIBARIES} )
+
 BRAINVISA_INSTALL( TARGETS somadicom
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
