@@ -6,7 +6,7 @@
 
 #include <cstring>
 
-#ifdef __SSE2__
+#if defined( __SSE2__ ) && !defined( SOMA_IO_DICOM )
 #include <immintrin.h>
 #endif
 
@@ -111,7 +111,7 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
   if ( _dataOwner )
   {
 
-#ifdef __SSE2__
+#if defined( __SSE2__ ) && !defined( SOMA_IO_DICOM )
     _buffer = (uint8_t*)_mm_malloc( datasetSize * _info._bpp, 16 );
 #else
     _buffer = new uint8_t[ datasetSize * _info._bpp ];
@@ -166,7 +166,7 @@ void soma::DicomProxy::destroy()
   if ( _dataOwner )
   {
 
-#ifdef __SSE2__
+#if defined( __SSE2__ ) && !defined( SOMA_IO_DICOM )
     _mm_free( _buffer );
 #else
     delete [] _buffer;
@@ -229,4 +229,3 @@ uint8_t* soma::DicomProxy::operator()( int32_t x,
   return _lineAccess[ t ][ z ][ y ] + x * _info._bpp;
 
 }
-
