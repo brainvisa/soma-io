@@ -80,7 +80,7 @@ bool soma::USMultiframeImageStorageReader::readData(
       soma::DataInfo& info = proxy.getDataInfo();
       int32_t startT = info._boundingBox.getLowerT();
       int32_t count = info._boundingBox.getUpperT() - startT + 1;
-      int32_t min = 0.0, max = 0.0;
+      int32_t min = 0, max = 0;
 
       soma::MultiFrameContext context( dicomImage );
       soma::ThreadedLoop threadedLoop( &context, startT, count );

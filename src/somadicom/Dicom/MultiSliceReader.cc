@@ -179,7 +179,7 @@ bool soma::MultiSliceReader::readData( soma::DicomDatasetHeader& datasetHeader,
       if ( info._bpp < 3 )
       {
 
-        int32_t min = 0.0, max = 0.0;
+        int32_t min = 0, max = 0;
 
         dicomImage.getMinMaxValues( min, max );
 
