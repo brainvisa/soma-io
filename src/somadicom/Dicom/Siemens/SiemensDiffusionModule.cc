@@ -7,7 +7,7 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcitem.h>
+#include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
@@ -71,10 +71,27 @@ bool soma::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
 
 
 int32_t soma::SiemensDiffusionModule::getStep( 
-                                 soma::DicomDatasetHeader& /* datasetHeader */ )
+                                       soma::DicomDatasetHeader& datasetHeader )
 {
 
-  return 1;
+  OFString imageType;
+  DcmDataset dataset;
+
+  datasetHeader.get( dataset );
+
+  if ( dataset.findAndGetOFStringArray( DCM_ImageType, imageType ).good() )
+  {
+
+    if ( imageType.find( "MOSAIC" ) != std::string::npos )
+    {
+
+      return 1;
+
+    }
+
+  }
+
+  return soma::DiffusionModule::getStep( datasetHeader );
 
 }
 
