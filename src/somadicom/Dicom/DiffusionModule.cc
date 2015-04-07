@@ -145,7 +145,7 @@ int32_t soma::DiffusionModule::getStep(
   {
 
     OFString tmpString;
-    int32_t i, n = datasetHeader.size();
+    int32_t i, tCount = 1, n = datasetHeader.size();
 
     for ( i = 1; i < n; i++ )
     {
@@ -159,13 +159,15 @@ int32_t soma::DiffusionModule::getStep(
         if ( !tmpString.compare( position ) )
         {
 
-          step++;
+          tCount++;
 
         }
 
       }
 
     }
+
+    step = n / tCount;
 
   }
 
