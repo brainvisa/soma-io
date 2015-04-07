@@ -73,5 +73,39 @@ bool soma::PhilipsMRReader::getHeader( soma::HeaderProxy& proxy,
 }
 
 
+bool soma::PhilipsMRReader::readHeader( DcmDataset* dataset )
+{
+
+  bool status = soma::MRImageStorageReader::readHeader( dataset );
+
+  if ( status )
+  {
+
+    if ( _dataInfo->_repetitionTime < 1e-6 )
+    {
+
+      Float32 tmpFloat = 0.0;
+
+      status = false;
+
+      if ( dataset->findAndGetFloat32( DcmTagKey( 0x2005, 0x1030 ), 
+                                       tmpFloat, 0 ).good() )
+      {
+
+        _dataInfo->_repetitionTime = double( tmpFloat ) / 1000.0;
+
+        status = true;
+
+      }
+
+    }
+
+  }
+
+  return status;
+
+}
+
+
 RegisterDicomReaderFunction( PhilipsMRReader );
 

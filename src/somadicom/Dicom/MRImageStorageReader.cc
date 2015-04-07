@@ -86,7 +86,7 @@ bool soma::MRImageStorageReader::readHeader( DcmDataset* dataset )
   if ( dataset )
   {
 
-    Float64 tmpFloat;
+    Float64 tmpFloat = 0.0;
 
     if ( dataset->findAndGetFloat64( DCM_RepetitionTime, tmpFloat ).good() )
     {

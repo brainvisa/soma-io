@@ -38,6 +38,8 @@ class PhilipsMRReader : public MRImageStorageReader,
     PhilipsMRReader();
     ~PhilipsMRReader();
 
+    virtual bool readHeader( DcmDataset* dataset );
+
 };
 
 
