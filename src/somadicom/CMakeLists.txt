@@ -194,7 +194,7 @@ set( _sources
   Transformation/Transformation3d.cc
 )
 
-if (SOMA_DICOM_JPEG2000_SUPPORT AND JASPER_FOUND)
+if (SOMA_DICOM_JPEG2000_SUPPORT)
   # Add JPEG 2000 support only for DICOM version >= 3.6
   # and it JASPER dependency was found
   set ( _headers
@@ -229,7 +229,7 @@ set_property( TARGET somadicom PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
 set( SOMADICOM_DEP_LIBARIES ${DCMTK_LIBRARIES} )
 
-if (SOMA_DICOM_JPEG2000_SUPPORT AND JASPER_FOUND)
+if (SOMA_DICOM_JPEG2000_SUPPORT)
     # Add JPEG 2000 support only for DICOM version >= 3.6
     # and it JASPER dependency was found
     set( SOMADICOM_DEP_LIBARIES ${SOMADICOM_DEP_LIBARIES}

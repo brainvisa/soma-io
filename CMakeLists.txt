@@ -37,7 +37,7 @@ find_package( Jasper )
 # find_package( TIFF ) # already done
 # find_package( PNG12 )
 if( DCMTK_FOUND )
-  if (DCMTK_oflog_INCLUDE_DIR)
+  if (DCMTK_oflog_INCLUDE_DIR AND JASPER_FOUND)
     # JPEG 2000 support is only available
     # for DICOM version >= 3.6, i.e. when
     # DCMTK_oflog_INCLUDE_DIR exists.
@@ -47,7 +47,7 @@ if( DCMTK_FOUND )
   BRAINVISA_DEPENDENCY( RUN DEPENDS dcmtk RUN )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS dcmtk DEV )
 
-  if(JASPER_FOUND AND SOMA_DICOM_JPEG2000_SUPPORT)
+  if(SOMA_DICOM_JPEG2000_SUPPORT)
     BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
     BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
   endif()
