@@ -44,6 +44,18 @@ if( DCMTK_FOUND )
     set(SOMA_DICOM_JPEG2000_SUPPORT 1)
   endif()
 
+  if (NOT DCMTK_oflog_INCLUDE_DIR)
+     # For DICOM version < 3.6, dcmimage.so depends on PNG and TIFF libraries
+     # but does not refer these libraries (especially on Ubuntu 12 and 14).
+     # A reusable DCMTK_LIBRARIES_ADDITIONAL variable is defined to store these
+     # dependencies. If these additional libraries are not used by programs that
+     # link with dcmimage.so, linking may results in undefined symbols.
+     set( DCMTK_LIBRARIES_ADDITIONAL
+          ${PNG12_LIBRARIES}
+          ${TIFF_LIBRARIES}
+          CACHE INTERNAL "Additional libraries needed to link with DCMTK" )
+  endif()
+
   BRAINVISA_DEPENDENCY( RUN DEPENDS dcmtk RUN )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS dcmtk DEV )
 

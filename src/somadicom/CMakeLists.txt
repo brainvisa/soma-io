@@ -227,16 +227,19 @@ add_library( somadicom SHARED ${_sources} )
 add_dependencies( somadicom ${headersTarget} )
 set_property( TARGET somadicom PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
-set( SOMADICOM_DEP_LIBARIES ${DCMTK_LIBRARIES} )
-
 if (SOMA_DICOM_JPEG2000_SUPPORT)
     # Add JPEG 2000 support only for DICOM version >= 3.6
     # and it JASPER dependency was found
-    set( SOMADICOM_DEP_LIBARIES ${SOMADICOM_DEP_LIBARIES}
-                                ${JASPER_LIBRARIES} )
+    set( SOMADICOM_LIBRARIES_ADDITIONAL ${JASPER_LIBRARIES} )
 endif()
 
-target_link_libraries( somadicom soma-io cartobase ${SOMADICOM_DEP_LIBARIES} )
+# For DICOM version < 3.6, dcmimage.so depends on PNG and TIFF libraries
+# but does not refer these libraries (especially on Ubuntu 12 and 14).
+# DCMTK_LIBRARIES_ADDITIONAL variable is used to avoid undefined symbols.
+target_link_libraries( somadicom soma-io cartobase
+                       ${DCMTK_LIBRARIES}
+                       ${DCMTK_LIBRARIES_ADDITIONAL}
+                       ${SOMADICOM_LIBRARIES_ADDITIONAL} )
 
 BRAINVISA_INSTALL( TARGETS somadicom
                    DESTINATION lib
