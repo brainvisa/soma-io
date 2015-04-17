@@ -15,7 +15,7 @@
 class DcmDataset;
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -49,4 +49,3 @@ class PhilipsEnhancedMRReader : public EnhancedMRImageStorageReader,
 
 
 #endif
-

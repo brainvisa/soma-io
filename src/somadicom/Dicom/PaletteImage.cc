@@ -10,13 +10,13 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 
 
-soma::PaletteImage::PaletteImage( soma::DicomProxy& proxy )
-                  : soma::ImagePixel( proxy )
+dcm::PaletteImage::PaletteImage( dcm::DicomProxy& proxy )
+                 : dcm::ImagePixel( proxy )
 {
 }
 
 
-bool soma::PaletteImage::initialize( DcmDataset* dataset )
+bool dcm::PaletteImage::initialize( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -31,13 +31,13 @@ bool soma::PaletteImage::initialize( DcmDataset* dataset )
 }
 
 
-void soma::PaletteImage::fill( 
-                           soma::ImagePixel::Parameters& parameters, 
-                           soma::ImagePixel::OffsetParameters& offsetParameters,
-                           void* imagePtr, 
-                           int32_t z, 
-                           int32_t t,
-                           int32_t inputSlice )
+void dcm::PaletteImage::fill( 
+                            dcm::ImagePixel::Parameters& parameters, 
+                            dcm::ImagePixel::OffsetParameters& offsetParameters,
+                            void* imagePtr, 
+                            int32_t z, 
+                            int32_t t,
+                            int32_t inputSlice )
 {
 
   if ( imagePtr )
@@ -62,12 +62,12 @@ void soma::PaletteImage::fill(
         for ( x = startX; x < endX; x++, pIn++ )
         {
 
-          uint8_t* p = _proxy( x, y, slice, t );
-          soma::Rgba color = _paletteModule( int32_t( *pIn ) );
+          uint8_t* v = _proxy( x, y, slice, t );
+          dcm::Rgba color = _paletteModule( int32_t( *pIn ) );
 
-          *p++ = color._red;
-          *p++ = color._green;
-          *p = color._blue;
+          *v++ = color._red;
+          *v++ = color._green;
+          *v = color._blue;
 
         }
 
@@ -77,7 +77,8 @@ void soma::PaletteImage::fill(
     else
     {
 
-      int32_t x, y, px, py, pz;
+      int32_t x, y;
+      dcm::Vector3d< int32_t > p;
 
       for ( y = parameters.startY; 
             y < parameters.endY; 
@@ -87,17 +88,17 @@ void soma::PaletteImage::fill(
         for ( x = parameters.startX; x < parameters.endX; x++, pIn++ )
         {
 
-          parameters.transform->getDirect( x, y, z, px, py, pz );
+          p = parameters.transform->getDirect( x, y, z );
 
-          uint8_t*p = _proxy( px - parameters.outLowerX, 
-                              py - parameters.outLowerY, 
-                              pz - parameters.outLowerZ, 
-                              t );
-          soma::Rgba color = _paletteModule( int32_t( *pIn ) );
+          uint8_t* v = _proxy( p.x - parameters.outLowerX, 
+                               p.y - parameters.outLowerY, 
+                               p.z - parameters.outLowerZ, 
+                               t );
+          dcm::Rgba color = _paletteModule( int32_t( *pIn ) );
 
-          *p++ = color._red;
-          *p++ = color._green;
-          *p = color._blue;
+          *v++ = color._red;
+          *v++ = color._green;
+          *v = color._blue;
 
         }
 

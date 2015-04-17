@@ -5,7 +5,7 @@
 #endif
 
 
-soma::FileInformation::FileInformation()
+dcm::FileInformation::FileInformation()
                      : _bufferIndex( 0 ),
                        _instanceNumber( 0 )
 {

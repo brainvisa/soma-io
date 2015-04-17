@@ -9,26 +9,26 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::ImageModule::ImageModule()
-                 : soma::DicomModule(),
-                   _samplesPerPixel( 0 ),
-                   _photometricInterpretation( "" ),
-                   _planarConfiguration( 0 ),
-                   _rows( 0 ),
-                   _columns( 0 ),
-                   _pixelSpacingX( 1.0 ),
-                   _pixelSpacingY( 1.0 ),
-                   _bitsAllocated( 0 ),
-                   _bitsStored( 0 ),
-                   _pixelRepresentation( 0 ),
-                   _smallestPixelValue( 0 ),
-                   _largestPixelValue( 0 ),
-                   _pixelPaddingValue( 0 )
+dcm::ImageModule::ImageModule()
+                : dcm::DicomModule(),
+                  _samplesPerPixel( 0 ),
+                  _photometricInterpretation( "" ),
+                  _planarConfiguration( 0 ),
+                  _rows( 0 ),
+                  _columns( 0 ),
+                  _pixelSpacingX( 1.0 ),
+                  _pixelSpacingY( 1.0 ),
+                  _bitsAllocated( 0 ),
+                  _bitsStored( 0 ),
+                  _pixelRepresentation( 0 ),
+                  _smallestPixelValue( 0 ),
+                  _largestPixelValue( 0 ),
+                  _pixelPaddingValue( 0 )
 {
 }
 
 
-bool soma::ImageModule::parseItem( DcmItem* dcmItem )
+bool dcm::ImageModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -199,7 +199,7 @@ bool soma::ImageModule::parseItem( DcmItem* dcmItem )
 }
 
 
-int32_t soma::ImageModule::getSamplesPerPixel() const
+int32_t dcm::ImageModule::getSamplesPerPixel() const
 {
 
   return _samplesPerPixel;
@@ -207,7 +207,7 @@ int32_t soma::ImageModule::getSamplesPerPixel() const
 }
 
 
-const std::string& soma::ImageModule::getPhotometricInterpretation() const
+const std::string& dcm::ImageModule::getPhotometricInterpretation() const
 {
 
   return _photometricInterpretation;
@@ -215,7 +215,7 @@ const std::string& soma::ImageModule::getPhotometricInterpretation() const
 }
 
 
-int32_t soma::ImageModule::getPlanarConfiguration() const
+int32_t dcm::ImageModule::getPlanarConfiguration() const
 {
 
   return _planarConfiguration;
@@ -223,7 +223,7 @@ int32_t soma::ImageModule::getPlanarConfiguration() const
 }
 
 
-int32_t soma::ImageModule::getRows() const
+int32_t dcm::ImageModule::getRows() const
 {
 
   return _rows;
@@ -231,7 +231,7 @@ int32_t soma::ImageModule::getRows() const
 }
 
 
-int32_t soma::ImageModule::getColumns() const
+int32_t dcm::ImageModule::getColumns() const
 {
 
   return _columns;
@@ -239,7 +239,7 @@ int32_t soma::ImageModule::getColumns() const
 }
 
 
-double soma::ImageModule::getPixelSpacingX() const
+double dcm::ImageModule::getPixelSpacingX() const
 {
 
   return _pixelSpacingX;
@@ -247,7 +247,7 @@ double soma::ImageModule::getPixelSpacingX() const
 }
 
 
-double soma::ImageModule::getPixelSpacingY() const
+double dcm::ImageModule::getPixelSpacingY() const
 {
 
   return _pixelSpacingY;
@@ -255,7 +255,7 @@ double soma::ImageModule::getPixelSpacingY() const
 }
 
 
-int32_t soma::ImageModule::getBitsAllocated() const
+int32_t dcm::ImageModule::getBitsAllocated() const
 {
 
   return _bitsAllocated;
@@ -263,7 +263,7 @@ int32_t soma::ImageModule::getBitsAllocated() const
 }
 
 
-int32_t soma::ImageModule::getBitsStored() const
+int32_t dcm::ImageModule::getBitsStored() const
 {
 
   return _bitsStored;
@@ -271,7 +271,7 @@ int32_t soma::ImageModule::getBitsStored() const
 }
 
 
-int32_t soma::ImageModule::getPixelRepresentation() const
+int32_t dcm::ImageModule::getPixelRepresentation() const
 {
 
   return _pixelRepresentation;
@@ -279,7 +279,7 @@ int32_t soma::ImageModule::getPixelRepresentation() const
 }
 
 
-int32_t soma::ImageModule::getSmallestPixelValue() const
+int32_t dcm::ImageModule::getSmallestPixelValue() const
 {
 
   return _smallestPixelValue;
@@ -287,7 +287,7 @@ int32_t soma::ImageModule::getSmallestPixelValue() const
 }
 
 
-int32_t soma::ImageModule::getLargestPixelValue() const
+int32_t dcm::ImageModule::getLargestPixelValue() const
 {
 
   return _largestPixelValue;
@@ -295,7 +295,7 @@ int32_t soma::ImageModule::getLargestPixelValue() const
 }
 
 
-int32_t soma::ImageModule::getPixelPaddingValue() const
+int32_t dcm::ImageModule::getPixelPaddingValue() const
 {
 
   return _pixelPaddingValue;

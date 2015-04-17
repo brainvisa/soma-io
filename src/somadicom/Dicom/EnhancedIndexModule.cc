@@ -12,18 +12,18 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::EnhancedIndexModule::EnhancedIndexModule()
-                         : soma::DicomModule(),
-                           _numberOfFrames( 0 ),
-                           _zIndex( -1 ),
-                           _tIndex( 0 ),
-                           _zCount( 0 ),
-                           _tCount( 1 )
+dcm::EnhancedIndexModule::EnhancedIndexModule()
+                        : dcm::DicomModule(),
+                          _numberOfFrames( 0 ),
+                          _zIndex( -1 ),
+                          _tIndex( 0 ),
+                          _zCount( 0 ),
+                          _tCount( 1 )
 {
 }
 
 
-bool soma::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
+bool dcm::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -192,8 +192,8 @@ bool soma::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
 }
 
 
-bool soma::EnhancedIndexModule::parseHeader( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::EnhancedIndexModule::parseHeader( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   if ( datasetHeader.size() == 1 )
@@ -212,7 +212,7 @@ bool soma::EnhancedIndexModule::parseHeader(
 }
 
 
-int32_t soma::EnhancedIndexModule::getNumberOfFrames() const
+int32_t dcm::EnhancedIndexModule::getNumberOfFrames() const
 {
 
   return _numberOfFrames;
@@ -220,7 +220,7 @@ int32_t soma::EnhancedIndexModule::getNumberOfFrames() const
 }
 
 
-int32_t soma::EnhancedIndexModule::getZIndex() const
+int32_t dcm::EnhancedIndexModule::getZIndex() const
 {
 
   return _zIndex;
@@ -228,7 +228,7 @@ int32_t soma::EnhancedIndexModule::getZIndex() const
 }
 
 
-int32_t soma::EnhancedIndexModule::getTIndex() const
+int32_t dcm::EnhancedIndexModule::getTIndex() const
 {
 
   return _tIndex;
@@ -236,7 +236,7 @@ int32_t soma::EnhancedIndexModule::getTIndex() const
 }
 
 
-int32_t soma::EnhancedIndexModule::getZCount() const
+int32_t dcm::EnhancedIndexModule::getZCount() const
 {
 
   return _zCount;
@@ -244,7 +244,7 @@ int32_t soma::EnhancedIndexModule::getZCount() const
 }
 
 
-int32_t soma::EnhancedIndexModule::getTCount() const
+int32_t dcm::EnhancedIndexModule::getTCount() const
 {
 
   return _tCount;
@@ -252,10 +252,9 @@ int32_t soma::EnhancedIndexModule::getTCount() const
 }
 
 
-const std::vector< int32_t >& soma::EnhancedIndexModule::getIndices() const
+const std::vector< int32_t >& dcm::EnhancedIndexModule::getIndices() const
 {
 
   return _indices;
 
 }
-

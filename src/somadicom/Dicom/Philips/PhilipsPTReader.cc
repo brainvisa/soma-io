@@ -20,19 +20,19 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::PhilipsPTReader::PhilipsPTReader()
-                     : soma::PTImageStorageReader(),
-                       soma::Singleton< soma::PhilipsPTReader >()
+dcm::PhilipsPTReader::PhilipsPTReader()
+                    : dcm::PTImageStorageReader(),
+                      dcm::Singleton< dcm::PhilipsPTReader >()
 {
 }
 
 
-soma::PhilipsPTReader::~PhilipsPTReader()
+dcm::PhilipsPTReader::~PhilipsPTReader()
 {
 }
 
 
-std::string soma::PhilipsPTReader::getManufacturerName()
+std::string dcm::PhilipsPTReader::getManufacturerName()
 {
 
   return "Philips Medical Systems";
@@ -40,12 +40,12 @@ std::string soma::PhilipsPTReader::getManufacturerName()
 }
 
 
-bool soma::PhilipsPTReader::getHeader( soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::PhilipsPTReader::getHeader( dcm::HeaderProxy& proxy,
+                                      dcm::DataInfo& info,
+                                      dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::PTImageStorageReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::PTImageStorageReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -53,7 +53,7 @@ bool soma::PhilipsPTReader::getHeader( soma::HeaderProxy& proxy,
   }
 
   DcmDataset dataset;
-  soma::PhilipsNuclearModule nuclearModule;
+  dcm::PhilipsNuclearModule nuclearModule;
 
   datasetHeader.get( dataset );
  
@@ -71,4 +71,3 @@ bool soma::PhilipsPTReader::getHeader( soma::HeaderProxy& proxy,
 
 
 RegisterDicomReaderFunction( PhilipsPTReader );
-

@@ -23,13 +23,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::MRImageStorageReader::MRImageStorageReader()
-                          : soma::MultiFileReader()
+dcm::MRImageStorageReader::MRImageStorageReader()
+                         : dcm::MultiFileReader()
 {
 }
 
 
-std::string soma::MRImageStorageReader::getStorageUID()
+std::string dcm::MRImageStorageReader::getStorageUID()
 {
 
   return UID_MRImageStorage;
@@ -37,13 +37,13 @@ std::string soma::MRImageStorageReader::getStorageUID()
 }
 
 
-bool soma::MRImageStorageReader::getHeader(
-                                       soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::MRImageStorageReader::getHeader(
+                                        dcm::HeaderProxy& proxy,
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -51,8 +51,8 @@ bool soma::MRImageStorageReader::getHeader(
   }
 
   DcmDataset dataset;
-  soma::MRModule mrModule;
-  soma::DiffusionModule diffusionModule;
+  dcm::MRModule mrModule;
+  dcm::DiffusionModule diffusionModule;
 
   datasetHeader.get( dataset );
 
@@ -80,7 +80,7 @@ bool soma::MRImageStorageReader::getHeader(
 }
 
 
-bool soma::MRImageStorageReader::readHeader( DcmDataset* dataset )
+bool dcm::MRImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -95,7 +95,7 @@ bool soma::MRImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    return soma::MultiFileReader::readHeader( dataset );
+    return dcm::MultiFileReader::readHeader( dataset );
 
   }
 

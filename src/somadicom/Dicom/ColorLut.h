@@ -14,7 +14,7 @@ class DcmItem;
 class DcmTagKey;
 
 
-namespace soma
+namespace dcm
 {
 
 

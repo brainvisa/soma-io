@@ -14,7 +14,7 @@
 #include <string>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -48,4 +48,3 @@ class DatasetModule : public DicomModule
 
 
 #endif
-

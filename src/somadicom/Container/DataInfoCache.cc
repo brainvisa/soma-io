@@ -5,13 +5,13 @@
 #endif
 
 
-soma::DataInfoCache::DataInfoCache()
-                   : soma::Singleton< soma::DataInfoCache >()
+dcm::DataInfoCache::DataInfoCache()
+                  : dcm::Singleton< dcm::DataInfoCache >()
 {
 }
 
 
-soma::DataInfo& soma::DataInfoCache::getDataInfo()
+dcm::DataInfo& dcm::DataInfoCache::getDataInfo()
 {
 
   return _info;
@@ -19,10 +19,9 @@ soma::DataInfo& soma::DataInfoCache::getDataInfo()
 }
 
 
-void soma::DataInfoCache::clear()
+void dcm::DataInfoCache::clear()
 {
 
   _info.clear();
 
 }
-

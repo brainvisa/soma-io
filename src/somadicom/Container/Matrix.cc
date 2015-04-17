@@ -9,7 +9,8 @@
 #include <cmath>
 
 
-soma::Matrix::Matrix()
+template < class T >
+dcm::Matrix< T >::Matrix()
 {
 
   int32_t i, j;
@@ -26,7 +27,8 @@ soma::Matrix::Matrix()
 
 }
 
-soma::Matrix::Matrix( const soma::Matrix& other )
+template < class T >
+dcm::Matrix< T >::Matrix( const dcm::Matrix< T >& other )
 {
 
   int32_t i, j;
@@ -44,9 +46,10 @@ soma::Matrix::Matrix( const soma::Matrix& other )
 }
 
 
-soma::Matrix::Matrix( double m00, double m01, double m02,
-                      double m10, double m11, double m12,
-                       double m20, double m21, double m22 )
+template < class T >
+dcm::Matrix< T >::Matrix( T m00, T m01, T m02,
+                          T m10, T m11, T m12,
+                          T m20, T m21, T m22 )
 {
 
   m[ 0 ][ 0 ] = m00;
@@ -62,9 +65,10 @@ soma::Matrix::Matrix( double m00, double m01, double m02,
 }
 
 
-soma::Matrix::Matrix( const soma::Vector& rowVec, 
-                      const soma::Vector& colVec, 
-                      const soma::Vector& normVec )
+template < class T >
+dcm::Matrix< T >::Matrix( const dcm::Vector3d< T >& rowVec, 
+                          const dcm::Vector3d< T >& colVec, 
+                          const dcm::Vector3d< T >& normVec )
 {
 
   m[ 0 ][ 0 ] = rowVec.x;
@@ -80,35 +84,40 @@ soma::Matrix::Matrix( const soma::Vector& rowVec,
 }
 
 
-soma::Matrix soma::Matrix::inverse()
+template < class T >
+inline
+dcm::Matrix< T > dcm::Matrix< T >::inverse()
 {
 
-  double det = m[ 0 ][ 0 ] * ( m[ 2 ][ 2 ] * m[ 1 ][ 1 ] - 
-                               m[ 2 ][ 1 ] * m[ 1 ][ 2 ] )-
-               m[ 1 ][ 0 ] * ( m[ 2 ][ 2 ] * m[ 0 ][ 1 ] -
-	                       m[ 2 ][ 1 ] * m[ 0 ][ 2 ] )+
-               m[ 2 ][ 0 ] * ( m[ 1 ][ 2 ] * m[ 0 ][ 1 ] -
-	                       m[ 1 ][ 1 ] * m[ 0 ][ 2 ] );
+  T det = m[ 0 ][ 0 ] * ( m[ 2 ][ 2 ] * m[ 1 ][ 1 ] - 
+                          m[ 2 ][ 1 ] * m[ 1 ][ 2 ] )-
+          m[ 1 ][ 0 ] * ( m[ 2 ][ 2 ] * m[ 0 ][ 1 ] -
+	                  m[ 2 ][ 1 ] * m[ 0 ][ 2 ] )+
+          m[ 2 ][ 0 ] * ( m[ 1 ][ 2 ] * m[ 0 ][ 1 ] -
+	                  m[ 1 ][ 1 ] * m[ 0 ][ 2 ] );
 
-  double i00 = ( m[ 2 ][ 2 ] * m[ 1 ][ 1 ] - m[ 2 ][ 1 ] * m[ 1 ][ 2 ] ) / det;
-  double i01 = -( m[ 2 ][ 2 ] * m[ 0 ][ 1 ] - m[ 2 ][ 1 ] * m[ 0 ][ 2 ] ) / det;
-  double i02 = ( m[ 1 ][ 2 ] * m[ 0 ][ 1 ] - m[ 1 ][ 1 ] * m[ 0 ][ 2 ] ) / det;
-  double i10 = -( m[ 2 ][ 2 ] * m[ 1 ][ 0 ] - m[ 2 ][ 0 ] * m[ 1 ][ 2 ] ) / det;
-  double i11 = ( m[ 2 ][ 2 ] * m[ 0 ][ 0 ] - m[ 2 ][ 0 ] * m[ 0 ][ 2 ] ) / det;
-  double i12 = -( m[ 1 ][ 2 ] * m[ 0 ][ 0 ] - m[ 1 ][ 0 ] * m[ 0 ][ 2 ] ) / det;
-  double i20 = ( m[ 2 ][ 1 ] * m[ 1 ][ 0 ] - m[ 2 ][ 0 ] * m[ 1 ][ 1 ] ) / det;
-  double i21 = -( m[ 2 ][ 1 ] * m[ 0 ][ 0 ] - m[ 2 ][ 0 ] * m[ 0 ][ 1 ] ) / det;
-  double i22 = ( m[ 1 ][ 1 ] * m[ 0 ][ 0 ] - m[ 1 ][ 0 ] * m[ 0 ][ 1 ] ) / det;
+  T i00 = ( m[ 2 ][ 2 ] * m[ 1 ][ 1 ] - m[ 2 ][ 1 ] * m[ 1 ][ 2 ] ) / det;
+  T i01 = -( m[ 2 ][ 2 ] * m[ 0 ][ 1 ] - m[ 2 ][ 1 ] * m[ 0 ][ 2 ] ) / det;
+  T i02 = ( m[ 1 ][ 2 ] * m[ 0 ][ 1 ] - m[ 1 ][ 1 ] * m[ 0 ][ 2 ] ) / det;
+  T i10 = -( m[ 2 ][ 2 ] * m[ 1 ][ 0 ] - m[ 2 ][ 0 ] * m[ 1 ][ 2 ] ) / det;
+  T i11 = ( m[ 2 ][ 2 ] * m[ 0 ][ 0 ] - m[ 2 ][ 0 ] * m[ 0 ][ 2 ] ) / det;
+  T i12 = -( m[ 1 ][ 2 ] * m[ 0 ][ 0 ] - m[ 1 ][ 0 ] * m[ 0 ][ 2 ] ) / det;
+  T i20 = ( m[ 2 ][ 1 ] * m[ 1 ][ 0 ] - m[ 2 ][ 0 ] * m[ 1 ][ 1 ] ) / det;
+  T i21 = -( m[ 2 ][ 1 ] * m[ 0 ][ 0 ] - m[ 2 ][ 0 ] * m[ 0 ][ 1 ] ) / det;
+  T i22 = ( m[ 1 ][ 1 ] * m[ 0 ][ 0 ] - m[ 1 ][ 0 ] * m[ 0 ][ 1 ] ) / det;
 
-  return soma::Matrix( i00, i01, i02, i10, i11, i12, i20, i21, i22 );
+  return dcm::Matrix< T >( i00, i01, i02, i10, i11, i12, i20, i21, i22 );
 
 }
 
 
-soma::Matrix operator * ( const soma::Matrix& mat1, const soma::Matrix& mat2 )
+template < class T >
+inline
+dcm::Matrix< T > operator * ( const dcm::Matrix< T >& mat1, 
+                              const dcm::Matrix< T >& mat2 )
 {
 
-  soma::Matrix m;
+  dcm::Matrix< T > m;
   int32_t i, j, k;
 
   for ( j = 0; j < 3; j++ )
@@ -135,10 +144,13 @@ soma::Matrix operator * ( const soma::Matrix& mat1, const soma::Matrix& mat2 )
 }
 
 
-soma::Vector operator * ( const soma::Matrix& mat, const soma::Vector& vec )
+template < class T >
+inline
+dcm::Vector3d< T > operator * ( const dcm::Matrix< T >& mat,
+                                const dcm::Vector3d< T >& vec )
 {
 
-  soma::Vector v;
+  dcm::Vector3d< T > v;
   
   v.x = mat.m[ 0 ][ 0 ] * vec.x + mat.m[ 0 ][ 1 ] * vec.y + 
         mat.m[ 0 ][ 2 ] * vec.z; 
@@ -152,7 +164,24 @@ soma::Vector operator * ( const soma::Matrix& mat, const soma::Vector& vec )
 }
 
 
-std::ostream& std::operator << ( std::ostream& os, const soma::Matrix& m )
+std::ostream& std::operator << ( std::ostream& os, 
+                                 const dcm::Matrix< float >& m )
+{
+
+  os << "[ [" << m.m[ 0 ][ 0 ] << "," << m.m[ 0 ][ 1 ] << "," 
+     << m.m[ 0 ][ 2 ] << "]" << std::endl
+     << "  [" << m.m[ 1 ][ 0 ] << "," << m.m[ 1 ][ 1 ] << "," 
+     << m.m[ 1 ][ 2 ] << "]" << std::endl
+     << "  [" << m.m[ 2 ][ 0 ] << "," << m.m[ 2 ][ 1 ] << "," 
+     << m.m[ 2 ][ 2 ] << "] ]";
+
+  return os;
+
+}
+
+
+std::ostream& std::operator << ( std::ostream& os, 
+                                 const dcm::Matrix< double >& m )
 {
 
   os << "[ [" << m.m[ 0 ][ 0 ] << "," << m.m[ 0 ][ 1 ] << "," 

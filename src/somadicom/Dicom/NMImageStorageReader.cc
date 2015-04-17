@@ -1,12 +1,16 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/NMImageStorageReader.h>
 #include <soma-io/Dicom/PatientModule.h>
+#include <soma-io/Dicom/OrientationModule.h>
+#include <soma-io/Dicom/PositionModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/NMImageStorageReader.h>
 #include <Dicom/PatientModule.h>
+#include <Dicom/OrientationModule.h>
+#include <Dicom/PositionModule.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <Object/HeaderProxy.h>
 #include <Utils/StdInt.h>
@@ -18,13 +22,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::NMImageStorageReader::NMImageStorageReader()
-                          : soma::MultiSliceReader()
+dcm::NMImageStorageReader::NMImageStorageReader()
+                         : dcm::MultiSliceReader()
 {
 }
 
 
-std::string soma::NMImageStorageReader::getStorageUID()
+std::string dcm::NMImageStorageReader::getStorageUID()
 {
 
   return UID_NuclearMedicineImageStorage;
@@ -32,13 +36,13 @@ std::string soma::NMImageStorageReader::getStorageUID()
 }
 
 
-bool soma::NMImageStorageReader::getHeader(
-                                       soma::HeaderProxy& header,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::NMImageStorageReader::getHeader(
+                                        dcm::HeaderProxy& header,
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( header, info, datasetHeader ) )
+  if ( !dcm::MultiSliceReader::getHeader( header, info, datasetHeader ) )
   {
 
     return false;
@@ -49,7 +53,7 @@ bool soma::NMImageStorageReader::getHeader(
 
   OFString tmpString;
   DcmDataset dataset;
-  soma::PatientModule patientModule;
+  dcm::PatientModule patientModule;
 
   datasetHeader.get( dataset );
 
@@ -73,7 +77,7 @@ bool soma::NMImageStorageReader::getHeader(
 }
 
 
-bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
+bool dcm::NMImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -102,63 +106,27 @@ bool soma::NMImageStorageReader::readHeader( DcmDataset* dataset )
                                           item ).good() )
     {
 
-      OFString tmpString;
+      dcm::OrientationModule orientationModule;
+      dcm::PositionModule positionModule;
 
-      if ( item->findAndGetOFStringArray( DCM_ImageOrientationPatient,
-                                          tmpString ).good() )
+      if ( orientationModule.parseItem( item ) )
       {
 
-        std::string orientationStr = tmpString.c_str();
-        size_t pos = orientationStr.find( "\\" );
-
-        while ( pos != std::string::npos )
-        {
-
-          orientationStr[ pos ] = ' ';
-          pos = orientationStr.find( "\\" );
-
-        }
-
-        std::istringstream iss( orientationStr );
-
-        iss >> _dataInfo->_rowVec.x
-            >> _dataInfo->_rowVec.y
-            >> _dataInfo->_rowVec.z
-            >> _dataInfo->_colVec.x
-            >> _dataInfo->_colVec.y
-            >> _dataInfo->_colVec.z;
+        _dataInfo->_rowVec = orientationModule.getRowCosine();
+        _dataInfo->_colVec = orientationModule.getColumnCosine();
 
       }
 
-      if ( item->findAndGetOFStringArray( DCM_ImagePositionPatient,
-                                          tmpString ).good() )
+      if ( positionModule.parseItem( item ) )
       {
 
-        std::string positionStr = tmpString.c_str();
-        size_t pos = positionStr.find( "\\" );
-
-        while ( pos != std::string::npos )
-        {
-
-          positionStr[ pos ] = ' ';
-          pos = positionStr.find( "\\" );
-
-        }
-
-        soma::Vector position;
-        std::istringstream iss( positionStr );
-
-        iss >> position.x
-            >> position.y
-            >> position.z;
-
-        _positions.push_back( position );
+        _positions.push_back( positionModule.getImagePosition() );
 
       }
 
     }
 
-    return soma::MultiSliceReader::readHeader( dataset );
+    return dcm::MultiSliceReader::readHeader( dataset );
 
   }
 

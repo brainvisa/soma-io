@@ -2,6 +2,8 @@
 #include <soma-io/Dicom/EnhancedMRImageStorageReader.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/EnhancedModalityLutModule.h>
+#include <soma-io/Dicom/EnhancedOrientationModule.h>
+#include <soma-io/Dicom/PositionModule.h>
 #include <soma-io/Dicom/EnhancedIndexModule.h>
 #include <soma-io/Container/DataInfo.h>
 #include <soma-io/Object/HeaderProxy.h>
@@ -10,6 +12,8 @@
 #include <Dicom/EnhancedMRImageStorageReader.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <Dicom/EnhancedModalityLutModule.h>
+#include <Dicom/EnhancedOrientationModule.h>
+#include <Dicom/PositionModule.h>
 #include <Dicom/EnhancedIndexModule.h>
 #include <Container/DataInfo.h>
 #include <Object/HeaderProxy.h>
@@ -23,13 +27,13 @@
 #include <dcmtk/dcmdata/dcsequen.h>
 
 
-soma::EnhancedMRImageStorageReader::EnhancedMRImageStorageReader()
-                                  : soma::MultiSliceReader()
+dcm::EnhancedMRImageStorageReader::EnhancedMRImageStorageReader()
+                                 : dcm::MultiSliceReader()
 {
 }
 
 
-std::string soma::EnhancedMRImageStorageReader::getStorageUID()
+std::string dcm::EnhancedMRImageStorageReader::getStorageUID()
 {
 
   return UID_EnhancedMRImageStorage;
@@ -37,13 +41,13 @@ std::string soma::EnhancedMRImageStorageReader::getStorageUID()
 }
 
 
-bool soma::EnhancedMRImageStorageReader::getHeader(
-                                       soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::EnhancedMRImageStorageReader::getHeader(
+                                        dcm::HeaderProxy& proxy,
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -53,15 +57,15 @@ bool soma::EnhancedMRImageStorageReader::getHeader(
   if ( !proxy.hasAttribute( "rescale_intercept" ) )
   {
 
-    soma::EnhancedModalityLutModule modalityLutModule;
+    dcm::EnhancedModalityLutModule modalityLutModule;
 
     if ( modalityLutModule.parseHeader( datasetHeader ) )
     {
 
       proxy.addAttribute( "rescale_intercept",  
-                           modalityLutModule.getRescaleIntercept());
+                          modalityLutModule.getRescaleIntercept());
       proxy.addAttribute( "rescale_slope", 
-                           modalityLutModule.getRescaleSlope() );
+                          modalityLutModule.getRescaleSlope() );
 
     }
 
@@ -72,7 +76,7 @@ bool soma::EnhancedMRImageStorageReader::getHeader(
 }
 
 
-bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
+bool dcm::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -85,7 +89,16 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 
     }
 
-    bool found = false;
+    dcm::EnhancedOrientationModule orientationModule;
+
+    if ( orientationModule.parseDataset( dataset ) )
+    {
+
+      _dataInfo->_rowVec = orientationModule.getRowCosine();
+      _dataInfo->_colVec = orientationModule.getColumnCosine();
+
+    }
+
     DcmItem* seqItem = 0;
 
     if ( dataset->findAndGetSequenceItem( DCM_SharedFunctionalGroupsSequence,
@@ -93,42 +106,6 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
     {
 
       DcmItem* item = 0;
-
-      if ( seqItem->findAndGetSequenceItem( DCM_PlaneOrientationSequence,
-                                            item ).good() )
-      {
-
-        OFString tmpString;
-
-        if ( item->findAndGetOFStringArray( DCM_ImageOrientationPatient,
-                                            tmpString ).good() )
-        {
-
-          std::string orientationStr = tmpString.c_str();
-          size_t pos = orientationStr.find( "\\" );
-
-          while ( pos != std::string::npos )
-          {
-
-            orientationStr[ pos ] = ' ';
-            pos = orientationStr.find( "\\" );
-
-          }
-
-          std::istringstream iss( orientationStr );
-
-          iss >> _dataInfo->_rowVec.x
-              >> _dataInfo->_rowVec.y
-              >> _dataInfo->_rowVec.z
-              >> _dataInfo->_colVec.x
-              >> _dataInfo->_colVec.y
-              >> _dataInfo->_colVec.z;
-
-          found = true;
-
-        }
-
-      }
 
       if ( seqItem->findAndGetSequenceItem( DCM_PixelMeasuresSequence,
                                             item ).good() )
@@ -168,6 +145,7 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
                                       seq ).good() )
     {
 
+      dcm::PositionModule positionModule;
       uint32_t i, nItems = seq->card();
 
       _positions.resize( _dataInfo->_slices * _dataInfo->_frames );
@@ -179,72 +157,14 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
         DcmItem* item = seq->getItem( i );
         DcmItem* tmpItem = 0;
 
-        if ( !found && 
-             item->findAndGetSequenceItem( DCM_PlaneOrientationSequence,
-                                           tmpItem ).good() )
-        {
-
-          OFString tmpString;
-
-          if ( tmpItem->findAndGetOFStringArray( DCM_ImageOrientationPatient,
-                                                 tmpString ).good() )
-          {
-
-            std::string orientationStr = tmpString.c_str();
-            size_t pos = orientationStr.find( "\\" );
-
-            while ( pos != std::string::npos )
-            {
-
-              orientationStr[ pos ] = ' ';
-              pos = orientationStr.find( "\\" );
-
-            }
-
-            std::istringstream iss( orientationStr );
-
-            iss >> _dataInfo->_rowVec.x
-                >> _dataInfo->_rowVec.y
-                >> _dataInfo->_rowVec.z
-                >> _dataInfo->_colVec.x
-                >> _dataInfo->_colVec.y
-                >> _dataInfo->_colVec.z;
-
-            found = true;
-
-          }
-
-        }
-
         if ( item->findAndGetSequenceItem( DCM_PlanePositionSequence,
                                            tmpItem ).good() )
         {
 
-          OFString tmpString;
-
-          if ( tmpItem->findAndGetOFStringArray( DCM_ImagePositionPatient,
-                                                 tmpString ).good() )
+          if ( positionModule.parseItem( tmpItem ) )
           {
 
-            std::string positionStr = tmpString.c_str();
-            size_t pos = positionStr.find( "\\" );
-
-            while ( pos != std::string::npos )
-            {
-
-              positionStr[ pos ] = ' ';
-              pos = positionStr.find( "\\" );
-
-            }
-
-            soma::Vector position;
-            std::istringstream iss( positionStr );
-
-            iss >> position.x
-                >> position.y
-                >> position.z;
-
-            _positions[ index ] = position;
+            _positions[ index ] = positionModule.getImagePosition();
 
           }
 
@@ -263,13 +183,13 @@ bool soma::EnhancedMRImageStorageReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::EnhancedMRImageStorageReader::buildIndexLut( DcmDataset* dataset )
+bool dcm::EnhancedMRImageStorageReader::buildIndexLut( DcmDataset* dataset )
 {
 
   if ( dataset )
   {
 
-    soma::EnhancedIndexModule indexModule;
+    dcm::EnhancedIndexModule indexModule;
 
     if ( indexModule.parseItem( dataset ) )
     {

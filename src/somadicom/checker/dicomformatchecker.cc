@@ -88,8 +88,8 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
     vector< string > fileList;
 
-    soma::DataInfoCache::getInstance().clear();
-    soma::DataInfo& dataInfo = soma::DataInfoCache::getInstance().getDataInfo();
+    dcm::DataInfoCache::getInstance().clear();
+    dcm::DataInfo& dataInfo = dcm::DataInfoCache::getInstance().getDataInfo();
 
     // avoid printing anything from dcmtk
     fdinhibitor   fdi( STDERR_FILENO );
@@ -97,7 +97,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
 
     // fast check
-    if ( !soma::DicomIO::getInstance().analyze( imaname, dataInfo ) )
+    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo ) )
     {
       // open file
 //       fdi.open();
@@ -105,11 +105,11 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     }
 
     // select files and read information relevent for memory allocation
-    soma::DicomDatasetHeader datasetHeader( dataInfo );
+    dcm::DicomDatasetHeader datasetHeader( dataInfo );
 
-    if ( !soma::DicomIO::getInstance().check( imaname, 
-                                              dataInfo,
-                                              datasetHeader ) )
+    if ( !dcm::DicomIO::getInstance().check( imaname, 
+                                             dataInfo,
+                                             datasetHeader ) )
     {
       // open file
 //       fdi.open();
@@ -168,8 +168,8 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     hdr->setProperty( "data_type", type );
 
     // read specific header information
-    CartoHeader header( hdr );
-    DicomIO::getInstance().getHeader( header, dataInfo, datasetHeader );
+    dcm::CartoHeader header( hdr );
+    dcm::DicomIO::getInstance().getHeader( header, dataInfo, datasetHeader );
 
   }
 

@@ -14,7 +14,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -51,4 +51,3 @@ class EnhancedIndexModule : public DicomModule
 
 
 #endif
-

@@ -13,31 +13,31 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::MultiFrameDicomImage::MultiFrameDicomImage(
-                                      soma::DicomProxy& proxy,
-                                      soma::ImagePixel::Parameters& parameters )
-                          : soma::DicomImage( proxy, parameters )
+dcm::MultiFrameDicomImage::MultiFrameDicomImage(
+                                       dcm::DicomProxy& proxy,
+                                       dcm::ImagePixel::Parameters& parameters )
+                         : dcm::DicomImage( proxy, parameters )
 {
 }
 
 
-void soma::MultiFrameDicomImage::getImagePtr()
+void dcm::MultiFrameDicomImage::getImagePtr()
 {
 
 //#if OFFIS_DCMTK_VERSION_NUMBER < 360
 #if 1
-  soma::DicomImage::getImagePtr();
+  dcm::DicomImage::getImagePtr();
 #endif
 
 }
 
 
-void soma::MultiFrameDicomImage::fillSlab( int32_t start, int32_t count )
+void dcm::MultiFrameDicomImage::fillSlab( int32_t start, int32_t count )
 {
 
 //#if OFFIS_DCMTK_VERSION_NUMBER >= 360
 #if 0
-  soma::DataInfo& info = _proxy.getDataInfo();
+  dcm::DataInfo& info = _proxy.getDataInfo();
   int32_t bufferSize = info._sliceSize * info._bpp * count;
 
   if ( bufferSize & 1 )

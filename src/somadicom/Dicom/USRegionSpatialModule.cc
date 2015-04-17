@@ -14,15 +14,15 @@
 #include <cmath>
 
 
-soma::USRegionSpatialModule::USRegionSpatialModule()
-                           : soma::DicomModule(),
-                             _physicalDeltaX( 1.0 ),
-                             _physicalDeltaY( 1.0 )
+dcm::USRegionSpatialModule::USRegionSpatialModule()
+                          : dcm::DicomModule(),
+                            _physicalDeltaX( 1.0 ),
+                            _physicalDeltaY( 1.0 )
 {
 }
 
 
-bool soma::USRegionSpatialModule::parseItem( DcmItem* dcmItem )
+bool dcm::USRegionSpatialModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -84,7 +84,7 @@ bool soma::USRegionSpatialModule::parseItem( DcmItem* dcmItem )
 }
 
 
-double soma::USRegionSpatialModule::getPhysicalDeltaX() const
+double dcm::USRegionSpatialModule::getPhysicalDeltaX() const
 {
 
   return _physicalDeltaX;
@@ -92,10 +92,9 @@ double soma::USRegionSpatialModule::getPhysicalDeltaX() const
 }
 
 
-double soma::USRegionSpatialModule::getPhysicalDeltaY() const
+double dcm::USRegionSpatialModule::getPhysicalDeltaY() const
 {
 
   return _physicalDeltaY;
 
 }
-

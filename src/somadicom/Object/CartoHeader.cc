@@ -3,13 +3,13 @@
 #include <cartobase/object/object_d.h>
 
 
-soma::CartoHeader::CartoHeader( carto::Object header )
-                 : soma::HeaderProxy(),
-                   _header( header )
+dcm::CartoHeader::CartoHeader( carto::Object header )
+                : dcm::HeaderProxy(),
+                  _header( header )
 {
 }
 
-void soma::CartoHeader::addAttribute( const std::string& name, int32_t value )
+void dcm::CartoHeader::addAttribute( const std::string& name, int32_t value )
 {
 
   _header->setProperty( name, value );
@@ -17,7 +17,7 @@ void soma::CartoHeader::addAttribute( const std::string& name, int32_t value )
 }
 
 
-void soma::CartoHeader::addAttribute( const std::string& name, double value )
+void dcm::CartoHeader::addAttribute( const std::string& name, double value )
 {
 
   _header->setProperty( name, float( value ) );
@@ -25,8 +25,8 @@ void soma::CartoHeader::addAttribute( const std::string& name, double value )
 }
 
 
-void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      const std::string& value )
+void dcm::CartoHeader::addAttribute( const std::string& name, 
+                                     const std::string& value )
 {
 
   _header->setProperty( name, value );
@@ -34,8 +34,8 @@ void soma::CartoHeader::addAttribute( const std::string& name,
 }
 
 
-void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      const std::vector< int32_t >& value )
+void dcm::CartoHeader::addAttribute( const std::string& name, 
+                                     const std::vector< int32_t >& value )
 {
 
   _header->setProperty( name, value );
@@ -43,8 +43,8 @@ void soma::CartoHeader::addAttribute( const std::string& name,
 }
 
 
-void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      const std::vector< double >& value )
+void dcm::CartoHeader::addAttribute( const std::string& name, 
+                                     const std::vector< double >& value )
 {
 
   std::vector< float > vec( value.begin(), value.end() );
@@ -54,8 +54,8 @@ void soma::CartoHeader::addAttribute( const std::string& name,
 }
 
 
-void soma::CartoHeader::addAttribute( const std::string& name, 
-                                      const std::vector< std::string >& value )
+void dcm::CartoHeader::addAttribute( const std::string& name, 
+                                     const std::vector< std::string >& value )
 {
 
   _header->setProperty( name, value );
@@ -63,7 +63,7 @@ void soma::CartoHeader::addAttribute( const std::string& name,
 }
 
 
-void soma::CartoHeader::addAttribute( 
+void dcm::CartoHeader::addAttribute( 
                              const std::string& name, 
                              const std::vector< std::vector< double > >& value )
 {
@@ -87,10 +87,9 @@ void soma::CartoHeader::addAttribute(
 }
 
 
-bool soma::CartoHeader::hasAttribute( const std::string& name )
+bool dcm::CartoHeader::hasAttribute( const std::string& name )
 {
 
   return _header->hasProperty( name );
 
 }
-

@@ -23,21 +23,20 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::PhilipsEnhancedMRReader::PhilipsEnhancedMRReader()
-                             : soma::EnhancedMRImageStorageReader(),
-                               soma::Singleton< 
-                                              soma::PhilipsEnhancedMRReader >(),
-                               _tIndex( 0 )
+dcm::PhilipsEnhancedMRReader::PhilipsEnhancedMRReader()
+                            : dcm::EnhancedMRImageStorageReader(),
+                              dcm::Singleton< dcm::PhilipsEnhancedMRReader >(),
+                              _tIndex( 0 )
 {
 }
 
 
-soma::PhilipsEnhancedMRReader::~PhilipsEnhancedMRReader()
+dcm::PhilipsEnhancedMRReader::~PhilipsEnhancedMRReader()
 {
 }
 
 
-std::string soma::PhilipsEnhancedMRReader::getManufacturerName()
+std::string dcm::PhilipsEnhancedMRReader::getManufacturerName()
 {
 
   return "Philips Medical Systems";
@@ -45,15 +44,15 @@ std::string soma::PhilipsEnhancedMRReader::getManufacturerName()
 }
 
 
-bool soma::PhilipsEnhancedMRReader::getHeader( 
-                                       soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::PhilipsEnhancedMRReader::getHeader( 
+                                        dcm::HeaderProxy& proxy,
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::EnhancedMRImageStorageReader::getHeader( proxy, 
-                                                       info, 
-                                                       datasetHeader ) )
+  if ( !dcm::EnhancedMRImageStorageReader::getHeader( proxy, 
+                                                      info, 
+                                                      datasetHeader ) )
   {
 
     return false;
@@ -63,7 +62,7 @@ bool soma::PhilipsEnhancedMRReader::getHeader(
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    soma::PhilipsEnhancedDiffusionModule diffusionModule;
+    dcm::PhilipsEnhancedDiffusionModule diffusionModule;
 
     if ( diffusionModule.parseHeader( datasetHeader ) )
     {
@@ -81,13 +80,13 @@ bool soma::PhilipsEnhancedMRReader::getHeader(
 }
 
 
-bool soma::PhilipsEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
+bool dcm::PhilipsEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
 {
 
   if ( dataset )
   {
 
-    soma::PhilipsEnhancedIndexModule indexModule;
+    dcm::PhilipsEnhancedIndexModule indexModule;
 
     if ( indexModule.parseItem( dataset ) )
     {
@@ -109,4 +108,3 @@ bool soma::PhilipsEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
 
 
 RegisterDicomReaderFunction( PhilipsEnhancedMRReader );
-

@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -30,4 +30,3 @@ class PhilipsEnhancedIndexModule : public EnhancedIndexModule
 
 
 #endif
-

@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -34,4 +34,3 @@ class SiemensDiffusionModule : public DiffusionModule
 
 
 #endif
-

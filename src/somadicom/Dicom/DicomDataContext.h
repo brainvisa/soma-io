@@ -17,7 +17,7 @@
 #include <string>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -25,7 +25,11 @@ class DicomDatasetHeader;
 class DicomProxy;
 
 
+#ifdef SOMA_IO_DICOM
+class DicomDataContext : public carto::LoopContext
+#else
 class DicomDataContext : public LoopContext
+#endif
 {
 
   public:

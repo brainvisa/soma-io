@@ -2,31 +2,28 @@
 #include <soma-io/Dicom/CTImageStorageReader.h>
 #include <soma-io/Dicom/CTModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Object/HeaderProxy.h>
-#include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/CTImageStorageReader.h>
 #include <Dicom/CTModule.h>
 #include <Dicom/DicomDatasetHeader.h>
-#include <Container/DicomProxy.h>
+#include <Container/DataInfo.h>
 #include <Object/HeaderProxy.h>
-#include <Utils/StdInt.h>
 #endif
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
-#include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::CTImageStorageReader::CTImageStorageReader()
-                          : soma::MultiFileReader()
+dcm::CTImageStorageReader::CTImageStorageReader()
+                         : dcm::MultiFileReader()
 {
 }
 
 
-std::string soma::CTImageStorageReader::getStorageUID()
+std::string dcm::CTImageStorageReader::getStorageUID()
 {
 
   return UID_CTImageStorage;
@@ -34,13 +31,13 @@ std::string soma::CTImageStorageReader::getStorageUID()
 }
 
 
-bool soma::CTImageStorageReader::getHeader( 
-                                       soma::HeaderProxy& proxy, 
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::CTImageStorageReader::getHeader( 
+                                        dcm::HeaderProxy& proxy, 
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -48,7 +45,7 @@ bool soma::CTImageStorageReader::getHeader(
   }
 
   DcmDataset dataset;
-  soma::CTModule ctModule;
+  dcm::CTModule ctModule;
 
   datasetHeader.get( dataset );
 

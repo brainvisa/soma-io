@@ -9,17 +9,17 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::MRModule::MRModule()
-              : soma::DicomModule(),
-                _tr( 0.0 ),
-                _te( 0.0 ),
-                _ti( 0.0 ),
-                _flipAngle( 0.0 )
+dcm::MRModule::MRModule()
+             : dcm::DicomModule(),
+               _tr( 0.0 ),
+               _te( 0.0 ),
+               _ti( 0.0 ),
+               _flipAngle( 0.0 )
 {
 }
 
 
-bool soma::MRModule::parseItem( DcmItem* dcmItem )
+bool dcm::MRModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -64,7 +64,7 @@ bool soma::MRModule::parseItem( DcmItem* dcmItem )
 }
 
 
-double soma::MRModule::getTR() const
+double dcm::MRModule::getTR() const
 {
 
   return _tr;
@@ -72,7 +72,7 @@ double soma::MRModule::getTR() const
 }
 
 
-double soma::MRModule::getTE() const
+double dcm::MRModule::getTE() const
 {
 
   return _te;
@@ -80,7 +80,7 @@ double soma::MRModule::getTE() const
 }
 
 
-double soma::MRModule::getTI() const
+double dcm::MRModule::getTI() const
 {
 
   return _ti;
@@ -88,10 +88,9 @@ double soma::MRModule::getTI() const
 }
 
 
-double soma::MRModule::getFlipAngle() const
+double dcm::MRModule::getFlipAngle() const
 {
 
   return _flipAngle;
 
 }
-

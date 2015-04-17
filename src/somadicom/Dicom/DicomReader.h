@@ -16,7 +16,7 @@
 class DcmDataset;
 
 
-namespace soma
+namespace dcm
 {
 
 

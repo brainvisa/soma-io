@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -30,7 +30,6 @@ class MosaicDicomImage : public DicomImage
 
 
 }
-
 
 
 #endif

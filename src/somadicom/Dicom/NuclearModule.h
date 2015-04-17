@@ -15,7 +15,7 @@
 #include <map>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -59,4 +59,3 @@ class NuclearModule : public DicomModule
 
 
 #endif
-

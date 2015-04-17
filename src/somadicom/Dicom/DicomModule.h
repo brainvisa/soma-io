@@ -10,7 +10,7 @@
 class DcmItem;
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -35,4 +35,3 @@ class DicomModule
 
 
 #endif
-

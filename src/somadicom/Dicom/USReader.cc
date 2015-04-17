@@ -10,13 +10,13 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 
 
-soma::USReader::USReader()
-              : soma::DicomReader()
+dcm::USReader::USReader()
+             : dcm::DicomReader()
 {
 }
 
 
-bool soma::USReader::readHeader( DcmDataset* dataset )
+bool dcm::USReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -26,7 +26,7 @@ bool soma::USReader::readHeader( DcmDataset* dataset )
          ( _dataInfo->_resolution.y <= 0.0 ) )
     {
 
-      soma::USRegionSpatialModule spatialModule;
+      dcm::USRegionSpatialModule spatialModule;
 
       if ( spatialModule.parseItem( dataset ) )
       {

@@ -7,9 +7,9 @@
 #endif
 
 
-soma::GenericMRReader::GenericMRReader()
-                     : soma::MRImageStorageReader(),
-                       soma::Singleton< soma::GenericMRReader >()
+dcm::GenericMRReader::GenericMRReader()
+                    : dcm::MRImageStorageReader(),
+                      dcm::Singleton< dcm::GenericMRReader >()
 {
 }
 

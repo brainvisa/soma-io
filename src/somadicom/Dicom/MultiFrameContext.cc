@@ -7,14 +7,18 @@
 #endif
 
 
-soma::MultiFrameContext::MultiFrameContext( MultiFrameDicomImage& dicomImage )
-                       : soma::LoopContext(),
-                         _dicomImage( dicomImage )
+dcm::MultiFrameContext::MultiFrameContext( MultiFrameDicomImage& dicomImage )
+#ifdef SOMA_IO_DICOM
+                      : carto::LoopContext(),
+#else
+                      : dcm::LoopContext(),
+#endif
+                        _dicomImage( dicomImage )
 {
 }
 
 
-void soma::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
+void dcm::MultiFrameContext::doIt( int32_t startIndex, int32_t count )
 {
 
   _dicomImage.fillSlab( startIndex, count );

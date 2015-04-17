@@ -7,9 +7,9 @@
 #endif
 
 
-soma::GenericNMReader::GenericNMReader()
-                     : soma::NMImageStorageReader(),
-                       soma::Singleton< soma::GenericNMReader >()
+dcm::GenericNMReader::GenericNMReader()
+                    : dcm::NMImageStorageReader(),
+                      dcm::Singleton< dcm::GenericNMReader >()
 {
 }
 

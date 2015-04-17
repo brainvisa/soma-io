@@ -15,7 +15,7 @@
 class DcmDataset;
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -45,4 +45,3 @@ class ModalityLutModule : public DicomModule
 
 
 #endif
-

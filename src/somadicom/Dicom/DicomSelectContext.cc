@@ -13,14 +13,19 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::DicomSelectContext::DicomSelectContext( 
-                                       soma::DirectoryParser& directory,
-                                       const std::string& seriesInstanceUID,
-                                       soma::DicomDatasetHeader& datasetHeader,
-                                       int32_t& fileCount )
-                        : _seriesInstanceUID( seriesInstanceUID ),
-                          _datasetHeader( datasetHeader ),
-                          _fileCount( fileCount )
+dcm::DicomSelectContext::DicomSelectContext( 
+                                         dcm::DirectoryParser& directory,
+                                         const std::string& seriesInstanceUID,
+                                         dcm::DicomDatasetHeader& datasetHeader,
+                                         int32_t& fileCount )
+#ifdef SOMA_IO_DICOM
+                       : carto::LoopContext(),
+#else
+                       : dcm::LoopContext(),
+#endif
+                         _seriesInstanceUID( seriesInstanceUID ),
+                         _datasetHeader( datasetHeader ),
+                         _fileCount( fileCount )
 {
 
   _files.insert( _files.end(), 
@@ -30,7 +35,7 @@ soma::DicomSelectContext::DicomSelectContext(
 }
 
 
-void soma::DicomSelectContext::doIt( int32_t startIndex, int32_t count )
+void dcm::DicomSelectContext::doIt( int32_t startIndex, int32_t count )
 {
 
   int32_t i, stopIndex = startIndex + count;
@@ -70,6 +75,8 @@ void soma::DicomSelectContext::doIt( int32_t startIndex, int32_t count )
         }
 
       }
+
+      header.clear();
 
     }
 

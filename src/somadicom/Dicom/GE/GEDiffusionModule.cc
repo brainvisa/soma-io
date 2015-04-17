@@ -9,13 +9,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::GEDiffusionModule::GEDiffusionModule()
-                       : soma::DiffusionModule()
+dcm::GEDiffusionModule::GEDiffusionModule()
+                      : dcm::DiffusionModule()
 {
 }
 
 
-bool soma::GEDiffusionModule::parseItem( DcmItem* dcmItem )
+bool dcm::GEDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -92,13 +92,13 @@ bool soma::GEDiffusionModule::parseItem( DcmItem* dcmItem )
                                          tmpDouble ).good() )
         {
 
-          direction[ 2 ] = -1.0 * double( tmpDouble );
+          direction[ 2 ] = double( tmpDouble );
 
         }
 
       }
 
-      _directions.push_back( direction );
+      addDirection( direction );
 
       return true;
 
@@ -109,4 +109,3 @@ bool soma::GEDiffusionModule::parseItem( DcmItem* dcmItem )
   return false;
 
 }
-

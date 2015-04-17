@@ -7,7 +7,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -72,4 +72,3 @@ class BoundingBox
 
 
 #endif
-

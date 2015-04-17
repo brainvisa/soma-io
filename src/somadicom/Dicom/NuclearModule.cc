@@ -9,17 +9,17 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::NuclearModule::NuclearModule()
-                   : soma::DicomModule(),
-                     _scaleFactor( 1.0 ),
-                     _numberOfTimeSlots( 0 ),
-                     _numberOfSlices( 0 ),
-                     _numberOfTimeSlices( 1 ),
-                     _acquisitionMode( "" ),
-                     _category( "" ),
-                     _units( "" ),
-                     _correctionMethod( "" ),
-                     _reconstructionMethod( "" )
+dcm::NuclearModule::NuclearModule()
+                  : dcm::DicomModule(),
+                    _scaleFactor( 1.0 ),
+                    _numberOfTimeSlots( 0 ),
+                    _numberOfSlices( 0 ),
+                    _numberOfTimeSlices( 1 ),
+                    _acquisitionMode( "" ),
+                    _category( "" ),
+                    _units( "" ),
+                    _correctionMethod( "" ),
+                    _reconstructionMethod( "" )
 {
 
   // from DICOM 3 - Part 3 - C.8.9.1.1.3
@@ -45,7 +45,7 @@ soma::NuclearModule::NuclearModule()
 }
 
 
-bool soma::NuclearModule::parseItem( DcmItem* dcmItem )
+bool dcm::NuclearModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -153,7 +153,7 @@ bool soma::NuclearModule::parseItem( DcmItem* dcmItem )
 }
 
 
-double soma::NuclearModule::getScaleFactor() const
+double dcm::NuclearModule::getScaleFactor() const
 {
 
   return _scaleFactor;
@@ -161,7 +161,7 @@ double soma::NuclearModule::getScaleFactor() const
 }
 
 
-int32_t soma::NuclearModule::getNumberOfTimeSlots() const
+int32_t dcm::NuclearModule::getNumberOfTimeSlots() const
 {
 
   return _numberOfTimeSlots;
@@ -169,7 +169,7 @@ int32_t soma::NuclearModule::getNumberOfTimeSlots() const
 }
 
 
-int32_t soma::NuclearModule::getNumberOfSlices() const
+int32_t dcm::NuclearModule::getNumberOfSlices() const
 {
 
   return _numberOfSlices;
@@ -177,7 +177,7 @@ int32_t soma::NuclearModule::getNumberOfSlices() const
 }
 
 
-int32_t soma::NuclearModule::getNumberOfTimeSlices() const
+int32_t dcm::NuclearModule::getNumberOfTimeSlices() const
 {
 
   return _numberOfTimeSlices;
@@ -185,7 +185,7 @@ int32_t soma::NuclearModule::getNumberOfTimeSlices() const
 }
 
 
-const std::string& soma::NuclearModule::getAcquisitionMode() const
+const std::string& dcm::NuclearModule::getAcquisitionMode() const
 {
 
   return _acquisitionMode;
@@ -193,7 +193,7 @@ const std::string& soma::NuclearModule::getAcquisitionMode() const
 }
 
 
-const std::string& soma::NuclearModule::getCategory() const
+const std::string& dcm::NuclearModule::getCategory() const
 {
 
   return _category;
@@ -201,7 +201,7 @@ const std::string& soma::NuclearModule::getCategory() const
 }
 
 
-const std::string& soma::NuclearModule::getUnits() const
+const std::string& dcm::NuclearModule::getUnits() const
 {
 
   return _units;
@@ -209,7 +209,7 @@ const std::string& soma::NuclearModule::getUnits() const
 }
 
 
-const std::string& soma::NuclearModule::getCorrectionMethod() const
+const std::string& dcm::NuclearModule::getCorrectionMethod() const
 {
 
   return _correctionMethod;
@@ -217,10 +217,9 @@ const std::string& soma::NuclearModule::getCorrectionMethod() const
 }
 
 
-const std::string& soma::NuclearModule::getReconstructionMethod() const
+const std::string& dcm::NuclearModule::getReconstructionMethod() const
 {
 
   return _reconstructionMethod;
 
 }
-

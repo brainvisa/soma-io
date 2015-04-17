@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -38,4 +38,3 @@ class USRegionSpatialModule : public DicomModule
 
 
 #endif
-

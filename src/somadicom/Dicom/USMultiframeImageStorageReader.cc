@@ -17,20 +17,19 @@
 #endif
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
 
 
-soma::USMultiframeImageStorageReader::USMultiframeImageStorageReader()
-                                    : soma::USReader()
+dcm::USMultiframeImageStorageReader::USMultiframeImageStorageReader()
+                                   : dcm::USReader()
 {
 }
 
 
-std::string soma::USMultiframeImageStorageReader::getStorageUID()
+std::string dcm::USMultiframeImageStorageReader::getStorageUID()
 {
 
   return UID_UltrasoundMultiframeImageStorage;
@@ -38,7 +37,7 @@ std::string soma::USMultiframeImageStorageReader::getStorageUID()
 }
 
 
-bool soma::USMultiframeImageStorageReader::readHeader( DcmDataset* dataset )
+bool dcm::USMultiframeImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -62,28 +61,32 @@ bool soma::USMultiframeImageStorageReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::USMultiframeImageStorageReader::readData( 
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy)
+bool dcm::USMultiframeImageStorageReader::readData( 
+                                         dcm::DicomDatasetHeader& datasetHeader,
+                                         dcm::DicomProxy& proxy)
 {
 
   if ( proxy.allocate() )
   {
 
     std::string fileName = datasetHeader.getFileList().front();
-    soma::ImagePixel::Parameters parameters( proxy );
-    soma::MultiFrameDicomImage dicomImage( proxy, parameters );
+    dcm::ImagePixel::Parameters parameters( proxy );
+    dcm::MultiFrameDicomImage dicomImage( proxy, parameters );
 
     if ( dicomImage.load( fileName ) )
     {
 
-      soma::DataInfo& info = proxy.getDataInfo();
+      dcm::DataInfo& info = proxy.getDataInfo();
       int32_t startT = info._boundingBox.getLowerT();
       int32_t count = info._boundingBox.getUpperT() - startT + 1;
       int32_t min = 0, max = 0;
 
-      soma::MultiFrameContext context( dicomImage );
-      soma::ThreadedLoop threadedLoop( &context, startT, count );
+      dcm::MultiFrameContext context( dicomImage );
+#ifdef SOMA_IO_DICOM
+      carto::ThreadedLoop threadedLoop( &context, startT, count );
+#else
+      dcm::ThreadedLoop threadedLoop( &context, startT, count );
+#endif
 
       threadedLoop.launch();
 

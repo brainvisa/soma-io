@@ -20,16 +20,16 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::DicomImage::DicomImage( soma::DicomProxy& proxy,
-                              soma::ImagePixel::Parameters& parameters )
-                : _proxy( proxy ),
-                  _parameters( parameters ),
-                  _dataset( 0 ),
-                  _pixelData( 0 ),
-                  _image( 0 ),
-                  _photometric( "" ),
-                  _dcmEVR( EVR_OB ),
-                  _imagePtr( 0 )
+dcm::DicomImage::DicomImage( dcm::DicomProxy& proxy,
+                             dcm::ImagePixel::Parameters& parameters )
+               : _proxy( proxy ),
+                 _parameters( parameters ),
+                 _dataset( 0 ),
+                 _pixelData( 0 ),
+                 _image( 0 ),
+                 _photometric( "" ),
+                 _dcmEVR( EVR_OB ),
+                 _imagePtr( 0 )
 {
 
   _offsetParameters.offset = _parameters.startY * _parameters.sizeX + 
@@ -41,7 +41,7 @@ soma::DicomImage::DicomImage( soma::DicomProxy& proxy,
 }
 
 
-soma::DicomImage::~DicomImage()
+dcm::DicomImage::~DicomImage()
 {
 
   delete _image;
@@ -49,7 +49,7 @@ soma::DicomImage::~DicomImage()
 }
 
 
-bool soma::DicomImage::load( const std::string& fileName )
+bool dcm::DicomImage::load( const std::string& fileName )
 {
 
   if ( !fileName.empty() )
@@ -102,7 +102,7 @@ bool soma::DicomImage::load( const std::string& fileName )
 }
 
 
-void soma::DicomImage::getImagePtr()
+void dcm::DicomImage::getImagePtr()
 {
 
   DcmXfer xfer( _dataset->getOriginalXfer() );
@@ -156,7 +156,7 @@ void soma::DicomImage::getImagePtr()
 }
 
 
-void soma::DicomImage::fillIndex( int32_t index, int32_t inputSlice )
+void dcm::DicomImage::fillIndex( int32_t index, int32_t inputSlice )
 {
 
   fill( index % _parameters.sizeZ, index / _parameters.sizeZ, inputSlice );
@@ -164,7 +164,7 @@ void soma::DicomImage::fillIndex( int32_t index, int32_t inputSlice )
 }
 
 
-void soma::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
+void dcm::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
 {
 
   if ( _imagePtr )
@@ -182,7 +182,7 @@ void soma::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
 }
 
 
-void soma::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
+void dcm::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
 {
 
   min = _imageModule.getSmallestPixelValue();
@@ -191,7 +191,7 @@ void soma::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
 }
 
 
-void soma::DicomImage::chooseImagePixel( const std::string& photometric )
+void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
 {
 
   if ( !photometric.empty() && 
@@ -212,13 +212,13 @@ void soma::DicomImage::chooseImagePixel( const std::string& photometric )
       if ( _dcmEVR == EVR_OW )
       {
 
-        _image = new soma::MonochromeImage< uint16_t >( _proxy );
+        _image = new dcm::MonochromeImage< uint16_t >( _proxy );
 
       }
       else
       {
 
-        _image = new soma::MonochromeImage< uint8_t >( _proxy );
+        _image = new dcm::MonochromeImage< uint8_t >( _proxy );
 
       }
 
@@ -233,15 +233,14 @@ void soma::DicomImage::chooseImagePixel( const std::string& photometric )
     else if ( _photometric == "RGB" )
     {
 
-      _image = new soma::RGBImage( 
-                            _proxy, 
-                            _imageModule.getPlanarConfiguration() );
+      _image = new dcm::RGBImage( _proxy, 
+                                  _imageModule.getPlanarConfiguration() );
 
     }
     else if ( _photometric == "PALETTE COLOR" )
     {
 
-      _image = new soma::PaletteImage( _proxy );
+      _image = new dcm::PaletteImage( _proxy );
 
     }
 

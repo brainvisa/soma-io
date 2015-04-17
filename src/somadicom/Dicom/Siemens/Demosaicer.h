@@ -4,17 +4,15 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Container/Vector.h>
+#include <soma-io/Container/Vector3d.h>
 #include <soma-io/Utils/StdInt.h>
 #else
-#include <Container/Vector.h>
+#include <Container/Vector3d.h>
 #include <Utils/StdInt.h>
 #endif
 
-#include <dcmtk/config/osconfig.h>
 
-
-namespace soma
+namespace dcm
 {
 
 
@@ -27,8 +25,8 @@ class Demosaicer
 
   public:
 
-    Demosaicer( const Vector& rowCosine,
-                const Vector& columnCosine,
+    Demosaicer( const Vector3d< double >& rowCosine,
+                const Vector3d< double >& columnCosine,
                 int32_t sizeX,
                 int32_t sizeY,
                 int32_t sizeZ,
@@ -46,12 +44,12 @@ class Demosaicer
                    int32_t slice,
                    int32_t t );
 
-    Vector demosaic( const Vector& pos );
+    Vector3d< double > demosaic( const Vector3d< double >& pos );
 
   private:
 
-    Vector _rowVector;
-    Vector _columnVector;
+    Vector3d< double > _rowVector;
+    Vector3d< double > _columnVector;
     int32_t _mosaicSizeX;
     int32_t _mosaicSizeY;
     int32_t _sizeX;

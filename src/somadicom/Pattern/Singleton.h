@@ -7,7 +7,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -29,6 +29,10 @@ class Singleton
 
 
 }
+
+
+#define ForceSingletonInstanciation( NAME ) \
+static dcm::NAME& forced_##NAME##_instanciation = dcm::NAME::getInstance();
 
 
 #endif

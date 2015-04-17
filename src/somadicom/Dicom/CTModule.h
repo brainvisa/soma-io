@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -36,4 +36,3 @@ class CTModule : public DicomModule
 
 
 #endif
-

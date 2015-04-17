@@ -13,23 +13,23 @@
 #include <algorithm>
 
 
-soma::IdentifyingModule::IdentifyingModule()
-                       : soma::DicomModule(),
-                         _studyDate( "" ),
-                         _seriesDate( "" ),
-                         _acquisitionDate( "" ),
-                         _studyTime( "" ),
-                         _seriesTime( "" ),
-                         _modality( "" ),
-                         _manufacturer( "" ),
-                         _institutionName( "" ),
-                         _seriesDescription( "" ),
-                         _zeroStartTime( 0 )
+dcm::IdentifyingModule::IdentifyingModule()
+                      : dcm::DicomModule(),
+                        _studyDate( "" ),
+                        _seriesDate( "" ),
+                        _acquisitionDate( "" ),
+                        _studyTime( "" ),
+                        _seriesTime( "" ),
+                        _modality( "" ),
+                        _manufacturer( "" ),
+                        _institutionName( "" ),
+                        _seriesDescription( "" ),
+                        _zeroStartTime( 0 )
 {
 }
 
 
-bool soma::IdentifyingModule::parseItem( DcmItem* dcmItem )
+bool dcm::IdentifyingModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -110,8 +110,8 @@ bool soma::IdentifyingModule::parseItem( DcmItem* dcmItem )
 }
 
 
-bool soma::IdentifyingModule::parseHeader( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::IdentifyingModule::parseHeader( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   int32_t n = datasetHeader.size();
@@ -215,7 +215,7 @@ bool soma::IdentifyingModule::parseHeader(
 }
 
 
-const std::string& soma::IdentifyingModule::getStudyDate() const
+const std::string& dcm::IdentifyingModule::getStudyDate() const
 {
 
   return _studyDate;
@@ -223,7 +223,7 @@ const std::string& soma::IdentifyingModule::getStudyDate() const
 }
 
 
-const std::string& soma::IdentifyingModule::getSeriesDate() const
+const std::string& dcm::IdentifyingModule::getSeriesDate() const
 {
 
   return _seriesDate;
@@ -231,7 +231,7 @@ const std::string& soma::IdentifyingModule::getSeriesDate() const
 }
 
 
-const std::string& soma::IdentifyingModule::getAcquisitionDate() const
+const std::string& dcm::IdentifyingModule::getAcquisitionDate() const
 {
 
   return _acquisitionDate;
@@ -239,7 +239,7 @@ const std::string& soma::IdentifyingModule::getAcquisitionDate() const
 }
 
 
-const std::string&soma::IdentifyingModule:: getStudyTime() const
+const std::string&dcm::IdentifyingModule:: getStudyTime() const
 {
 
   return _studyTime;
@@ -247,7 +247,7 @@ const std::string&soma::IdentifyingModule:: getStudyTime() const
 }
 
 
-const std::string&soma::IdentifyingModule:: getSeriesTime() const
+const std::string&dcm::IdentifyingModule:: getSeriesTime() const
 {
 
   return _seriesTime;
@@ -256,7 +256,7 @@ const std::string&soma::IdentifyingModule:: getSeriesTime() const
 
 
 const std::vector< std::string >& 
-soma::IdentifyingModule::getAcquisitionTimes() const
+dcm::IdentifyingModule::getAcquisitionTimes() const
 {
 
   return _acquisitionTimes;
@@ -264,7 +264,7 @@ soma::IdentifyingModule::getAcquisitionTimes() const
 }
 
 
-const std::string& soma::IdentifyingModule::getModality() const
+const std::string& dcm::IdentifyingModule::getModality() const
 {
 
   return _modality;
@@ -272,7 +272,7 @@ const std::string& soma::IdentifyingModule::getModality() const
 }
 
 
-const std::string& soma::IdentifyingModule::getManufacturer() const
+const std::string& dcm::IdentifyingModule::getManufacturer() const
 {
 
   return _manufacturer;
@@ -280,7 +280,7 @@ const std::string& soma::IdentifyingModule::getManufacturer() const
 }
 
 
-const std::string& soma::IdentifyingModule::getInstitutionName() const
+const std::string& dcm::IdentifyingModule::getInstitutionName() const
 {
 
   return _institutionName;
@@ -288,7 +288,7 @@ const std::string& soma::IdentifyingModule::getInstitutionName() const
 }
 
 
-const std::string& soma::IdentifyingModule::getSeriesDescription() const
+const std::string& dcm::IdentifyingModule::getSeriesDescription() const
 {
 
   return _seriesDescription;
@@ -296,10 +296,9 @@ const std::string& soma::IdentifyingModule::getSeriesDescription() const
 }
 
 
-int32_t soma::IdentifyingModule::getZeroStartTime() const
+int32_t dcm::IdentifyingModule::getZeroStartTime() const
 {
 
   return _zeroStartTime;
 
 }
-

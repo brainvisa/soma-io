@@ -11,13 +11,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::PhilipsDiffusionModule::PhilipsDiffusionModule()
-                            : soma::DiffusionModule()
+dcm::PhilipsDiffusionModule::PhilipsDiffusionModule()
+                           : dcm::DiffusionModule()
 {
 }
 
 
-bool soma::PhilipsDiffusionModule::parseItem( DcmItem* dcmItem )
+bool dcm::PhilipsDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -56,13 +56,13 @@ bool soma::PhilipsDiffusionModule::parseItem( DcmItem* dcmItem )
                                          tmpFloat ).good() )
         {
 
-          direction[ 2 ] = -1.0 * double( tmpFloat );
+          direction[ 2 ] = double( tmpFloat );
 
         }
 
       }
 
-      _directions.push_back( direction );
+      addDirection( direction );
 
       return true;
 
@@ -75,8 +75,8 @@ bool soma::PhilipsDiffusionModule::parseItem( DcmItem* dcmItem )
 }
 
 
-int32_t soma::PhilipsDiffusionModule::getStep( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+int32_t dcm::PhilipsDiffusionModule::getStep( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   Sint32 tmpInt;
@@ -92,7 +92,6 @@ int32_t soma::PhilipsDiffusionModule::getStep(
 
   }
 
-  return soma::DiffusionModule::getStep( datasetHeader );
+  return dcm::DiffusionModule::getStep( datasetHeader );
 
 }
-

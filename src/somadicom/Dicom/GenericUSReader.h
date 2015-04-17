@@ -11,7 +11,7 @@
 #include <Pattern/Singleton.h>
 #endif
 
-namespace soma
+namespace dcm
 {
 
 

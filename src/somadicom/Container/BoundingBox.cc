@@ -8,44 +8,44 @@
 
 
 template < class T >
-soma::BoundingBox< T >::BoundingBox( const T& lowerX, const T& upperX,
-                                     const T& lowerY, const T& upperY,
-                                     const T& lowerZ, const T& upperZ,
-                                     const T& lowerT, const T& upperT )
-                      : _lowerX( lowerX ),
-                        _upperX( upperX ),
-                        _lowerY( lowerY ),
-                        _upperY( upperY ),
-                        _lowerZ( lowerZ ),
-                        _upperZ( upperZ ),
-                        _lowerT( lowerT ),
-                        _upperT( upperT )
+dcm::BoundingBox< T >::BoundingBox( const T& lowerX, const T& upperX,
+                                    const T& lowerY, const T& upperY,
+                                    const T& lowerZ, const T& upperZ,
+                                    const T& lowerT, const T& upperT )
+                     : _lowerX( lowerX ),
+                       _upperX( upperX ),
+                       _lowerY( lowerY ),
+                       _upperY( upperY ),
+                       _lowerZ( lowerZ ),
+                       _upperZ( upperZ ),
+                       _lowerT( lowerT ),
+                       _upperT( upperT )
 {
 }
 
 
 template < class T >
-soma::BoundingBox< T >::BoundingBox( const soma::BoundingBox< T >& other )
-                      : _lowerX( other._lowerX ),
-                        _upperX( other._upperX ),
-                        _lowerY( other._lowerY ),
-                        _upperY( other._upperY ),
-                        _lowerZ( other._lowerZ ),
-                        _upperZ( other._upperZ ),
-                        _lowerT( other._lowerT ),
-                        _upperT( other._upperT )
+dcm::BoundingBox< T >::BoundingBox( const dcm::BoundingBox< T >& other )
+                     : _lowerX( other._lowerX ),
+                       _upperX( other._upperX ),
+                       _lowerY( other._lowerY ),
+                       _upperY( other._upperY ),
+                       _lowerZ( other._lowerZ ),
+                       _upperZ( other._upperZ ),
+                       _lowerT( other._lowerT ),
+                       _upperT( other._upperT )
 {
 }
 
 
 template < class T >
-soma::BoundingBox< T >::~BoundingBox()
+dcm::BoundingBox< T >::~BoundingBox()
 {
 }
 
 
 template < class T >
-void soma::BoundingBox< T >::setLowerX( const T& lowerX )
+void dcm::BoundingBox< T >::setLowerX( const T& lowerX )
 {
 
   _lowerX = lowerX;
@@ -54,7 +54,7 @@ void soma::BoundingBox< T >::setLowerX( const T& lowerX )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getLowerX() const
+const T& dcm::BoundingBox< T >::getLowerX() const
 {
 
   return _lowerX;
@@ -63,7 +63,7 @@ const T& soma::BoundingBox< T >::getLowerX() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setUpperX( const T& upperX )
+void dcm::BoundingBox< T >::setUpperX( const T& upperX )
 {
 
   _upperX = upperX;
@@ -72,7 +72,7 @@ void soma::BoundingBox< T >::setUpperX( const T& upperX )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getUpperX() const
+const T& dcm::BoundingBox< T >::getUpperX() const
 {
 
   return _upperX;
@@ -81,7 +81,7 @@ const T& soma::BoundingBox< T >::getUpperX() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setLowerY( const T& lowerY )
+void dcm::BoundingBox< T >::setLowerY( const T& lowerY )
 {
 
   _lowerY = lowerY;
@@ -90,7 +90,7 @@ void soma::BoundingBox< T >::setLowerY( const T& lowerY )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getLowerY() const
+const T& dcm::BoundingBox< T >::getLowerY() const
 {
 
   return _lowerY;
@@ -99,7 +99,7 @@ const T& soma::BoundingBox< T >::getLowerY() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setUpperY( const T& upperY )
+void dcm::BoundingBox< T >::setUpperY( const T& upperY )
 {
 
   _upperY = upperY;
@@ -108,7 +108,7 @@ void soma::BoundingBox< T >::setUpperY( const T& upperY )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getUpperY() const
+const T& dcm::BoundingBox< T >::getUpperY() const
 {
 
   return _upperY;
@@ -117,7 +117,7 @@ const T& soma::BoundingBox< T >::getUpperY() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setLowerZ( const T& lowerZ )
+void dcm::BoundingBox< T >::setLowerZ( const T& lowerZ )
 {
 
   _lowerZ = lowerZ;
@@ -126,7 +126,7 @@ void soma::BoundingBox< T >::setLowerZ( const T& lowerZ )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getLowerZ() const
+const T& dcm::BoundingBox< T >::getLowerZ() const
 {
 
   return _lowerZ;
@@ -135,7 +135,7 @@ const T& soma::BoundingBox< T >::getLowerZ() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setUpperZ( const T& upperZ )
+void dcm::BoundingBox< T >::setUpperZ( const T& upperZ )
 {
 
   _upperZ = upperZ;
@@ -144,7 +144,7 @@ void soma::BoundingBox< T >::setUpperZ( const T& upperZ )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getUpperZ() const
+const T& dcm::BoundingBox< T >::getUpperZ() const
 {
 
   return _upperZ;
@@ -153,7 +153,7 @@ const T& soma::BoundingBox< T >::getUpperZ() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setLowerT( const T& lowerT )
+void dcm::BoundingBox< T >::setLowerT( const T& lowerT )
 {
 
   _lowerT = lowerT;
@@ -162,7 +162,7 @@ void soma::BoundingBox< T >::setLowerT( const T& lowerT )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getLowerT() const
+const T& dcm::BoundingBox< T >::getLowerT() const
 {
 
   return _lowerT;
@@ -171,7 +171,7 @@ const T& soma::BoundingBox< T >::getLowerT() const
 
 
 template < class T >
-void soma::BoundingBox< T >::setUpperT( const T& upperT )
+void dcm::BoundingBox< T >::setUpperT( const T& upperT )
 {
 
   _upperT = upperT;
@@ -180,7 +180,7 @@ void soma::BoundingBox< T >::setUpperT( const T& upperT )
 
 
 template < class T >
-const T& soma::BoundingBox< T >::getUpperT() const
+const T& dcm::BoundingBox< T >::getUpperT() const
 {
 
   return _upperT;
@@ -189,10 +189,11 @@ const T& soma::BoundingBox< T >::getUpperT() const
 
 
 template < class T >
-bool soma::BoundingBox< T >::contains( const T& x,
-                                       const T& y,
-                                       const T& z,
-                                       const T& t ) const
+inline
+bool dcm::BoundingBox< T >::contains( const T& x,
+                                      const T& y,
+                                      const T& z,
+                                      const T& t ) const
 {
 
   return ( x >= _lowerX ) && ( x <= _upperX ) &&
@@ -204,10 +205,11 @@ bool soma::BoundingBox< T >::contains( const T& x,
 
 
 template < class T >
-bool soma::BoundingBox< T >::isOnBoundary( const T& x,
-                                           const T& y,
-                                           const T& z,
-                                           const T& t ) const
+inline
+bool dcm::BoundingBox< T >::isOnBoundary( const T& x,
+                                          const T& y,
+                                          const T& z,
+                                          const T& t ) const
 {
 
   bool result = false;
@@ -254,8 +256,7 @@ bool soma::BoundingBox< T >::isOnBoundary( const T& x,
 }
 
 
-template class soma::BoundingBox< int8_t >;
-template class soma::BoundingBox< int16_t >;
-template class soma::BoundingBox< int32_t >;
-template class soma::BoundingBox< int64_t >;
-
+template class dcm::BoundingBox< int8_t >;
+template class dcm::BoundingBox< int16_t >;
+template class dcm::BoundingBox< int32_t >;
+template class dcm::BoundingBox< int64_t >;

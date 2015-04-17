@@ -20,19 +20,19 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::PhilipsMRReader::PhilipsMRReader()
-                     : soma::MRImageStorageReader(),
-                       soma::Singleton< soma::PhilipsMRReader >()
+dcm::PhilipsMRReader::PhilipsMRReader()
+                    : dcm::MRImageStorageReader(),
+                      dcm::Singleton< dcm::PhilipsMRReader >()
 {
 }
 
 
-soma::PhilipsMRReader::~PhilipsMRReader()
+dcm::PhilipsMRReader::~PhilipsMRReader()
 {
 }
 
 
-std::string soma::PhilipsMRReader::getManufacturerName()
+std::string dcm::PhilipsMRReader::getManufacturerName()
 {
 
   return "Philips Medical Systems";
@@ -40,12 +40,12 @@ std::string soma::PhilipsMRReader::getManufacturerName()
 }
 
 
-bool soma::PhilipsMRReader::getHeader( soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::PhilipsMRReader::getHeader( dcm::HeaderProxy& proxy,
+                                      dcm::DataInfo& info,
+                                      dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -55,7 +55,7 @@ bool soma::PhilipsMRReader::getHeader( soma::HeaderProxy& proxy,
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    soma::PhilipsDiffusionModule diffusionModule;
+    dcm::PhilipsDiffusionModule diffusionModule;
 
     if ( diffusionModule.parseHeader( datasetHeader ) )
     {
@@ -73,10 +73,10 @@ bool soma::PhilipsMRReader::getHeader( soma::HeaderProxy& proxy,
 }
 
 
-bool soma::PhilipsMRReader::readHeader( DcmDataset* dataset )
+bool dcm::PhilipsMRReader::readHeader( DcmDataset* dataset )
 {
 
-  bool status = soma::MRImageStorageReader::readHeader( dataset );
+  bool status = dcm::MRImageStorageReader::readHeader( dataset );
 
   if ( status )
   {
@@ -108,4 +108,3 @@ bool soma::PhilipsMRReader::readHeader( DcmDataset* dataset )
 
 
 RegisterDicomReaderFunction( PhilipsMRReader );
-

@@ -30,8 +30,8 @@
 #include <fstream>
 
 
-soma::DicomIO::DicomIO()
-             : soma::Singleton< soma::DicomIO >()
+dcm::DicomIO::DicomIO()
+            : dcm::Singleton< dcm::DicomIO >()
 {
 
   DcmRLEDecoderRegistration::registerCodecs();
@@ -42,14 +42,14 @@ soma::DicomIO::DicomIO()
   DJ2KDecoderRegistration::registerCodecs();
 #endif
 #else
-  DJ2KDecoderRegistration::registerCodecs();
   DJLSDecoderRegistration::registerCodecs();
+  DJ2KDecoderRegistration::registerCodecs();
 #endif
 
 }
 
 
-soma::DicomIO::~DicomIO()
+dcm::DicomIO::~DicomIO()
 {
 
 #ifdef SOMA_IO_DICOM
@@ -57,8 +57,8 @@ soma::DicomIO::~DicomIO()
   DJ2KDecoderRegistration::cleanup();
 #endif
 #else
-  DJLSDecoderRegistration::cleanup();
   DJ2KDecoderRegistration::cleanup();
+  DJLSDecoderRegistration::cleanup();
 #endif
   DJDecoderRegistration::cleanup();
   DcmRLEDecoderRegistration::cleanup();
@@ -66,11 +66,11 @@ soma::DicomIO::~DicomIO()
 }
 
 
-bool soma::DicomIO::analyze( const std::string& fileName,
-                             soma::DataInfo& dataInfo )
+bool dcm::DicomIO::analyze( const std::string& fileName,
+                            dcm::DataInfo& dataInfo )
 {
 
-  soma::DirectoryParser directory( fileName );
+  dcm::DirectoryParser directory( fileName );
   std::string selectedFile = directory.getSelectedFile();
 
   if ( checkDicom( selectedFile ) )
@@ -103,22 +103,22 @@ bool soma::DicomIO::analyze( const std::string& fileName,
 }
 
 
-bool soma::DicomIO::check( const std::string& fileName,
-                           soma::DataInfo& dataInfo,
-                           soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomIO::check( const std::string& fileName,
+                          dcm::DataInfo& dataInfo,
+                          dcm::DicomDatasetHeader& datasetHeader )
 
 {
 
-  soma::DirectoryParser directory( fileName );
+  dcm::DirectoryParser directory( fileName );
   std::string selectedFile = directory.getSelectedFile();
 
   if ( !selectedFile.empty() )
   {
 
-    return soma::DicomReaderFactory::getInstance().check( _datasetModule,
-                                                          directory, 
-                                                          dataInfo,
-                                                          datasetHeader );
+    return dcm::DicomReaderFactory::getInstance().check( _datasetModule,
+                                                         directory, 
+                                                         dataInfo,
+                                                         datasetHeader );
 
   }
 
@@ -127,31 +127,31 @@ bool soma::DicomIO::check( const std::string& fileName,
 }
 
 
-bool soma::DicomIO::getHeader( soma::HeaderProxy& header, 
-                               soma::DataInfo& dataInfo,
-                               soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomIO::getHeader( dcm::HeaderProxy& header, 
+                              dcm::DataInfo& dataInfo,
+                              dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  return soma::DicomReaderFactory::getInstance().getHeader( _datasetModule, 
-                                                            header,
-                                                            dataInfo,
-                                                            datasetHeader );
+  return dcm::DicomReaderFactory::getInstance().getHeader( _datasetModule, 
+                                                           header,
+                                                           dataInfo,
+                                                           datasetHeader );
 
 }
 
 
-bool soma::DicomIO::read( soma::DicomDatasetHeader& datasetHeader, 
-                          soma::DicomProxy& proxy )
+bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader, 
+                         dcm::DicomProxy& proxy )
 {
 
-  return soma::DicomReaderFactory::getInstance().read( _datasetModule,
-                                                       datasetHeader, 
-                                                       proxy );
+  return dcm::DicomReaderFactory::getInstance().read( _datasetModule,
+                                                      datasetHeader, 
+                                                      proxy );
 
 }
 
 
-bool soma::DicomIO::checkDicom( const std::string& fileName )
+bool dcm::DicomIO::checkDicom( const std::string& fileName )
 {
 
   if ( !fileName.empty() )

@@ -10,19 +10,19 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::PatientModule::PatientModule()
-                   : soma::DicomModule(),
-                     _name( "" ),
-                     _id( "" ),
-                     _birthDate( "" ),
-                     _sex( "" ),
-                     _age( "" ),
-                     _weight( 0.0 )
+dcm::PatientModule::PatientModule()
+                  : dcm::DicomModule(),
+                    _name( "" ),
+                    _id( "" ),
+                    _birthDate( "" ),
+                    _sex( "" ),
+                    _age( "" ),
+                    _weight( 0.0 )
 {
 }
 
 
-bool soma::PatientModule::parseItem( DcmItem* dcmItem )
+bool dcm::PatientModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -103,7 +103,7 @@ bool soma::PatientModule::parseItem( DcmItem* dcmItem )
 }
 
 
-const std::string& soma::PatientModule::getName() const
+const std::string& dcm::PatientModule::getName() const
 {
 
   return _name;
@@ -111,7 +111,7 @@ const std::string& soma::PatientModule::getName() const
 }
 
 
-const std::string& soma::PatientModule::getId() const
+const std::string& dcm::PatientModule::getId() const
 {
 
   return _id;
@@ -119,7 +119,7 @@ const std::string& soma::PatientModule::getId() const
 }
 
 
-const std::string& soma::PatientModule::getBirthDate() const
+const std::string& dcm::PatientModule::getBirthDate() const
 {
 
   return _birthDate;
@@ -127,7 +127,7 @@ const std::string& soma::PatientModule::getBirthDate() const
 }
 
 
-const std::string& soma::PatientModule::getSex() const
+const std::string& dcm::PatientModule::getSex() const
 {
 
   return _sex;
@@ -135,7 +135,7 @@ const std::string& soma::PatientModule::getSex() const
 }
 
 
-const std::string& soma::PatientModule::getAge() const
+const std::string& dcm::PatientModule::getAge() const
 {
 
   return _age;
@@ -143,10 +143,9 @@ const std::string& soma::PatientModule::getAge() const
 }
 
 
-double soma::PatientModule::getWeight() const
+double dcm::PatientModule::getWeight() const
 {
 
   return _weight;
 
 }
-

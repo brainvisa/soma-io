@@ -4,15 +4,11 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Container/Vector.h>
 #include <soma-io/Transformation/PatientOrientation.h>
-#include <soma-io/Container/BoundingBox.h>
 #include <soma-io/Object/BinaryHeader.h>
 #include <soma-io/Utils/StdInt.h>
 #else
-#include <Container/Vector.h>
 #include <Transformation/PatientOrientation.h>
-#include <Container/BoundingBox.h>
 #include <Object/BinaryHeader.h>
 #include <Utils/StdInt.h>
 #endif
@@ -20,7 +16,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -55,15 +51,15 @@ class DataInfo
     int32_t _volumeSize;
     int32_t _datasetSize;
 
-    Vector _resolution;
+    Vector3d< double > _resolution;
     double _spacingBetweenSlices;
     double _repetitionTime;
 
     int32_t _fileCount;
 
-    Vector _rowVec;
-    Vector _colVec;
-    Vector _origin;
+    Vector3d< double > _rowVec;
+    Vector3d< double > _colVec;
+    Vector3d< double > _origin;
 
     PatientOrientation _patientOrientation;
     BinaryHeader _datasetHeader;

@@ -11,7 +11,7 @@ set( _headers
   Container/DataInfoCache.h
   Container/DicomProxy.h
   Container/Matrix.h
-  Container/Vector.h
+  Container/Vector3d.h
   Dicom/AcquisitionModule.h
   Dicom/Bruker/BrukerEnhancedIndexModule.h
   Dicom/Bruker/BrukerEnhancedMRReader.h
@@ -33,6 +33,7 @@ set( _headers
   Dicom/EnhancedIndexModule.h
   Dicom/EnhancedModalityLutModule.h
   Dicom/EnhancedMRImageStorageReader.h
+  Dicom/EnhancedOrientationModule.h
   Dicom/FileInformation.h
   Dicom/GE/GEDiffusionModule.h
   Dicom/GE/GEMRReader.h
@@ -60,6 +61,7 @@ set( _headers
   Dicom/MultiSliceReader.h
   Dicom/NMImageStorageReader.h
   Dicom/NuclearModule.h
+  Dicom/OrientationModule.h
   Dicom/PaletteImage.h
   Dicom/PaletteModule.h
   Dicom/PatientModule.h
@@ -70,6 +72,7 @@ set( _headers
   Dicom/Philips/PhilipsMRReader.h
   Dicom/Philips/PhilipsNuclearModule.h
   Dicom/Philips/PhilipsPTReader.h
+  Dicom/PositionModule.h
   Dicom/PTImageStorageReader.h
   Dicom/RadiopharmaceuticalModule.h
   Dicom/RelationshipModule.h
@@ -78,6 +81,7 @@ set( _headers
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
   Dicom/Siemens/MosaicDicomImage.h
+  Dicom/Siemens/MosaicPointerImage.h
   Dicom/Siemens/SiemensDiffusionModule.h
   Dicom/Siemens/SiemensMRReader.h
   Dicom/USImageStorageReader.h
@@ -92,11 +96,11 @@ set( _headers
   Pattern/Singleton.h
   plugin/dicomplugin.h
   System/DirectoryParser.h
-  Transformation/AxialTransformation3d.h
-  Transformation/DicomTransformation3d.h
-  Transformation/FlipTransformation3d.h
+  Transformation/AxialTransform3d.h
+  Transformation/DicomTransform3d.h
+  Transformation/FlipTransform3d.h
+  Transformation/HomogeneousTransform3d.h
   Transformation/PatientOrientation.h
-  Transformation/Transformation3d.h
   Utils/StdInt.h
 )
 
@@ -108,7 +112,7 @@ set( _sources
   Container/DataInfoCache.cc
   Container/DicomProxy.cc
   Container/Matrix.cc
-  Container/Vector.cc
+  Container/Vector3d.cc
   Dicom/AcquisitionModule.cc
   Dicom/Bruker/BrukerEnhancedIndexModule.cc
   Dicom/Bruker/BrukerEnhancedMRReader.cc
@@ -130,6 +134,7 @@ set( _sources
   Dicom/EnhancedIndexModule.cc
   Dicom/EnhancedModalityLutModule.cc
   Dicom/EnhancedMRImageStorageReader.cc
+  Dicom/EnhancedOrientationModule.cc
   Dicom/FileInformation.cc
   Dicom/GE/GEDiffusionModule.cc
   Dicom/GE/GEMRReader.cc
@@ -157,6 +162,7 @@ set( _sources
   Dicom/MultiSliceReader.cc
   Dicom/NMImageStorageReader.cc
   Dicom/NuclearModule.cc
+  Dicom/OrientationModule.cc
   Dicom/PaletteImage.cc
   Dicom/PaletteModule.cc
   Dicom/PatientModule.cc
@@ -167,6 +173,7 @@ set( _sources
   Dicom/Philips/PhilipsMRReader.cc
   Dicom/Philips/PhilipsNuclearModule.cc
   Dicom/Philips/PhilipsPTReader.cc
+  Dicom/PositionModule.cc
   Dicom/PTImageStorageReader.cc
   Dicom/RadiopharmaceuticalModule.cc
   Dicom/RelationshipModule.cc
@@ -175,6 +182,7 @@ set( _sources
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
   Dicom/Siemens/MosaicDicomImage.cc
+  Dicom/Siemens/MosaicPointerImage.cc
   Dicom/Siemens/SiemensDiffusionModule.cc
   Dicom/Siemens/SiemensMRReader.cc
   Dicom/USImageStorageReader.cc
@@ -187,11 +195,11 @@ set( _sources
   Object/HeaderProxy.cc
   plugin/dicomplugin.cc
   System/DirectoryParser.cc
-  Transformation/AxialTransformation3d.cc
-  Transformation/DicomTransformation3d.cc
-  Transformation/FlipTransformation3d.cc
+  Transformation/AxialTransform3d.cc
+  Transformation/DicomTransform3d.cc
+  Transformation/FlipTransform3d.cc
+  Transformation/HomogeneousTransform3d.cc
   Transformation/PatientOrientation.cc
-  Transformation/Transformation3d.cc
 )
 
 if (SOMA_DICOM_JPEG2000_SUPPORT)

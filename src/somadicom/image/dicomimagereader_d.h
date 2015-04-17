@@ -128,8 +128,8 @@ namespace soma {
       int lz = oz + size[ 2 ] - 1;
       int lt = ot + size[ 3 ] - 1;
 
-      soma::DataInfo& info = soma::DataInfoCache::getInstance().getDataInfo();
-      soma::DicomDatasetHeader datasetHeader( info );
+      dcm::DataInfo& info = dcm::DataInfoCache::getInstance().getDataInfo();
+      dcm::DicomDatasetHeader datasetHeader( info );
       std::vector< std::string >& fileList = datasetHeader.getFileList();
       int i, count = dsi.list().size( "dicom" );
 
@@ -143,14 +143,14 @@ namespace soma {
       if ( !fileList.empty() )
       {
 
-        BoundingBox< int32_t > bbox( ox, lx, oy, ly, oz, lz, ot, lt );
+        dcm::BoundingBox< int32_t > bbox( ox, lx, oy, ly, oz, lz, ot, lt );
 
         info._boundingBox = info._patientOrientation.getInverseBoundingBox( 
                                                                          bbox );
 
-        DicomProxy data( (uint8_t*)dest, &info );
-        DicomIO::getInstance().read( datasetHeader, data );
-        soma::DataInfoCache::getInstance().clear();
+        dcm::DicomProxy data( (uint8_t*)dest, &info );
+        dcm::DicomIO::getInstance().read( datasetHeader, data );
+        dcm::DataInfoCache::getInstance().clear();
 
       }
     }

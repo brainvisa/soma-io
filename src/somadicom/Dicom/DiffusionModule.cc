@@ -1,8 +1,10 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DiffusionModule.h>
+#include <soma-io/Dicom/OrientationModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #else
 #include <Dicom/DiffusionModule.h>
+#include <Dicom/OrientationModule.h>
 #include <Dicom/DicomDatasetHeader.h>
 #endif
 
@@ -12,13 +14,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::DiffusionModule::DiffusionModule()
-                     : soma::DicomModule()
+dcm::DiffusionModule::DiffusionModule()
+                    : dcm::DicomModule()
 {
 }
 
 
-bool soma::DiffusionModule::parseItem( DcmItem* dcmItem )
+bool dcm::DiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -61,11 +63,9 @@ bool soma::DiffusionModule::parseItem( DcmItem* dcmItem )
 
           }
 
-          direction[ 2 ] *= -1.0;
-
         }
 
-        _directions.push_back( direction );
+        addDirection( direction );
 
         return true;
 
@@ -80,8 +80,7 @@ bool soma::DiffusionModule::parseItem( DcmItem* dcmItem )
 }
 
 
-bool soma::DiffusionModule::parseHeader( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DiffusionModule::parseHeader( dcm::DicomDatasetHeader& datasetHeader )
 {
 
   int32_t n = datasetHeader.size();
@@ -92,6 +91,19 @@ bool soma::DiffusionModule::parseHeader(
     DcmDataset dataset;
     bool status = true;
     int32_t i, step = getStep( datasetHeader );
+    dcm::OrientationModule orientationModule;
+
+    datasetHeader.get( dataset );
+
+    if ( orientationModule.parseItem( &dataset ) )
+    {
+
+      _dicomTransform = dcm::DicomTransform3d< double >( 
+                                     orientationModule.getRowCosine(),
+                                     orientationModule.getColumnCosine(),
+                                     dcm::Vector3d< double >( 0.0, 0.0, 0.0 ) );
+
+    }
 
     _bValues.clear();
     _directions.clear();
@@ -113,7 +125,7 @@ bool soma::DiffusionModule::parseHeader(
 }
 
 
-const std::vector< double >& soma::DiffusionModule::getBValues() const
+const std::vector< double >& dcm::DiffusionModule::getBValues() const
 {
 
   return _bValues;
@@ -122,7 +134,7 @@ const std::vector< double >& soma::DiffusionModule::getBValues() const
 
 
 const std::vector< std::vector< double > >& 
-soma::DiffusionModule::getDirections() const
+dcm::DiffusionModule::getDirections() const
 {
 
   return _directions;
@@ -130,8 +142,23 @@ soma::DiffusionModule::getDirections() const
 }
 
 
-int32_t soma::DiffusionModule::getStep( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+void dcm::DiffusionModule::addDirection( std::vector< double >& direction )
+{
+
+  dcm::Vector3d< double > to( direction[ 0 ], direction[ 1 ], direction[ 2 ] );
+  dcm::Vector3d< double > from;
+  std::vector< double > outDirection( 3, 0.0 );
+
+  _dicomTransform.getInverse( to, from );
+  outDirection[ 0 ] = from.x;
+  outDirection[ 1 ] = -from.y;
+  outDirection[ 2 ] = from.z;
+  _directions.push_back( outDirection );
+
+}
+
+
+int32_t dcm::DiffusionModule::getStep( dcm::DicomDatasetHeader& datasetHeader )
 {
 
   int32_t step = 1;
@@ -174,4 +201,3 @@ int32_t soma::DiffusionModule::getStep(
   return step;
 
 }
-

@@ -10,13 +10,13 @@
 #include <cassert>
 
 
-soma::BinaryHeader::BinaryHeader()
-                  : _format( "" )
+dcm::BinaryHeader::BinaryHeader()
+                 : _format( "" )
 {
 }
 
 
-soma::BinaryHeader::BinaryHeader( const soma::BinaryHeader& other )
+dcm::BinaryHeader::BinaryHeader( const dcm::BinaryHeader& other )
 {
 
   this->operator = ( other );
@@ -24,7 +24,7 @@ soma::BinaryHeader::BinaryHeader( const soma::BinaryHeader& other )
 }
 
 
-soma::BinaryHeader::~BinaryHeader()
+dcm::BinaryHeader::~BinaryHeader()
 {
 
   clear();
@@ -32,17 +32,17 @@ soma::BinaryHeader::~BinaryHeader()
 }
 
 
-soma::BinaryHeader& soma::BinaryHeader::operator = ( 
-                                               const soma::BinaryHeader& other )
+dcm::BinaryHeader& dcm::BinaryHeader::operator = ( 
+                                                const dcm::BinaryHeader& other )
 {
 
   resize( other.getCount() );
 
   uint32_t i = 0;
-  std::vector< soma::BinaryHeader::Buffer >::const_iterator
+  std::vector< dcm::BinaryHeader::Buffer >::const_iterator
     o = other.begin(),
     oe = other.end();
-  std::vector< soma::BinaryHeader::Buffer >::iterator
+  std::vector< dcm::BinaryHeader::Buffer >::iterator
     b = _buffers.begin();
 
   while ( o != oe )
@@ -69,7 +69,7 @@ soma::BinaryHeader& soma::BinaryHeader::operator = (
 }
 
 
-soma::BinaryHeader::Buffer& soma::BinaryHeader::operator [] ( 
+dcm::BinaryHeader::Buffer& dcm::BinaryHeader::operator [] ( 
                                                           const uint32_t index )
 {
 
@@ -80,7 +80,7 @@ soma::BinaryHeader::Buffer& soma::BinaryHeader::operator [] (
 }
 
 
-soma::BinaryHeader::iterator soma::BinaryHeader::begin()
+dcm::BinaryHeader::iterator dcm::BinaryHeader::begin()
 {
 
   return _buffers.begin();
@@ -88,7 +88,7 @@ soma::BinaryHeader::iterator soma::BinaryHeader::begin()
 }
 
 
-soma::BinaryHeader::iterator soma::BinaryHeader::end()
+dcm::BinaryHeader::iterator dcm::BinaryHeader::end()
 {
 
   return _buffers.end();
@@ -96,7 +96,7 @@ soma::BinaryHeader::iterator soma::BinaryHeader::end()
 }
 
 
-soma::BinaryHeader::const_iterator soma::BinaryHeader::begin() const
+dcm::BinaryHeader::const_iterator dcm::BinaryHeader::begin() const
 {
 
   return _buffers.begin();
@@ -104,7 +104,7 @@ soma::BinaryHeader::const_iterator soma::BinaryHeader::begin() const
 }
 
 
-soma::BinaryHeader::const_iterator soma::BinaryHeader::end() const
+dcm::BinaryHeader::const_iterator dcm::BinaryHeader::end() const
 {
 
   return _buffers.end();
@@ -112,7 +112,7 @@ soma::BinaryHeader::const_iterator soma::BinaryHeader::end() const
 }
 
 
-int32_t soma::BinaryHeader::getCount() const
+int32_t dcm::BinaryHeader::getCount() const
 {
 
   return (int32_t)_buffers.size();
@@ -120,7 +120,7 @@ int32_t soma::BinaryHeader::getCount() const
 }
 
 
-std::vector< int32_t >& soma::BinaryHeader::getLut()
+std::vector< int32_t >& dcm::BinaryHeader::getLut()
 {
 
   return _lut;
@@ -128,7 +128,7 @@ std::vector< int32_t >& soma::BinaryHeader::getLut()
 }
 
 
-void soma::BinaryHeader::resize( uint32_t n, soma::BinaryHeader::Buffer buffer )
+void dcm::BinaryHeader::resize( uint32_t n, dcm::BinaryHeader::Buffer buffer )
 {
 
   if ( n )
@@ -155,13 +155,13 @@ void soma::BinaryHeader::resize( uint32_t n, soma::BinaryHeader::Buffer buffer )
 }
 
 
-bool soma::BinaryHeader::allocate( uint32_t index, uint32_t length )
+bool dcm::BinaryHeader::allocate( uint32_t index, uint32_t length )
 {
 
   if ( index < uint32_t( _buffers.size() ) )
   {
 
-    soma::BinaryHeader::Buffer& buffer = _buffers[ index ];
+    dcm::BinaryHeader::Buffer& buffer = _buffers[ index ];
 
     return allocate( buffer, length );
 
@@ -172,8 +172,8 @@ bool soma::BinaryHeader::allocate( uint32_t index, uint32_t length )
 }
 
 
-bool soma::BinaryHeader::allocate( soma::BinaryHeader::Buffer& buffer, 
-                                   uint32_t length )
+bool dcm::BinaryHeader::allocate( dcm::BinaryHeader::Buffer& buffer, 
+                                  uint32_t length )
 {
 
   if ( length )
@@ -206,7 +206,7 @@ bool soma::BinaryHeader::allocate( soma::BinaryHeader::Buffer& buffer,
 }
 
 
-void soma::BinaryHeader::add( soma::BinaryHeader::Buffer& buffer )
+void dcm::BinaryHeader::add( dcm::BinaryHeader::Buffer& buffer )
 {
 
   _buffers.push_back( buffer );
@@ -215,15 +215,15 @@ void soma::BinaryHeader::add( soma::BinaryHeader::Buffer& buffer )
 }
 
 
-void soma::BinaryHeader::trim()
+void dcm::BinaryHeader::trim()
 {
 
-  std::vector< soma::BinaryHeader::Buffer >::iterator
+  std::vector< dcm::BinaryHeader::Buffer >::iterator
     last = std::remove_if( _buffers.begin(),
                            _buffers.end(),
                            std::bind2nd( 
-                                  std::equal_to< soma::BinaryHeader::Buffer >(),
-                                  soma::BinaryHeader::Buffer( 0, 0 ) ) );
+                                   std::equal_to< dcm::BinaryHeader::Buffer >(),
+                                   dcm::BinaryHeader::Buffer( 0, 0 ) ) );
 
   _buffers.erase( last, _buffers.end() );
   _lut.resize( _buffers.size() );
@@ -244,10 +244,10 @@ void soma::BinaryHeader::trim()
 }
 
 
-void soma::BinaryHeader::clear()
+void dcm::BinaryHeader::clear()
 {
 
-  std::vector< soma::BinaryHeader::Buffer >::iterator
+  std::vector< dcm::BinaryHeader::Buffer >::iterator
     b = _buffers.begin(),
     be = _buffers.end();
 
@@ -265,7 +265,7 @@ void soma::BinaryHeader::clear()
 }
 
 
-void soma::BinaryHeader::setFormat( const std::string& format )
+void dcm::BinaryHeader::setFormat( const std::string& format )
 {
 
   _format = format;
@@ -273,10 +273,9 @@ void soma::BinaryHeader::setFormat( const std::string& format )
 }
 
 
-const std::string& soma::BinaryHeader::getFormat() const
+const std::string& dcm::BinaryHeader::getFormat() const
 {
 
   return _format;
 
 }
-

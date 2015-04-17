@@ -19,13 +19,13 @@
 #include <iostream>
 
 
-soma::DicomReaderFactory::DicomReaderFactory()
-                        : soma::Singleton< soma::DicomReaderFactory >()
+dcm::DicomReaderFactory::DicomReaderFactory()
+                       : dcm::Singleton< dcm::DicomReaderFactory >()
 {
 }
 
 
-bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
+bool dcm::DicomReaderFactory::registerReader( dcm::DicomReader* reader )
 {
 
   if ( reader )
@@ -34,7 +34,7 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
     std::string manufacturer = reader->getManufacturerName();
     std::string storageUID = reader->getStorageUID();
     std::map< std::string, std::map< std::string,
-                                     soma::DicomReader* > >::iterator
+                                     dcm::DicomReader* > >::iterator
       m = _readers.find( manufacturer );
 
     if ( m == _readers.end() )
@@ -45,7 +45,7 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
                 << " - " << storageUID << std::endl;
 #endif
 
-      std::map< std::string, soma::DicomReader* > readers;
+      std::map< std::string, dcm::DicomReader* > readers;
 
       readers.insert( std::make_pair( storageUID, reader ) );
       _readers.insert( std::make_pair( manufacturer, readers ) );
@@ -56,7 +56,7 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
     else
     {
 
-      std::map< std::string, soma::DicomReader* >::const_iterator
+      std::map< std::string, dcm::DicomReader* >::const_iterator
         r = m->second.find( storageUID );
 
       if ( r == m->second.end() )
@@ -82,13 +82,13 @@ bool soma::DicomReaderFactory::registerReader( soma::DicomReader* reader )
 }
 
 
-bool soma::DicomReaderFactory::check( const soma::DatasetModule& datasetModule,
-                                      soma::DirectoryParser& directory,
-                                      soma::DataInfo& dataInfo,
-                                      soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReaderFactory::check( const dcm::DatasetModule& datasetModule,
+                                     dcm::DirectoryParser& directory,
+                                     dcm::DataInfo& dataInfo,
+                                     dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  soma::DicomReader* reader = getReader( datasetModule );
+  dcm::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
@@ -104,14 +104,14 @@ bool soma::DicomReaderFactory::check( const soma::DatasetModule& datasetModule,
 }
 
 
-bool soma::DicomReaderFactory::getHeader( 
-                                       const soma::DatasetModule& datasetModule,
-                                       soma::HeaderProxy& header,
-                                       soma::DataInfo& dataInfo,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReaderFactory::getHeader( 
+                                        const dcm::DatasetModule& datasetModule,
+                                        dcm::HeaderProxy& header,
+                                        dcm::DataInfo& dataInfo,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  soma::DicomReader* reader = getReader( datasetModule );
+  dcm::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
@@ -125,12 +125,12 @@ bool soma::DicomReaderFactory::getHeader(
 }
 
 
-bool soma::DicomReaderFactory::read( const soma::DatasetModule& datasetModule,
-                                     soma::DicomDatasetHeader& datasetHeader,
-                                     soma::DicomProxy& proxy )
+bool dcm::DicomReaderFactory::read( const dcm::DatasetModule& datasetModule,
+                                    dcm::DicomDatasetHeader& datasetHeader,
+                                    dcm::DicomProxy& proxy )
 {
 
-  soma::DicomReader* reader = getReader( datasetModule );
+  dcm::DicomReader* reader = getReader( datasetModule );
 
   if ( reader )
   {
@@ -144,12 +144,12 @@ bool soma::DicomReaderFactory::read( const soma::DatasetModule& datasetModule,
 }
 
 
-soma::DicomReader* soma::DicomReaderFactory::getReader(
-                                      const soma::DatasetModule& datasetModule )
+dcm::DicomReader* dcm::DicomReaderFactory::getReader(
+                                       const dcm::DatasetModule& datasetModule )
 {
 
   std::map< std::string, std::map< std::string,
-                                   soma::DicomReader* > >::const_iterator
+                                   dcm::DicomReader* > >::const_iterator
     m = _readers.find( datasetModule.getManufacturer() );
 
   if ( m == _readers.end() )
@@ -162,7 +162,7 @@ soma::DicomReader* soma::DicomReaderFactory::getReader(
   if ( m != _readers.end() )
   {
 
-    std::map< std::string, soma::DicomReader* >::const_iterator
+    std::map< std::string, dcm::DicomReader* >::const_iterator
       r = m->second.find( datasetModule.getSOPClassUID() );
 
     if ( ( r == m->second.end() ) && 

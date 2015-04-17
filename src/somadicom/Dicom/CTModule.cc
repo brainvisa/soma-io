@@ -9,14 +9,14 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::CTModule::CTModule()
-              : soma::DicomModule(),
-                _reconstructionDiameter( 0.0 )
+dcm::CTModule::CTModule()
+             : dcm::DicomModule(),
+               _reconstructionDiameter( 0.0 )
 {
 }
 
 
-bool soma::CTModule::parseItem( DcmItem* dcmItem )
+bool dcm::CTModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -41,10 +41,9 @@ bool soma::CTModule::parseItem( DcmItem* dcmItem )
 }
 
 
-double soma::CTModule::getReconstructionDiameter() const
+double dcm::CTModule::getReconstructionDiameter() const
 {
 
   return _reconstructionDiameter;
 
 }
-

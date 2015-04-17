@@ -16,13 +16,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::USImageStorageReader::USImageStorageReader()
-                          : soma::USReader()
+dcm::USImageStorageReader::USImageStorageReader()
+                         : dcm::USReader()
 {
 }
 
 
-std::string soma::USImageStorageReader::getStorageUID()
+std::string dcm::USImageStorageReader::getStorageUID()
 {
 
   return UID_UltrasoundImageStorage;
@@ -30,22 +30,22 @@ std::string soma::USImageStorageReader::getStorageUID()
 }
 
 
-bool soma::USImageStorageReader::readData( 
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy )
+bool dcm::USImageStorageReader::readData( 
+                                         dcm::DicomDatasetHeader& datasetHeader,
+                                         dcm::DicomProxy& proxy )
 {
 
   if ( proxy.allocate() )
   {
 
     std::string fileName = datasetHeader.getFileList().front();
-    soma::ImagePixel::Parameters parameters( proxy );
-    soma::DicomImage dicomImage( proxy, parameters );
+    dcm::ImagePixel::Parameters parameters( proxy );
+    dcm::DicomImage dicomImage( proxy, parameters );
 
     if ( dicomImage.load( fileName ) )
     {
 
-      soma::DataInfo& info = proxy.getDataInfo();
+      dcm::DataInfo& info = proxy.getDataInfo();
       int32_t min = 0, max = 0;
 
       dicomImage.fill( 0, 0 );

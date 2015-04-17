@@ -9,10 +9,8 @@
 #include <Dicom/ModalityLutModule.h>
 #endif
 
-#include <vector>
 
-
-namespace soma
+namespace dcm
 {
 
 
@@ -32,4 +30,3 @@ class EnhancedModalityLutModule : public ModalityLutModule
 
 
 #endif
-

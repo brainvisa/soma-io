@@ -15,7 +15,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -23,7 +23,11 @@ class DirectoryParser;
 class DicomDatasetHeader;
 
 
+#ifdef SOMA_IO_DICOM
+class DicomSelectContext : public carto::LoopContext
+#else
 class DicomSelectContext : public LoopContext
+#endif
 {
 
   public:

@@ -4,15 +4,15 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Container/Vector.h>
+#include <soma-io/Container/Vector3d.h>
 #include <soma-io/Utils/StdInt.h>
 #else
-#include <Container/Vector.h>
+#include <Container/Vector3d.h>
 #include <Utils/StdInt.h>
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -25,7 +25,7 @@ class FileInformation
 
     int32_t _bufferIndex;
     int32_t _instanceNumber;
-    Vector _imagePosition;
+    Vector3d< double > _imagePosition;
 
 };
 

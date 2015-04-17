@@ -12,14 +12,14 @@
 
 
 #ifdef SOMA_IO_DICOM
-soma::DicomProxy::DicomProxy( soma::DataInfo* info )
-                : _buffer( 0 ),
-                  _dataOwner( true )
+dcm::DicomProxy::DicomProxy( dcm::DataInfo* info )
+               : _buffer( 0 ),
+                 _dataOwner( true )
 #else
-soma::DicomProxy::DicomProxy( soma::DataInfo* info )
-                : soma::Model(),
-                  _buffer( 0 ),
-                  _dataOwner( true )
+dcm::DicomProxy::DicomProxy( dcm::DataInfo* info )
+               : dcm::Model(),
+                 _buffer( 0 ),
+                 _dataOwner( true )
 #endif
 {
 
@@ -34,14 +34,14 @@ soma::DicomProxy::DicomProxy( soma::DataInfo* info )
 
 
 #ifdef SOMA_IO_DICOM
-soma::DicomProxy::DicomProxy( uint8_t* ptr, soma::DataInfo* info  )
-                : _buffer( ptr ),
-                  _dataOwner( false )
+dcm::DicomProxy::DicomProxy( uint8_t* ptr, dcm::DataInfo* info  )
+               : _buffer( ptr ),
+                _dataOwner( false )
 #else
-soma::DicomProxy::DicomProxy( uint8_t* ptr, soma::DataInfo* info  )
-                : soma::Model(),
-                  _buffer( ptr ),
-                  _dataOwner( false )
+dcm::DicomProxy::DicomProxy( uint8_t* ptr, dcm::DataInfo* info  )
+               : dcm::Model(),
+                 _buffer( ptr ),
+                 _dataOwner( false )
 #endif
 {
 
@@ -55,7 +55,7 @@ soma::DicomProxy::DicomProxy( uint8_t* ptr, soma::DataInfo* info  )
 }
 
 
-soma::DicomProxy::~DicomProxy()
+dcm::DicomProxy::~DicomProxy()
 {
 
   destroy();
@@ -63,7 +63,7 @@ soma::DicomProxy::~DicomProxy()
 }
 
 
-bool soma::DicomProxy::allocate( soma::DataInfo* info )
+bool dcm::DicomProxy::allocate( dcm::DataInfo* info )
 {
 
   if ( _buffer )
@@ -82,7 +82,7 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
 
   _info.initialize();
 
-  soma::BoundingBox< int32_t > outBoundingBox;
+  dcm::BoundingBox< int32_t > outBoundingBox;
 
   if ( _info._noFlip )
   {
@@ -160,7 +160,7 @@ bool soma::DicomProxy::allocate( soma::DataInfo* info )
 }
 
 
-void soma::DicomProxy::destroy()
+void dcm::DicomProxy::destroy()
 {
 
   if ( _dataOwner )
@@ -181,7 +181,7 @@ void soma::DicomProxy::destroy()
 }
 
 
-bool soma::DicomProxy::isNull() const
+bool dcm::DicomProxy::isNull() const
 {
 
   if ( _buffer )
@@ -196,7 +196,7 @@ bool soma::DicomProxy::isNull() const
 }
 
 
-bool soma::DicomProxy::isMemoryMapped() const
+bool dcm::DicomProxy::isMemoryMapped() const
 {
 
   return false;
@@ -204,7 +204,7 @@ bool soma::DicomProxy::isMemoryMapped() const
 }
 
 
-soma::DataInfo& soma::DicomProxy::getDataInfo()
+dcm::DataInfo& dcm::DicomProxy::getDataInfo()
 {
 
   return _info;
@@ -212,7 +212,7 @@ soma::DataInfo& soma::DicomProxy::getDataInfo()
 }
 
 
-soma::BinaryHeader& soma::DicomProxy::getBinaryHeader()
+dcm::BinaryHeader& dcm::DicomProxy::getBinaryHeader()
 {
 
   return _info._datasetHeader;
@@ -220,10 +220,10 @@ soma::BinaryHeader& soma::DicomProxy::getBinaryHeader()
 }
 
 
-uint8_t* soma::DicomProxy::operator()( int32_t x, 
-                                       int32_t y, 
-                                       int32_t z, 
-                                       int32_t t )
+uint8_t* dcm::DicomProxy::operator()( int32_t x, 
+                                      int32_t y, 
+                                      int32_t z, 
+                                      int32_t t )
 {
 
   return _lineAccess[ t ][ z ][ y ] + x * _info._bpp;

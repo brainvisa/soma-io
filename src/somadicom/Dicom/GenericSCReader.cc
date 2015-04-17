@@ -7,9 +7,9 @@
 #endif
 
 
-soma::GenericSCReader::GenericSCReader()
-                     : soma::SCImageStorageReader(),
-                       soma::Singleton< soma::GenericSCReader >()
+dcm::GenericSCReader::GenericSCReader()
+                    : dcm::SCImageStorageReader(),
+                      dcm::Singleton< dcm::GenericSCReader >()
 {
 }
 

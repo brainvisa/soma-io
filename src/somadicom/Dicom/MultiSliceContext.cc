@@ -7,19 +7,23 @@
 #endif
 
 
-soma::MultiSliceContext::MultiSliceContext( 
-                                       soma::MultiSliceDicomImage& dicomImage, 
+dcm::MultiSliceContext::MultiSliceContext( 
+                                       dcm::MultiSliceDicomImage& dicomImage, 
                                        const std::vector< int32_t >& indexLut,
                                        const std::vector< int32_t >& selection )
-                       : soma::LoopContext(),
-                         _dicomImage( dicomImage ),
-                         _indexLut( indexLut ),
-                         _selection( selection )
+#ifdef SOMA_IO_DICOM
+                      : carto::LoopContext(),
+#else
+                      : dcm::LoopContext(),
+#endif
+                        _dicomImage( dicomImage ),
+                        _indexLut( indexLut ),
+                        _selection( selection )
 {
 }
 
 
-void soma::MultiSliceContext::doIt( int32_t startIndex, int32_t count )
+void dcm::MultiSliceContext::doIt( int32_t startIndex, int32_t count )
 {
 
   int32_t i, stopIndex = startIndex + count;

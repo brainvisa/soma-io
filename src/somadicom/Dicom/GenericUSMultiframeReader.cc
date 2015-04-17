@@ -7,10 +7,10 @@
 #endif
 
 
-soma::GenericUSMultiframeReader::GenericUSMultiframeReader()
-                               : soma::USMultiframeImageStorageReader(),
-                                 soma::Singleton< 
-                                             soma::GenericUSMultiframeReader >()
+dcm::GenericUSMultiframeReader::GenericUSMultiframeReader()
+                              : dcm::USMultiframeImageStorageReader(),
+                                dcm::Singleton< 
+                                              dcm::GenericUSMultiframeReader >()
 {
 }
 

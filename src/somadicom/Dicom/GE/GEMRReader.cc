@@ -20,19 +20,19 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::GEMRReader::GEMRReader()
-                : soma::MRImageStorageReader(),
-                  soma::Singleton< soma::GEMRReader >()
+dcm::GEMRReader::GEMRReader()
+               : dcm::MRImageStorageReader(),
+                 dcm::Singleton< dcm::GEMRReader >()
 {
 }
 
 
-soma::GEMRReader::~GEMRReader()
+dcm::GEMRReader::~GEMRReader()
 {
 }
 
 
-std::string soma::GEMRReader::getManufacturerName()
+std::string dcm::GEMRReader::getManufacturerName()
 {
 
   return "GE MEDICAL SYSTEMS";
@@ -40,12 +40,12 @@ std::string soma::GEMRReader::getManufacturerName()
 }
 
 
-bool soma::GEMRReader::getHeader( soma::HeaderProxy& proxy,
-                                  soma::DataInfo& info,
-                                  soma::DicomDatasetHeader& datasetHeader )
+bool dcm::GEMRReader::getHeader( dcm::HeaderProxy& proxy,
+                                 dcm::DataInfo& info,
+                                 dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -55,7 +55,7 @@ bool soma::GEMRReader::getHeader( soma::HeaderProxy& proxy,
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    soma::GEDiffusionModule diffusionModule;
+    dcm::GEDiffusionModule diffusionModule;
 
     if ( diffusionModule.parseHeader( datasetHeader ) )
     {
@@ -74,4 +74,3 @@ bool soma::GEMRReader::getHeader( soma::HeaderProxy& proxy,
 
 
 RegisterDicomReaderFunction( GEMRReader );
-

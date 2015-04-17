@@ -12,13 +12,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::EnhancedModalityLutModule::EnhancedModalityLutModule()
-                               : soma::ModalityLutModule()
+dcm::EnhancedModalityLutModule::EnhancedModalityLutModule()
+                              : dcm::ModalityLutModule()
 {
 }
 
 
-bool soma::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
+bool dcm::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -92,4 +92,3 @@ bool soma::EnhancedModalityLutModule::parseDataset( DcmDataset* dataset )
   return false;
 
 }
-

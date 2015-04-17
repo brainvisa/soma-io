@@ -12,13 +12,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::PhilipsEnhancedDiffusionModule::PhilipsEnhancedDiffusionModule()
-                                    : soma::DiffusionModule()
+dcm::PhilipsEnhancedDiffusionModule::PhilipsEnhancedDiffusionModule()
+                                   : dcm::DiffusionModule()
 {
 }
 
 
-bool soma::PhilipsEnhancedDiffusionModule:: parseItem( DcmItem* dcmItem )
+bool dcm::PhilipsEnhancedDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -156,10 +156,17 @@ bool soma::PhilipsEnhancedDiffusionModule:: parseItem( DcmItem* dcmItem )
 
               }
 
-              direction[ 2 ] *= -1.0;
-
             }
 
+            dcm::Vector3d< double > from;
+            dcm::Vector3d< double > to( direction[ 0 ],
+                                        direction[ 1 ],
+                                        direction[ 2 ] );
+
+            _dicomTransform.getInverse( to, from );
+            direction[ 0 ] = from.x;
+            direction[ 1 ] = -from.y;
+            direction[ 2 ] = from.z;
             _directions[ index ] = direction;
             lut[ index ] = 1;
 
@@ -180,11 +187,10 @@ bool soma::PhilipsEnhancedDiffusionModule:: parseItem( DcmItem* dcmItem )
 }
 
 
-int32_t soma::PhilipsEnhancedDiffusionModule::getStep( 
-                                 soma::DicomDatasetHeader& /* datasetHeader */ )
+int32_t dcm::PhilipsEnhancedDiffusionModule::getStep( 
+                                  dcm::DicomDatasetHeader& /* datasetHeader */ )
 {
 
   return 1;
 
 }
-

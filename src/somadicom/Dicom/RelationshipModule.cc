@@ -13,15 +13,15 @@
 #include <algorithm>
 
 
-soma::RelationshipModule::RelationshipModule()
-                        : soma::DicomModule(),
-                          _studyId( "" ),
-                          _seriesNumber( 0 )
+dcm::RelationshipModule::RelationshipModule()
+                       : dcm::DicomModule(),
+                         _studyId( "" ),
+                         _seriesNumber( 0 )
 {
 }
 
 
-bool soma::RelationshipModule::parseItem( DcmItem* dcmItem )
+bool dcm::RelationshipModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -60,8 +60,8 @@ bool soma::RelationshipModule::parseItem( DcmItem* dcmItem )
 }
 
 
-bool soma::RelationshipModule::parseHeader( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::RelationshipModule::parseHeader( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   int32_t n = datasetHeader.size();
@@ -115,7 +115,7 @@ bool soma::RelationshipModule::parseHeader(
 }
 
 
-const std::string& soma::RelationshipModule::getSeriesInstanceUID() const
+const std::string& dcm::RelationshipModule::getSeriesInstanceUID() const
 {
 
   return _seriesInstanceUID;
@@ -123,7 +123,7 @@ const std::string& soma::RelationshipModule::getSeriesInstanceUID() const
 }
 
 
-const std::string& soma::RelationshipModule::getStudyId() const
+const std::string& dcm::RelationshipModule::getStudyId() const
 {
 
   return _studyId;
@@ -131,7 +131,7 @@ const std::string& soma::RelationshipModule::getStudyId() const
 }
 
 
-int32_t soma::RelationshipModule::getSeriesNumber() const
+int32_t dcm::RelationshipModule::getSeriesNumber() const
 {
 
   return _seriesNumber;
@@ -140,10 +140,9 @@ int32_t soma::RelationshipModule::getSeriesNumber() const
 
 
 const std::vector< int32_t >& 
-soma::RelationshipModule::getAcquisitionNumber() const
+dcm::RelationshipModule::getAcquisitionNumber() const
 {
 
   return _acquisitionNumber;
 
 }
-

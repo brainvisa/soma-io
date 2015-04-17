@@ -14,14 +14,18 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
 class MultiSliceDicomImage;
 
 
+#ifdef SOMA_IO_DICOM
+class MultiSliceContext : public carto::LoopContext
+#else
 class MultiSliceContext : public LoopContext
+#endif
 {
 
   public:

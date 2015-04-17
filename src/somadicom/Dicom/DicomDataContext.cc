@@ -11,27 +11,31 @@
 #endif
 
 
-soma::DicomDataContext::DicomDataContext( 
-                                       soma::DicomDatasetHeader& datasetHeader,
-                                       soma::DicomProxy& proxy,
+dcm::DicomDataContext::DicomDataContext( 
+                                       dcm::DicomDatasetHeader& datasetHeader,
+                                       dcm::DicomProxy& proxy,
                                        const std::vector< int32_t >& selection )
-                      : soma::LoopContext(),
-                        _selection( selection ),
-                        _fileList( datasetHeader.getFileList() ),
-                        _lut( datasetHeader.getLut() ),
-                        _proxy( proxy )
+#ifdef SOMA_IO_DICOM
+                     : carto::LoopContext(),
+#else
+                     : dcm::LoopContext(),
+#endif
+                       _selection( selection ),
+                       _fileList( datasetHeader.getFileList() ),
+                       _lut( datasetHeader.getLut() ),
+                       _proxy( proxy )
 {
 
-  _parameters = soma::ImagePixel::Parameters( proxy );
+  _parameters = dcm::ImagePixel::Parameters( proxy );
 
 }
 
 
-void soma::DicomDataContext::doIt( int32_t startIndex, int32_t count )
+void dcm::DicomDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
-  soma::DicomImage dicomImage( _proxy, _parameters );
-  soma::DataInfo& info = _proxy.getDataInfo();
+  dcm::DicomImage dicomImage( _proxy, _parameters );
+  dcm::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
   int32_t min = 0;
   int32_t max = 0;

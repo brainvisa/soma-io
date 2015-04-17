@@ -10,29 +10,28 @@
 #include <dcmtk/dcmdata/dcitem.h>
 
 
-soma::DicomModule::DicomModule()
+dcm::DicomModule::DicomModule()
 {
 }
 
 
-soma::DicomModule::~DicomModule()
+dcm::DicomModule::~DicomModule()
 {
 }
 
 
-bool soma::DicomModule::parseItem( DcmItem* /* dcmItem */ )
-{
-
-  return true;
-
-}
-
-
-bool soma::DicomModule::parseHeader( 
-                                 soma::DicomDatasetHeader& /* datasetHeader */ )
+bool dcm::DicomModule::parseItem( DcmItem* /* dcmItem */ )
 {
 
   return true;
 
 }
 
+
+bool dcm::DicomModule::parseHeader( 
+                                  dcm::DicomDatasetHeader& /* datasetHeader */ )
+{
+
+  return true;
+
+}

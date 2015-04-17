@@ -13,24 +13,24 @@
 #include <cstring>
 
 
-soma::Demosaicer::Demosaicer( const soma::Vector& rowCosine,
-                              const soma::Vector& columnCosine,
-                              int32_t sizeX,
-                              int32_t sizeY,
-                              int32_t sizeZ,
-                              int32_t sliceCount,
-                              double resolutionX,
-                              double resolutionY )
-                : _rowVector( rowCosine ),
-                  _columnVector( columnCosine ),
-                  _mosaicSizeX( sizeX ),
-                  _mosaicSizeY( sizeY ),
-                  _sizeX( sizeX ),
-                  _sizeY( sizeY ),
-                  _sizeZ( sizeZ ),
-                  _divider( 1 ),
-                  _resolutionX( resolutionX ),
-                  _resolutionY( resolutionY )
+dcm::Demosaicer::Demosaicer( const dcm::Vector3d< double >& rowCosine,
+                             const dcm::Vector3d< double >& columnCosine,
+                             int32_t sizeX,
+                             int32_t sizeY,
+                             int32_t sizeZ,
+                             int32_t sliceCount,
+                             double resolutionX,
+                             double resolutionY )
+               : _rowVector( rowCosine ),
+                 _columnVector( columnCosine ),
+                 _mosaicSizeX( sizeX ),
+                 _mosaicSizeY( sizeY ),
+                 _sizeX( sizeX ),
+                 _sizeY( sizeY ),
+                 _sizeZ( sizeZ ),
+                 _divider( 1 ),
+                 _resolutionX( resolutionX ),
+                 _resolutionY( resolutionY )
 {
 
   if ( ( _sizeZ == 1 ) && ( sliceCount > 1 ) )
@@ -53,12 +53,12 @@ soma::Demosaicer::Demosaicer( const soma::Vector& rowCosine,
 }
 
 
-soma::Demosaicer::~Demosaicer()
+dcm::Demosaicer::~Demosaicer()
 {
 }
 
 
-int32_t soma::Demosaicer::getMosaicSize()
+int32_t dcm::Demosaicer::getMosaicSize()
 {
 
   return _mosaicSizeX * _mosaicSizeY;
@@ -66,7 +66,7 @@ int32_t soma::Demosaicer::getMosaicSize()
 }
 
 
-int32_t soma::Demosaicer::getMosaicSizeX()
+int32_t dcm::Demosaicer::getMosaicSizeX()
 {
 
   return _mosaicSizeX;
@@ -74,7 +74,7 @@ int32_t soma::Demosaicer::getMosaicSizeX()
 }
 
 
-void soma::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
+void dcm::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
 {
 
   sizeX = _sizeX;
@@ -84,10 +84,10 @@ void soma::Demosaicer::getSize( int32_t& sizeX, int32_t& sizeY, int32_t& sizeZ )
 }
 
 
-void soma::Demosaicer::demosaic( soma::MosaicDicomImage& dicomImage,
-                                 soma::DataInfo& info,
-                                 int32_t slice,
-                                 int32_t t )
+void dcm::Demosaicer::demosaic( dcm::MosaicDicomImage& dicomImage,
+                                dcm::DataInfo& info,
+                                int32_t slice,
+                                int32_t t )
 {
 
   int32_t divider = _divider;
@@ -132,18 +132,13 @@ void soma::Demosaicer::demosaic( soma::MosaicDicomImage& dicomImage,
 }
 
 
-soma::Vector soma::Demosaicer::demosaic( const Vector& pos )
+dcm::Vector3d< double > dcm::Demosaicer::demosaic( 
+                                            const dcm::Vector3d< double >& pos )
 {
-
-  Vector outPos;
 
   double diffX = 0.5 * ( _mosaicSizeX - _sizeX ) * _resolutionX;
   double diffY = 0.5 * ( _mosaicSizeY - _sizeY ) * _resolutionY;
 
-  outPos.x = pos.x + _rowVector.x * diffX + _columnVector.x * diffY;
-  outPos.y = pos.y + _rowVector.y * diffX + _columnVector.y * diffY;
-  outPos.z = pos.z + _rowVector.z * diffX + _columnVector.z * diffY;
-
-  return outPos;
+  return pos + _rowVector * diffX + _columnVector * diffY;
 
 }

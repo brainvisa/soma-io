@@ -13,13 +13,13 @@
 #include <algorithm>
 
 
-soma::ModalityLutModule::ModalityLutModule()
-                       : soma::DicomModule()
+dcm::ModalityLutModule::ModalityLutModule()
+                      : dcm::DicomModule()
 {
 }
 
 
-bool soma::ModalityLutModule::parseItem( DcmItem* dcmItem )
+bool dcm::ModalityLutModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -55,7 +55,7 @@ bool soma::ModalityLutModule::parseItem( DcmItem* dcmItem )
 }
 
 
-bool soma::ModalityLutModule::parseDataset( DcmDataset* dataset )
+bool dcm::ModalityLutModule::parseDataset( DcmDataset* dataset )
 {
 
   return parseItem( dataset );
@@ -63,8 +63,8 @@ bool soma::ModalityLutModule::parseDataset( DcmDataset* dataset )
 }
 
 
-bool soma::ModalityLutModule::parseHeader( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::ModalityLutModule::parseHeader( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   int32_t n = datasetHeader.size();
@@ -117,8 +117,7 @@ bool soma::ModalityLutModule::parseHeader(
 }
 
 
-const std::vector< double >& 
-soma::ModalityLutModule::getRescaleIntercept() const
+const std::vector< double >& dcm::ModalityLutModule::getRescaleIntercept() const
 {
 
   return _rescaleIntercept;
@@ -126,11 +125,9 @@ soma::ModalityLutModule::getRescaleIntercept() const
 }
 
 
-const std::vector< double >& 
-soma::ModalityLutModule::getRescaleSlope() const
+const std::vector< double >& dcm::ModalityLutModule::getRescaleSlope() const
 {
 
   return _rescaleSlope;
 
 }
-

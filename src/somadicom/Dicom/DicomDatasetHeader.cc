@@ -24,8 +24,8 @@
 
 
 
-soma::DicomDatasetHeader::DicomDatasetHeader( soma::DataInfo& dataInfo )
-                        : _binaryHeader( dataInfo._datasetHeader )
+dcm::DicomDatasetHeader::DicomDatasetHeader( dcm::DataInfo& dataInfo )
+                       : _binaryHeader( dataInfo._datasetHeader )
 {
 
   _binaryHeader.setFormat( "dicom" );
@@ -33,8 +33,8 @@ soma::DicomDatasetHeader::DicomDatasetHeader( soma::DataInfo& dataInfo )
 }
 
 
-soma::DicomDatasetHeader::DicomDatasetHeader( soma::DicomProxy& proxy )
-                        : _binaryHeader( proxy.getBinaryHeader() )
+dcm::DicomDatasetHeader::DicomDatasetHeader( dcm::DicomProxy& proxy )
+                       : _binaryHeader( proxy.getBinaryHeader() )
 {
 
   _binaryHeader.setFormat( "dicom" );
@@ -42,12 +42,12 @@ soma::DicomDatasetHeader::DicomDatasetHeader( soma::DicomProxy& proxy )
 }
 
 
-soma::DicomDatasetHeader::~DicomDatasetHeader()
+dcm::DicomDatasetHeader::~DicomDatasetHeader()
 {
 }
 
 
-void soma::DicomDatasetHeader::clear()
+void dcm::DicomDatasetHeader::clear()
 {
 
   _binaryHeader.clear();
@@ -56,7 +56,7 @@ void soma::DicomDatasetHeader::clear()
 }
 
 
-void soma::DicomDatasetHeader::allocate( int32_t size )
+void dcm::DicomDatasetHeader::allocate( int32_t size )
 {
 
   _binaryHeader.clear();
@@ -67,7 +67,7 @@ void soma::DicomDatasetHeader::allocate( int32_t size )
 }
 
 
-int32_t soma::DicomDatasetHeader::size()
+int32_t dcm::DicomDatasetHeader::size()
 {
 
   return _binaryHeader.getCount();
@@ -75,14 +75,14 @@ int32_t soma::DicomDatasetHeader::size()
 }
 
 
-bool soma::DicomDatasetHeader::add( DcmDataset* dataset, 
-                                    const std::string& fileName )
+bool dcm::DicomDatasetHeader::add( DcmDataset* dataset, 
+                                   const std::string& fileName )
 {
 
   if ( dataset )
   {
 
-    soma::BinaryHeader::Buffer buffer( 0, 0 );
+    dcm::BinaryHeader::Buffer buffer( 0, 0 );
 
     dataset->remove( DCM_PixelData );
 
@@ -127,9 +127,9 @@ bool soma::DicomDatasetHeader::add( DcmDataset* dataset,
 }
 
 
-bool soma::DicomDatasetHeader::add( int32_t i, 
-                                    DcmDataset* dataset, 
-                                    const std::string& fileName )
+bool dcm::DicomDatasetHeader::add( int32_t i, 
+                                   DcmDataset* dataset, 
+                                   const std::string& fileName )
 {
 
   if ( dataset )
@@ -178,7 +178,7 @@ bool soma::DicomDatasetHeader::add( int32_t i,
 }
 
 
-void soma::DicomDatasetHeader::get( DcmDataset& dataset, int32_t i )
+void dcm::DicomDatasetHeader::get( DcmDataset& dataset, int32_t i )
 {
 
   if ( ( i >= 0 ) && ( i < _binaryHeader.getCount() ) )
@@ -204,7 +204,7 @@ void soma::DicomDatasetHeader::get( DcmDataset& dataset, int32_t i )
 }
 
 
-void soma::DicomDatasetHeader::trim()
+void dcm::DicomDatasetHeader::trim()
 {
 
   _binaryHeader.trim();
@@ -219,14 +219,14 @@ void soma::DicomDatasetHeader::trim()
 }
 
 
-bool soma::DicomDatasetHeader::getDictionary( 
+bool dcm::DicomDatasetHeader::getDictionary( 
                               std::map< std::string, std::string >& dictionary )
 {
 
   dictionary.clear();
 
   int32_t slice = 0;
-  soma::BinaryHeader::iterator
+  dcm::BinaryHeader::iterator
     d = _binaryHeader.begin(),
     de = _binaryHeader.end();
 
@@ -262,7 +262,7 @@ bool soma::DicomDatasetHeader::getDictionary(
 }
 
 
-bool soma::DicomDatasetHeader::setDictionary( 
+bool dcm::DicomDatasetHeader::setDictionary( 
                               std::map< std::string, std::string >& dictionary )
 {
 
@@ -312,7 +312,7 @@ bool soma::DicomDatasetHeader::setDictionary(
 }
 
 
-std::vector< int32_t >& soma::DicomDatasetHeader::getLut()
+std::vector< int32_t >& dcm::DicomDatasetHeader::getLut()
 {
 
   return _binaryHeader.getLut();
@@ -320,10 +320,9 @@ std::vector< int32_t >& soma::DicomDatasetHeader::getLut()
 }
 
 
-std::vector< std::string >& soma::DicomDatasetHeader::getFileList()
+std::vector< std::string >& dcm::DicomDatasetHeader::getFileList()
 {
 
   return _fileList;
 
 }
-

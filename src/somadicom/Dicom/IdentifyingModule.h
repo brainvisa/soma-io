@@ -15,7 +15,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -62,4 +62,3 @@ class IdentifyingModule : public DicomModule
 
 
 #endif
-

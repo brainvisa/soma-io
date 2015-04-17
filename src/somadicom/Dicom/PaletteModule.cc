@@ -9,13 +9,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::PaletteModule::PaletteModule()
-                   : soma::DicomModule()
+dcm::PaletteModule::PaletteModule()
+                  : dcm::DicomModule()
 {
 }
 
 
-bool soma::PaletteModule::parseItem( DcmItem* dcmItem )
+bool dcm::PaletteModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -40,7 +40,7 @@ bool soma::PaletteModule::parseItem( DcmItem* dcmItem )
 }
 
 
-soma::Rgba soma::PaletteModule::operator()( int32_t index )
+dcm::Rgba dcm::PaletteModule::operator()( int32_t index )
 {
 
   uint8_t r, g, b;
@@ -62,6 +62,6 @@ soma::Rgba soma::PaletteModule::operator()( int32_t index )
 
   }
 
-  return soma::Rgba( r, g, b );
+  return dcm::Rgba( r, g, b );
 
 }

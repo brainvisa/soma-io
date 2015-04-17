@@ -9,7 +9,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -33,4 +33,3 @@ class PhilipsEnhancedDiffusionModule : public DiffusionModule
 
 
 #endif
-

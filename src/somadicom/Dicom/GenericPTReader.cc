@@ -7,9 +7,9 @@
 #endif
 
 
-soma::GenericPTReader::GenericPTReader()
-                     : soma::PTImageStorageReader(),
-                       soma::Singleton< soma::GenericPTReader >()
+dcm::GenericPTReader::GenericPTReader()
+                    : dcm::PTImageStorageReader(),
+                      dcm::Singleton< dcm::GenericPTReader >()
 {
 }
 

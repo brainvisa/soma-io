@@ -9,15 +9,15 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::AcquisitionModule::AcquisitionModule()
-                       : soma::DicomModule(),
-                         _sliceThickness( 0.0 ),
-                         _spacingBetweenSlices( 0.0 )
+dcm::AcquisitionModule::AcquisitionModule()
+                      : dcm::DicomModule(),
+                        _sliceThickness( 0.0 ),
+                        _spacingBetweenSlices( 0.0 )
 {
 }
 
 
-bool soma::AcquisitionModule::parseItem( DcmItem* dcmItem )
+bool dcm::AcquisitionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -49,7 +49,7 @@ bool soma::AcquisitionModule::parseItem( DcmItem* dcmItem )
 }
 
 
-double soma::AcquisitionModule::getSliceThickness() const
+double dcm::AcquisitionModule::getSliceThickness() const
 {
 
   return _sliceThickness;
@@ -57,10 +57,9 @@ double soma::AcquisitionModule::getSliceThickness() const
 }
 
 
-double soma::AcquisitionModule::getSpacingBetweenSlices() const
+double dcm::AcquisitionModule::getSpacingBetweenSlices() const
 {
 
   return _spacingBetweenSlices;
 
 }
-

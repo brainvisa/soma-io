@@ -8,7 +8,7 @@
 #include <cartobase/object/object.h>
 
 
-namespace soma
+namespace dcm
 {
 
 

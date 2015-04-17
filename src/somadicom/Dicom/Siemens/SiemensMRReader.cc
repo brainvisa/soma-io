@@ -30,16 +30,16 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::SiemensMRReader::SiemensMRReader()
-                     : soma::MRImageStorageReader(),
-                       soma::Singleton< soma::SiemensMRReader >(),
-                       _demosaicer( 0 ),
-                       _sliceCount( 1 )
+dcm::SiemensMRReader::SiemensMRReader()
+                    : dcm::MRImageStorageReader(),
+                      dcm::Singleton< dcm::SiemensMRReader >(),
+                      _demosaicer( 0 ),
+                      _sliceCount( 1 )
 {
 }
 
 
-soma::SiemensMRReader::~SiemensMRReader()
+dcm::SiemensMRReader::~SiemensMRReader()
 {
 
   delete _demosaicer;
@@ -47,7 +47,7 @@ soma::SiemensMRReader::~SiemensMRReader()
 }
 
 
-std::string soma::SiemensMRReader::getManufacturerName()
+std::string dcm::SiemensMRReader::getManufacturerName()
 {
 
   return "SIEMENS";
@@ -55,12 +55,12 @@ std::string soma::SiemensMRReader::getManufacturerName()
 }
 
 
-bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::SiemensMRReader::getHeader( dcm::HeaderProxy& proxy,
+                                      dcm::DataInfo& info,
+                                      dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MRImageStorageReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;
@@ -70,7 +70,7 @@ bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
   if ( !proxy.hasAttribute( "b_values" ) )
   {
 
-    soma::SiemensDiffusionModule diffusionModule;
+    dcm::SiemensDiffusionModule diffusionModule;
 
     if ( diffusionModule.parseHeader( datasetHeader ) )
     {
@@ -83,12 +83,20 @@ bool soma::SiemensMRReader::getHeader( soma::HeaderProxy& proxy,
 
   }
 
+  if ( info._mosaic )
+  {
+
+    proxy.addAttribute( "mosaic", 1 );
+    proxy.addAttribute( "slices_in_mosaic", _sliceCount );
+
+  }
+
   return true;
 
 }
 
 
-bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
+bool dcm::SiemensMRReader::readHeader( DcmDataset* dataset )
 {
 
   if ( dataset )
@@ -104,6 +112,8 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
       _demosaicer = 0;
 
     }
+
+    _sliceCount = 1;
 
     if ( dataset->findAndGetOFStringArray( DCM_ImageType,
                                            imageType ).good() )
@@ -121,14 +131,14 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 
         }
 
-        _demosaicer = new soma::Demosaicer( _dataInfo->_rowVec,
-                                            _dataInfo->_colVec,
-                                            _dataInfo->_width,
-                                            _dataInfo->_height,
-                                            _dataInfo->_slices,
-                                            _sliceCount,
-                                            _dataInfo->_resolution.x,
-                                            _dataInfo->_resolution.y );
+        _demosaicer = new dcm::Demosaicer( _dataInfo->_rowVec,
+                                           _dataInfo->_colVec,
+                                           _dataInfo->_width,
+                                           _dataInfo->_height,
+                                           _dataInfo->_slices,
+                                           _sliceCount,
+                                           _dataInfo->_resolution.x,
+                                           _dataInfo->_resolution.y );
 
         if ( !_demosaicer )
         {
@@ -137,10 +147,11 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 
         }
 
+        _dataInfo->_mosaic = true;
+
         if ( !_dataInfo->_noDemosaic )
         {
 
-          _dataInfo->_mosaic = true;
           _demosaicer->getSize( _dataInfo->_width, 
                                 _dataInfo->_height,
                                 _dataInfo->_slices );
@@ -151,7 +162,7 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 
     }
 
-    return soma::MRImageStorageReader::readHeader( dataset );
+    return dcm::MRImageStorageReader::readHeader( dataset );
 
   }
 
@@ -160,26 +171,30 @@ bool soma::SiemensMRReader::readHeader( DcmDataset* dataset )
 }
 
 
-bool soma::SiemensMRReader::readData( soma::DicomDatasetHeader& datasetHeader,
-                                      soma::DicomProxy& proxy )
+bool dcm::SiemensMRReader::readData( dcm::DicomDatasetHeader& datasetHeader,
+                                     dcm::DicomProxy& proxy )
 {
 
   if ( !_demosaicer || ( _sliceCount == 1 ) )
   {
 
-    return soma::MRImageStorageReader::readData( datasetHeader, proxy );
+    return dcm::MRImageStorageReader::readData( datasetHeader, proxy );
 
   }
 
   if ( proxy.allocate() )
   {
 
-    soma::DataInfo& info = proxy.getDataInfo();
+    dcm::DataInfo& info = proxy.getDataInfo();
     int32_t startT = info._boundingBox.getLowerT();
     int32_t frameCount = info._boundingBox.getUpperT() - startT + 1;
 
-    soma::MosaicDataContext context( datasetHeader, proxy, *_demosaicer );
-    soma::ThreadedLoop threadedLoop( &context, startT, frameCount );
+    dcm::MosaicDataContext context( datasetHeader, proxy, *_demosaicer );
+#ifdef SOMA_IO_DICOM
+    carto::ThreadedLoop threadedLoop( &context, startT, frameCount );
+#else
+    dcm::ThreadedLoop threadedLoop( &context, startT, frameCount );
+#endif
 
     threadedLoop.launch();
 
@@ -192,15 +207,16 @@ bool soma::SiemensMRReader::readData( soma::DicomDatasetHeader& datasetHeader,
 }
 
 
-bool soma::SiemensMRReader::sortFiles( soma::DicomDatasetHeader& datasetHeader )
+bool dcm::SiemensMRReader::sortFiles( dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  bool status = soma::MultiFileReader::sortFiles( datasetHeader );
+  bool status = dcm::MultiFileReader::sortFiles( datasetHeader );
 
   if ( _demosaicer )
   {
 
-    soma::Vector origin = _demosaicer->demosaic( _dataInfo->_origin );
+    dcm::Vector3d< double > origin = _demosaicer->demosaic( 
+                                                           _dataInfo->_origin );
     _dataInfo->_patientOrientation.setOrigin( origin );
 
   }

@@ -13,7 +13,7 @@
 #include <map>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -65,8 +65,8 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
 
 #define RegisterDicomReaderFunction( IMPLEMENTATION )                          \
 static bool init_##IMPLEMENTATION =                                            \
-                      soma::DicomReaderFactory::getInstance().registerReader(  \
-                      &soma::IMPLEMENTATION::getInstance() )
+                        dcm::DicomReaderFactory::getInstance().registerReader( \
+                        &dcm::IMPLEMENTATION::getInstance() )
 
 
 #endif

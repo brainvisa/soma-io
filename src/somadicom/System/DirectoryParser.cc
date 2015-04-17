@@ -11,9 +11,9 @@
 #include <unistd.h>
 
 
-soma::DirectoryParser::DirectoryParser( const std::string& name )
-                     : _selectedFile( "" ),
-                       _selectedDir( "" )
+dcm::DirectoryParser::DirectoryParser( const std::string& name )
+                    : _selectedFile( "" ),
+                      _selectedDir( "" )
 {
 
   struct stat file_stat;
@@ -67,7 +67,7 @@ soma::DirectoryParser::DirectoryParser( const std::string& name )
 }
 
 
-std::string soma::DirectoryParser::getFirstFile()
+std::string dcm::DirectoryParser::getFirstFile()
 {
 
   std::string fileName = "";
@@ -111,7 +111,7 @@ std::string soma::DirectoryParser::getFirstFile()
 }
 
 
-void soma::DirectoryParser::parse()
+void dcm::DirectoryParser::parse()
 {
 
   if ( !_selectedDir.empty() )
@@ -142,6 +142,8 @@ void soma::DirectoryParser::parse()
 
       }
 
+      closedir( directory );
+
     }
 
   }
@@ -149,7 +151,7 @@ void soma::DirectoryParser::parse()
 }
 
 
-std::string& soma::DirectoryParser::getSelectedFile()
+std::string& dcm::DirectoryParser::getSelectedFile()
 {
 
   return _selectedFile;
@@ -157,7 +159,7 @@ std::string& soma::DirectoryParser::getSelectedFile()
 }
 
 
-std::string& soma::DirectoryParser::getSelectedDirectory()
+std::string& dcm::DirectoryParser::getSelectedDirectory()
 {
 
   return _selectedDir;
@@ -165,7 +167,7 @@ std::string& soma::DirectoryParser::getSelectedDirectory()
 }
 
 
-std::set< std::string >& soma::DirectoryParser::getFiles()
+std::set< std::string >& dcm::DirectoryParser::getFiles()
 {
 
   if ( _files.empty() )

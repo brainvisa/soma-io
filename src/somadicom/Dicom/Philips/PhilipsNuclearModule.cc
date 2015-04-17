@@ -9,19 +9,19 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::PhilipsNuclearModule::PhilipsNuclearModule()
-                          : soma::NuclearModule()
+dcm::PhilipsNuclearModule::PhilipsNuclearModule()
+                         : dcm::NuclearModule()
 {
 }
 
 
-bool soma::PhilipsNuclearModule::parseItem( DcmItem* dcmItem )
+bool dcm::PhilipsNuclearModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
   {
 
-    if ( soma::NuclearModule::parseItem( dcmItem ) )
+    if ( dcm::NuclearModule::parseItem( dcmItem ) )
     {
 
       if ( _units == _unitNames[ "CNTS" ] )
@@ -49,4 +49,3 @@ bool soma::PhilipsNuclearModule::parseItem( DcmItem* dcmItem )
   return false;
 
 }
-

@@ -17,7 +17,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -26,7 +26,11 @@ class DicomProxy;
 class Demosaicer;
 
 
+#ifdef SOMA_IO_DICOM
+class MosaicDataContext : public carto::LoopContext
+#else
 class MosaicDataContext : public LoopContext
+#endif
 {
 
   public:

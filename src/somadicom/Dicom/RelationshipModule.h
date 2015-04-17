@@ -15,7 +15,7 @@
 #include <vector>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -47,4 +47,3 @@ class RelationshipModule : public DicomModule
 
 
 #endif
-

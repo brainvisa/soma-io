@@ -20,19 +20,19 @@
 #include <dcmtk/dcmdata/dcsequen.h>
 
 
-soma::BrukerEnhancedMRReader::BrukerEnhancedMRReader()
-                            : soma::EnhancedMRImageStorageReader(),
-                              soma::Singleton< soma::BrukerEnhancedMRReader >()
+dcm::BrukerEnhancedMRReader::BrukerEnhancedMRReader()
+                           : dcm::EnhancedMRImageStorageReader(),
+                             dcm::Singleton< dcm::BrukerEnhancedMRReader >()
 {
 }
 
 
-soma::BrukerEnhancedMRReader::~BrukerEnhancedMRReader()
+dcm::BrukerEnhancedMRReader::~BrukerEnhancedMRReader()
 {
 }
 
 
-std::string soma::BrukerEnhancedMRReader::getManufacturerName()
+std::string dcm::BrukerEnhancedMRReader::getManufacturerName()
 {
 
   return "Bruker BioSpin MRI GmbH";
@@ -40,13 +40,13 @@ std::string soma::BrukerEnhancedMRReader::getManufacturerName()
 }
 
 
-bool soma::BrukerEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
+bool dcm::BrukerEnhancedMRReader::buildIndexLut( DcmDataset* dataset )
 {
 
   if ( dataset )
   {
 
-    soma::BrukerEnhancedIndexModule indexModule;
+    dcm::BrukerEnhancedIndexModule indexModule;
 
     if ( indexModule.parseItem( dataset ) )
     {

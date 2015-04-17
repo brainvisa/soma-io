@@ -10,13 +10,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::BrukerEnhancedIndexModule::BrukerEnhancedIndexModule()
-                                : soma::EnhancedIndexModule()
+dcm::BrukerEnhancedIndexModule::BrukerEnhancedIndexModule()
+                              : dcm::EnhancedIndexModule()
 {
 }
 
 
-bool soma::BrukerEnhancedIndexModule::parseItem( DcmItem* dcmItem )
+bool dcm::BrukerEnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -48,7 +48,7 @@ bool soma::BrukerEnhancedIndexModule::parseItem( DcmItem* dcmItem )
       if ( nItems < 4 )
       {
 
-        return soma::EnhancedIndexModule::parseItem( dcmItem );
+        return dcm::EnhancedIndexModule::parseItem( dcmItem );
 
       }
 

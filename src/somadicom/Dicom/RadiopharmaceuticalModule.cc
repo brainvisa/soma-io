@@ -10,19 +10,19 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::RadiopharmaceuticalModule::RadiopharmaceuticalModule()
-                               : soma::DicomModule(),
-                                 _radiopharmaceutical( "" ),
-                                 _radiopharmaceuticalStartTime( "" ),
-                                 _radionuclideTotalDose( 0.0 ),
-                                 _radionuclideHalfLife( 0.0 ),
-                                 _radionuclidePositronFraction( 0.0 ),
-                                 _radionuclide( "" )
+dcm::RadiopharmaceuticalModule::RadiopharmaceuticalModule()
+                              : dcm::DicomModule(),
+                                _radiopharmaceutical( "" ),
+                                _radiopharmaceuticalStartTime( "" ),
+                                _radionuclideTotalDose( 0.0 ),
+                                _radionuclideHalfLife( 0.0 ),
+                                _radionuclidePositronFraction( 0.0 ),
+                                _radionuclide( "" )
 {
 }
 
 
-bool soma::RadiopharmaceuticalModule::parseItem( DcmItem* dcmItem )
+bool dcm::RadiopharmaceuticalModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -103,7 +103,7 @@ bool soma::RadiopharmaceuticalModule::parseItem( DcmItem* dcmItem )
 
 
 const std::string& 
-soma::RadiopharmaceuticalModule::getRadiopharmaceutical() const
+dcm::RadiopharmaceuticalModule::getRadiopharmaceutical() const
 {
 
   return _radiopharmaceutical;
@@ -112,7 +112,7 @@ soma::RadiopharmaceuticalModule::getRadiopharmaceutical() const
 
 
 const std::string&
-soma::RadiopharmaceuticalModule::getRadiopharmaceuticalStartTime() const
+dcm::RadiopharmaceuticalModule::getRadiopharmaceuticalStartTime() const
 {
 
   return _radiopharmaceuticalStartTime;
@@ -120,7 +120,7 @@ soma::RadiopharmaceuticalModule::getRadiopharmaceuticalStartTime() const
 }
 
 
-double soma::RadiopharmaceuticalModule::getRadionuclideTotalDose() const
+double dcm::RadiopharmaceuticalModule::getRadionuclideTotalDose() const
 {
 
   return _radionuclideTotalDose;
@@ -128,7 +128,7 @@ double soma::RadiopharmaceuticalModule::getRadionuclideTotalDose() const
 }
 
 
-double soma::RadiopharmaceuticalModule::getRadionuclideHalfLife() const
+double dcm::RadiopharmaceuticalModule::getRadionuclideHalfLife() const
 {
 
   return _radionuclideHalfLife;
@@ -136,7 +136,7 @@ double soma::RadiopharmaceuticalModule::getRadionuclideHalfLife() const
 }
 
 
-double soma::RadiopharmaceuticalModule::getRadionuclidePositronFraction() const
+double dcm::RadiopharmaceuticalModule::getRadionuclidePositronFraction() const
 {
 
   return _radionuclidePositronFraction;
@@ -144,10 +144,9 @@ double soma::RadiopharmaceuticalModule::getRadionuclidePositronFraction() const
 }
 
 
-const std::string& soma::RadiopharmaceuticalModule::getRadionuclide() const
+const std::string& dcm::RadiopharmaceuticalModule::getRadionuclide() const
 {
 
   return _radionuclide;
 
 }
-

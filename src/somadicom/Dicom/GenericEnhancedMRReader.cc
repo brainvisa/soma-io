@@ -6,10 +6,9 @@
 #include <Dicom/DicomReaderFactory.h>
 #endif
 
-soma::GenericEnhancedMRReader::GenericEnhancedMRReader()
-                             : soma::EnhancedMRImageStorageReader(),
-                               soma::Singleton< 
-                                               soma::GenericEnhancedMRReader >()
+dcm::GenericEnhancedMRReader::GenericEnhancedMRReader()
+                            : dcm::EnhancedMRImageStorageReader(),
+                              dcm::Singleton< dcm::GenericEnhancedMRReader >()
 {
 }
 

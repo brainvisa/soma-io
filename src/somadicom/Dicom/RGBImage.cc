@@ -7,19 +7,19 @@
 #endif
 
 
-soma::RGBImage::RGBImage( soma::DicomProxy& proxy, int32_t planarConfiguration )
-              : soma::ImagePixel( proxy ),
-                _planarConfiguration( planarConfiguration )
+dcm::RGBImage::RGBImage( dcm::DicomProxy& proxy, int32_t planarConfiguration )
+             : dcm::ImagePixel( proxy ),
+               _planarConfiguration( planarConfiguration )
 {
 }
 
 
-void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters, 
-                           soma::ImagePixel::OffsetParameters& offsetParameters,
-                           void* imagePtr, 
-                           int32_t z, 
-                           int32_t t,
-                           int32_t inputSlice )
+void dcm::RGBImage::fill( dcm::ImagePixel::Parameters& parameters, 
+                          dcm::ImagePixel::OffsetParameters& offsetParameters,
+                          void* imagePtr, 
+                          int32_t z, 
+                          int32_t t,
+                          int32_t inputSlice )
 {
 
   if ( imagePtr )
@@ -51,11 +51,11 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
           for ( x = startX; x < endX; x++ )
           {
 
-            uint8_t* p = _proxy( x, y, slice, t );
+            uint8_t* v = _proxy( x, y, slice, t );
 
-            *p++ = *r++;
-            *p++ = *g++;
-            *p = *b++;
+            *v++ = *r++;
+            *v++ = *g++;
+            *v = *b++;
 
           }
 
@@ -69,7 +69,8 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
       else
       {
 
-        int32_t x, y, px, py, pz;
+        int32_t x, y;
+        dcm::Vector3d< int32_t > p;
 
         for ( y = parameters.startY; y < parameters.endY; y++ )
         {
@@ -77,16 +78,16 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
           for ( x = parameters.startX; x < parameters.endX; x++ )
           {
 
-            parameters.transform->getDirect( x, y, z, px, py, pz );
+            p = parameters.transform->getDirect( x, y, z );
 
-            uint8_t* p = _proxy( px - parameters.outLowerX, 
-                                 py - parameters.outLowerY, 
-                                 pz - parameters.outLowerZ, 
+            uint8_t* v = _proxy( p.x - parameters.outLowerX, 
+                                 p.y - parameters.outLowerY, 
+                                 p.z - parameters.outLowerZ, 
                                  t );
 
-            *p++ = *r++;
-            *p++ = *g++;
-            *p = *b++;
+            *v++ = *r++;
+            *v++ = *g++;
+            *v = *b++;
 
           }
 
@@ -124,11 +125,11 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
           for ( x = startX; x < endX; x++, r += 3, g += 3, b += 3 )
           {
 
-            uint8_t* p = _proxy( x, y, slice, t );
+            uint8_t* v = _proxy( x, y, slice, t );
 
-            *p++ = *r;
-            *p++ = *g;
-            *p = *b;
+            *v++ = *r;
+            *v++ = *g;
+            *v = *b;
 
           }
 
@@ -142,7 +143,8 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
       else
       {
 
-        int32_t x, y, px, py, pz;
+        int32_t x, y;
+        dcm::Vector3d< int32_t > p;
 
         for ( y = parameters.startY; y < parameters.endY; y++ )
         {
@@ -152,16 +154,16 @@ void soma::RGBImage::fill( soma::ImagePixel::Parameters& parameters,
                 x++, r += 3, g += 3, b += 3 )
           {
 
-            parameters.transform->getDirect( x, y, z, px, py, pz );
+            p = parameters.transform->getDirect( x, y, z );
 
-            uint8_t* p = _proxy( px - parameters.outLowerX, 
-                                 py - parameters.outLowerY, 
-                                 pz - parameters.outLowerZ, 
+            uint8_t* v = _proxy( p.x - parameters.outLowerX, 
+                                 p.y - parameters.outLowerY, 
+                                 p.z - parameters.outLowerZ, 
                                  t );
 
-            *p++ = *r;
-            *p++ = *g;
-            *p = *b;
+            *v++ = *r;
+            *v++ = *g;
+            *v = *b;
 
           }
 

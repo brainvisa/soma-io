@@ -5,11 +5,11 @@
 #endif
 
 
-soma::HeaderProxy::HeaderProxy()
+dcm::HeaderProxy::HeaderProxy()
 {
 }
 
 
-soma::HeaderProxy::~HeaderProxy()
+dcm::HeaderProxy::~HeaderProxy()
 {
 }

@@ -43,18 +43,18 @@
 #endif
 
 
-soma::DicomReader::DicomReader()
-                 : _dataInfo( 0 )
+dcm::DicomReader::DicomReader()
+                : _dataInfo( 0 )
 {
 }
 
 
-soma::DicomReader::~DicomReader()
+dcm::DicomReader::~DicomReader()
 {
 }
 
 
-std::string soma::DicomReader::getManufacturerName()
+std::string dcm::DicomReader::getManufacturerName()
 {
 
   return std::string( "Generic" );
@@ -62,10 +62,10 @@ std::string soma::DicomReader::getManufacturerName()
 }
 
 
-bool soma::DicomReader::check( const soma::DatasetModule& datasetModule,
-                               soma::DirectoryParser& directory,
-                               soma::DataInfo& dataInfo,
-                               soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReader::check( const dcm::DatasetModule& datasetModule,
+                              dcm::DirectoryParser& directory,
+                              dcm::DataInfo& dataInfo,
+                              dcm::DicomDatasetHeader& datasetHeader )
 {
 
 #ifdef MINI_VIEWER
@@ -137,9 +137,9 @@ bool soma::DicomReader::check( const soma::DatasetModule& datasetModule,
 }
 
 
-bool soma::DicomReader::getHeader( soma::HeaderProxy& header, 
-                                   soma::DataInfo& info,
-                                   soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReader::getHeader( dcm::HeaderProxy& header, 
+                                  dcm::DataInfo& info,
+                                  dcm::DicomDatasetHeader& datasetHeader )
 {
 
   header.addAttribute( "sizeX", info._width );
@@ -152,7 +152,7 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
   header.addAttribute( "resolutionZ", info._resolution.z );
   header.addAttribute( "resolutionT", info._repetitionTime );
 
-  soma::IdentifyingModule identifyingModule;
+  dcm::IdentifyingModule identifyingModule;
 
   if ( identifyingModule.parseHeader( datasetHeader ) )
   {
@@ -177,9 +177,9 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
   }
 
   DcmDataset dataset;
-  soma::PatientModule patientModule;
-  soma::RelationshipModule relationshipModule;
-  soma::ModalityLutModule modalityLutModule;
+  dcm::PatientModule patientModule;
+  dcm::RelationshipModule relationshipModule;
+  dcm::ModalityLutModule modalityLutModule;
 
   datasetHeader.get( dataset );
 
@@ -219,8 +219,8 @@ bool soma::DicomReader::getHeader( soma::HeaderProxy& header,
 }
 
 
-bool soma::DicomReader::read( soma::DicomDatasetHeader& datasetHeader, 
-                              soma::DicomProxy& proxy )
+bool dcm::DicomReader::read( dcm::DicomDatasetHeader& datasetHeader, 
+                             dcm::DicomProxy& proxy )
 {
 
   if ( datasetHeader.size() )
@@ -254,14 +254,14 @@ bool soma::DicomReader::read( soma::DicomDatasetHeader& datasetHeader,
 }
 
 
-bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReader::readHeader( dcm::DicomDatasetHeader& datasetHeader )
 {
 
   if ( datasetHeader.size() )
   {
 
     DcmDataset dataset;
-    soma::ImageModule imageModule;
+    dcm::ImageModule imageModule;
 
     datasetHeader.get( dataset );
 
@@ -287,7 +287,7 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 
     }
 
-    soma::AcquisitionModule acquisitionModule;
+    dcm::AcquisitionModule acquisitionModule;
 
     if ( acquisitionModule.parseItem( &dataset ) )
     {
@@ -322,7 +322,7 @@ bool soma::DicomReader::readHeader( soma::DicomDatasetHeader& datasetHeader )
 }
 
 
-void soma::DicomReader::setOrientation()
+void dcm::DicomReader::setOrientation()
 {
 
   _dataInfo->_patientOrientation.set( _dataInfo->_rowVec,
@@ -336,21 +336,21 @@ void soma::DicomReader::setOrientation()
   if ( !_dataInfo->_noFlip )
   {
 
-    _dataInfo->_patientOrientation.getSize( _dataInfo->_width,
-                                            _dataInfo->_height,
-                                            _dataInfo->_slices );
-    _dataInfo->_patientOrientation.getResolution( _dataInfo->_resolution.x,
-                                                  _dataInfo->_resolution.y,
-                                                  _dataInfo->_resolution.z );
+    dcm::Vector3d< int32_t > sizes = _dataInfo->_patientOrientation.getSize();
+
+    _dataInfo->_width = sizes.x;
+    _dataInfo->_height = sizes.y;
+    _dataInfo->_slices = sizes.z;
+    _dataInfo->_resolution = _dataInfo->_patientOrientation.getResolution();
 
   }
 
 }
 
 
-bool soma::DicomReader::selectFiles( soma::DirectoryParser& directory,
-                                     const std::string& /* seriesInstanceUID */,
-                                     soma::DicomDatasetHeader& datasetHeader )
+bool dcm::DicomReader::selectFiles( dcm::DirectoryParser& directory,
+                                    const std::string& /* seriesInstanceUID */,
+                                    dcm::DicomDatasetHeader& datasetHeader )
 {
 
   std::string fileName = directory.getSelectedFile();
@@ -383,8 +383,7 @@ bool soma::DicomReader::selectFiles( soma::DirectoryParser& directory,
 }
 
 
-bool soma::DicomReader::sortFiles( 
-                                 soma::DicomDatasetHeader& /* datasetHeader */ )
+bool dcm::DicomReader::sortFiles( dcm::DicomDatasetHeader& /* datasetHeader */ )
 {
 
   setOrientation();
@@ -394,7 +393,7 @@ bool soma::DicomReader::sortFiles(
 }
 
 
-bool soma::DicomReader::readHeader( DcmDataset* /* dataset */ )
+bool dcm::DicomReader::readHeader( DcmDataset* /* dataset */ )
 {
 
   return true;

@@ -1,25 +1,30 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DicomSortContext.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Dicom/PositionModule.h>
 #else
 #include <Dicom/DicomSortContext.h>
 #include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/PositionModule.h>
 #endif
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 
-#include <sstream>
 
-
-soma::DicomSortContext::DicomSortContext( 
-                         soma::DicomDatasetHeader& datasetHeader,
-                         std::multimap< double, soma::FileInformation >& slices,
-                         const soma::Vector& rowVector,
-                         const soma::Vector& columnVector )
-                      : _datasetHeader( datasetHeader ),
-                        _slices( slices )
+dcm::DicomSortContext::DicomSortContext( 
+                        dcm::DicomDatasetHeader& datasetHeader,
+                        std::multimap< double, dcm::FileInformation >& slices,
+                        const dcm::Vector3d< double >& rowVector,
+                        const dcm::Vector3d< double >& columnVector )
+#ifdef SOMA_IO_DICOM
+                     : carto::LoopContext(),
+#else
+                     : dcm::LoopContext(),
+#endif
+                       _datasetHeader( datasetHeader ),
+                       _slices( slices )
 {
 
   _normal = rowVector.cross( columnVector );
@@ -27,16 +32,17 @@ soma::DicomSortContext::DicomSortContext(
 }
 
 
-void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
+void dcm::DicomSortContext::doIt( int32_t startIndex, int32_t count )
 {
 
   int32_t i, stopIndex = startIndex + count;
-  std::multimap< double, soma::FileInformation > slices;
+  std::multimap< double, dcm::FileInformation > slices;
+  dcm::PositionModule positionModule;
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
 
-    soma::FileInformation fileInfo;
+    dcm::FileInformation fileInfo;
     DcmDataset dataset;
     OFString tmpString;
     Sint32 tmpInt;
@@ -54,27 +60,10 @@ void soma::DicomSortContext::doIt( int32_t startIndex, int32_t count )
 
     }
     
-    if ( dataset.findAndGetOFStringArray( DCM_ImagePositionPatient, 
-                                          tmpString ).good() )
+    if ( positionModule.parseItem( &dataset ) )
     {
 
-      std::string strPosition = tmpString.c_str();
-      size_t pos = strPosition.find( "\\" );
-
-      while ( pos != std::string::npos )
-      {
-
-        strPosition[ pos ] = ' ';
-        pos = strPosition.find( "\\" );
-
-      }
-
-      std::istringstream iss( strPosition );
-
-      iss >> fileInfo._imagePosition.x
-          >> fileInfo._imagePosition.y
-          >> fileInfo._imagePosition.z;
-
+      fileInfo._imagePosition = positionModule.getImagePosition();
       index = _normal.dot( fileInfo._imagePosition );
 
     }

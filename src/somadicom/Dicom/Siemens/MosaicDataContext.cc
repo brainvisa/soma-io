@@ -13,29 +13,33 @@
 #endif
 
 
-soma::MosaicDataContext::MosaicDataContext( 
-                                        soma::DicomDatasetHeader& datasetHeader,
-                                        soma::DicomProxy& proxy,
-                                        soma::Demosaicer& demosaicer )
-                       : soma::LoopContext(),
-                         _fileList( datasetHeader.getFileList() ),
-                         _lut( datasetHeader.getLut() ),
-                         _proxy( proxy ),
-                         _demosaicer( demosaicer )
+dcm::MosaicDataContext::MosaicDataContext( 
+                                         dcm::DicomDatasetHeader& datasetHeader,
+                                         dcm::DicomProxy& proxy,
+                                         dcm::Demosaicer& demosaicer )
+#ifdef SOMA_IO_DICOM
+                      : carto::LoopContext(),
+#else
+                      : dcm::LoopContext(),
+#endif
+                        _fileList( datasetHeader.getFileList() ),
+                        _lut( datasetHeader.getLut() ),
+                        _proxy( proxy ),
+                        _demosaicer( demosaicer )
 {
 
-  _parameters = soma::ImagePixel::Parameters( proxy );
+  _parameters = dcm::ImagePixel::Parameters( proxy );
 
 }
 
 
-void soma::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
+void dcm::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
 {
 
-  soma::MosaicDicomImage dicomImage( _proxy, 
-                                     _parameters,
-                                     _demosaicer.getMosaicSizeX() );
-  soma::DataInfo& info = _proxy.getDataInfo();
+  dcm::MosaicDicomImage dicomImage( _proxy, 
+                                    _parameters,
+                                    _demosaicer.getMosaicSizeX() );
+  dcm::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
   int32_t min = 0;
   int32_t max = 0;

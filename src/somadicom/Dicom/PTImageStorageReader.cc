@@ -24,13 +24,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::PTImageStorageReader::PTImageStorageReader()
-                          : soma::MultiFileReader()
+dcm::PTImageStorageReader::PTImageStorageReader()
+                         : dcm::MultiFileReader()
 {
 }
 
 
-std::string soma::PTImageStorageReader::getStorageUID()
+std::string dcm::PTImageStorageReader::getStorageUID()
 {
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 360
@@ -46,13 +46,13 @@ std::string soma::PTImageStorageReader::getStorageUID()
 }
 
 
-bool soma::PTImageStorageReader::getHeader( 
-                                       soma::HeaderProxy& header, 
-                                       soma::DataInfo& info,
-                                       soma::DicomDatasetHeader& datasetHeader )
+bool dcm::PTImageStorageReader::getHeader( 
+                                        dcm::HeaderProxy& header, 
+                                        dcm::DataInfo& info,
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !soma::MultiSliceReader::getHeader( header, info, datasetHeader ) )
+  if ( !dcm::MultiSliceReader::getHeader( header, info, datasetHeader ) )
   {
 
     return false;
@@ -63,9 +63,9 @@ bool soma::PTImageStorageReader::getHeader(
   Float64 tmpDouble;
   Sint32 tmpInt;
   DcmDataset dataset;
-  soma::PatientModule patientModule;
-  soma::NuclearModule nuclearModule;
-  soma::RadiopharmaceuticalModule radiopharmaModule;
+  dcm::PatientModule patientModule;
+  dcm::NuclearModule nuclearModule;
+  dcm::RadiopharmaceuticalModule radiopharmaModule;
 
   datasetHeader.get( dataset );
 
@@ -175,11 +175,11 @@ bool soma::PTImageStorageReader::getHeader(
   }
 
   int32_t i, k = 0, n = datasetHeader.size();
-  int32_t dummyX, dummyY, step, sizeT = info._frames;
+  int32_t sizeT = info._frames;
   std::vector< int32_t > start_time( sizeT, 0 );
   std::vector< int32_t > duration_time( sizeT, 0 );
-
-  info._patientOrientation.getOnDiskSize( dummyX, dummyY, step );
+  dcm::Vector3d< int32_t > sizes = info._patientOrientation.getOnDiskSize();
+  int32_t step = sizes.z;
 
   for ( i = 0; i < n; i += step )
   {

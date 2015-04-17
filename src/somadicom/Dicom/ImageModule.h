@@ -14,7 +14,7 @@
 #include <string>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -64,4 +64,3 @@ class ImageModule : public DicomModule
 
 
 #endif
-

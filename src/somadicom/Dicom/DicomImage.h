@@ -24,7 +24,7 @@ class DcmDataset;
 class DcmPixelData;
 
 
-namespace soma
+namespace dcm
 {
 
 

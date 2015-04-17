@@ -13,7 +13,7 @@
 class DcmDataset;
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -42,7 +42,7 @@ class MultiSliceReader : public DicomReader
     virtual bool buildIndexLut( DcmDataset* dataset );
 
     std::vector< int32_t > _indexLut;
-    std::vector< Vector > _positions;
+    std::vector< Vector3d< double > > _positions;
 
 };
 

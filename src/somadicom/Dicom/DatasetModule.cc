@@ -9,18 +9,18 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::DatasetModule::DatasetModule()
-                   : soma::DicomModule(),
-                     _manufacturer( "Generic" ),
-                     _sopClassUID( "" ),
-                     _seriesInstanceUID( "" ),
-                     _samplesPerPixel( 0 ),
-                     _bitsAllocated( 0 )
+dcm::DatasetModule::DatasetModule()
+                  : dcm::DicomModule(),
+                    _manufacturer( "Generic" ),
+                    _sopClassUID( "" ),
+                    _seriesInstanceUID( "" ),
+                    _samplesPerPixel( 0 ),
+                    _bitsAllocated( 0 )
 {
 }
 
 
-bool soma::DatasetModule::parseItem( DcmItem* dcmItem )
+bool dcm::DatasetModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -89,7 +89,7 @@ bool soma::DatasetModule::parseItem( DcmItem* dcmItem )
 }
 
 
-const std::string& soma::DatasetModule::getManufacturer() const
+const std::string& dcm::DatasetModule::getManufacturer() const
 {
 
   return _manufacturer;
@@ -97,7 +97,7 @@ const std::string& soma::DatasetModule::getManufacturer() const
 }
 
 
-const std::string& soma::DatasetModule::getSOPClassUID() const
+const std::string& dcm::DatasetModule::getSOPClassUID() const
 {
 
   return _sopClassUID;
@@ -105,7 +105,7 @@ const std::string& soma::DatasetModule::getSOPClassUID() const
 }
 
 
-const std::string& soma::DatasetModule::getSeriesInstanceUID() const
+const std::string& dcm::DatasetModule::getSeriesInstanceUID() const
 {
 
   return _seriesInstanceUID;
@@ -113,7 +113,7 @@ const std::string& soma::DatasetModule::getSeriesInstanceUID() const
 }
 
 
-int32_t soma::DatasetModule::getSamplesPerPixel() const
+int32_t dcm::DatasetModule::getSamplesPerPixel() const
 {
 
   return _samplesPerPixel;
@@ -121,7 +121,7 @@ int32_t soma::DatasetModule::getSamplesPerPixel() const
 }
 
 
-int32_t soma::DatasetModule::getBitsAllocated() const
+int32_t dcm::DatasetModule::getBitsAllocated() const
 {
 
   return _bitsAllocated;

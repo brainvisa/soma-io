@@ -11,13 +11,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::SiemensDiffusionModule::SiemensDiffusionModule()
-                            : soma::DiffusionModule()
+dcm::SiemensDiffusionModule::SiemensDiffusionModule()
+                           : dcm::DiffusionModule()
 {
 }
 
 
-bool soma::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
+bool dcm::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -53,11 +53,9 @@ bool soma::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
 
         }
 
-        direction[ 2 ] *= -1.0;
-
       }
 
-      _directions.push_back( direction );
+      addDirection( direction );
 
       return true;
 
@@ -70,8 +68,8 @@ bool soma::SiemensDiffusionModule::parseItem( DcmItem* dcmItem )
 }
 
 
-int32_t soma::SiemensDiffusionModule::getStep( 
-                                       soma::DicomDatasetHeader& datasetHeader )
+int32_t dcm::SiemensDiffusionModule::getStep( 
+                                        dcm::DicomDatasetHeader& datasetHeader )
 {
 
   OFString imageType;
@@ -91,7 +89,6 @@ int32_t soma::SiemensDiffusionModule::getStep(
 
   }
 
-  return soma::DiffusionModule::getStep( datasetHeader );
+  return dcm::DiffusionModule::getStep( datasetHeader );
 
 }
-

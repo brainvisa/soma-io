@@ -12,14 +12,18 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
 class MultiFrameDicomImage;
 
 
+#ifdef SOMA_IO_DICOM
+class MultiFrameContext : public carto::LoopContext
+#else
 class MultiFrameContext : public LoopContext
+#endif
 {
 
   public:

@@ -16,22 +16,26 @@
 #include <map>
 
 
-namespace soma
+namespace dcm
 {
 
 
 class DicomDatasetHeader;
 
 
+#ifdef SOMA_IO_DICOM
+class DicomSortContext : public carto::LoopContext
+#else
 class DicomSortContext : public LoopContext
+#endif
 {
 
   public:
 
     DicomSortContext( DicomDatasetHeader& datasetHeader,
                       std::multimap< double, FileInformation >& slices,
-                      const Vector& rowVector,
-                      const Vector& columnVector );
+                      const Vector3d< double >& rowVector,
+                      const Vector3d< double >& columnVector );
 
     void doIt( int32_t startIndex, int32_t count );
 
@@ -39,7 +43,7 @@ class DicomSortContext : public LoopContext
 
     DicomDatasetHeader& _datasetHeader;
     std::multimap< double, FileInformation >& _slices;
-    Vector _normal;
+    Vector3d< double > _normal;
 
 };
 

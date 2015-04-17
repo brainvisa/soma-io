@@ -4,16 +4,17 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Container/Vector.h>
+#include <soma-io/Container/Vector3d.h>
 #else
-#include <Container/Vector.h>
+#include <Container/Vector3d.h>
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
+template < class T >
 class Matrix
 {
 
@@ -21,14 +22,16 @@ class Matrix
 
     Matrix();
     Matrix( const Matrix& other );
-    Matrix( double m00, double m01, double m02,
-            double m10, double m11, double m12,
-            double m20, double m21, double m22 );
-    Matrix( const Vector& rowVec, const Vector& colVec, const Vector& normVec );
+    Matrix( T m00, T m01, T m02,
+            T m10, T m11, T m12,
+            T m20, T m21, T m22 );
+    Matrix( const Vector3d< T >& rowVec, 
+            const Vector3d< T >& colVec, 
+            const Vector3d< T >& normVec );
 
     Matrix inverse();
 
-    double m[ 3 ][ 3 ];
+    T m[ 3 ][ 3 ];
 
 };
 
@@ -36,15 +39,20 @@ class Matrix
 }
 
 
-soma::Matrix operator * ( const soma::Matrix& mat1, const soma::Matrix& mat2 );
-soma::Vector operator * ( const soma::Matrix& mat, const soma::Vector& vec );
+template < class T >
+dcm::Matrix< T > operator * ( const dcm::Matrix< T >& mat1, 
+                              const dcm::Matrix< T >& mat2 );
+template < class T >
+dcm::Vector3d< T > operator * ( const dcm::Matrix< T >& mat, 
+                                const dcm::Vector3d< T >& vec );
 
 
 namespace std
 {
 
 
-ostream& operator << ( ostream& os, const soma::Matrix& m );
+ostream& operator << ( ostream& os, const dcm::Matrix< float >& m );
+ostream& operator << ( ostream& os, const dcm::Matrix< double >& m );
 
 
 }

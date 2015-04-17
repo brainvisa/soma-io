@@ -1,15 +1,7 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/CRImageStorageReader.h>
-#include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DicomProxy.h>
-#include <soma-io/Object/HeaderProxy.h>
-#include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/CRImageStorageReader.h>
-#include <Dicom/DicomDatasetHeader.h>
-#include <Container/DicomProxy.h>
-#include <Object/HeaderProxy.h>
-#include <Utils/StdInt.h>
 #endif
 
 #include <dcmtk/config/osconfig.h>
@@ -18,13 +10,13 @@
 #include <dcmtk/dcmdata/dcuid.h>
 
 
-soma::CRImageStorageReader::CRImageStorageReader()
-                          : soma::MultiFileReader()
+dcm::CRImageStorageReader::CRImageStorageReader()
+                         : dcm::MultiFileReader()
 {
 }
 
 
-std::string soma::CRImageStorageReader::getStorageUID()
+std::string dcm::CRImageStorageReader::getStorageUID()
 {
 
   return UID_ComputedRadiographyImageStorage;
@@ -32,7 +24,7 @@ std::string soma::CRImageStorageReader::getStorageUID()
 }
 
 
-bool soma::CRImageStorageReader::readHeader( DcmDataset* dataset )
+bool dcm::CRImageStorageReader::readHeader( DcmDataset* dataset )
 {
 
   Float64 tmpFloat;
@@ -44,6 +36,6 @@ bool soma::CRImageStorageReader::readHeader( DcmDataset* dataset )
 
   }
 
-  return soma::MultiFileReader::readHeader( dataset );
+  return dcm::MultiFileReader::readHeader( dataset );
 
 }

@@ -7,10 +7,10 @@
 #endif
 
 
-soma::MultiSliceDicomImage::MultiSliceDicomImage(
-                                      soma::DicomProxy& proxy,
-                                      soma::ImagePixel::Parameters& parameters )
-                          : soma::DicomImage( proxy, parameters )
+dcm::MultiSliceDicomImage::MultiSliceDicomImage(
+                                       dcm::DicomProxy& proxy,
+                                       dcm::ImagePixel::Parameters& parameters )
+                         : dcm::DicomImage( proxy, parameters )
 {
 
   _offsetParameters.rgbPlaneSize *= _parameters.sizeZ;

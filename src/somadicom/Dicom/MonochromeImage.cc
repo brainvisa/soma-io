@@ -10,21 +10,21 @@
 
 
 template < typename T >
-soma::MonochromeImage< T >::MonochromeImage( soma::DicomProxy& proxy )
-                          : soma::ImagePixel( proxy )
+dcm::MonochromeImage< T >::MonochromeImage( dcm::DicomProxy& proxy )
+                         : dcm::ImagePixel( proxy )
 {
 }
 
 
 template < typename T >
 inline
-void soma::MonochromeImage< T >::fill(
-                           soma::ImagePixel::Parameters& parameters,
-                           soma::ImagePixel::OffsetParameters& offsetParameters, 
-                           void* imagePtr, 
-                           int32_t z, 
-                           int32_t t,
-                           int32_t inputSlice )
+void dcm::MonochromeImage< T >::fill(
+                            dcm::ImagePixel::Parameters& parameters,
+                            dcm::ImagePixel::OffsetParameters& offsetParameters, 
+                            void* imagePtr, 
+                            int32_t z, 
+                            int32_t t,
+                            int32_t inputSlice )
 {
 
   if ( imagePtr )
@@ -79,7 +79,8 @@ void soma::MonochromeImage< T >::fill(
     else
     {
 
-      int32_t x, y, px, py, pz;
+      int32_t x, y;
+      dcm::Vector3d< int32_t > p;
 
       for ( y = parameters.startY; 
             y < parameters.endY; 
@@ -89,10 +90,10 @@ void soma::MonochromeImage< T >::fill(
         for ( x = parameters.startX; x < parameters.endX; x++, pIn++ )
         {
 
-          parameters.transform->getDirect( x, y, z, px, py, pz );
-          *( (T*)_proxy( px - parameters.outLowerX, 
-                         py - parameters.outLowerY, 
-                         pz - parameters.outLowerZ, 
+          p = parameters.transform->getDirect( x, y, z );
+          *( (T*)_proxy( p.x - parameters.outLowerX, 
+                         p.y - parameters.outLowerY, 
+                         p.z - parameters.outLowerZ, 
                          t ) ) = *pIn;
 
         }
@@ -106,5 +107,5 @@ void soma::MonochromeImage< T >::fill(
 }
 
 
-template class soma::MonochromeImage< uint8_t >;
-template class soma::MonochromeImage< uint16_t >;
+template class dcm::MonochromeImage< uint8_t >;
+template class dcm::MonochromeImage< uint16_t >;

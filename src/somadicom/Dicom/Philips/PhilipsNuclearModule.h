@@ -10,7 +10,7 @@
 #endif
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -30,4 +30,3 @@ class PhilipsNuclearModule : public NuclearModule
 
 
 #endif
-

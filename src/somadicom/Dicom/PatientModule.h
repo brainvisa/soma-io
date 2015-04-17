@@ -12,7 +12,7 @@
 #include <string>
 
 
-namespace soma
+namespace dcm
 {
 
 
@@ -48,4 +48,3 @@ class PatientModule : public DicomModule
 
 
 #endif
-

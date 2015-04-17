@@ -10,23 +10,23 @@
 #include <dcmtk/dcmdata/dcxfer.h>
 
 
-soma::ColorLut::ColorLut()
-              : _count( 0 ),
-                _first( 0 ),
-                _bits( 16 ),
-                _lut( 0 )
+dcm::ColorLut::ColorLut()
+             : _count( 0 ),
+               _first( 0 ),
+               _bits( 16 ),
+               _lut( 0 )
 {
 }
 
 
-soma::ColorLut::~ColorLut()
+dcm::ColorLut::~ColorLut()
 {
 }
 
 
-void soma::ColorLut::initialize( DcmItem* item, 
-                                 const DcmTagKey& descriptor, 
-                                 const DcmTagKey& data )
+void dcm::ColorLut::initialize( DcmItem* item, 
+                                const DcmTagKey& descriptor, 
+                                const DcmTagKey& data )
 {
 
   if ( item )
@@ -154,7 +154,7 @@ void soma::ColorLut::initialize( DcmItem* item,
 }
 
 
-int32_t soma::ColorLut::getBits() const
+int32_t dcm::ColorLut::getBits() const
 {
 
   return _bits;
@@ -162,7 +162,7 @@ int32_t soma::ColorLut::getBits() const
 }
 
 
-uint16_t soma::ColorLut::operator()( int32_t index )
+uint16_t dcm::ColorLut::operator()( int32_t index )
 {
 
   if ( _lut )

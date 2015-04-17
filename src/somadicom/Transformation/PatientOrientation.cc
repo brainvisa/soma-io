@@ -4,166 +4,125 @@
 #include <Transformation/PatientOrientation.h>
 #endif
 
-#include <cmath>
 
-
-soma::PatientOrientation::PatientOrientation()
-                        : _onDiskSizeX( 0 ),
-                          _onDiskSizeY( 0 ),
-                          _onDiskSizeZ( 0 ),
-                          _onDiskResolution( 1.0, 1.0, 1.0 ),
-                          _sizeX( 0 ),
-                          _sizeY( 0 ),
-                          _sizeZ( 0 ),
-                          _resolution( 1.0, 1.0, 1.0 )
+dcm::PatientOrientation::PatientOrientation()
 {
 }
 
 
-soma::PatientOrientation::PatientOrientation( 
-                                         const soma::PatientOrientation& other )
-                        : _onDiskSizeX( other._onDiskSizeX ),
-                          _onDiskSizeY( other._onDiskSizeY ),
-                          _onDiskSizeZ( other._onDiskSizeZ ),
-                          _onDiskResolution( other._onDiskResolution ),
-                          _sizeX( other._sizeX ),
-                          _sizeY( other._sizeY ),
-                          _sizeZ( other._sizeZ ),
-                          _resolution( other._resolution ),
-                          _flipTransformation( other._flipTransformation ),
-                          _axialTransformation( other._axialTransformation ),
-                          _scaledTransformation( other._scaledTransformation ),
-                          _dicomTransformation( other._dicomTransformation )
+dcm::PatientOrientation::PatientOrientation( 
+                                          const dcm::PatientOrientation& other )
+                       : _onDiskSize( other._onDiskSize ),
+                         _onDiskResolution( other._onDiskResolution ),
+                         _size( other._size ),
+                         _resolution( other._resolution ),
+                         _flipTransform( other._flipTransform ),
+                         _axialTransform( other._axialTransform ),
+                         _scaledTransform( other._scaledTransform ),
+                         _dicomTransform( other._dicomTransform )
 {
 }
 
 
-soma::PatientOrientation::~PatientOrientation()
+dcm::PatientOrientation::~PatientOrientation()
 {
 }
 
 
-void soma::PatientOrientation::set( const soma::Vector& rowVector,
-                                    const soma::Vector& columnVector,
-                                    const soma::Vector& origin,
-                                    int32_t sizeX,
-                                    int32_t sizeY,
-                                    int32_t sizeZ,
-                                    const soma::Vector& resolution )
+void dcm::PatientOrientation::set( const dcm::Vector3d< double >& rowVector,
+                                   const dcm::Vector3d< double >& columnVector,
+                                   const dcm::Vector3d< double >& origin,
+                                   int32_t sizeX,
+                                   int32_t sizeY,
+                                   int32_t sizeZ,
+                                   const dcm::Vector3d< double >& resolution )
 {
 
-  _onDiskSizeX = sizeX;
-  _onDiskSizeY = sizeY;
-  _onDiskSizeZ = sizeZ;
+  dcm::Vector3d< double > translation( sizeX - 1, sizeY - 1, sizeZ - 1 );
+
+  _onDiskSize.x = sizeX;
+  _onDiskSize.y = sizeY;
+  _onDiskSize.z = sizeZ;
   _onDiskResolution = resolution;
 
-  _flipTransformation = soma::FlipTransformation3d( rowVector, columnVector );
-  _axialTransformation = soma::AxialTransformation3d( rowVector, columnVector );
-  _dicomTransformation = soma::DicomTransformation3d( rowVector,
+  _flipTransform = dcm::FlipTransform3d< double >( rowVector, columnVector );
+  _flipTransform.getFullIntegerDirect( _onDiskSize, _size );
+  _flipTransform.getDirect( _onDiskResolution, _resolution );
+
+  _dicomTransform = dcm::DicomTransform3d< double >( rowVector,
+                                                     columnVector,
+                                                     origin );
+
+  _axialTransform = dcm::AxialTransform3d< double >( rowVector, 
+                                                     columnVector,
+                                                     translation );
+
+  translation.x *= resolution.x;
+  translation.y *= resolution.y;
+  translation.z *= resolution.z;
+  _scaledTransform = dcm::AxialTransform3d< double >( rowVector,
                                                       columnVector,
-                                                      origin );
-
-  double sX, sY, sZ;
-  _axialTransformation.getDirect( double( _onDiskSizeX ),
-                                  double( _onDiskSizeY ),
-                                  double( _onDiskSizeZ ),
-                                  sX,
-                                  sY,
-                                  sZ );
-  _sizeX = int32_t( std::fabs( sX ) );
-  _sizeY = int32_t( std::fabs( sY ) );
-  _sizeZ = int32_t( std::fabs( sZ ) );
-
-  soma::Vector t( ( sX < 0.0 ) ? -sX - 1.0 : 0.0,
-                  ( sY < 0.0 ) ? -sY - 1.0 : 0.0,
-                  ( sZ < 0.0 ) ? -sZ - 1.0 : 0.0 );
-  _axialTransformation.setTranslation( t );
-
-  _flipTransformation.getDirect( _onDiskResolution.x,
-                                 _onDiskResolution.x,
-                                 _onDiskResolution.z,
-                                 _resolution.x,
-                                 _resolution.y,
-                                 _resolution.z );
-
-  t.x *= _resolution.x;
-  t.y *= _resolution.y;
-  t.z *= _resolution.z;
-  _scaledTransformation = soma::AxialTransformation3d( rowVector,
-                                                       columnVector,
-                                                       t );
+                                                      translation );
 
 }
 
 
-void soma::PatientOrientation::setOrigin( const Vector& origin )
+void dcm::PatientOrientation::setOrigin( const Vector3d< double >& origin )
 {
 
-  _dicomTransformation.setTranslation( origin );
+  _dicomTransform.setTranslation( origin );
 
 }
 
 
-void soma::PatientOrientation::getOnDiskSize( int32_t& sizeX, 
-                                              int32_t& sizeY, 
-                                              int32_t& sizeZ )
+dcm::Vector3d< int32_t > dcm::PatientOrientation::getOnDiskSize() const
 {
 
-  sizeX = _onDiskSizeX;
-  sizeY = _onDiskSizeY;
-  sizeZ = _onDiskSizeZ;
+  return _onDiskSize;
 
 }
 
 
-void soma::PatientOrientation::getSize( int32_t& sizeX, 
-                                        int32_t& sizeY, 
-                                        int32_t& sizeZ )
+dcm::Vector3d< int32_t > dcm::PatientOrientation::getSize() const
 {
 
-  sizeX = _sizeX;
-  sizeY = _sizeY;
-  sizeZ = _sizeZ;
+  return _size;
 
 }
 
 
-void soma::PatientOrientation::getResolution( double& resolutionX,
-                                              double& resolutionY,
-                                              double& resolutionZ )
+dcm::Vector3d< double > dcm::PatientOrientation::getResolution() const
 {
 
-  resolutionX = _resolution.x;
-  resolutionY = _resolution.y;
-  resolutionZ = _resolution.z;
+  return _resolution;
 
 }
 
 
-soma::BoundingBox< int32_t > 
-soma::PatientOrientation::getDirectBoundingBox( 
-                         const soma::BoundingBox< int32_t >& boundingBox ) const
+dcm::BoundingBox< int32_t > 
+dcm::PatientOrientation::getDirectBoundingBox( 
+                          const dcm::BoundingBox< int32_t >& boundingBox ) const
 {
 
-  double x, y, z;
-  soma::BoundingBox< int32_t > outBoundingBox;
+  dcm::BoundingBox< int32_t > outBoundingBox;
+  dcm::Vector3d< double > lowerBB( double( boundingBox.getLowerX() ),
+                                   double( boundingBox.getLowerY() ),
+                                   double( boundingBox.getLowerZ() ) );
+  dcm::Vector3d< double > upperBB( double( boundingBox.getUpperX() ),
+                                   double( boundingBox.getUpperY() ),
+                                   double( boundingBox.getUpperZ() ) );
+  dcm::Vector3d< double > to;
 
-  _flipTransformation.getDirect( double( boundingBox.getLowerX() ),
-                                 double( boundingBox.getLowerY() ),
-                                 double( boundingBox.getLowerZ() ),
-                                 x, y, z );
-  outBoundingBox.setLowerX( int32_t( x ) );
-  outBoundingBox.setLowerY( int32_t( y ) );
-  outBoundingBox.setLowerZ( int32_t( z ) );
+  _flipTransform.getDirect( lowerBB, to );
+  outBoundingBox.setLowerX( int32_t( to.x ) );
+  outBoundingBox.setLowerY( int32_t( to.y ) );
+  outBoundingBox.setLowerZ( int32_t( to.z ) );
   outBoundingBox.setLowerT( boundingBox.getLowerT() );
 
-  _flipTransformation.getDirect( double( boundingBox.getUpperX() ),
-                                 double( boundingBox.getUpperY() ),
-                                 double( boundingBox.getUpperZ() ),
-                                 x, y, z );
-  outBoundingBox.setUpperX( int32_t( x ) );
-  outBoundingBox.setUpperY( int32_t( y ) );
-  outBoundingBox.setUpperZ( int32_t( z ) );
+  _flipTransform.getDirect( upperBB, to );
+  outBoundingBox.setUpperX( int32_t( to.x ) );
+  outBoundingBox.setUpperY( int32_t( to.y ) );
+  outBoundingBox.setUpperZ( int32_t( to.z ) );
   outBoundingBox.setUpperT( boundingBox.getUpperT() );
 
   return outBoundingBox;
@@ -171,30 +130,30 @@ soma::PatientOrientation::getDirectBoundingBox(
 }
 
 
-soma::BoundingBox< int32_t > 
-soma::PatientOrientation::getInverseBoundingBox( 
-                         const soma::BoundingBox< int32_t >& boundingBox ) const
+dcm::BoundingBox< int32_t > 
+dcm::PatientOrientation::getInverseBoundingBox( 
+                          const dcm::BoundingBox< int32_t >& boundingBox ) const
 {
 
-  double x, y, z;
-  soma::BoundingBox< int32_t > outBoundingBox;
+  dcm::BoundingBox< int32_t > outBoundingBox;
+  dcm::Vector3d< double > lowerBB( double( boundingBox.getLowerX() ),
+                                   double( boundingBox.getLowerY() ),
+                                   double( boundingBox.getLowerZ() ) );
+  dcm::Vector3d< double > upperBB( double( boundingBox.getUpperX() ),
+                                   double( boundingBox.getUpperY() ),
+                                   double( boundingBox.getUpperZ() ) );
+  dcm::Vector3d< double > from;
 
-  _flipTransformation.getInverse( double( boundingBox.getLowerX() ),
-                                  double( boundingBox.getLowerY() ),
-                                  double( boundingBox.getLowerZ() ),
-                                  x, y, z );
-  outBoundingBox.setLowerX( int32_t( x ) );
-  outBoundingBox.setLowerY( int32_t( y ) );
-  outBoundingBox.setLowerZ( int32_t( z ) );
+  _flipTransform.getInverse( lowerBB, from );
+  outBoundingBox.setLowerX( int32_t( from.x ) );
+  outBoundingBox.setLowerY( int32_t( from.y ) );
+  outBoundingBox.setLowerZ( int32_t( from.z ) );
   outBoundingBox.setLowerT( boundingBox.getLowerT() );
 
-  _flipTransformation.getInverse( double( boundingBox.getUpperX() ),
-                                  double( boundingBox.getUpperY() ),
-                                  double( boundingBox.getUpperZ() ),
-                                  x, y, z );
-  outBoundingBox.setUpperX( int32_t( x ) );
-  outBoundingBox.setUpperY( int32_t( y ) );
-  outBoundingBox.setUpperZ( int32_t( z ) );
+  _flipTransform.getInverse( upperBB, from );
+  outBoundingBox.setUpperX( int32_t( from.x ) );
+  outBoundingBox.setUpperY( int32_t( from.y ) );
+  outBoundingBox.setUpperZ( int32_t( from.z ) );
   outBoundingBox.setUpperT( boundingBox.getUpperT() );
 
   return outBoundingBox;
@@ -202,76 +161,63 @@ soma::PatientOrientation::getInverseBoundingBox(
 }
 
 
-void soma::PatientOrientation::getDirect( const int32_t fromX, 
-                                          const int32_t fromY,
-                                          const int32_t fromZ,
-                                          int32_t& toX, 
-                                          int32_t& toY, 
-                                          int32_t& toZ ) const
+dcm::Vector3d< int32_t > dcm::PatientOrientation::getDirect( int32_t x, 
+                                                             int32_t y, 
+                                                             int32_t z ) const
 {
 
-  double tX, tY, tZ;
+  dcm::Vector3d< double > from( x, y, z );
+  dcm::Vector3d< double > to;
 
-  _axialTransformation.getDirect( double( fromX ),
-                                  double( fromY ),
-                                  double( fromZ ),
-                                  tX,
-                                  tY,
-                                  tZ );
+  _axialTransform.getDirect( from, to );
 
-  toX = int32_t( tX + 0.5 );
-  toY = int32_t( tY + 0.5 );
-  toZ = int32_t( tZ + 0.5 );
+  return dcm::Vector3d< int32_t >( int32_t( to.x + 0.5 ),
+                                   int32_t( to.y + 0.5 ),
+                                   int32_t( to.z + 0.5 ) );
 
 }
 
 
-void soma::PatientOrientation::getInverse( const int32_t toX, 
-                                           const int32_t toY,
-                                           const int32_t toZ, 
-                                           int32_t& fromX, 
-                                           int32_t& fromY, 
-                                           int32_t& fromZ ) const
+dcm::Vector3d< int32_t > dcm::PatientOrientation::getInverse( int32_t x, 
+                                                              int32_t y,
+                                                              int32_t z ) const
 {
 
-  double fX, fY, fZ;
+  dcm::Vector3d< double > to( x, y, z );
+  dcm::Vector3d< double > from;
 
-  _axialTransformation.getInverse( double( toX ),
-                                   double( toY ),
-                                   double( toZ ),
-                                   fX,
-                                   fY,
-                                   fZ );
+  _axialTransform.getInverse( to, from );
 
-  fromX = int32_t( fX + 0.5 );
-  fromY = int32_t( fY + 0.5 );
-  fromZ = int32_t( fZ + 0.5 );
+  return dcm::Vector3d< int32_t >( int32_t( from.x + 0.5 ),
+                                   int32_t( from.y + 0.5 ),
+                                   int32_t( from.z + 0.5 ) );
 
 }
 
 
-const soma::Transformation3d& 
-soma::PatientOrientation::getAxialTransformation() const
+const dcm::HomogeneousTransform3d< double >& 
+dcm::PatientOrientation::getAxialTransformation() const
 {
 
-  return _axialTransformation;
+  return _axialTransform;
 
 }
 
 
-soma::Transformation3d soma::PatientOrientation::getReferential() const
+dcm::HomogeneousTransform3d< double > 
+dcm::PatientOrientation::getReferential() const
 {
 
-  soma::Transformation3d m = 
-                         _dicomTransformation * _scaledTransformation.inverse();
+  dcm::HomogeneousTransform3d< double > m = 
+                                   _dicomTransform * _scaledTransform.inverse();
 
   std::vector< double > c = m.getDirectCoefficients();
 
   // Changing from Dicom to Nifti referential only requires X and Y inversions
-  m.setItems( -c[ 0 ],  -c[ 1 ],  -c[ 2 ],  -c[ 3 ],
-              -c[ 4 ],  -c[ 5 ],  -c[ 6 ],  -c[ 7 ],
-               c[ 8 ],   c[ 9 ],   c[ 10 ],  c[ 11 ],
-               c[ 12 ],  c[ 13 ],  c[ 14 ],  c[ 15 ] );
+  m.setDirectItems( -c[ 0 ],  -c[ 1 ],  -c[ 2 ],  -c[ 3 ],
+                    -c[ 4 ],  -c[ 5 ],  -c[ 6 ],  -c[ 7 ],
+                     c[ 8 ],   c[ 9 ],   c[ 10 ],  c[ 11 ],
+                     c[ 12 ],  c[ 13 ],  c[ 14 ],  c[ 15 ] );
 
   return m;
 

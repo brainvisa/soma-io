@@ -10,13 +10,13 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 
-soma::PhilipsEnhancedIndexModule::PhilipsEnhancedIndexModule()
-                                : soma::EnhancedIndexModule()
+dcm::PhilipsEnhancedIndexModule::PhilipsEnhancedIndexModule()
+                               : dcm::EnhancedIndexModule()
 {
 }
 
 
-bool soma::PhilipsEnhancedIndexModule::parseItem( DcmItem* dcmItem )
+bool dcm::PhilipsEnhancedIndexModule::parseItem( DcmItem* dcmItem )
 {
 
   if ( dcmItem )
@@ -34,7 +34,7 @@ bool soma::PhilipsEnhancedIndexModule::parseItem( DcmItem* dcmItem )
       if ( nItems < 4 )
       {
 
-        return soma::EnhancedIndexModule::parseItem( dcmItem );
+        return dcm::EnhancedIndexModule::parseItem( dcmItem );
 
       }
  
@@ -179,4 +179,3 @@ bool soma::PhilipsEnhancedIndexModule::parseItem( DcmItem* dcmItem )
   return false;
 
 }
-
