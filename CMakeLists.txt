@@ -154,5 +154,10 @@ if( DCMTK_FOUND )
   add_subdirectory( src/somadicom )
 endif()
 add_subdirectory( src/tests )
+find_package( Sphinx )
+
+BRAINVISA_GENERATE_SPHINX_DOC( "sphinx"
+  "share/doc/soma-io-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}" )
+
 
 BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
