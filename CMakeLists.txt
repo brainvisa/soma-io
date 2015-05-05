@@ -31,11 +31,16 @@ if( TIFF_FOUND )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS libtiff DEV )
 endif()
 
+# PNG12 support library
+find_package( PNG12 )
+if( PNG12_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libpng12 RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libpng12 DEV )
+endif()
+
 # DICOM support library
 find_package( DCMTK )
 find_package( Jasper )
-# find_package( TIFF ) # already done
-# find_package( PNG12 )
 if( DCMTK_FOUND )
   if (DCMTK_oflog_INCLUDE_DIR AND JASPER_FOUND)
     # JPEG 2000 support is only available
@@ -64,10 +69,6 @@ if( DCMTK_FOUND )
     BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
   endif()
 
-#  BRAINVISA_DEPENDENCY( RUN DEPENDS tiff RUN )
-#  BRAINVISA_DEPENDENCY( RUN DEPENDS libpng12 RUN )
-#  BRAINVISA_DEPENDENCY( DEV RECOMMENDS tiff DEV )
-#  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libpng12 DEV )
 endif()
 
 find_package( ZLIB )
