@@ -84,20 +84,20 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   localMsg( "Reading minf header... " + ds->url() );
   for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i ) {}
   if( ds->isOpen() )
-    {
-      // rewind
-      int	j = i;
-      if( i == n )
-        --j;
-      for( ; j>=0; --j )
-        ds->ungetch( sign[j] );
-    }
+  {
+    // rewind
+    int	j = i - 1;
+    if( i != n )
+      ds->ungetch( c );
+    for( ; j>=0; --j )
+      ds->ungetch( sign[j] );
+  }
   if( i != n )
-    {
-      if( !ds->isOpen() )
-        io_error::launchErrnoExcept( ds->url() );
-      throw wrong_format_error( "not a XML MINF file", ds->url() );
-    }
+  {
+    if( !ds->isOpen() )
+      io_error::launchErrnoExcept( ds->url() );
+    throw wrong_format_error( "not a XML MINF file", ds->url() );
+  }
 
   Object hdr = Object::value( PropertySet() );
   hdr->setProperty( "format", string( "XML" ) );

@@ -73,8 +73,8 @@ namespace
 
 
 DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
-                                           DataSourceInfoLoader &,
-                                           Object /* options */ ) const
+                                         DataSourceInfoLoader &,
+                                         Object /* options */ ) const
 {
 
   // FIXME: very very slight checking...
@@ -83,28 +83,30 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
   ds->open( DataSource::Read );
   char  c;
   int   i, n = sign.length();
+  string readsign;
 
   localMsg( "Reading json beginning... " + ds->url() );
   for( i=0; i<n && ds->isOpen() &&
         ( sign[i] == (c=(char)ds->getch()) || c == ' ' || c == '\t'
           || c == '\n');
       ++i )
-  {}
+  {
+    readsign += c;
+  }
   if( ds->isOpen() )
-    {
-      // rewind
-      int       j = i;
-      if( i == n )
-        --j;
-      for( ; j>=0; --j )
-        ds->ungetch( sign[j] );
-    }
+  {
+    // rewind
+    if( i != n )
+      ds->ungetch( c );
+    for( int j=readsign.length()-1; j>=0; --j )
+      ds->ungetch( readsign[j] );
+  }
   if( i != n )
-    {
-      if( !ds->isOpen() )
-        io_error::launchErrnoExcept( ds->url() );
-      throw wrong_format_error( "not a JSON file", ds->url() );
-    }
+  {
+    if( !ds->isOpen() )
+      io_error::launchErrnoExcept( ds->url() );
+    throw wrong_format_error( "not a JSON file", ds->url() );
+  }
 
   Object hdr = Object::value( PropertySet() );
   hdr->setProperty( "format", string( "JSON" ) );

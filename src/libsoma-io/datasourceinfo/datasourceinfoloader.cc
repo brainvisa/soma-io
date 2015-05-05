@@ -197,7 +197,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
                                             int passbegin, int passend )
 {
   localMsg( "check()" );
-  
+
   // If dsi already complete : returns it ////////////////////////////////////
   std::string format;
   if( options.get() )                                           // try options
@@ -207,7 +207,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
       && dsi.list().typecount() > 1
       && ( format.empty() || format == dsi.identifiedFormat() ) )
     return dsi;
-  
+
   // Init ////////////////////////////////////////////////////////////////////
   static bool plugs = false;
   if( !plugs ) {
@@ -218,10 +218,10 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   d->state = Unchecked;
   d->errorcode = -1;
   d->errormsg = "";
-  
+
   if( !options.get() )
     options = carto::Object::value( carto::PropertySet() );
-  
+
   //// Reading URI ///////////////////////////////////////////////////////////
   std::string url = FileUtil::uriFilename( dsi.list().dataSource()->url() );
   carto::Object urioptions 
@@ -273,14 +273,18 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   if( passbegin <= 0 && passend >= 0 && !format.empty() )
   {
     reader = formatInfo( format );
-    if( reader ) {
+    if( reader )
+    {
       localMsg( "0. trying " + format + "..." );
-      try {
+      try
+      {
         d->state = Ok;
         DataSourceInfo dsi2 = reader->check( dsi, *this, options );
         dsi2.setIdentifiedFormat( format );
         return dsi2;
-      } catch( exception & e ) {
+      }
+      catch( exception & e )
+      {
         localMsg( "0. failed : " + string( e.what() ) );
         d->state = Error;
         io_error::keepExceptionPriority( e, excp, d->errorcode,
@@ -296,16 +300,21 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   {
     iext = ps.extensions.equal_range( ext );
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet ) {
+      if( tried.find( ie->second ) == notyet )
+      {
         localMsg( "1. trying " + (*ie).second + "..." );
         reader = formatInfo( ie->second );
-        if( reader ) {
-          try {
+        if( reader )
+        {
+          try
+          {
             d->state = Ok;
             DataSourceInfo dsi2 = reader->check( dsi, *this, options );
             dsi2.setIdentifiedFormat( ie->second );
             return dsi2;
-          } catch( exception & e ) {
+          }
+          catch( exception & e )
+          {
             localMsg( "1. failed : " + string( e.what() ) );
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode,
@@ -323,16 +332,21 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     localMsg( "not found yet... pass2..." );
     iext = ps.extensions.equal_range( "" );
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet ) {
+      if( tried.find( ie->second ) == notyet )
+      {
         localMsg( "2. trying " + (*ie).second + "..." );
         reader = formatInfo( ie->second );
-        if( reader ) {
-          try {
+        if( reader )
+        {
+          try
+          {
             d->state = Ok;
             DataSourceInfo dsi2 = reader->check( dsi, *this, options );
             dsi2.setIdentifiedFormat( ie->second );
             return dsi2;
-          } catch( exception & e ) {
+          }
+          catch( exception & e )
+          {
             localMsg( "2. failed : " + string( e.what() ) );
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode,
@@ -340,7 +354,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
             pds->at( dspos );
           }
           tried.insert( ie->second );
-	      }
+        }
       }
   }
 
@@ -351,16 +365,21 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
     iext.first = ps.extensions.begin();
     iext.second = ps.extensions.end();
     for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet ) {
+      if( tried.find( ie->second ) == notyet )
+      {
         reader = formatInfo( ie->second );
-        if( reader ) {
+        if( reader )
+        {
           localMsg( "3. trying " + (*ie).second + "..." );
-          try {
+          try
+          {
             d->state = Ok;
             DataSourceInfo dsi2 = reader->check( dsi, *this, options );
             dsi2.setIdentifiedFormat( ie->second );
             return dsi2;
-          } catch( exception & e ) {
+          }
+          catch( exception & e )
+          {
             localMsg( "3. failed : " + string( e.what() ) );
             d->state = Error;
             io_error::keepExceptionPriority( e, excp, d->errorcode,
