@@ -19,9 +19,14 @@ OFLogger DCM_dcmjp2kGetLogger()
 
 }
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 361
 #define MAKE_DCMJP2K_ERROR( number, name, description ) \
 makeOFConditionConst( EC_##name, OFM_dcmjp2k, number, OF_error, description )
-
+#else
+#define MAKE_DCMJP2K_ERROR( number, name, description ) \
+const OFConditionConst ECC_##name( OFM_dcmjp2k, number, OF_error, description ); \
+const OFCondition      EC_##name( ECC_##name )
+#endif
 
 MAKE_DCMJP2K_ERROR( 1, J2KUncompressedBufferTooSmall, "Uncompressed pixel data too short for uncompressed image");
 MAKE_DCMJP2K_ERROR( 2, J2KCompressedBufferTooSmall, "Allocated too small buffer for compressed image data" );
