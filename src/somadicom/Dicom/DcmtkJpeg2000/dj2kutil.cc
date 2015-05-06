@@ -20,8 +20,7 @@ OFLogger DCM_dcmjp2kGetLogger()
 }
 
 #define MAKE_DCMJP2K_ERROR( number, name, description ) \
-const OFConditionConst ECC_##name( OFM_dcmjp2k, number, OF_error, description ); \
-const OFCondition      EC_##name( ECC_##name )
+makeOFConditionConst( EC_##name, OFM_dcmjp2k, number, OF_error, description )
 
 
 MAKE_DCMJP2K_ERROR( 1, J2KUncompressedBufferTooSmall, "Uncompressed pixel data too short for uncompressed image");

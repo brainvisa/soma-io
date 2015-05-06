@@ -6,9 +6,11 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Pattern/Singleton.h>
 #include <soma-io/Dicom/DatasetModule.h>
+#include <soma-io/Dicom/DicomReaderFactory.h>
 #else
 #include <Pattern/Singleton.h>
 #include <Dicom/DatasetModule.h>
+#include <Dicom/DicomReaderFactory.h>
 #endif
 
 #include <string>
@@ -28,6 +30,8 @@ class DicomIO : public Singleton< DicomIO >
 {
 
   public:
+
+    bool registerReader( DicomReader* reader );
 
     bool analyze( const std::string& fileName, DataInfo& dataInfo );
     bool check( const std::string& fileName,
@@ -50,11 +54,17 @@ class DicomIO : public Singleton< DicomIO >
     bool checkDicom( const std::string& fileName );
 
     DatasetModule _datasetModule;
+    DicomReaderFactory _readerFactory;
 
 };
 
 
 }
 
+
+#define RegisterDicomReaderFunction( IMPLEMENTATION )                          \
+static bool init_##IMPLEMENTATION =                                            \
+                                   dcm::DicomIO::getInstance().registerReader( \
+                                   &dcm::IMPLEMENTATION::getInstance() )
 
 #endif

@@ -20,12 +20,16 @@
 
 
 dcm::DicomReaderFactory::DicomReaderFactory()
-                       : dcm::Singleton< dcm::DicomReaderFactory >()
 {
 }
 
 
-bool dcm::DicomReaderFactory::registerReader( dcm::DicomReader* reader )
+dcm::DicomReaderFactory::~DicomReaderFactory()
+{
+}
+
+
+bool dcm::DicomReaderFactory::add( dcm::DicomReader* reader )
 {
 
   if ( reader )

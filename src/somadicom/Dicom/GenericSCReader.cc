@@ -1,9 +1,9 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/GenericSCReader.h>
-#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomIO.h>
 #else
 #include <Dicom/GenericSCReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomIO.h>
 #endif
 
 

@@ -1,9 +1,9 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/GenericMRReader.h>
-#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomIO.h>
 #else
 #include <Dicom/GenericMRReader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomIO.h>
 #endif
 
 

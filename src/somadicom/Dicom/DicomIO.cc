@@ -66,6 +66,14 @@ dcm::DicomIO::~DicomIO()
 }
 
 
+bool dcm::DicomIO::registerReader( dcm::DicomReader* reader )
+{
+
+  return _readerFactory.add( reader );
+
+}
+
+
 bool dcm::DicomIO::analyze( const std::string& fileName,
                             dcm::DataInfo& dataInfo )
 {
@@ -115,10 +123,10 @@ bool dcm::DicomIO::check( const std::string& fileName,
   if ( !selectedFile.empty() )
   {
 
-    return dcm::DicomReaderFactory::getInstance().check( _datasetModule,
-                                                         directory, 
-                                                         dataInfo,
-                                                         datasetHeader );
+    return _readerFactory.check( _datasetModule,
+                                 directory, 
+                                 dataInfo,
+                                 datasetHeader );
 
   }
 
@@ -132,10 +140,10 @@ bool dcm::DicomIO::getHeader( dcm::HeaderProxy& header,
                               dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  return dcm::DicomReaderFactory::getInstance().getHeader( _datasetModule, 
-                                                           header,
-                                                           dataInfo,
-                                                           datasetHeader );
+  return _readerFactory.getHeader( _datasetModule,
+                                   header, 
+                                   dataInfo,
+                                   datasetHeader );
 
 }
 
@@ -144,9 +152,7 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
                          dcm::DicomProxy& proxy )
 {
 
-  return dcm::DicomReaderFactory::getInstance().read( _datasetModule,
-                                                      datasetHeader, 
-                                                      proxy );
+  return _readerFactory.read( _datasetModule,datasetHeader, proxy );
 
 }
 

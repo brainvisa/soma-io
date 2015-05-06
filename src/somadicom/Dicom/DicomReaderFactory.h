@@ -4,9 +4,6 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Pattern/Singleton.h>
-#else
-#include <Pattern/Singleton.h>
 #endif
 
 #include <string>
@@ -26,12 +23,15 @@ class DicomDatasetHeader;
 class HeaderProxy;
 
 
-class DicomReaderFactory : public Singleton< DicomReaderFactory >
+class DicomReaderFactory
 {
 
   public:
 
-    bool registerReader( DicomReader* reader );
+    DicomReaderFactory();
+    virtual ~DicomReaderFactory();
+
+    bool add( DicomReader* reader );
 
     bool check( const DatasetModule& datasetModule,
                 DirectoryParser& directory,
@@ -47,10 +47,6 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
 
   protected:
 
-    friend class Singleton< DicomReaderFactory >;
-
-    DicomReaderFactory();
-
     std::map< std::string, std::map< std::string, DicomReader* > > _readers;
 
   private:
@@ -61,12 +57,6 @@ class DicomReaderFactory : public Singleton< DicomReaderFactory >
 
 
 }
-
-
-#define RegisterDicomReaderFunction( IMPLEMENTATION )                          \
-static bool init_##IMPLEMENTATION =                                            \
-                        dcm::DicomReaderFactory::getInstance().registerReader( \
-                        &dcm::IMPLEMENTATION::getInstance() )
 
 
 #endif

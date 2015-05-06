@@ -41,15 +41,15 @@ enum J2K_UIDCreation
 
 // CONDITION CONSTANTS
 
-extern const OFCondition EC_J2KUncompressedBufferTooSmall;
-extern const OFCondition EC_J2KCompressedBufferTooSmall;
-extern const OFCondition EC_J2KCodecUnsupportedImageType;
-extern const OFCondition EC_J2KUnsupportedBitDepth;
-extern const OFCondition EC_J2KUnsupportedImageType;
-extern const OFCondition EC_J2KNotSupportedYet;
-extern const OFCondition EC_J2KJasperInitializationFailure;
-extern const OFCondition EC_J2KJasperCannotOpenStream;
-extern const OFCondition EC_J2KJasperDecodeFailure;
+extern const OFConditionConst EC_J2KUncompressedBufferTooSmall;
+extern const OFConditionConst EC_J2KCompressedBufferTooSmall;
+extern const OFConditionConst EC_J2KCodecUnsupportedImageType;
+extern const OFConditionConst EC_J2KUnsupportedBitDepth;
+extern const OFConditionConst EC_J2KUnsupportedImageType;
+extern const OFConditionConst EC_J2KNotSupportedYet;
+extern const OFConditionConst EC_J2KJasperInitializationFailure;
+extern const OFConditionConst EC_J2KJasperCannotOpenStream;
+extern const OFConditionConst EC_J2KJasperDecodeFailure;
 
 
 #endif

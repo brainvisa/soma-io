@@ -4,7 +4,7 @@
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Dicom/Siemens/Demosaicer.h>
 #include <soma-io/Dicom/Siemens/MosaicDataContext.h>
-#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/System/DirectoryParser.h>
@@ -16,7 +16,7 @@
 #include <Dicom/DicomDatasetHeader.h>
 #include <Dicom/Siemens/Demosaicer.h>
 #include <Dicom/Siemens/MosaicDataContext.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomIO.h>
 #include <Container/DicomProxy.h>
 #include <Object/HeaderProxy.h>
 #include <System/DirectoryParser.h>

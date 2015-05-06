@@ -2,14 +2,14 @@
 #include <soma-io/Dicom/Philips/PhilipsPTReader.h>
 #include <soma-io/Dicom/Philips/PhilipsNuclearModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/Philips/PhilipsPTReader.h>
 #include <Dicom/Philips/PhilipsNuclearModule.h>
 #include <Dicom/DicomDatasetHeader.h>
-#include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomIO.h>
 #include <Object/HeaderProxy.h>
 #include <Utils/StdInt.h>
 #endif
