@@ -33,36 +33,11 @@
 dcm::DicomIO::DicomIO()
             : dcm::Singleton< dcm::DicomIO >()
 {
-
-  DcmRLEDecoderRegistration::registerCodecs();
-  DJDecoderRegistration::registerCodecs();
-
-#ifdef SOMA_IO_DICOM
-#ifdef SOMA_DICOM_JPEG2000_SUPPORT
-  DJ2KDecoderRegistration::registerCodecs();
-#endif
-#else
-  DJLSDecoderRegistration::registerCodecs();
-  DJ2KDecoderRegistration::registerCodecs();
-#endif
-
 }
 
 
 dcm::DicomIO::~DicomIO()
 {
-
-#ifdef SOMA_IO_DICOM
-#ifdef SOMA_DICOM_JPEG2000_SUPPORT
-  DJ2KDecoderRegistration::cleanup();
-#endif
-#else
-  DJ2KDecoderRegistration::cleanup();
-  DJLSDecoderRegistration::cleanup();
-#endif
-  DJDecoderRegistration::cleanup();
-  DcmRLEDecoderRegistration::cleanup();
-
 }
 
 
@@ -152,7 +127,32 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
                          dcm::DicomProxy& proxy )
 {
 
-  return _readerFactory.read( _datasetModule,datasetHeader, proxy );
+  DcmRLEDecoderRegistration::registerCodecs();
+  DJDecoderRegistration::registerCodecs();
+
+#ifdef SOMA_IO_DICOM
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
+  DJ2KDecoderRegistration::registerCodecs();
+#endif
+#else
+  DJLSDecoderRegistration::registerCodecs();
+  DJ2KDecoderRegistration::registerCodecs();
+#endif
+
+  bool status = _readerFactory.read( _datasetModule,datasetHeader, proxy );
+
+#ifdef SOMA_IO_DICOM
+#ifdef SOMA_DICOM_JPEG2000_SUPPORT
+  DJ2KDecoderRegistration::cleanup();
+#endif
+#else
+  DJ2KDecoderRegistration::cleanup();
+  DJLSDecoderRegistration::cleanup();
+#endif
+  DJDecoderRegistration::cleanup();
+  DcmRLEDecoderRegistration::cleanup();
+
+  return status;
 
 }
 
