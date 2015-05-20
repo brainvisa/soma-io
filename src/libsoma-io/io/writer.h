@@ -103,10 +103,10 @@ namespace soma
     /* Note: constructors used to be inline, but this triggered a
        compiler/linker bug on MacOS 10.5, so we moved them to non-inline.
     */
-    Writer()                               : GenericWriter();
-    Writer( carto::rc_ptr<DataSource> ds ) : GenericWriter( ds );
-    Writer( const std::string& filename )  : GenericWriter( filename );
-    Writer( std::ostream & stream )        : GenericWriter( stream );
+    Writer();
+    Writer( carto::rc_ptr<DataSource> ds );
+    Writer( const std::string& filename );
+    Writer( std::ostream & stream );
     virtual ~Writer();
 
     ///	\brief Finds the correct format and writes the object
