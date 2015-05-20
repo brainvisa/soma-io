@@ -69,6 +69,30 @@ namespace soma
   }
 
 
+  template <typename T>
+  Writer<T>::Writer() : GenericWriter()
+  {
+  }
+
+
+  template <typename T>
+  Writer<T>::Writer( carto::rc_ptr<DataSource> ds ) : GenericWriter( ds )
+  {
+  }
+
+
+  template <typename T>
+  Writer<T>::Writer( const std::string& filename ) : GenericWriter( filename )
+  {
+  }
+
+
+  template <typename T>
+  Writer<T>::Writer( std::ostream & stream ) : GenericWriter( stream )
+  {
+  }
+
+
   template<typename T>
   Writer<T>::~Writer()
   {
