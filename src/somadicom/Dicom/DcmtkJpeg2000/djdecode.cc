@@ -1,13 +1,11 @@
-#include <dcmtk/config/osconfig.h>
-
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/djdecode.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
-#include <soma-io/Dicom/DcmtkJpeg2000/dj2kcodd.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djcodecd.h>
 #else
 #include <Dicom/DcmtkJpeg2000/djdecode.h>
 #include <Dicom/DcmtkJpeg2000/djcparam.h>
-#include <Dicom/DcmtkJpeg2000/dj2kcodd.h>
+#include <Dicom/DcmtkJpeg2000/djcodecd.h>
 #endif
 
 #include <dcmtk/dcmdata/dccodec.h>
@@ -16,9 +14,8 @@
 
 OFBool DJ2KDecoderRegistration::registered_ = OFFalse;
 DJ2KCodecParameter* DJ2KDecoderRegistration::cp_ = NULL;
-DJ2KImageCompressionLosslessDecoder* 
-                               DJ2KDecoderRegistration::losslessdecoder_ = NULL;
-DJ2KImageCompressionDecoder* DJ2KDecoderRegistration::decoder_ = NULL;
+DJ2KLosslessDecoder* DJ2KDecoderRegistration::losslessdecoder_ = NULL;
+DJ2KDecoder* DJ2KDecoderRegistration::decoder_ = NULL;
 
 
 void DJ2KDecoderRegistration::registerCodecs( J2K_UIDCreation uidCreation )
@@ -27,12 +24,12 @@ void DJ2KDecoderRegistration::registerCodecs( J2K_UIDCreation uidCreation )
   if ( !registered_ )
   {
 
-    cp_ = new DJ2KCodecParameter( uidCreation );
+    cp_ = new DJ2KCodecParameter( 0, OFTrue, uidCreation );
 
     if ( cp_ )
     {
 
-      losslessdecoder_ = new DJ2KImageCompressionLosslessDecoder();
+      losslessdecoder_ = new DJ2KLosslessDecoder();
 
       if ( losslessdecoder_ )
       {
@@ -41,7 +38,7 @@ void DJ2KDecoderRegistration::registerCodecs( J2K_UIDCreation uidCreation )
 
       }
 
-      decoder_ = new DJ2KImageCompressionDecoder();
+      decoder_ = new DJ2KDecoder();
 
       if ( decoder_ )
       {

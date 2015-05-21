@@ -1,11 +1,11 @@
 #include <dcmtk/config/osconfig.h>
 
 #ifdef SOMA_IO_DICOM
-#include <soma-io/Dicom/DcmtkJpeg2000/dj2kcode.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djcodece.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djrparam.h>
 #else
-#include <Dicom/DcmtkJpeg2000/dj2kcode.h>
+#include <Dicom/DcmtkJpeg2000/djcodece.h>
 #include <Dicom/DcmtkJpeg2000/djcparam.h>
 #include <Dicom/DcmtkJpeg2000/djrparam.h>
 #endif
@@ -83,7 +83,9 @@ OFCondition DJ2KEncoderBase::encode(
   if ( jas_init() )
   {
 
-    return EC_J2KJasperInitializationFailure;
+    //return EC_J2KJasperInitializationFailure;
+    return OFConditionConst( OFM_dcmjp2k, 7, OF_error, 
+                             "Jasper: initialization failed" );
 
   }
 
@@ -257,7 +259,10 @@ OFCondition DJ2KEncoderBase::encode(
     else
     {
 
-      result = EC_J2KUnsupportedImageType;
+      //result = EC_J2KUnsupportedImageType;
+      result = OFConditionConst(
+                                OFM_dcmjp2k, 3, OF_error, 
+                                "Codec does not support this JPEG-2000 image" );
 
     }
 
@@ -265,7 +270,10 @@ OFCondition DJ2KEncoderBase::encode(
     if ( ( columns < 1 ) || ( rows < 1 ) || ( samplesPerPixel < 1 ) )
     {
 
-     result = EC_J2KUnsupportedImageType;
+      //result = EC_J2KUnsupportedImageType;
+      result = OFConditionConst(
+                                OFM_dcmjp2k, 3, OF_error, 
+                                "Codec does not support this JPEG-2000 image" );
 
     }
 
@@ -274,7 +282,10 @@ OFCondition DJ2KEncoderBase::encode(
            OFstatic_cast( unsigned long, numberOfFrames ) ) > length )
     {
 
-      result = EC_J2KUncompressedBufferTooSmall;
+      //result = EC_J2KUncompressedBufferTooSmall;
+      result = OFConditionConst(
+                   OFM_dcmjp2k, 1, OF_error, 
+                   "Uncompressed pixel data too short for uncompressed image" );
 
     }
   if ( result.good() && ( samplesPerPixel > 1 ) )
@@ -372,7 +383,8 @@ OFCondition DJ2KEncoderBase::encode(
   return result;
 #endif
 
-  return EC_J2KNotSupportedYet;
+  //return EC_J2KNotSupportedYet;
+  return OFConditionConst( OFM_dcmjp2k, 6, OF_error, "Not supported yet" );
 
 }
 
@@ -421,75 +433,68 @@ OFCondition DJ2KEncoderBase::determineDecompressedColorModel(
 }
 
 
-EP_Interpretation DJ2KEncoderBase::getPhotometricInterpretation( DcmItem *item )
+OFCondition DJ2KEncoderBase::losslessRawEncode(
+                                        const Uint16 *pixelData,
+                                        const Uint32 length,
+                                        DcmItem *dataset,
+                                        const DJ2KRepresentationParameter *djrp,
+                                        DcmPixelSequence * & pixSeq,
+                                        const DJ2KCodecParameter *djcp,
+                                        double& compressionRatio ) const
 {
 
-  if (item)
-  {
+  OFCondition result;
 
-    OFString photometric;
-
-    if ( ( item->findAndGetOFString( DCM_PhotometricInterpretation, 
-                                     photometric ) ).good() && 
-         ( photometric.length() > 0 ) )
-    {
-
-      const char *c = photometric.c_str();
-      char cp[ 17 ];
-      int i = 0;
-      unsigned char cur;
-
-      while ( *c && ( i < 16 ) )
-      {
-
-        cur = OFstatic_cast( unsigned char, *c );
-
-        if ( isalpha( cur ) )
-        {
-
-          cp[ i++ ] = toupper( cur );
-
-        }
-        else if ( isdigit( cur ) )
-        {
-
-          cp[ i++ ] = cur;
-
-        }
-
-        c++;
-
-      }
-
-      cp[ i ] = 0;
-      photometric = cp;
-
-      i = 0;
-      while ( PhotometricInterpretationNames[ i ].Name )
-      {
-
-        if ( photometric == PhotometricInterpretationNames[ i ].Name )
-        {
-
-          return PhotometricInterpretationNames[ i ].Type;
-
-        }
-
-        i++;
-
-      }
-
-    }
-
-  }
-
-  return EPI_Unknown;
+  return result;
 
 }
 
 
-E_TransferSyntax 
-DJ2KImageCompressionLosslessEncoder::supportedTransferSyntax() const
+OFCondition DJ2KEncoderBase::updateLossyCompressionRatio( DcmItem *dataset, 
+                                                          double ratio ) const
+{
+
+  OFCondition result;
+
+  return result;
+
+}
+
+
+OFCondition DJ2KEncoderBase::updateDerivationDescription(
+                                        DcmItem *dataset,
+                                        const DJ2KRepresentationParameter *djrp,
+                                        double ratio ) const
+{
+
+  OFCondition result;
+
+  return result;
+
+}
+
+
+OFCondition DJ2KEncoderBase::compressRawFrame( const Uint8 *framePointer,
+                                      Uint16 bitsAllocated,
+                                      Uint16 columns,
+                                      Uint16 rows,
+                                      Uint16 samplesPerPixel,
+                                      Uint16 planarConfiguration,
+                                      const OFString& photometricInterpretation,
+                                      DcmPixelSequence *pixelSequence,
+                                      DcmOffsetList &offsetList,
+                                      unsigned long &compressedSize,
+                                      const DJ2KCodecParameter *djcp ) const
+{
+
+  OFCondition result;
+
+  return result;
+
+}
+
+
+E_TransferSyntax DJ2KLosslessEncoder::supportedTransferSyntax() const
 {
 
   return EXS_JPEG2000LosslessOnly;
@@ -497,8 +502,7 @@ DJ2KImageCompressionLosslessEncoder::supportedTransferSyntax() const
 }
 
 
-E_TransferSyntax 
-DJ2KImageCompressionEncoder::supportedTransferSyntax() const
+E_TransferSyntax DJ2KEncoder::supportedTransferSyntax() const
 {
 
   return EXS_JPEG2000;

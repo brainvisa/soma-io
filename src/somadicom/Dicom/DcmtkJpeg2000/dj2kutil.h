@@ -39,6 +39,7 @@ enum J2K_UIDCreation
 };
 
 
+/*
 // CONDITION CONSTANTS
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 361
@@ -51,6 +52,7 @@ extern const OFConditionConst EC_J2KNotSupportedYet;
 extern const OFConditionConst EC_J2KJasperInitializationFailure;
 extern const OFConditionConst EC_J2KJasperCannotOpenStream;
 extern const OFConditionConst EC_J2KJasperDecodeFailure;
+extern const OFConditionConst EC_J2KCannotComputeNumberOfFragments;
 #else
 extern const OFCondition EC_J2KUncompressedBufferTooSmall;
 extern const OFCondition EC_J2KCompressedBufferTooSmall;
@@ -61,6 +63,8 @@ extern const OFCondition EC_J2KNotSupportedYet;
 extern const OFCondition EC_J2KJasperInitializationFailure;
 extern const OFCondition EC_J2KJasperCannotOpenStream;
 extern const OFCondition EC_J2KJasperDecodeFailure;
+extern const OFCondition EC_J2KCannotComputeNumberOfFragments;
 #endif
+*/
 
 #endif

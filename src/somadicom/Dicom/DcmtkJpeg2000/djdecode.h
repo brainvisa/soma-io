@@ -2,19 +2,18 @@
 #define _DcmtkJpeg2000_djdecode_h_
 
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/oftypes.h>
-
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 #else
 #include <Dicom/DcmtkJpeg2000/dj2kutil.h>
 #endif
 
+#include <dcmtk/ofstd/oftypes.h>
+
 
 class DJ2KCodecParameter;
-class DJ2KImageCompressionLosslessDecoder;
-class DJ2KImageCompressionDecoder;
+class DJ2KLosslessDecoder;
+class DJ2KDecoder;
 
 
 class DJ2KDecoderRegistration
@@ -30,8 +29,7 @@ public:
    *    of color images should be encoded upon decompression.
    *  @param ignoreOffsetTable flag indicating whether to ignore the offset table when decompressing multiframe images
    */
-  static void registerCodecs(
-    J2K_UIDCreation uidcreation = EJ2KUC_default );
+  static void registerCodecs( J2K_UIDCreation uidcreation = EJ2KUC_default );
 
   /** deregisters decoders.
    *  Attention: Must not be called while other threads might still use
@@ -54,10 +52,10 @@ private:
   static DJ2KCodecParameter *cp_;
 
   /// pointer to image compression lossless decoder
-  static DJ2KImageCompressionLosslessDecoder *losslessdecoder_;
+  static DJ2KLosslessDecoder *losslessdecoder_;
 
   /// pointer to image compression decoder
-  static DJ2KImageCompressionDecoder *decoder_;
+  static DJ2KDecoder *decoder_;
 
 };
 

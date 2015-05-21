@@ -1,24 +1,22 @@
-#ifndef _DcmtkJpeg2000_dj2kcode_h_
-#define _DcmtkJpeg2000_dj2kcode_h_
+#ifndef _DcmtkJpeg2000_djcodecd_h_
+#define _DcmtkJpeg2000_djcodecd_h_
 
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dccodec.h>
-#include <dcmtk/dcmdata/dcofsetl.h>
-#include <dcmtk/dcmimgle/diutils.h>
 #include <dcmtk/ofstd/ofstring.h>
 
 
 class DJ2KCodecParameter;
 
 
-class  DJ2KEncoderBase : public DcmCodec
+class DJ2KDecoderBase : public DcmCodec
 {
 
   public:
 
-    DJ2KEncoderBase();
-    virtual ~DJ2KEncoderBase();
+    DJ2KDecoderBase();
+    virtual ~DJ2KDecoderBase();
 
     virtual OFCondition decode( const DcmRepresentationParameter* fromRepParam,
                                 DcmPixelSequence* pixSeq,
@@ -64,14 +62,29 @@ class  DJ2KEncoderBase : public DcmCodec
 
   private:
 
-    EP_Interpretation getPhotometricInterpretation( DcmItem *item );
+    static OFCondition decodeFrame( DcmPixelSequence* fromPixSeq,
+                                    const DJ2KCodecParameter *cp,
+                                    DcmItem *dataset,
+                                    Uint32 frameNo,
+                                    Uint32& startFragment,
+                                    void* buffer,
+                                    Uint32 bufSize,
+                                    Sint32 imageFrames,
+                                    Uint16 imageColumns,
+                                    Uint16 imageRows,
+                                    Uint16 imageSamplesPerPixel,
+                                    Uint16 bytesPerSample );
 
-    virtual E_TransferSyntax supportedTransferSyntax() const = 0;
+    static Uint32 computeNumberOfFragments( Sint32 numberOfFrames,
+                                            Uint32 currentFrame,
+                                            Uint32 startItem,
+                                            OFBool ignoreOffsetTable,
+                                            DcmPixelSequence *pixSeq );
 
 };
 
 
-class DJ2KImageCompressionLosslessEncoder : public DJ2KEncoderBase
+class DJ2KLosslessDecoder : public DJ2KDecoderBase
 {
 
   public:
@@ -80,7 +93,8 @@ class DJ2KImageCompressionLosslessEncoder : public DJ2KEncoderBase
 
 };
 
-class DJ2KImageCompressionEncoder : public DJ2KEncoderBase
+
+class DJ2KDecoder : public DJ2KDecoderBase
 {
 
   public:

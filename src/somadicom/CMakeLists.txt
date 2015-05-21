@@ -207,9 +207,9 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
   # and it JASPER dependency was found
   set ( _headers
     ${_headers}
-    Dicom/DcmtkJpeg2000/dj2kcodd.h
-    Dicom/DcmtkJpeg2000/dj2kcode.h
     Dicom/DcmtkJpeg2000/dj2kutil.h
+    Dicom/DcmtkJpeg2000/djcodecd.h
+    Dicom/DcmtkJpeg2000/djcodece.h
     Dicom/DcmtkJpeg2000/djcparam.h
     Dicom/DcmtkJpeg2000/djdecode.h
     Dicom/DcmtkJpeg2000/djencode.h
@@ -218,9 +218,9 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
 
   set ( _sources 
     ${_sources}
-    Dicom/DcmtkJpeg2000/dj2kcodd.cc
-    Dicom/DcmtkJpeg2000/dj2kcode.cc
     Dicom/DcmtkJpeg2000/dj2kutil.cc
+    Dicom/DcmtkJpeg2000/djcodecd.cc
+    Dicom/DcmtkJpeg2000/djcodece.cc
     Dicom/DcmtkJpeg2000/djcparam.cc
     Dicom/DcmtkJpeg2000/djdecode.cc
     Dicom/DcmtkJpeg2000/djencode.cc

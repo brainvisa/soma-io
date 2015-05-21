@@ -2,14 +2,13 @@
 #define _DcmtkJpeg2000_djcparam_h_
 
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dccodec.h>
-
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/dj2kutil.h>
 #else
 #include <Dicom/DcmtkJpeg2000/dj2kutil.h>
 #endif
+
+#include <dcmtk/dcmdata/dccodec.h>
 
 
 class DJ2KCodecParameter : public DcmCodecParameter
@@ -17,19 +16,21 @@ class DJ2KCodecParameter : public DcmCodecParameter
 
   public:
 
-    DJ2KCodecParameter( J2K_UIDCreation uidCreation = EJ2KUC_default,
+    DJ2KCodecParameter( Uint32 fragmentSize = 0,
+                        OFBool createOffsetTable = OFTrue,
+                        J2K_UIDCreation uidCreation = EJ2KUC_default,
                         OFBool convertToSC = OFFalse );
 
-    /// copy constructor
     DJ2KCodecParameter( const DJ2KCodecParameter& arg );
 
-    /// destructor
     virtual ~DJ2KCodecParameter();
 
     virtual DcmCodecParameter* clone() const;
 
     virtual const char* className() const;
 
+    Uint32 getFragmentSize() const;
+    OFBool getCreateOffsetTable() const;
     J2K_UIDCreation getUIDCreation() const;
     OFBool getConvertToSC() const;
 
@@ -37,11 +38,9 @@ class DJ2KCodecParameter : public DcmCodecParameter
 
     DJ2KCodecParameter& operator=( const DJ2KCodecParameter& );
 
-    /// mode for SOP Instance UID creation (used both for encoding and decoding)
+    Uint32 fragmentSize_;
+    OFBool createOffsetTable_;
     J2K_UIDCreation uidCreation_;
-
-    /// flag indicating whether image should be converted to Secondary Capture 
-    /// upon compression
     OFBool convertToSC_;
 
 };

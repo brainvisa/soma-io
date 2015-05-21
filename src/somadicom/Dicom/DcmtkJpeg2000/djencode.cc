@@ -1,13 +1,11 @@
-#include <dcmtk/config/osconfig.h>
-
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/djencode.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
-#include <soma-io/Dicom/DcmtkJpeg2000/dj2kcode.h>
+#include <soma-io/Dicom/DcmtkJpeg2000/djcodece.h>
 #else
 #include <Dicom/DcmtkJpeg2000/djencode.h>
 #include <Dicom/DcmtkJpeg2000/djcparam.h>
-#include <Dicom/DcmtkJpeg2000/dj2kcode.h>
+#include <Dicom/DcmtkJpeg2000/djcodece.h>
 #endif
 
 #include <dcmtk/dcmdata/dccodec.h>
@@ -16,23 +14,28 @@
 
 OFBool DJ2KEncoderRegistration::registered_ = OFFalse;
 DJ2KCodecParameter* DJ2KEncoderRegistration::cp_ = NULL;
-DJ2KImageCompressionLosslessEncoder*
-                               DJ2KEncoderRegistration::losslessencoder_ = NULL;
-DJ2KImageCompressionEncoder* DJ2KEncoderRegistration::encoder_ = NULL;
+DJ2KLosslessEncoder* DJ2KEncoderRegistration::losslessencoder_ = NULL;
+DJ2KEncoder* DJ2KEncoderRegistration::encoder_ = NULL;
 
 
-void DJ2KEncoderRegistration::registerCodecs( J2K_UIDCreation uidCreation )
+void DJ2KEncoderRegistration::registerCodecs( Uint32 fragmentSize,
+                                              OFBool createOffsetTable,
+                                              J2K_UIDCreation uidCreation,
+                                              OFBool convertToSC )
 {
 
   if ( !registered_ )
   {
 
-    cp_ = new DJ2KCodecParameter( uidCreation );
+    cp_ = new DJ2KCodecParameter( fragmentSize, 
+                                  createOffsetTable, 
+                                  uidCreation,
+                                  convertToSC );
 
     if ( cp_ )
     {
 
-      losslessencoder_ = new DJ2KImageCompressionLosslessEncoder();
+      losslessencoder_ = new DJ2KLosslessEncoder();
 
       if ( losslessencoder_ )
       {
@@ -41,7 +44,7 @@ void DJ2KEncoderRegistration::registerCodecs( J2K_UIDCreation uidCreation )
 
       }
 
-      encoder_ = new DJ2KImageCompressionEncoder();
+      encoder_ = new DJ2KEncoder();
 
       if ( encoder_ )
       {
