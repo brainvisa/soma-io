@@ -553,24 +553,63 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base,
     opts->setProperty( "syntaxset", minfSyntax() );
 
   try {
+    // byte_swapping, object_type, data_type and item_type read from a minf
+    // are properties that can not override those read from data header.
+    // That is the reason why we store it, then read minf and finally restore
+    // these properties.
     Reader<GenericObject>	rg( filename );
     rg.setOptions( opts );
     bool hasbs = minf->hasProperty( "byte_swapping" );
+    bool hasot = minf->hasProperty( "object_type" );
+    bool hasdt = minf->hasProperty( "data_type" );
+    bool hasit = minf->hasProperty( "item_type" );
     int bs = 0;
+    string ot = "";
+    string dt = "";
+    string it = "";
+    
+    // Store forbidden minf properties original values
     if( hasbs )
       hasbs = minf->getProperty( "byte_swapping", bs );
+    
+    if( hasot )
+      hasot = minf->getProperty( "object_type", ot );
+    
+    if( hasdt )
+      hasdt = minf->getProperty( "data_type", dt );
+    
+    if( hasit )
+      hasit = minf->getProperty( "item_type", it );
+    
+    // Read minf
     rg.read( *minf );
-    // remove some forbidden properties
-    if( minf->hasProperty( "object_type" ) )
-      minf->removeProperty( "object_type" );
-    if( minf->hasProperty( "data_type" ) )
-      minf->removeProperty( "data_type" );
-    if( minf->hasProperty( "item_type" ) )
-      minf->removeProperty( "item_type" );
+    
+    // Remove forbidden properties
+    // and reset to original values
     if( hasbs )
       minf->setProperty( "byte_swapping", bs );
+    
     else if( minf->hasProperty( "byte_swapping" ) )
       minf->removeProperty( "byte_swapping" );
+
+    if( hasot )
+      minf->setProperty( "object_type", ot );
+    
+    else if( minf->hasProperty( "object_type" ) )
+      minf->removeProperty( "object_type" );
+    
+    if( hasdt )
+      minf->setProperty( "data_type", dt );
+    
+    else if( minf->hasProperty( "data_type" ) )
+      minf->removeProperty( "data_type" );
+    
+    if( hasit )
+      minf->setProperty( "item_type", it );
+    
+    else if( minf->hasProperty( "item_type" ) )
+      minf->removeProperty( "item_type" );
+    
     return minf;
   } catch( exception & e ){
   } catch( ... ) {
