@@ -318,16 +318,33 @@ namespace soma {
     dsi.header()->getProperty( "sizeY", dim[1] );
     dsi.header()->getProperty( "sizeZ", dim[2] );
     dsi.header()->getProperty( "sizeT", dim[3] );
-    std::vector<float> vs( 4, 0 );
+    std::vector<float> vs( 4, 1. );
     // reading voxel size
-    vs[0] = dsi.header()->getProperty( "voxel_size")
-                        ->getArrayItem(0)->getScalar();
-    vs[1] = dsi.header()->getProperty( "voxel_size")
-                        ->getArrayItem(1)->getScalar();
-    vs[2] = dsi.header()->getProperty( "voxel_size")
-                        ->getArrayItem(2)->getScalar();
-    vs[3] = dsi.header()->getProperty( "voxel_size")
-                        ->getArrayItem(3)->getScalar();
+    try
+    {
+      carto::Object vso = dsi.header()->getProperty( "voxel_size" );
+      if( vso.get() )
+      {
+        int nvs = vso->size();
+        if( nvs >= 1 )
+        {
+          vs[0] = vso->getArrayItem(0)->getScalar();
+          if( nvs >= 2 )
+          {
+            vs[1] = vso->getArrayItem(1)->getScalar();
+            if( nvs >= 3 )
+            {
+              vs[2] = vso->getArrayItem(2)->getScalar();
+              if( nvs >= 4 )
+                vs[3] = vso->getArrayItem(3)->getScalar();
+            }
+          }
+        }
+      }
+    }
+    catch( ... )
+    {
+    }
     // header :: volume dimensions
     *ds << dim[0] << " " << dim[1] << " "
         << dim[2] << " " << dim[3] << "\n";
