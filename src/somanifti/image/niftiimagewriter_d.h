@@ -229,7 +229,10 @@ namespace
   template <typename T>
   void dataTOnim( nifti_image *nim, carto::Object & hdr,
                   const T* source, int tt, znzFile zfp, 
-                  const std::vector<long> & strides )
+                  const std::vector<long> & strides,
+                  const std::vector<int> & pos,
+                  const std::vector<int> & size,
+                  const std::vector<std::vector<int> > & sizes )
   {
     soma::AffineTransformation3d m;
     try
@@ -278,7 +281,29 @@ namespace
       tmax = tt+1;
     }
 
-    if( !expandNiftiScaleFactor( hdr, nim, m, source, tmin, tmax, zfp, 
+    // total volume size
+    int  sx = sizes[ 0 ][ 0 ];
+    int  sy = sizes[ 0 ][ 1 ];
+    int  sz = sizes[ 0 ][ 2 ];
+    int  st = sizes[ 0 ][ 3 ];
+
+    // region size
+    int  vx = size[ 0 ];
+    int  vy = size[ 1 ];
+    int  vz = size[ 2 ];
+    int  vt = size[ 3 ];
+
+    // region position
+    int  ox = pos[ 0 ];
+    int  oy = pos[ 1 ];
+    int  oz = pos[ 2 ];
+    int  ot = pos[ 3 ];
+
+    int  y, z, t;
+    // region line size
+    long offset;
+
+    if( !expandNiftiScaleFactor( hdr, nim, m, source, tmin, tmax, zfp,
       strides ) )
     {
       soma::Point3df d0f;
@@ -312,6 +337,8 @@ namespace
             d = &buf[0];
             for( int x=0; x<nim->nx; ++x, p0 += pinc )
               *d++ = *p0;
+            // TODO: calculate offset
+            // znzseek( zfp file, offset, SEEK_CUR );
             ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
             if( ss != numbytes )
             {
@@ -358,27 +385,9 @@ namespace soma
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
-    // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
     int  st = _sizes[ 0 ][ 3 ];
-
-    // region size
-    int  vx = size[ 0 ];
-    int  vy = size[ 1 ];
-    int  vz = size[ 2 ];
     int  vt = size[ 3 ];
-
-    // region position
-    int  ox = pos[ 0 ];
-    int  oy = pos[ 1 ];
-    int  oz = pos[ 2 ];
     int  ot = pos[ 3 ];
-
-    int  y, z, t;
-    // region line size
-    offset_t offset;
 
 //     if( options->hasProperty( "partial_writing" )
 //       && !open( DataSource::ReadWrite ) )
@@ -409,10 +418,27 @@ namespace soma
         zfp = _znzfiles[0]->znzfile;
       else
       {
-        // header has not been written. do it.
-        zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
-//         _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
-//           new NiftiFileWrapper( zfp ) ) );
+        if( options->hasProperty( "partial_writing" ) )
+        {
+          // partial writing needs:
+          // re-reading the header to get actual image file dimensions and
+          //   orientation (storage_to_memory)
+          // opening the "img" stream read-write and position correctly in it
+          //   (skip the header, if any)
+          // seek the correct location, in disk space orientation, before
+          //   writing each line
+          zfp = znzopen( dsi.url().c_str(), "rwb",
+                         nifti_is_gzfile( dsi.url().c_str() ) );
+          znzseek( zfp, _nim->nim->iname_offset, SEEK_CUR );
+          // TODO finish this...
+        }
+        else
+        {
+          // header has not been written. do it.
+          zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+//           _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
+//             new NiftiFileWrapper( zfp ) ) );
+        }
       }
 
       if( znz_isnull( zfp ) )
@@ -420,7 +446,7 @@ namespace soma
 
       if( ok )
       {
-        dataTOnim( nim, hdr, source, -1, zfp, strides );
+        dataTOnim( nim, hdr, source, -1, zfp, strides, pos, size, _sizes );
 
         if( znz_isnull( zfp ) )
           ok = false;
@@ -461,12 +487,15 @@ namespace soma
           // file 0 is already open
           zfp = _znzfiles[f]->znzfile;
         else // others are not.
+        {
+          // TODO: partial writing handling
           zfp = api->nifti_image_write_hdr_img( nim, 2, "wb" );
+        }
         if( znz_isnull( zfp ) )
           ok = false;
         else
         {
-          dataTOnim( nim, hdr, source, f, zfp, strides );
+          dataTOnim( nim, hdr, source, f, zfp, strides, pos, size, _sizes );
           if( znz_isnull( zfp ) )
             ok = false;
           else if( _znzfiles.size() <= f )
