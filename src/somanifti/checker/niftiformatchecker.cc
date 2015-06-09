@@ -288,7 +288,7 @@ void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
       }
     }
   }
-  localMsg( "hdr: " + dsl.dataSource( "hdr" )->url() );
+//   localMsg( "hdr: " + dsl.dataSource( "hdr" )->url() );
   localMsg( "nii: " + dsl.dataSource( "nii" )->url() );
 
   /* chexck for .bval and .bvec additional files (diffusion imaging, output of

@@ -118,32 +118,43 @@ namespace
                                const soma::AffineTransformation3d & m,
                                const T* data, int tmin, int tmax,
                                znzFile zfp, 
-                               const std::vector<long> & strides )
+                               const std::vector<long> & strides,
+                               int vx, int vy, int vz, int ox, int oy, int oz )
   {
-    soma::Point3df d0f;
-    std::vector<int> d0(4);
-    soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
-        - m.transform( soma::Point3df( 0, 0, 0 ) );
-    std::vector<int> inc(3);
-    inc[0] = int( rint( incf[0] ) );
-    inc[1] = int( rint( incf[1] ) );
-    inc[2] = int( rint( incf[2] ) );
-    long pinc = inc[2] * strides[2]
-      + inc[1] * strides[1]
-      + inc[0] * strides[0];
-    const T *p0;
     bool scalef;
     std::vector<float> s(2);
+
     if( hdr->getProperty( "scale_factor_applied", scalef ) && scalef
         && hdr->getProperty( "scale_factor", s[0] )
         && hdr->getProperty( "scale_offset", s[1] ) )
     {
-      size_t numbytes = nim->nx * sizeof( int16_t ), ss;
-      std::vector<int16_t> buf( nim->nx );
+      soma::Point3df d0f;
+      std::vector<int> d0(4);
+      soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
+          - m.transform( soma::Point3df( 0, 0, 0 ) );
+      std::vector<int> inc(3);
+      inc[0] = int( rint( incf[0] ) );
+      inc[1] = int( rint( incf[1] ) );
+      inc[2] = int( rint( incf[2] ) );
+      long pinc = inc[2] * strides[2]
+        + inc[1] * strides[1]
+        + inc[0] * strides[0];
+      const T *p0;
+
+      // region line size
+      long offset, cur_offset = 0, offset2;
+      std::vector<long> dstrides(4);
+      dstrides[0] = sizeof(int16_t);
+      dstrides[1] = nim->nx * dstrides[0];
+      dstrides[2] = nim->ny * dstrides[1];
+      dstrides[3] = nim->nz * dstrides[2];
+
+      size_t numbytes = vx * sizeof( int16_t ), ss;
+      std::vector<int16_t> buf( vx );
       int16_t *d = 0;
       for( int t=tmin; t<tmax; ++t )
-        for( int z=0; z<nim->nz; ++z )
-          for( int y=0; y<nim->ny; ++y )
+        for( int z=0; z<vz; ++z )
+          for( int y=0; y<vy; ++y )
           {
             d0f = m.transform( soma::Point3df( 0, y, z ) );
             d0[0] = int( rint( d0f[0] ) );
@@ -153,9 +164,17 @@ namespace
             d = &buf[0];
             p0 = data + d0[3] * strides[3] + d0[2] * strides[2]
               + d0[1] * strides[1] + d0[0] * strides[0];
-            for( int x=0; x<nim->nx; ++x, p0 += pinc )
+            for( int x=0; x<vx; ++x, p0 += pinc )
               *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
+            // calculate offset on disk
+            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+              + (y + oy) * dstrides[1] + ox * dstrides[0];
+            offset2 = offset;
+            offset -= cur_offset;
+            cur_offset = offset2 + numbytes;
+            znzseek( zfp, offset, SEEK_CUR );
+            // write at specified location
             ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
             if( ss != numbytes )
             {
@@ -176,7 +195,8 @@ namespace
                                const soma::AffineTransformation3d &,
                                const carto::VoxelRGB*,
                                int, int, znzFile, 
-                               const std::vector<long> & )
+                               const std::vector<long> &,
+                               int, int, int, int, int, int )
   {
     return false;
   }
@@ -187,7 +207,8 @@ namespace
                                const soma::AffineTransformation3d &,
                                const carto::VoxelRGBA*,
                                int, int, znzFile, 
-                               const std::vector<long> & )
+                               const std::vector<long> &,
+                               int, int, int, int, int, int )
   {
     return false;
   }
@@ -198,7 +219,8 @@ namespace
                                const soma::AffineTransformation3d &,
                                const carto::VoxelHSV*,
                                int, int, znzFile, 
-                               const std::vector<long> & )
+                               const std::vector<long> &,
+                               int, int, int, int, int, int )
   {
     return false;
   }
@@ -209,7 +231,8 @@ namespace
                                const soma::AffineTransformation3d &,
                                const cfloat*,
                                int, int, znzFile,
-                               const std::vector<long> & )
+                               const std::vector<long> &,
+                               int, int, int, int, int, int )
   {
     return false;
   }
@@ -220,7 +243,8 @@ namespace
                                const soma::AffineTransformation3d &,
                                const cdouble*,
                                int, int, znzFile,
-                               const std::vector<long> & )
+                               const std::vector<long> &,
+                               int, int, int, int, int, int )
   {
     return false;
   }
@@ -234,7 +258,9 @@ namespace
                   const std::vector<int> & size,
                   const std::vector<std::vector<int> > & sizes )
   {
-    soma::AffineTransformation3d m;
+    soma::AffineTransformation3d m, m2s, mems2m;
+    soma::Point3df p, p0( 0, 0, 0 ), tp;
+
     try
     {
       carto::Object storage_to_memory;
@@ -242,8 +268,8 @@ namespace
       m = storage_to_memory;
       /* adjust translations so that they fit (in case the vol size has
          changed) */
-      soma::Point3df p( nim->nx - 1, 0, 0 ), p0( 0, 0, 0 );
-      soma::Point3df tp = m.transform( p ) - m.transform( p0 );
+      p = soma::Point3df( nim->nx - 1, 0, 0 );
+      tp = m.transform( p ) - m.transform( p0 );
       dataTOnim_checks2m( m, p, tp, 0, 0 );
       dataTOnim_checks2m( m, p, tp, 0, 1 );
       dataTOnim_checks2m( m, p, tp, 0, 2 );
@@ -269,11 +295,64 @@ namespace
     }
     hdr->setProperty( "storage_to_memory", m.toVector() );
 
+    m2s = m.inverse();
+
+    // total volume size, in disk orientation
+//     soma::Point3df vtsize = m2s.transform(
+//       soma::Point3df( sizes[0][0], sizes[0][1], sizes[0][2] ) )
+//       - m2s.transform( p0 );
+//     int  sx = int( rint( fabs( vtsize[ 0 ] ) ) );
+//     int  sy = int( rint( fabs( vtsize[ 1 ] ) ) );
+//     int  sz = int( rint( fabs( vtsize[ 2 ] ) ) );
+//     int  st = sizes[ 0 ][ 3 ];
+
+    // region size, in disk orientation
+    soma::Point3df vsize = m2s.transform(
+      soma::Point3df( size[0], size[1], size[2] ) )
+      - m2s.transform( p0 );
+    int  vx = int( rint( fabs( vsize[ 0 ] ) ) );
+    int  vy = int( rint( fabs( vsize[ 1 ] ) ) );
+    int  vz = int( rint( fabs( vsize[ 2 ] ) ) );
+    int  vt = size[ 3 ];
+
+    // region position, in disk orientation
+    soma::Point3df orig = m2s.transform(
+      soma::Point3df( pos[0], pos[1], pos[2] ) );
+    soma::Point3df pend = m2s.transform(
+      soma::Point3df( pos[0] + size[0] - 1, pos[1] + size[1] - 1,
+                      pos[2] + size[2] - 1 ) );
+    int  ox = std::min( int( rint( fabs( orig[ 0 ] ) ) ),
+                        int( rint( fabs( pend[ 0 ] ) ) ) );
+    int  oy = std::min( int( rint( fabs( orig[ 1 ] ) ) ),
+                        int( rint( fabs( pend[ 1 ] ) ) ) );
+    int  oz = std::min( int( rint( fabs( orig[ 2 ] ) ) ),
+                        int( rint( fabs( pend[ 2 ] ) ) ) );
+    int  ot = pos[ 3 ];
+
+    // TODO: still need a s2m matrix for the memory object
+    // memory volume-size s2m
+    mems2m = m;
+    p = soma::Point3df( vx - 1, 0, 0 );
+    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    dataTOnim_checks2m( mems2m, p, tp, 0, 0 );
+    dataTOnim_checks2m( mems2m, p, tp, 0, 1 );
+    dataTOnim_checks2m( mems2m, p, tp, 0, 2 );
+    p = soma::Point3df( 0, vy - 1, 0 );
+    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    dataTOnim_checks2m( mems2m, p, tp, 1, 0 );
+    dataTOnim_checks2m( mems2m, p, tp, 1, 1 );
+    dataTOnim_checks2m( mems2m, p, tp, 1, 2 );
+    p = soma::Point3df( 0, 0, vz - 1 );
+    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    dataTOnim_checks2m( mems2m, p, tp, 2, 0 );
+    dataTOnim_checks2m( mems2m, p, tp, 2, 1 );
+    dataTOnim_checks2m( mems2m, p, tp, 2, 2 );
+
     int tmin, tmax;
     if(tt < 0)
     {
-      tmin = 0;
-      tmax = nim->nt;
+      tmin = ot;
+      tmax = ot + vt;
     }
     else
     {
@@ -281,35 +360,22 @@ namespace
       tmax = tt+1;
     }
 
-    // total volume size
-    int  sx = sizes[ 0 ][ 0 ];
-    int  sy = sizes[ 0 ][ 1 ];
-    int  sz = sizes[ 0 ][ 2 ];
-    int  st = sizes[ 0 ][ 3 ];
-
-    // region size
-    int  vx = size[ 0 ];
-    int  vy = size[ 1 ];
-    int  vz = size[ 2 ];
-    int  vt = size[ 3 ];
-
-    // region position
-    int  ox = pos[ 0 ];
-    int  oy = pos[ 1 ];
-    int  oz = pos[ 2 ];
-    int  ot = pos[ 3 ];
-
-    int  y, z, t;
-    // region line size
-    long offset;
-
-    if( !expandNiftiScaleFactor( hdr, nim, m, source, tmin, tmax, zfp,
-      strides ) )
+    if( !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax, zfp,
+      strides, vx, vy, vz, ox, oy, oz ) )
     {
+      int  y, z, t;
+      // region line size
+      long offset, cur_offset = 0, offset2;
+      std::vector<long> dstrides(4);
+      dstrides[0] = sizeof(T);
+      dstrides[1] = nim->nx * dstrides[0];
+      dstrides[2] = nim->ny * dstrides[1];
+      dstrides[3] = nim->nz * dstrides[2];
+
       soma::Point3df d0f;
       std::vector<int> d0(4);
-      soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
-          - m.transform( soma::Point3df( 0, 0, 0 ) );
+      soma::Point3df incf = mems2m.transform( soma::Point3df( 1, 0, 0 ) )
+          - mems2m.transform( p0 );
       std::vector<int> inc(3);
       inc[0] = int( rint( incf[0] ) );
       inc[1] = int( rint( incf[1] ) );
@@ -318,27 +384,34 @@ namespace
       long pinc = inc[2] * strides[2]
         + inc[1] * strides[1]
         + inc[0] * strides[0];
-      const T *p0;
-      size_t numbytes = nim->nx * sizeof( T ), ss;
-      std::vector<T> buf( nim->nx );
+      const T *pt0;
+      size_t numbytes = vx * sizeof( T ), ss;
+      std::vector<T> buf( vx );
       T *d = 0;
 
       for( int t=tmin; t<tmax; ++t )
-        for( int z=0; z<nim->nz; ++z )
-          for( int y=0; y<nim->ny; ++y )
+        for( int z=0; z<vz; ++z )
+          for( int y=0; y<vy; ++y )
           {
-            d0f = m.transform( soma::Point3df( 0, y, z ) );
+            d0f = mems2m.transform( soma::Point3df( 0, y, z ) );
             d0[0] = int( rint( d0f[0] ) );
             d0[1] = int( rint( d0f[1] ) );
             d0[2] = int( rint( d0f[2] ) );
             d0[3] = t;
-            p0 = source + d0[3] * strides[3] + d0[2] * strides[2]
+            pt0 = source + d0[3] * strides[3] + d0[2] * strides[2]
               + d0[1] * strides[1] + d0[0] * strides[0];
             d = &buf[0];
-            for( int x=0; x<nim->nx; ++x, p0 += pinc )
-              *d++ = *p0;
-            // TODO: calculate offset
-            // znzseek( zfp file, offset, SEEK_CUR );
+            for( int x=0; x<vx; ++x, pt0 += pinc )
+              *d++ = *pt0;
+
+            // calculate offset on disk
+            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+              + (y + oy) * dstrides[1] + ox * dstrides[0];
+            offset2 = offset;
+            offset -= cur_offset;
+            cur_offset = offset2 + numbytes;
+            znzseek( zfp, offset, SEEK_CUR );
+            // write at specified location
             ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
             if( ss != numbytes )
             {
@@ -389,12 +462,6 @@ namespace soma
     int  vt = size[ 3 ];
     int  ot = pos[ 3 ];
 
-//     if( options->hasProperty( "partial_writing" )
-//       && !open( DataSource::ReadWrite ) )
-//       throw carto::open_error( "data source not available", url() );
-//     else if( !open( DataSource::Write ) )
-//       throw carto::open_error( "data source not available", url() );
-
     bool  write4d = dsi.list().size( "nii" ) == 1;
 
     if( !checkDimsCompatibility() )
@@ -403,6 +470,17 @@ namespace soma
         "dimensions exceeding 32737", dsi.url() );
 
     carto::Object hdr = dsi.header();
+    bool partial = false;
+    try
+    {
+      Object pobj = options->getProperty( "partial_writing" );
+      if( pobj )
+        partial = pobj->getScalar();
+    }
+    catch( ... )
+    {
+    }
+
     nifti_image *nim = _nim->nim;
 
     bool ok = true;
@@ -418,19 +496,16 @@ namespace soma
         zfp = _znzfiles[0]->znzfile;
       else
       {
-        if( options->hasProperty( "partial_writing" ) )
+        if( partial )
         {
           // partial writing needs:
-          // re-reading the header to get actual image file dimensions and
-          //   orientation (storage_to_memory)
           // opening the "img" stream read-write and position correctly in it
           //   (skip the header, if any)
           // seek the correct location, in disk space orientation, before
           //   writing each line
-          zfp = znzopen( dsi.url().c_str(), "rwb",
+          zfp = znzopen( dsi.url().c_str(), "r+b",
                          nifti_is_gzfile( dsi.url().c_str() ) );
           znzseek( zfp, _nim->nim->iname_offset, SEEK_CUR );
-          // TODO finish this...
         }
         else
         {
@@ -488,8 +563,22 @@ namespace soma
           zfp = _znzfiles[f]->znzfile;
         else // others are not.
         {
-          // TODO: partial writing handling
-          zfp = api->nifti_image_write_hdr_img( nim, 2, "wb" );
+          if( partial )
+          {
+            // partial writing needs:
+            // opening the "img" stream read-write and position correctly in it
+            //   (skip the header, if any)
+            // seek the correct location, in disk space orientation, before
+            //   writing each line
+            zfp = znzopen( dsl.dataSource( "nii", f )->url().c_str(), "r+b",
+                           nifti_is_gzfile( dsi.url().c_str() ) );
+            znzseek( zfp, _nim->nim->iname_offset, SEEK_CUR );
+          }
+          else
+          {
+            // header has not been written. do it.
+            zfp = api->nifti_image_write_hdr_img( nim, 2, "wb" );
+          }
         }
         if( znz_isnull( zfp ) )
           ok = false;
@@ -552,19 +641,21 @@ namespace soma
     if( options->hasProperty( "partial_writing" ) )
     {
       DataSourceInfoLoader  dsil;
-      carto::rc_ptr<DataSource> hdrds = dsi.list().dataSource( "hdr" );
+      carto::rc_ptr<DataSource> hdrds;
+      try
+      {
+        hdrds = dsi.list().dataSource( "hdr" );
+      }
+      catch( ... )
+      {
+        hdrds = dsi.list().dataSource();
+      }
       if( hdrds.isNull() )
         hdrds = dsi.list().dataSource( "nii" );
       DataSourceInfo hdrdsi( hdrds );
       hdrdsi = dsil.check( hdrdsi );
-      dsi.header()->setProperty( "sizeX",
-                                 hdrdsi.header()->getProperty( "sizeX" ) );
-      dsi.header()->setProperty( "sizeY",
-                                 hdrdsi.header()->getProperty( "sizeY" ) );
-      dsi.header()->setProperty( "sizeZ",
-                                 hdrdsi.header()->getProperty( "sizeZ" ) );
-      dsi.header()->setProperty( "sizeT",
-                                 hdrdsi.header()->getProperty( "sizeT" ) );
+      dsi.header() = hdrdsi.header();
+      dsi.privateIOData()->copyProperties( hdrdsi.privateIOData() );
       return dsi;
     }
 
