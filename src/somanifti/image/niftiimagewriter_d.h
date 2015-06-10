@@ -269,17 +269,17 @@ namespace
       /* adjust translations so that they fit (in case the vol size has
          changed) */
       p = soma::Point3df( nim->nx - 1, 0, 0 );
-      tp = m.transform( p ) - m.transform( p0 );
+      tp = m.transform( soma::Point3df( 1, 0, 0 ) ) - m.transform( p0 );
       dataTOnim_checks2m( m, p, tp, 0, 0 );
       dataTOnim_checks2m( m, p, tp, 0, 1 );
       dataTOnim_checks2m( m, p, tp, 0, 2 );
       p = soma::Point3df( 0, nim->ny - 1, 0 );
-      tp = m.transform( p ) - m.transform( p0 );
+      tp = m.transform( soma::Point3df( 0, 1, 0 ) ) - m.transform( p0 );
       dataTOnim_checks2m( m, p, tp, 1, 0 );
       dataTOnim_checks2m( m, p, tp, 1, 1 );
       dataTOnim_checks2m( m, p, tp, 1, 2 );
       p = soma::Point3df( 0, 0, nim->nz - 1 );
-      tp = m.transform( p ) - m.transform( p0 );
+      tp = m.transform( soma::Point3df( 0, 0, 1 ) ) - m.transform( p0 );
       dataTOnim_checks2m( m, p, tp, 2, 0 );
       dataTOnim_checks2m( m, p, tp, 2, 1 );
       dataTOnim_checks2m( m, p, tp, 2, 2 );
@@ -333,17 +333,19 @@ namespace
     // memory volume-size s2m
     mems2m = m;
     p = soma::Point3df( vx - 1, 0, 0 );
-    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    tp = mems2m.transform( soma::Point3df( 1, 0, 0 ) ) - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 2 );
     p = soma::Point3df( 0, vy - 1, 0 );
-    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    tp = mems2m.transform( soma::Point3df( 0, 1, 0 ) )
+      - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 2 );
     p = soma::Point3df( 0, 0, vz - 1 );
-    tp = mems2m.transform( p ) - mems2m.transform( p0 );
+    tp = mems2m.transform( soma::Point3df( 0, 0, 1 ) )
+      - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 2 );
