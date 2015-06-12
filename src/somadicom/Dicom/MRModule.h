@@ -5,9 +5,16 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
 #include <soma-io/Dicom/DicomModule.h>
+#include <soma-io/Utils/StdInt.h>
 #else
 #include <Dicom/DicomModule.h>
+#include <Utils/StdInt.h>
 #endif
+
+#include <vector>
+
+
+class DcmDataset;
 
 
 namespace dcm
@@ -22,17 +29,23 @@ class MRModule : public DicomModule
     MRModule();
 
     bool parseItem( DcmItem* dcmItem );
+    bool parseDataset( DcmDataset* dadaset );
+    bool parseHeader( DicomDatasetHeader& datasetHeader );
 
     double getTR() const;
-    double getTE() const;
-    double getTI() const;
+    const std::vector< double >& getTE() const;
+    const std::vector< double >& getTI() const;
     double getFlipAngle() const;
+
+  protected:
+
+    virtual int32_t getStep( DicomDatasetHeader& datasetHeader );
 
   private:
 
     double _tr;
-    double _te;
-    double _ti;
+    std::vector< double > _te;
+    std::vector< double > _ti;
     double _flipAngle;
 
 }; 

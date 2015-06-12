@@ -50,18 +50,24 @@ bool dcm::MRImageStorageReader::getHeader(
 
   }
 
-  DcmDataset dataset;
   dcm::MRModule mrModule;
   dcm::DiffusionModule diffusionModule;
 
-  datasetHeader.get( dataset );
-
-  if ( mrModule.parseItem( &dataset ) )
+  if ( mrModule.parseHeader( datasetHeader ) )
   {
 
     proxy.addAttribute( "tr", mrModule.getTR() );
-    proxy.addAttribute( "te", mrModule.getTE() );
-    proxy.addAttribute( "ti", mrModule.getTI() );
+    proxy.addAttribute( "TEs", mrModule.getTE() );
+    proxy.addAttribute( "te", mrModule.getTE()[ 0 ] );
+
+    if ( mrModule.getTI().size() )
+    {
+
+      proxy.addAttribute( "TIs", mrModule.getTI() );
+      proxy.addAttribute( "ti", mrModule.getTI()[ 0 ] );
+
+    }
+
     proxy.addAttribute( "flip_angle", mrModule.getFlipAngle() );
 
   }
