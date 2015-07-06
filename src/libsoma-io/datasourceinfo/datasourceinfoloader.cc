@@ -514,7 +514,9 @@ SyntaxSet & DataSourceInfoLoader::minfSyntax()
     sx[ "referentials" ] = Semantic( "string_vector" );
 
     sx[ "textures" ] = Semantic( "vector of texture of FLOAT", false, true );
-    
+    sx[ "_texture_palettes" ] = Semantic( "map of int RcVolume of RGBA",
+                                          false, true );
+
     // VECTOR OF VECTOR (MULTIRESOLUTION)
     sx[ "resolutions_dimension" ] = Semantic( "int_vector_vector " );
 
