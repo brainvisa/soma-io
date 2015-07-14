@@ -853,6 +853,7 @@ DECLARE_GENERIC_OBJECT_TYPE( bool )
 DECLARE_GENERIC_OBJECT_TYPE( std::string )
 DECLARE_GENERIC_OBJECT_TYPE( Object )
 DECLARE_GENERIC_OBJECT_TYPE( void * )
+DECLARE_GENERIC_OBJECT_TYPE( Void )
 template <>
 struct GenericObjectTypeDeclared< GenericObject >
 {
@@ -877,6 +878,7 @@ DECLARE_GENERIC_OBJECT_TYPE( std::vector<float> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<double> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::string> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<Object> )
+DECLARE_GENERIC_OBJECT_TYPE( std::vector<Void> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::string> * )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<int> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<unsigned> > )

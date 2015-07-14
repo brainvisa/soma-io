@@ -60,6 +60,7 @@ INSTANTIATE_GENERIC_OBJECT_TYPE( bool )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::string )
 INSTANTIATE_GENERIC_OBJECT_TYPE( Object )
 INSTANTIATE_GENERIC_OBJECT_TYPE( void * )
+INSTANTIATE_GENERIC_OBJECT_TYPE( Void )
 
 template class TypedObject< GenericObject >;
 template class ReferenceObject< GenericObject >;
