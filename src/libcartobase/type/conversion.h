@@ -84,9 +84,9 @@ class conversion
 
 
 #define SUPERSUBCLASS( T, U ) \
-  ( (bool)::carto::conversion<const U, const T>::exists )
+  ( static_cast<bool>(::carto::conversion<const U, const T>::exists) )
 
 #define SUPERSUBCLASS_NONCONST( T, U ) \
-  ( (bool)::carto::conversion<U, T>::exists )
+  ( static_cast<bool>(::carto::conversion<U, T>::exists) )
 
 #endif

@@ -228,7 +228,9 @@ string FileUtil::temporaryFile( const string & prefix, int & fd )
 
   fname += "XXXXXX";
 
-  fd = mkstemp( (char *) fname.c_str() );
+  // BUG: mkstemp writes to the string, and directly modifying the memory
+  // pointed to by fname.c_str() is forbidden by the C++ standard
+  fd = mkstemp( const_cast<char *>( fname.c_str() ) );
   if( fd != -1 )
     {
       // unlink file to ensure it will be deleted after usage
@@ -289,7 +291,9 @@ string FileUtil::temporaryDirectory( const string & prefix )
 
   fname += "XXXXXX";
 
-  int	fd = mkstemp( (char *) fname.c_str() );
+  // BUG: mkstemp writes to the string, and directly modifying the memory
+  // pointed to by fname.c_str() is forbidden by the C++ standard
+  int	fd = mkstemp( const_cast<char *>( fname.c_str() ) );
   if( fd != -1 )
     {
       // unlink file to ensure it will be deleted after usage

@@ -261,9 +261,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint8_t )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -273,9 +273,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint16_t )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -285,9 +285,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint32_t )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -297,9 +297,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( uint64_t )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -309,9 +309,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( float )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -321,9 +321,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( double )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -334,9 +334,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( uint8_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -347,9 +347,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( uint16_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -360,9 +360,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( uint32_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -373,9 +373,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( uint64_t )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -386,9 +386,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( float )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -399,9 +399,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( double )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
 
@@ -635,9 +635,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: operator *= ( long )" << std::endl;
     #endif
-    hue()        *= (uint8_t) val;
-    saturation() *= (uint8_t) val;
-    value()      *= (uint8_t) val;
+    hue()        *= static_cast<uint8_t>( val );
+    saturation() *= static_cast<uint8_t>( val );
+    value()      *= static_cast<uint8_t>( val );
     return *this;
   }
   
@@ -648,9 +648,9 @@ namespace carto {
       std::cout << "HSV:: operator /= ( long )" << std::endl;
     #endif
     ASSERT( val != 0 );
-    hue()        /= (uint8_t) val;
-    saturation() /= (uint8_t) val;
-    value()      /= (uint8_t) val;
+    hue()        /= static_cast<uint8_t>( val );
+    saturation() /= static_cast<uint8_t>( val );
+    value()      /= static_cast<uint8_t>( val );
     return *this;
   }
   

@@ -286,7 +286,7 @@ bool PrintInstantiation<const T>::doIt( bool *address)
   if ( verbose ) {
     std::cerr << "!instantiation! " << typeid(T).name() << " "
               << "const "
-              << (void *) address << " "
+              << static_cast<void *>( address ) << " "
               <<  DataTypeCode<T>::name() << std::endl;
   }
   return true;

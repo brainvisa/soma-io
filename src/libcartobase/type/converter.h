@@ -377,20 +377,22 @@ void RawConverter< IN , OUT >::convert( const IN &in, OUT & out ) const \
   template<typename TYPE, typename TEST>
   inline bool isvalidvalue( TYPE value ){
     /// Check that value is valid for the test type
-    return ( ((TYPE)carto::min_limit<TEST>()) <= value )
-      && ( value <= ((TYPE)std::numeric_limits<TEST>::max()) );
+    return ( static_cast<TYPE>(carto::min_limit<TEST>()) <= value )
+      && ( value <= static_cast<TYPE>(std::numeric_limits<TEST>::max()) );
   }
 
   template<typename TYPE>
   inline TYPE getcheckedmin( double min ) {
-    return ( carto::isvalidvalue<double, TYPE>( min ) ? (TYPE) min :
-        carto::min_limit<TYPE>() );
+    return ( carto::isvalidvalue<double, TYPE>( min ) ?
+             static_cast<TYPE>( min ) :
+             carto::min_limit<TYPE>() );
   }
 
   template<typename TYPE>
   inline TYPE getcheckedmax( double max ) {
-    return ( carto::isvalidvalue<double, TYPE>( max ) ? (TYPE) max :
-        std::numeric_limits<TYPE>::max() );
+    return ( carto::isvalidvalue<double, TYPE>( max ) ?
+             static_cast<TYPE>( max ) :
+             std::numeric_limits<TYPE>::max() );
   }
 
   /*
@@ -407,9 +409,9 @@ void RawConverter< IN , OUT >::convert( const IN &in, OUT & out ) const \
     scaledvalue = ( value - this->_defaultedvmin ) * _scale
       + this->_defaultedomin;
 
-    if ( scaledvalue < ((double)carto::min_limit<OUTP>())) {
+    if ( scaledvalue < static_cast<double>(carto::min_limit<OUTP>())) {
       result = carto::min_limit<OUTP>();
-    } else if ( scaledvalue > ((double)std::numeric_limits<OUTP>::max()) ) {
+    } else if ( scaledvalue > static_cast<double>(std::numeric_limits<OUTP>::max()) ) {
       result = std::numeric_limits<OUTP>::max();
     } else {
       doubleconverter.convert( scaledvalue, result );

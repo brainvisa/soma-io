@@ -95,8 +95,8 @@ namespace carto {
     int i;
     out << '(';
     for( i=0; i<C-1; ++i )
-      out << (int) aa[i] << ',';
-    out << (int) aa[C-1] << ')';
+      out << static_cast<int>( aa[i] ) << ',';
+    out << static_cast<int>( aa[C-1] ) << ')';
     return( out );
   }
 
@@ -115,11 +115,11 @@ namespace carto {
       in >> ch;
     
     in >> read >> ch;
-    result[0] = (T) read;
+    result[0] = static_cast<T>( read );
     for( i=1; i<C; ++i )
       if( ch == ',' ) {
         in >> read >> ch;
-        result[i] = (T) read;
+        result[i] = static_cast<T>( read );
       }
     
     if( ch != 0 && ch != ')' )

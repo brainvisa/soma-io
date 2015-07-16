@@ -65,10 +65,10 @@ unsigned carto::cpuCount()
   // total number of processors, Windows
   SYSTEM_INFO sysinfo;
   GetSystemInfo( &sysinfo );
-  unsigned nCpu = (int)sysinfo.dwNumberOfProcessors;
+  unsigned nCpu = static_cast<int>( sysinfo.dwNumberOfProcessors );
 #elif defined(__APPLE__)
   // number of processors online, Mac OS X
-  unsigned nCpu = (int)MPProcessorsScheduled();
+  unsigned nCpu = static_cast<int>( MPProcessorsScheduled() );
 #elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
   // total number of processors, FreeBSD, OpenBSD, and NetBSD
   int mib[2];
@@ -77,18 +77,18 @@ unsigned carto::cpuCount()
   int nCpui = 1;
   size_t len = sizeof( nCpu );
   sysctl( mib, 2, &nCpui, &len, NULL, 0 );
-  unsigned nCpu = (unsigned) nCpui;
+  unsigned nCpu = static_cast<unsigned>( nCpui );
 #elif defined(__hpux) 
   // number of processors online, HP-UX
   struct pst_dynamic psd; 
   pstat_getdynamic(&psd, sizeof(psd), 1, 0);
-  unsigned nCpu = (unsigned)psd.psd_proc_cnt;
+  unsigned nCpu = static_cast<unsigned>( psd.psd_proc_cnt );
 #elif defined(__linux) || defined(__sun) || defined(__osf)
   // number of processors online, Linux, Solaris, and Tru64
-  unsigned nCpu = (unsigned)sysconf( _SC_NPROCESSORS_ONLN );
+  unsigned nCpu = static_cast<unsigned>( sysconf( _SC_NPROCESSORS_ONLN ) );
 #elif defined(__sgi)
   // number of processors online, IRIX
-  unsigned nCpu = (unsigned)sysconf( _SC_NPROC_ONLN );
+  unsigned nCpu = static_cast<unsigned>( sysconf( _SC_NPROC_ONLN ) );
 #else
   unsigned nCpu = 1;
 #endif

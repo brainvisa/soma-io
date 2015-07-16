@@ -102,7 +102,7 @@ void stringTo< unsigned char >( const string& value, unsigned char& result )
     throw out_of_range_error( value );
 
   }
-  result = ( unsigned char )r;
+  result = static_cast<unsigned char>( r );
 
 }
 
@@ -123,7 +123,7 @@ void stringTo< signed char >( const string& value, signed char& result )
     throw out_of_range_error( value );
 
   }
-  result = ( signed char ) r;
+  result = static_cast<signed char>( r );
 
 }
 
@@ -144,7 +144,7 @@ void stringTo< unsigned short >( const string& value, unsigned short& result )
     throw out_of_range_error( value );
 
   }
-  result = ( unsigned short ) r;
+  result = static_cast<unsigned short>( r );
 
 }
 
@@ -165,7 +165,7 @@ void stringTo< short >( const string& value, short& result )
     throw out_of_range_error( value );
 
   }
-  result = ( short )r;
+  result = static_cast<short>( r );
 
 }
 
@@ -186,7 +186,7 @@ void stringTo< unsigned int >( const string& value, unsigned int& result )
     throw out_of_range_error( value );
 
   }
-  result = ( unsigned int )r;
+  result = static_cast<unsigned int>( r );
 
 }
 
@@ -207,7 +207,7 @@ void stringTo< int >( const string& value, int& result )
     throw out_of_range_error( value );
 
   }
-  result = ( int )r;
+  result = static_cast<int>( r );
 
 }
 
@@ -441,7 +441,7 @@ void stringTo< float >( const string& value, float& result )
     throw out_of_range_error( value );
 
   }
-  result = ( float )r;
+  result = static_cast<float>( r );
 
 }
 

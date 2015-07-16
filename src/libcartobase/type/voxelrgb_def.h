@@ -222,9 +222,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator *= ( uint8_t )" << std::endl;
     #endif
-    red()   *= (uint8_t) value;
-    green() *= (uint8_t) value;
-    blue()  *= (uint8_t) value;
+    red()   *= static_cast<uint8_t>( value );
+    green() *= static_cast<uint8_t>( value );
+    blue()  *= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -234,9 +234,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator *= ( uint16_t )" << std::endl;
     #endif
-    red()   *= (uint8_t) value;
-    green() *= (uint8_t) value;
-    blue()  *= (uint8_t) value;
+    red()   *= static_cast<uint8_t>( value );
+    green() *= static_cast<uint8_t>( value );
+    blue()  *= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -246,9 +246,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator *= ( uint32_t )" << std::endl;
     #endif
-    red()   *= (uint8_t) value;
-    green() *= (uint8_t) value;
-    blue()  *= (uint8_t) value;
+    red()   *= static_cast<uint8_t>( value );
+    green() *= static_cast<uint8_t>( value );
+    blue()  *= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -258,9 +258,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator *= ( uint64_t )" << std::endl;
     #endif
-    red()   *= (uint8_t) value;
-    green() *= (uint8_t) value;
-    blue()  *= (uint8_t) value;
+    red()   *= static_cast<uint8_t>( value );
+    green() *= static_cast<uint8_t>( value );
+    blue()  *= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -271,9 +271,9 @@ namespace carto {
       std::cout << "RGB:: operator *= ( float )" << std::endl;
     #endif
     // not using *= operator to perform float operations
-    red()   = (uint8_t) ( red() * value );
-    green() = (uint8_t) ( green() * value );
-    blue()  = (uint8_t) ( blue() * value );
+    red()   = static_cast<uint8_t>( red() * value );
+    green() = static_cast<uint8_t>( green() * value );
+    blue()  = static_cast<uint8_t>( blue() * value );
     return *this;
   }
 
@@ -284,9 +284,9 @@ namespace carto {
       std::cout << "RGB:: operator *= ( double )" << std::endl;
     #endif
     // not using *= operator to perform float operations
-    red()   = (uint8_t) ( red() * value );
-    green() = (uint8_t) ( green() * value );
-    blue()  = (uint8_t) ( blue() * value );
+    red()   = static_cast<uint8_t>( red() * value );
+    green() = static_cast<uint8_t>( green() * value );
+    blue()  = static_cast<uint8_t>( blue() * value );
     return *this;
   }
 
@@ -297,9 +297,9 @@ namespace carto {
       std::cout << "RGB:: operator /= ( uint8_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= (uint8_t) value;
-    green() /= (uint8_t) value;
-    blue()  /= (uint8_t) value;
+    red()   /= static_cast<uint8_t>( value );
+    green() /= static_cast<uint8_t>( value );
+    blue()  /= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -310,9 +310,9 @@ namespace carto {
       std::cout << "RGB:: operator /= ( uint16_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= (uint8_t) value;
-    green() /= (uint8_t) value;
-    blue()  /= (uint8_t) value;
+    red()   /= static_cast<uint8_t>( value );
+    green() /= static_cast<uint8_t>( value );
+    blue()  /= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -323,9 +323,9 @@ namespace carto {
       std::cout << "RGB:: operator /= ( uint32_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= (uint8_t) value;
-    green() /= (uint8_t) value;
-    blue()  /= (uint8_t) value;
+    red()   /= static_cast<uint8_t>( value );
+    green() /= static_cast<uint8_t>( value );
+    blue()  /= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -336,9 +336,9 @@ namespace carto {
       std::cout << "RGB:: operator /= ( uint64_t )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= (uint8_t) value;
-    green() /= (uint8_t) value;
-    blue()  /= (uint8_t) value;
+    red()   /= static_cast<uint8_t>( value );
+    green() /= static_cast<uint8_t>( value );
+    blue()  /= static_cast<uint8_t>( value );
     return *this;
   }
 
@@ -350,9 +350,9 @@ namespace carto {
     #endif
     ASSERT( value != 0 );
     // not using /= operator to perform float operations
-    red()   = (uint8_t) ( red() / value );
-    green() = (uint8_t) ( green() / value );
-    blue()  = (uint8_t) ( blue() / value );
+    red()   = static_cast<uint8_t>( red() / value );
+    green() = static_cast<uint8_t>( green() / value );
+    blue()  = static_cast<uint8_t>( blue() / value );
     return *this;
   }
 
@@ -364,9 +364,9 @@ namespace carto {
     #endif
     ASSERT( value != 0 );
     // not using /= operator to perform float operations
-    red()   = (uint8_t) ( red() / value );
-    green() = (uint8_t) ( green() / value );
-    blue()  = (uint8_t) ( blue() / value );
+    red()   = static_cast<uint8_t>( red() / value );
+    green() = static_cast<uint8_t>( green() / value );
+    blue()  = static_cast<uint8_t>( blue() / value );
     return *this;
   }
 
@@ -600,9 +600,9 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGB:: operator *= ( long )" << std::endl;
     #endif
-    red()   *= (uint8_t) value;
-    green() *= (uint8_t) value;
-    blue()  *= (uint8_t) value;
+    red()   *= static_cast<uint8_t>( value );
+    green() *= static_cast<uint8_t>( value );
+    blue()  *= static_cast<uint8_t>( value );
     return *this;
   }
   
@@ -613,9 +613,9 @@ namespace carto {
       std::cout << "RGB:: operator /= ( long )" << std::endl;
     #endif
     ASSERT( value != 0 );
-    red()   /= (uint8_t) value;
-    green() /= (uint8_t) value;
-    blue()  /= (uint8_t) value;
+    red()   /= static_cast<uint8_t>( value );
+    green() /= static_cast<uint8_t>( value );
+    blue()  /= static_cast<uint8_t>( value );
     return *this;
   }
   

@@ -405,7 +405,7 @@ void UUID::generate()
 
 #else
 
-      int hostid = (int)gethostid(); // Single Unix Specification defect
+      int hostid = static_cast<int>( gethostid() ); // Single Unix Specification defect
 
 #endif
       memcpy( &node_id[ 2 ], &hostid, 4 );

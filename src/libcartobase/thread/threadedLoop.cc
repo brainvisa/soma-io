@@ -199,7 +199,7 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
 #endif
 
-  int		nth = (int) rint( nCpu * _threadsByCpu ), i, 
+  int		nth = static_cast<int>( rint( nCpu * _threadsByCpu ) ), i, 
     n = d->threads.size();
   LoopThread	*lt;
   Semaphore	*sem;

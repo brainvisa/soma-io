@@ -608,7 +608,7 @@ namespace interface_internal
   template <typename T, bool B>
   Object ValueObjectImpl<T,B>::object( const T & x )
   {
-    return Object( (GenericObject *) new ValueObject<T>( x ) );
+    return Object( static_cast<GenericObject *>( new ValueObject<T>( x ) ) );
   }
   
   template <typename T>
@@ -620,7 +620,7 @@ namespace interface_internal
   template <typename T>
   Object ValueObjectImpl<T,true>::object( const T & x )
   {
-    return Object( (GenericObject *) x );
+    return Object( static_cast<GenericObject *> ( x ) );
   }
 
 
@@ -646,7 +646,7 @@ namespace interface_internal
 
     static inline void setScalar( TypedObject<char> &to, double value )
     {
-      to.getValue() = (char) value;
+      to.getValue() = static_cast<char>( value );
     }
   };
 
@@ -673,7 +673,7 @@ namespace interface_internal
     static inline void setScalar( TypedObject<unsigned char> &to, 
                                   double value )
     {
-      to.getValue() = (unsigned char) value;
+      to.getValue() = static_cast<unsigned char>( value );
     }
   };
 
@@ -699,7 +699,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<signed char> &to, double value )
     {
-      to.getValue() = (signed char) value;
+      to.getValue() = static_cast<signed char>( value );
     }
   };
 
@@ -724,7 +724,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<bool> &to, double value )
     {
-      to.getValue() = (bool) value;
+      to.getValue() = static_cast<bool>( value );
     }
   };
 
@@ -750,7 +750,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<unsigned short> &to, double value )
     {
-      to.getValue() = (unsigned short) value;
+      to.getValue() = static_cast<unsigned short>( value );
     }
   };
 
@@ -776,7 +776,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<short> &to, double value )
     {
-      to.getValue() = (short) value;
+      to.getValue() = static_cast<short>( value );
     }
   };
 
@@ -801,7 +801,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<unsigned> &to, double value )
     {
-      to.getValue() = (unsigned) value;
+      to.getValue() = static_cast<unsigned>( value );
     }
   };
 
@@ -827,7 +827,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<int> &to, double value )
     {
-      to.getValue() = (int) value;
+      to.getValue() = static_cast<int>( value );
     }
   };
 
@@ -853,7 +853,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<long> &to, double value )
     {
-      to.getValue() = (long) value;
+      to.getValue() = static_cast<long>( value );
     }
   };
 
@@ -880,7 +880,7 @@ namespace interface_internal
     static inline void setScalar( TypedObject<unsigned long> &to, 
                                   double value )
     {
-      to.getValue() = (unsigned long) value;
+      to.getValue() = static_cast<unsigned long>( value );
     }
   };
 
@@ -906,7 +906,7 @@ namespace interface_internal
   
     static inline void setScalar( TypedObject<float> &to, double value )
     {
-      to.getValue() = (float) value;
+      to.getValue() = static_cast<float>( value );
     }
   };
 

@@ -84,7 +84,7 @@ void object_to( Object o, bool &r )
   if ( v < 0 || v > 1 ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (bool) v;
+  r = static_cast<bool>( v );
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ void object_to( Object o, unsigned char &r )
   if ( v < 0 || v > UCHAR_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (unsigned char) v;
+  r = static_cast<unsigned char>( v );
 }
 
 //-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void object_to( Object o, signed char &r )
   if ( v < SCHAR_MIN || v > SCHAR_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (signed char) v;
+  r = static_cast<signed char>( v );
 }
 
 
@@ -118,7 +118,7 @@ void object_to( Object o, unsigned short &r )
   if ( v < 0 || v > USHRT_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (unsigned short) v;
+  r = static_cast<unsigned short>( v );
 }
 
 
@@ -130,7 +130,7 @@ void object_to( Object o, short &r )
   if ( v < SHRT_MIN || v > SHRT_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (short) v;
+  r = static_cast<short>( v );
 }
 
 
@@ -142,7 +142,7 @@ void object_to( Object o, unsigned &r )
   if ( v < 0 || v > UINT_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (unsigned) v;
+  r = static_cast<unsigned>( v );
 }
 
 
@@ -154,7 +154,7 @@ void object_to( Object o, int &r )
   if ( v < INT_MIN || v > INT_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (int) v;
+  r = static_cast<int>( v );
 }
 
 
@@ -167,7 +167,7 @@ void object_to( Object o, float &r )
   if ( v < -FLT_MAX || v > FLT_MAX ) {
     throw out_of_range_error( toString( v ) );    
   }
-  r = (float) v;
+  r = static_cast<float>( v );
 }
 
 //-----------------------------------------------------------------------------
