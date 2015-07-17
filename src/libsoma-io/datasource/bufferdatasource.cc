@@ -125,7 +125,7 @@ long BufferDataSource::readBlock( char * data, unsigned long maxlen )
     maxlen = _size - _pos;
   memcpy( data, _buffer + _pos, maxlen );
   _pos += maxlen;
-  return (long) maxlen;
+  return maxlen;
 }
 
 
@@ -137,7 +137,7 @@ long BufferDataSource::writeBlock( const char * data, unsigned long len )
     len = _size - _pos;
   memcpy( _buffer + _pos, data, len );
   _pos += len;
-  return (long) len;
+  return len;
 }
 
 
@@ -155,7 +155,7 @@ int BufferDataSource::putch( int ch )
 {
   if( !(mode() & Write) || _pos >= _size )
     return -1;
-  char	c = (char) ch;
+  char	c = static_cast<char>( ch );
   *(_buffer + _pos) = c;
   ++_pos;
   return ch;

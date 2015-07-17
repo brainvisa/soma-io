@@ -182,7 +182,8 @@ namespace soma
                                    size_t n ) const
   {
      // warning: alignment problems not taken into account here
-    long	len = ds.readBlock( (char *) pitem, n * sizeof(T) );
+    long	len = ds.readBlock( reinterpret_cast<char*>( pitem ),
+                                    n * sizeof(T) );
     return len / sizeof(T);
   }
 
@@ -193,8 +194,8 @@ namespace soma
                                         size_t n ) const
   {
      // warning: alignment problems not taken into account here
-    long	len = ds.readBlock( (char *) pitem, n * sizeof(T) );
-    uint8_t	*ptr = (uint8_t*) pitem;
+    long	len = ds.readBlock( reinterpret_cast<char*>( pitem ), n * sizeof(T) );
+    uint8_t	*ptr = reinterpret_cast<uint8_t*>( pitem );
     for( long k=0; k<len; k+=sizeof(T) )
       for( size_t b=0; b<sizeof(T)/2; ++b )
         std::swap( ptr[k+b], ptr[k+sizeof(T)-1-b] );

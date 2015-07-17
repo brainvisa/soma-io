@@ -258,7 +258,7 @@ char * MemoryAllocator::allocate( size_t n, size_t sz, DataSource* ) const
   if ( n == 0 )
     return 0;
 
-  char	*buf = (char *) malloc( n * sz );
+  char	*buf = static_cast<char*>( malloc( n * sz ) );
   if( !buf )
     {
       cerr << "Can't allocate memory - no memory left." << endl;
@@ -363,15 +363,15 @@ namespace
       swap = 0x40000000;	// 1Gb
     /*cout << "freeram: " << freeram << ", ram: " << ram << ", swap: " << swap
       << endl;*/
-    ro = (soma::offset_t ) ( freeram * 0.5 * usefactor );
+    ro = static_cast<soma::offset_t>( freeram * 0.5 * usefactor );
     if( ro > swap * 0.8 )
-      ro = (soma::offset_t ) ( swap * 0.8 );
-    cp = (soma::offset_t ) ( freeram * 0.9 );
+      ro = static_cast<soma::offset_t>( swap * 0.8 );
+    cp = static_cast<soma::offset_t>( freeram * 0.9 );
     if( cp > swap * 0.8 )
-      cp = (soma::offset_t ) ( swap * 0.8 );
-    rw = (soma::offset_t ) ( freeram * 0.5 * usefactor );
+      cp = static_cast<soma::offset_t>( swap * 0.8 );
+    rw = static_cast<soma::offset_t>( freeram * 0.5 * usefactor );
     if( rw > swap * 0.8 )
-      rw = (soma::offset_t ) ( swap * 0.8 );
+      rw = static_cast<soma::offset_t>( swap * 0.8 );
   }
 
 }

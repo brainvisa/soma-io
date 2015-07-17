@@ -55,6 +55,10 @@ namespace soma
   ///
   /// All subclasses of LowLevelAllocator are singletons, which each provide 
   /// a singleton() static method to access their unique instance.
+  ///
+  /// \todo The LowLevelAllocator API should use pointers of type void* instead
+  /// of char*, because the type of contained objects is not specified. This
+  /// would remove the need to reinterpret_cast, which is prone to error.
   class LowLevelAllocator
   {
   public:
@@ -338,7 +342,7 @@ namespace soma
       _alloc = &AllocatorStrategy::lowLevelAllocator( m );
     }
 
-    ptr = (T*) _alloc->allocate( n, sizeof( T ), _datasource.get() );
+    ptr = reinterpret_cast<T*>( _alloc->allocate( n, sizeof( T ), _datasource.get() ) );
     #ifdef _MSC_VER
       #warning uninitialized_fill_n not present in Microsoft standard includes
     #else
@@ -358,7 +362,7 @@ namespace soma
     _allocated = false;
     if( _alloc == &MemoryAllocator::singleton() )
       std::_Destroy( ptr, ptr + n );
-    _alloc->deallocate( (char *) ptr, n, sizeof( T ) );
+    _alloc->deallocate( reinterpret_cast<char*>( ptr ), n, sizeof( T ) );
   }
 
 

@@ -162,7 +162,7 @@ bool StreamUtil::getline( DataSource & ds, string & x )
   int c = ds.getch();
   while( ds.isOpen() && c != '\n' && c != '\r' )
     {
-      x += (char) c;
+      x += static_cast<char>( c );
       c = ds.getch();
     }
   return ds.isOpen();

@@ -240,7 +240,7 @@ void PythonWriter::writeString( DataSource & ds, string x )
   for( i=0; i!=n; ++i )
     if( x[i] < 32 ) // or negative (>= 0x80)
     {
-      unsigned char x1 = ((unsigned char) x[i]) >> 4;
+      unsigned char x1 = static_cast<unsigned char>( x[i] ) >> 4;
       if( x1 >= 10 )
         x1 = 'a' + x1 -10;
       else
@@ -258,7 +258,7 @@ void PythonWriter::writeString( DataSource & ds, string x )
       n += 3;
     }
     else
-      switch( (unsigned char) x[i] )
+      switch( x[i] )
       {
       case '\'':
         if( _quoteChar == '\'' )

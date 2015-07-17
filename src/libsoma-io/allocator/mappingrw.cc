@@ -136,8 +136,9 @@ char* MappingRWAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
       int fildest = ::open( name.c_str(), O_RDWR, 0644 );
       if ( fildest != -1 )
         {
-          char* buffer = (char *) mmap( 0, n * sz, PROT_READ | PROT_WRITE,
-                                        MAP_SHARED, fildest, offset );
+          char* buffer = static_cast<char *>(
+                           mmap( 0, n * sz, PROT_READ | PROT_WRITE,
+                                 MAP_SHARED, fildest, offset ) );
           if ( buffer != MAP_FAILED )
             {
               _mapName2Ptr[ name ][ offset ] = buffer;

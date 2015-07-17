@@ -902,7 +902,7 @@ string PythonReader::readString( char sep, unsigned & n )
       {
         numch = 0;
         esc = false;
-        str += (char) cnum;
+        str += static_cast<char>( cnum );
       }
     }
     else if( esc )
@@ -946,7 +946,7 @@ string PythonReader::readString( char sep, unsigned & n )
   }
   while( x != sep || esc );
   if( numch > 0 )
-    str += (char) cnum;
+    str += static_cast<char>( cnum );
 
   return str;
 }
@@ -1005,7 +1005,7 @@ bool PythonReader::readSyntax( string & synt )
     return true;
   //cout << "unget " << n << " last chars\n";
   //cout << "pos before: " << ds.at() << endl;
-  ds.at( ds.at() - (int) n );
+  ds.at( ds.at() - n );
   //cout << "pos after: " << ds.at() << endl;
   return false;
 }

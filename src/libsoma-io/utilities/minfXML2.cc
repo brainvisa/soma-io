@@ -120,10 +120,10 @@ namespace
                               int len )
   {
     // cout << "readDataSourceCallback " << (void *) buffer << endl;
-    DataSource	*ds = (DataSource *) context;
+    DataSource	*ds = static_cast<DataSource *>( context );
     long x = ds->readBlock( buffer, len );
     // cout << "read " << x << " / " << len << " bytes\n";
-    return (int) x;
+    return x;
   }
 
 

@@ -158,18 +158,18 @@ bool FileDataSource::allowsMemoryMapping() const
 soma::offset_t FileDataSource::size() const
 {
 #ifdef CARTO_FILEDS_AS_FD
-  return (offset_t) ( FDDataSource::size() - _offset );
+  return FDDataSource::size() - _offset;
 #else
-  return (offset_t) ( CStreamDataSource::size() - _offset );
+  return CStreamDataSource::size() - _offset;
 #endif
 }
 
 soma::offset_t FileDataSource::at() const
 {
 #ifdef CARTO_FILEDS_AS_FD
-  return (offset_t) ( FDDataSource::at() - _offset );
+  return FDDataSource::at() - _offset;
 #else
-  return (offset_t) ( CStreamDataSource::at() - _offset );
+  return CStreamDataSource::at() - _offset;
 #endif
 }
 

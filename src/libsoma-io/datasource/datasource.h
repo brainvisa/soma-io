@@ -56,6 +56,11 @@ namespace soma
   ///
   /// It can be seen as a stream, and is inspired by the QIODevice of
   /// Trolltech's Qt library (http://doc.trolltech.com/3.3/qiodevice.html)
+  ///
+  /// \todo readBlock() and writeBlock() should use pointers of type void*
+  /// instead of char*, because the type of contained objects is not specified.
+  /// This would remove the need to reinterpret_cast, which is prone to error.
+
   class DataSource : public virtual carto::RCObject
   {
   public:

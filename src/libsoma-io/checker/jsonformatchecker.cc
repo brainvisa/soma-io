@@ -87,7 +87,7 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
 
   localMsg( "Reading json beginning... " + ds->url() );
   for( i=0; i<n && ds->isOpen() &&
-        ( sign[i] == (c=(char)ds->getch()) || c == ' ' || c == '\t'
+        ( sign[i] == (c=static_cast<char>(ds->getch())) || c == ' ' || c == '\t'
           || c == '\n');
       ++i )
   {

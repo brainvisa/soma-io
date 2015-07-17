@@ -251,7 +251,7 @@ namespace soma
       dsil.launchException();
     *_datasourceinfo = dsi;
     try {
-      if( (bool)_options->getProperty( "partial_reading" )->getScalar() )
+      if( _options->getProperty( "partial_reading" )->getScalar() )
         /* disable mmap here because partial reading on an already allocated
            volume is not compatible with mmap */
         _datasourceinfo->capabilities().setMemoryMapping( false );

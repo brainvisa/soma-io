@@ -98,8 +98,8 @@ long FilteringDataSource::readBlock( char* data, unsigned long maxlen )
 {
   unsigned long i;
   for( i=0; i<maxlen && *_source; ++i )
-    *data++ = (char) getch();
-  return (long) i;
+    *data++ = static_cast<char>( getch() );
+  return i;
 }
 
 

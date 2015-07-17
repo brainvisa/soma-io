@@ -114,9 +114,9 @@ char* MappingROAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
                                                   0, 0, 0 );
           if( fmap != INVALID_HANDLE_VALUE )
             {
-              char	*buffer = 
-                (char *) MapViewOfFile( fmap, FILE_MAP_READ, offset >> 32, 
-                                        offset & 0xffffffff, n * sz );
+              char	*buffer = static_cast<char*>(
+                MapViewOfFile( fmap, FILE_MAP_READ, offset >> 32,
+                               offset & 0xffffffff, n * sz ) );
               if( buffer )
                 {
                   _mapName2Ptr[ name ][ offset ] = buffer;
@@ -142,8 +142,9 @@ char* MappingROAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
       int fildest = ::open( name.c_str(), O_RDONLY, 0 );
       if( fildest != -1 )
         {
-          char* buffer = (char *) mmap( 0, n * sz, PROT_READ, MAP_SHARED,
-                                        fildest, offset );
+          char* buffer = static_cast<char *>(
+                           mmap( 0, n * sz, PROT_READ, MAP_SHARED,
+                                 fildest, offset ) );
           if( buffer != MAP_FAILED )
             {
               _mapName2Ptr[ name ][ offset ] = buffer;
@@ -199,7 +200,7 @@ char* ptr, size_t n, size_t sz
 
 #else	// _WIN32
 
-	      munmap( (char*)ptr, n * sz );
+	      munmap( ptr, n * sz );
 	      close( _mapDesc[ ptr ] );
 
 #endif	// _WIN32

@@ -133,7 +133,7 @@ soma::offset_t CStreamDataSource::size() const
 soma::offset_t CStreamDataSource::at() const
 {
   if( _f )
-    return (offset_t) ftell( _f );
+    return ftell( _f );
   return 0;
 }
 
@@ -141,7 +141,7 @@ soma::offset_t CStreamDataSource::at() const
 bool CStreamDataSource::at( offset_t pos )
 {
   if( _f )
-    return fseek( _f, (long) pos, SEEK_SET ) != -1;
+    return fseek( _f, pos, SEEK_SET ) != -1;
   return false;
 }
 
@@ -175,7 +175,7 @@ int CStreamDataSource::getch()
 
 int CStreamDataSource::putch( int ch )
 {
-  char	c = (char) ch;
+  char	c = static_cast<char>( ch );
   if( writeBlock( &c, 1 ) != 1 )
     return -1;
   return c;

@@ -69,7 +69,7 @@ namespace
     catch( ... )
     {
       // fallback with conversion to double
-      i = (int) object.getProperty(semantic)->getScalar();
+      i = static_cast<int>( object.getProperty(semantic)->getScalar() );
     }
     os << i;
   }
@@ -87,7 +87,7 @@ namespace
     catch( ... )
     {
       // fallback with conversion to double
-      f = (float) object.getProperty(semantic)->getScalar();
+      f = static_cast<float>( object.getProperty(semantic)->getScalar() );
     }
     os << f;
   }
@@ -118,7 +118,7 @@ namespace
         }
         catch( ... )
         {
-          x = (int) i->currentValue()->getScalar();
+          x = static_cast<int>( i->currentValue()->getScalar() );
         }
         os << x;
         for( i->next(); i->isValid(); i->next() )
@@ -129,7 +129,7 @@ namespace
           }
           catch( ... )
           {
-            x = (int) i->currentValue()->getScalar();
+            x = static_cast<int>( i->currentValue()->getScalar() );
           }
           os << ' ' << x;
         }
@@ -150,7 +150,7 @@ namespace
     }
     catch( ... )
     {
-      x = (float) i->currentValue()->getScalar();
+      x = static_cast<float>( i->currentValue()->getScalar() );
     }
     os << x;
     for( i->next(); i->isValid(); i->next() )
@@ -161,7 +161,7 @@ namespace
       }
       catch( ... )
       {
-        x = (float) i->currentValue()->getScalar();
+        x = static_cast<float>( i->currentValue()->getScalar() );
       }
       os << ' ' << x;
     }

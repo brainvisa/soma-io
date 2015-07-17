@@ -120,7 +120,7 @@ namespace
     if( r.eof() )
       carto::io_error::launchErrnoExcept( ds.url() );
     //cout << "number: " << x << std::endl;
-    return( new carto::ValueObject<unsigned char>( (unsigned char) x ) );
+    return( new carto::ValueObject<unsigned char>( static_cast<unsigned char>( x ) ) );
   }
 
 

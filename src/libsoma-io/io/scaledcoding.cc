@@ -220,8 +220,8 @@ namespace soma
     long sx = strides[0], sy = strides[1], sz = strides[2], st = strides[3];
     INP val, vmin = thing[0], vmax = thing[0];
 
-    double minlim = (double)numeric_limits<OUTP>::min(),
-      maxlim = (double)numeric_limits<OUTP>::max();
+    double minlim = numeric_limits<OUTP>::min(),
+      maxlim = numeric_limits<OUTP>::max();
     double dynsize = maxlim - minlim + 1;
     double minintv = 0, intv, intv2, v1, err;
     bool isexact = true;
@@ -351,7 +351,7 @@ namespace soma
             for( x=0; x<dx; ++x )
             {
               val = thing[ x * sx + y * sy + z * sz + f * st ];
-              err = fabs( (double)val / slope - rint( (double)val / slope ) );
+              err = fabs( val / slope - rint( val / slope ) );
               if (err > maxerr)
                 maxerr = err;
             }

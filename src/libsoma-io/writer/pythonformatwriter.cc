@@ -70,7 +70,7 @@ bool PythonFormatWriter::write( const GenericObject & obj,
       try
         {
           writeinternals 
-            = (bool) options->getProperty( "writeinternals" )->getScalar();
+            = options->getProperty( "writeinternals" )->getScalar();
         }
       catch( ... )
         {
@@ -78,7 +78,7 @@ bool PythonFormatWriter::write( const GenericObject & obj,
       try
         {
           writevariable 
-            = (bool) options->getProperty( "writevariable" )->getScalar();
+            = options->getProperty( "writevariable" )->getScalar();
         }
       catch( ... )
         {

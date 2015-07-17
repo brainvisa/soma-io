@@ -107,7 +107,9 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 
   if ( fileName.length() )
     {
-      int	fildest = mkstemp( (char *) fileName.c_str() );
+      // BUG: mkstemp writes to the string, and directly modifying the memory
+      // pointed to by fname.c_str() is forbidden by the C++ standard
+      int	fildest = mkstemp( const_cast<char *>( fileName.c_str() ) );
       if ( fildest != -1 )
 	{
           // unlink file to ensure it will be deleted after usage
@@ -116,9 +118,10 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 	    {
 	      if ( ftruncate( fildest, n * sz ) != -1 )
 		{
-		  buffer = (char *) mmap( 0, n * sz, 
-					  PROT_READ | PROT_WRITE, MAP_SHARED,
-					  fildest, 0 );
+		  buffer = static_cast<char *>(
+			     mmap( 0, n * sz,
+				   PROT_READ | PROT_WRITE, MAP_SHARED,
+				   fildest, 0 ) );
 		  if( buffer != MAP_FAILED )
                     {
 		      _mapname[ buffer ] = fileName;
@@ -130,8 +133,8 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 		    }
                   int err = errno;
                   ostringstream	ss;
-                  ss << "memory mapping failed for " << (long long) n * sz 
-                     << " bytes";
+                  ss << "memory mapping failed for "
+                     << static_cast<long long>( n ) * sz << " bytes";
                   perror( ss.str().c_str() );
                   if( err == ENOMEM )
                     cerr << "Not enough memory left (or addressable)" << endl;
@@ -185,7 +188,7 @@ char* ptr, size_t n, size_t sz
 
     if ( name.length() )
     {
-      munmap( (char*)ptr, n * sz );
+      munmap( ptr, n * sz );
       close( _mapDesc[ ptr ] ); 
       unlink( name.c_str() );
       _mapname.erase( ptr );

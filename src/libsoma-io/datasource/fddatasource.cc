@@ -175,7 +175,7 @@ int FDDataSource::getch()
 
 int FDDataSource::putch( int ch )
 {
-  char	c = (char) ch;
+  char	c = static_cast<char>( ch );
   if( writeBlock( &c, 1 ) != 1 )
     return -1;
   return c;

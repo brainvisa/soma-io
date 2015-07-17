@@ -67,7 +67,7 @@ bool JsonFormatWriter::write( const GenericObject & obj,
       try
         {
           writeinternals
-            = (bool) options->getProperty( "writeinternals" )->getScalar();
+            = options->getProperty( "writeinternals" )->getScalar();
         }
       catch( ... )
         {

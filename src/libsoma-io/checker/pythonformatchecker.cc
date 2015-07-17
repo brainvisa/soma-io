@@ -85,7 +85,7 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   int   i, n = sign.length();
 
   localMsg( "Reading minf header... " + ds->url() );
-  for( i=0; i<n && ds->isOpen() && sign[i] == (c=(char)ds->getch()); ++i )
+  for( i=0; i<n && ds->isOpen() && sign[i] == (c=static_cast<char>(ds->getch())); ++i )
   {}
   if( ds->isOpen() )
   {

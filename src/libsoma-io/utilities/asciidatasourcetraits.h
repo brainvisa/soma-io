@@ -378,7 +378,7 @@ namespace soma
         if( c == '\0' || !ds.isOpen() || c == '\n' || c == '\r' || c == ' ' 
             || c == '\t' )
           break;
-        item += (char) c;
+        item += static_cast<char>( c );
         ++i;
       }
     ds.ungetch( c );
@@ -449,7 +449,7 @@ namespace soma
           else if( !hex || c < 'A' || ( c > 'F' && c < 'a' ) || c > 'f' )
             break;
         }
-        num += (char) c;
+        num += static_cast<char>( c );
         ++i;
       }
       ds.ungetch( c );
@@ -538,7 +538,7 @@ namespace soma
             else if( !hex || c < 'A' || ( c > 'F' && c < 'a' ) || c > 'f' )
               break;
           }
-          num += (char) c;
+          num += static_cast<char>( c );
           ++i;
         }
       ds.ungetch( c );
@@ -757,8 +757,8 @@ namespace soma
   {
     ds << '(';
     for( unsigned int i=0; i<C-1; ++i )
-      ds << (int) item[i] << ',';
-    ds << (int) item[C-1] << ')';
+      ds << static_cast<int>( item[i] ) << ',';
+    ds << static_cast<int>( item[C-1] ) << ')';
     return true;
   }
 

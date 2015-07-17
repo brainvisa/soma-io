@@ -150,7 +150,7 @@ namespace soma
     try
     {
       carto::Object exact = options->getProperty( "exact_format" );
-      exactformat = (bool) exact->getScalar();
+      exactformat = exact->getScalar();
     }
     catch( ... )
     {
