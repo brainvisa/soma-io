@@ -166,10 +166,8 @@ const string & Paths::globalShared()
 
 #ifdef USE_SHARE_CONFIG
     pbvshare.push_back( BRAINVISA_SHARE_DIRECTORY );
-#else
-    pbvshare.push_back( "brainvisa-share-" + cartobaseShortVersion() );
-    pbvshare.push_back( "brainvisa-" + cartobaseShortVersion() );
 #endif
+    pbvshare.push_back( "soma-io-" + cartobaseShortVersion() );
 
     Directory d( "/" );
     list<string>::const_iterator ip, ep = plist.end();
@@ -245,7 +243,7 @@ const string & Paths::globalShared()
 
     if( _shared.empty() )
     {
-      cerr << "no BRAINVISA_SHARE env variable!\n";
+      cerr << "cannot find a valid BRAINVISA_SHARE directory!\n";
 #ifdef _WIN32
       _shared = "C:\\brainvisa\\share";
 #else
