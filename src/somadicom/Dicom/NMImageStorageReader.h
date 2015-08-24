@@ -33,6 +33,7 @@ class NMImageStorageReader : public MultiSliceReader
     NMImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
+    virtual bool buildIndexLut(DcmDataset*);
 
 };
 

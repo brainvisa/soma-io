@@ -3,6 +3,7 @@
 #include <soma-io/Dicom/PatientModule.h>
 #include <soma-io/Dicom/OrientationModule.h>
 #include <soma-io/Dicom/PositionModule.h>
+#include <soma-io/Dicom/AcquisitionModule.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Utils/StdInt.h>
@@ -11,6 +12,7 @@
 #include <Dicom/PatientModule.h>
 #include <Dicom/OrientationModule.h>
 #include <Dicom/PositionModule.h>
+#include <Dicom/AcquisitionModule.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <Object/HeaderProxy.h>
 #include <Utils/StdInt.h>
@@ -20,7 +22,6 @@
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
-
 
 dcm::NMImageStorageReader::NMImageStorageReader()
                          : dcm::MultiSliceReader()
@@ -79,10 +80,8 @@ bool dcm::NMImageStorageReader::getHeader(
 
 bool dcm::NMImageStorageReader::readHeader( DcmDataset* dataset )
 {
-
   if ( dataset )
   {
-
     _dataInfo->_fileCount = 1;
     _positions.clear();
 
@@ -119,17 +118,40 @@ bool dcm::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
       if ( positionModule.parseItem( item ) )
       {
-
         _positions.push_back( positionModule.getImagePosition() );
-
       }
-
     }
 
     return dcm::MultiSliceReader::readHeader( dataset );
-
   }
 
   return false;
 
+}
+
+bool dcm::NMImageStorageReader::buildIndexLut(DcmDataset* dataset)
+{
+    bool _positiveSpacingBetweenSlices = true;
+    dcm::AcquisitionModule acquisitionModule;
+    if (acquisitionModule.parseItem(dataset) &&
+        acquisitionModule.getSpacingBetweenSlices() < 0)
+    {
+        _positiveSpacingBetweenSlices = false;
+    }
+
+    int32_t i, n = _dataInfo->_slices * _dataInfo->_frames;
+    _indexLut.resize(n);
+    for (i = 0; i < n; i++)
+    {
+        if (_positiveSpacingBetweenSlices)
+        {
+        	_indexLut[i] = i;
+        }
+        else
+        {
+        	_indexLut[i] = (n-1)-i;
+        }
+    }
+
+    return true;
 }
