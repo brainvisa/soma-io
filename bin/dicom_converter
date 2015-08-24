@@ -476,13 +476,13 @@ def convert_to_nifti_NM( serie ):
 #        outfile = None
 
     check_call( [ 'AimsFileConvert', '-i', tempFile, '-o', outfile ] )
-
-    try:
-        if ds[0x0008,0x0070].value == "SIEMENS NM" and \
-           ds[0x0008,0x1090].value == "Encore2":
-            check_call( [ 'AimsFlip', '-i', outfile, '-o', outfile, '-m', 'ZZ' ] )
-    except:
-        pass
+    rescale_image_according_to_minf(outfile)
+#    try:
+#        if ds[0x0008,0x0070].value == "SIEMENS NM" and \
+#           ds[0x0008,0x1090].value == "Encore2":
+#            check_call( [ 'AimsFlip', '-i', outfile, '-o', outfile, '-m', 'ZZ' ] )
+#    except:
+#        pass
 
     uuid = None
     if "FrameofReferenceUID" in ds:
@@ -496,17 +496,17 @@ def convert_to_nifti_NM( serie ):
                          'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
         
-        try:
-            detectorInf = ds.DetectorInformations
-            if len(detectorInf) == 1:
-                imagePosition = detectorInf[0].ImagePositionPatient
-                transformation = header['transformations'][0]
-                transformation[3] = -imagePosition[0]
-                transformation[7] = -imagePosition[1]
-                transformation[11] = ds.SpacingBetweenSlices*ds.NumberofSlices + imagePosition[2]
-                newattributes.update({'transformations': [transformations]})
-        except:
-            pass
+#        try:
+#            detectorInf = ds.DetectorInformations
+#            if len(detectorInf) == 1:
+#                imagePosition = detectorInf[0].ImagePositionPatient
+#                transformation = header['transformations'][0]
+#                transformation[3] = -imagePosition[0]
+#                transformation[7] = -imagePosition[1]
+#                transformation[11] = ds.SpacingBetweenSlices*ds.NumberofSlices + imagePosition[2]
+#                newattributes.update({'transformations': [transformations]})
+#        except:
+#            pass
     else:
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
@@ -515,6 +515,22 @@ def convert_to_nifti_NM( serie ):
     fd.close()
 
     add_version_to_minf(minf, "AimsFileConvert")
+
+def rescale_image_according_to_minf(niftiFile):
+    img = aims.read(niftiFile)
+    if img.header().has_key('rescale_applied') and img.header()['rescale_applied'] == 1:
+        return
+    try:
+        slope = img.header()['rescale_slope'][0]
+        inter = img.header()['rescale_intercept'][0]
+    except:
+        return
+    floatImg = aims.Converter(intype=img, outtype='Volume_FLOAT')(img)
+    arr = np.array(floatImg, copy=False)
+    arr *= slope
+    arr += inter
+    img.header()['rescale_applied'] = 1
+    aims.write(floatImg, niftiFile)
 
 def add_version_to_minf(minf, converter):
     cmd = [converter, '--version']
