@@ -104,7 +104,7 @@ void dcm::MultiSliceReader::setOrientation()
 
       int32_t lastZ = _dataInfo->_slices - 1;
 
-      if ( lastZ > 0 )
+      if (lastZ > 0 && _dataInfo->_fileCount > 1)
       {
 
         dcm::Vector3d< double > normalVec = _dataInfo->_rowVec.cross( 
@@ -112,7 +112,6 @@ void dcm::MultiSliceReader::setOrientation()
         double p = std::fabs( normalVec.dot( _positions[ lastZ ] - origin ) );
 
         _dataInfo->_resolution.z = p / double( lastZ );
-
       }
 
     }
