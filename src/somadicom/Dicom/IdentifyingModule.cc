@@ -11,6 +11,7 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 
 #include <algorithm>
+#include <ctime>
 
 
 dcm::IdentifyingModule::IdentifyingModule()
@@ -179,7 +180,7 @@ bool dcm::IdentifyingModule::parseHeader(
             iss.str( _acquisitionDate.substr( 6, 2 ) );
             iss >> t.tm_mday;
 
-            _zeroStartTime = int32_t( mktime( &t ) );
+            _zeroStartTime = int32_t( std::mktime( &t ) );
 
           }
           else
