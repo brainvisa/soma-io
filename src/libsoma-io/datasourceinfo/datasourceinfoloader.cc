@@ -46,6 +46,7 @@
 #include <cartobase/stream/fileutil.h>              // used to find extensions
 #include <cartobase/config/verbose.h>                       // verbosity level
 //--- system -----------------------------------------------------------------
+#include <cstdlib>
 #include <memory>
 #include <map>
 #include <set>
@@ -400,6 +401,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   }
   
   launchException();
+  abort();  // fix warning about control reaching end of non-void function
 }
 
 //============================================================================
