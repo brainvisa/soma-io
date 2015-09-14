@@ -221,7 +221,7 @@ namespace carto
     Converter( bool rescale = false ) : _rescale( rescale ), _info() {}
     Converter( bool rescale, const RescalerInfo & info )
       : _rescale( rescale ), _info(info) {}
-    ~Converter() {}
+    virtual ~Converter() {}
 
     /** Converts an INP type data to an OUTP data.
 

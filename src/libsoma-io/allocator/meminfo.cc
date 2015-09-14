@@ -38,10 +38,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstdlib>
-#ifdef linux
-  #include <cstring>
-  #include <fstream>
-#endif
+#include <cstring>
+#include <fstream>
 #ifdef __sun
   // on Solaris, swapctl is incompatible with large files
   #undef _FILE_OFFSET_BITS

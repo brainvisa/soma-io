@@ -92,7 +92,7 @@ namespace carto {
   template <typename T, unsigned int C> inline
   std::ostream& operator << ( std::ostream &out, const VoxelValue<T,C> &aa )
   {
-    int i;
+    unsigned int i;
     out << '(';
     for( i=0; i<C-1; ++i )
       out << static_cast<int>( aa[i] ) << ',';

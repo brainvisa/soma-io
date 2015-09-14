@@ -185,7 +185,8 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
   unsigned nCpu = cpuCount();
 
-  if ( ( _maxThreadCount >= 1 ) && ( _maxThreadCount < nCpu ) )
+  if ( _maxThreadCount >= 1
+       && static_cast<unsigned>(_maxThreadCount) < nCpu )
   {
 
     nCpu = _maxThreadCount;

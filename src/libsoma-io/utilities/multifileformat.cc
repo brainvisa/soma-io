@@ -59,11 +59,11 @@ const std::string MultiFileFormat::FILENAME_TIME_SLICE_REGEX = "^(.*)t([0-9]+)_s
 const std::string MultiFileFormat::FILENAME_TIME_REGEX = "^(.*)t([0-9]+)$";
 
 MultiFileFormatInfo::MultiFileFormatInfo() 
-  : initialized(false),
-    slicemin(0),
+  : slicemin(0),
     slicemax(0),
     timemin(0),
-    timemax(0) {
+    timemax(0),
+    initialized(false){
 }
 
 MultiFileFormat::MultiFileFormat() {
@@ -243,6 +243,9 @@ void MultiFileFormat::updateDimensions( const MultiFileFormatInfo & info,
     case MultiFileFormatInfo::SliceTime:
       dims[2] = info.slicemax - info.slicemin + 1;
       dims[3] = info.timemax - info.timemin + 1;
+      break;
+
+    case MultiFileFormatInfo::Single:
       break;
   }
 }

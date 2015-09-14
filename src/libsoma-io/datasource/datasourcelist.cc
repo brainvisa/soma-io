@@ -155,7 +155,8 @@ int DataSourceList::size( const string & type ) const
 const rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type,
                                                         int i ) const
 {
-  if( exists( type ) && i < _dslist.find( type )->second.size() )
+  if( exists( type )
+      && static_cast<size_t>(i) < _dslist.find( type )->second.size() )
     return _dslist.find( type )->second[ i ];
   else
     // launch exception
@@ -164,7 +165,8 @@ const rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type,
 
 rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
 {
-  if( exists( type ) && i < _dslist.find( type )->second.size() )
+  if( exists( type )
+      && static_cast<size_t>(i) < _dslist.find( type )->second.size() )
       return _dslist.find( type )->second[ i ];
   else
     // launch exception

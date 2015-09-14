@@ -137,7 +137,7 @@ namespace soma
     int passbegin, int passend )
   {
     Writer<carto::GenericObject> w( dataSource() );
-    w.write( *obj, options, passbegin, passend );
+    return w.write( *obj, options, passbegin, passend );
   }
 
 }

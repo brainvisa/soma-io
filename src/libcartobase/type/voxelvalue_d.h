@@ -79,7 +79,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == VV" << std::endl;
     #endif
-    int i;
+    unsigned int i;
     for( i=0; i<C; ++i )
       if( (*this)[ i ] != aa[ i ] )
         return false;
@@ -101,7 +101,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == const" << std::endl;
     #endif
-    int i;
+    unsigned int i;
     for( i=0; i<C; ++i )
       if( (*this)[ i ] != bb )
         return false;
