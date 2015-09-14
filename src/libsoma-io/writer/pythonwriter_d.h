@@ -100,7 +100,7 @@ void genericHelper<float>( const carto::GenericObject & obj,
                            soma::PythonWriter & w, int, bool )
 {
   soma::DataSource	& ds = *w.dataSource();
-  soma::AsciiDataSourceTraits<float>::write( ds, obj.getScalar() );
+  soma::AsciiDataSourceTraits<float>::write( ds, float( obj.getScalar() ) );
 }
 
 
@@ -109,7 +109,8 @@ void genericHelper<int16_t>( const carto::GenericObject & obj,
                              soma::PythonWriter & w, int, bool )
 {
   soma::DataSource	& ds = *w.dataSource();
-  soma::AsciiDataSourceTraits<int16_t>::write( ds, obj.getScalar() );
+  soma::AsciiDataSourceTraits<int16_t>::write(
+    ds, int16_t( obj.getScalar() ) );
 }
 
 
@@ -118,7 +119,8 @@ void genericHelper<uint16_t>( const carto::GenericObject & obj,
                               soma::PythonWriter & w, int, bool )
 {
   soma::DataSource	& ds = *w.dataSource();
-  soma::AsciiDataSourceTraits<uint16_t>::write( ds, obj.getScalar() );
+  soma::AsciiDataSourceTraits<uint16_t>::write(
+    ds, uint16_t( obj.getScalar() ) );
 }
 
 
@@ -127,7 +129,8 @@ void genericHelper<int32_t>( const carto::GenericObject & obj,
                              soma::PythonWriter & w, int, bool )
 {
   soma::DataSource	& ds = *w.dataSource();
-  soma::AsciiDataSourceTraits<int32_t>::write( ds, obj.getScalar() );
+  soma::AsciiDataSourceTraits<int32_t>::write(
+    ds, int32_t( obj.getScalar() ) );
 }
 
 
@@ -136,7 +139,8 @@ void genericHelper<uint32_t>( const carto::GenericObject & obj,
                               soma::PythonWriter & w, int, bool )
 {
   soma::DataSource	& ds = *w.dataSource();
-  soma::AsciiDataSourceTraits<uint32_t>::write( ds, obj.getScalar() );
+  soma::AsciiDataSourceTraits<uint32_t>::write(
+    ds, uint32_t( obj.getScalar() ) );
 }
 
 
