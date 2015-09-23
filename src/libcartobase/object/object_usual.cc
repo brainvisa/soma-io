@@ -58,9 +58,26 @@ INSTANTIATE_GENERIC_OBJECT_TYPE( float )
 INSTANTIATE_GENERIC_OBJECT_TYPE( double )
 INSTANTIATE_GENERIC_OBJECT_TYPE( bool )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::string )
-INSTANTIATE_GENERIC_OBJECT_TYPE( Object )
 INSTANTIATE_GENERIC_OBJECT_TYPE( void * )
 INSTANTIATE_GENERIC_OBJECT_TYPE( Void )
+
+// DECLARE_GENERIC_OBJECT_TYPE cannot be used for Object because it explicitly
+// instantiates DictionaryInterface::getProperty<Object> and
+// DictionaryInterface::setProperty<Object>, which conflict with the (pure
+// virtual) overload of these methods.
+template class TypedObject< Object >;
+template class ValueObject< Object >;
+template class ReferenceObject< Object >;
+template class PointerObject< Object >;
+template
+Object const &GenericObject::value< Object >() const;
+template
+Object &GenericObject::value< Object >();
+template
+bool GenericObject::value( Object &dest ) const;
+template
+void GenericObject::setValue( Object const & x );
+
 
 template class TypedObject< GenericObject >;
 template class ReferenceObject< GenericObject >;

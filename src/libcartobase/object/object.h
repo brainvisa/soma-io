@@ -851,9 +851,38 @@ DECLARE_GENERIC_OBJECT_TYPE( float )
 DECLARE_GENERIC_OBJECT_TYPE( double )
 DECLARE_GENERIC_OBJECT_TYPE( bool )
 DECLARE_GENERIC_OBJECT_TYPE( std::string )
-DECLARE_GENERIC_OBJECT_TYPE( Object )
 DECLARE_GENERIC_OBJECT_TYPE( void * )
 DECLARE_GENERIC_OBJECT_TYPE( Void )
+
+// DECLARE_GENERIC_OBJECT_TYPE cannot be used for Object because it refers to
+// extern explicit template instantiations of
+// DictionaryInterface::getProperty<Object> and
+// DictionaryInterface::setProperty<Object>, which conflict with the (pure
+// virtual) overload of these methods.
+template <>
+struct GenericObjectTypeDeclared< Object >
+{
+    static inline void check() {};
+};
+template <>
+void DictionaryInterface::setProperty( const std::string &key,
+                                       Object const &value );
+template <>
+bool DictionaryInterface::getProperty( const std::string &key, Object &value ) const;
+extern template class TypedObject< Object >;
+extern template class ValueObject< Object >;
+extern template class ReferenceObject< Object >;
+extern template class PointerObject< Object >;
+extern template
+Object const &GenericObject::value< Object >() const;
+extern template
+Object &GenericObject::value< Object >();
+extern template
+bool GenericObject::value( Object &dest ) const;
+extern template
+void GenericObject::setValue( Object const & x );
+
+
 template <>
 struct GenericObjectTypeDeclared< GenericObject >
 {
@@ -862,6 +891,7 @@ struct GenericObjectTypeDeclared< GenericObject >
 extern template class TypedObject< GenericObject >;
 extern template class ReferenceObject< GenericObject >;
 extern template class PointerObject< GenericObject >;
+
 
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<int> )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<unsigned> )
