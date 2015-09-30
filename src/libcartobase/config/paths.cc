@@ -36,6 +36,8 @@
 #include <cartobase/stream/fileutil.h>
 #include <cartobase/stream/directory.h>
 #include <iostream>
+#include <iterator>
+#include <algorithm>
 #include <cstdlib>
 #ifdef USE_SHARE_CONFIG
 #include <brainvisa-share/config.h>
@@ -243,7 +245,12 @@ const string & Paths::globalShared()
 
     if( _shared.empty() )
     {
-      cerr << "cannot find a valid BRAINVISA_SHARE directory!\n";
+      clog << "Error: cannot find a valid BRAINVISA_SHARE directory"
+              " containing one of these sub-directories: ";
+      copy(pbvshare.begin(), pbvshare.end(),
+           ostream_iterator<string>(clog, " "));
+      clog << "\nPlease use bv_env to set the BRAINVISA_SHARE environment variable."
+           << endl;
 #ifdef _WIN32
       _shared = "C:\\brainvisa\\share";
 #else

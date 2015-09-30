@@ -615,7 +615,7 @@ bool isInt( const string & s )
     return false;
 
   char *end;
-  long l = strtol( s.c_str(), &end, 10 );
+  strtol( s.c_str(), &end, 10 );
 
   return( *end == 0 );
 }
@@ -626,7 +626,7 @@ bool isFloat( const string & s )
     return false;
 
   char *end;
-  float f = strtof( s.c_str(), &end );
+  strtof( s.c_str(), &end );
 
   return( *end == 0 );
 }
