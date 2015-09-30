@@ -52,7 +52,10 @@ namespace carto {
       {};
       reference_wrapper<type>& operator= ( const reference_wrapper<type> & x )
       {
-        _object = x._object;
+        if(this != &x) {
+          _object = x._object;
+        }
+        return *this;
       }
       type& get() const { return *_object; }
       operator type&() const { return get(); }

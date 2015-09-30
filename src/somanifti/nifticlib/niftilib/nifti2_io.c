@@ -1,5 +1,11 @@
+/* The strdup function is needed in nifti1_io.c by the patch by Denis Riviere,
+ * 2012/11/14. We need to define _XOPEN_SOURCE >= 500 before including
+ * <string.h> because strdup is not defined by default in strict ANSI mode
+ * (-std=c89). */
+#define _XOPEN_SOURCE 500
+#include <string.h>
 
-#define _NIFTI1_IO_C_  // to allow some conditional defs in nifti1_io.h
+#define _NIFTI1_IO_C_  /* to allow some conditional defs in nifti1_io.h */
 #include "nifti2_io.h"
 
 /* inlcude the .c for nifti-1
@@ -9,13 +15,14 @@
 #include "nifti1_io.c"
 
 
+#if 0  /* deactivate this code */
 /*! global nifti options structure - init with defaults */
-// static nifti_global_options g_opts = {
-//         1, /* debug level                                         */
-//         0, /* skip_blank_ext    - skip extender if no extensions  */
-//         1  /* allow_upper_fext  - allow uppercase file extensions */
-// };
-
+static nifti_global_options g_opts = {
+        1, /* debug level                                         */
+        0, /* skip_blank_ext    - skip extender if no extensions  */
+        1  /* allow_upper_fext  - allow uppercase file extensions */
+};
+#endif
 
 static int   need_nhdr2_swap    (int64_t dim0, int hdrsize);
 static int nifti2_read_extensions( nifti_image *nim, znzFile fp, int remain );

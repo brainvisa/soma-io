@@ -52,10 +52,10 @@ string soma::openslideShortVersion()
   static string	ver;
   if( ver.empty() )
     {
-    	string longver = OPENSLIDE_VERSION;
-      unsigned found = longver.rfind('.');
-		  if (found != std::string::npos)
-    		ver = longver.substr(0, found);
+      string longver = OPENSLIDE_VERSION;
+      size_t found = longver.rfind('.');
+      if (found != std::string::npos)
+        ver = longver.substr(0, found);
     }
   return ver;
 }

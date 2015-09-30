@@ -305,10 +305,10 @@ AttributedReader::line() const
     *sds = dynamic_cast<IStreamDataSource *>( _datasource.get() );
   if( !sds )
     return -1;
-  cuifstream	&cs = dynamic_cast<cuifstream &>( sds->stream() );
-  if( !&cs )
+  cuifstream	*cs = dynamic_cast<cuifstream *>( &sds->stream() );
+  if( !cs )
     return -1;
-  return cs.line();
+  return cs->line();
 }
 
 

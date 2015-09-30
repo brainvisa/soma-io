@@ -1,5 +1,12 @@
 #define _NIFTI1_IO_C_
 
+/* The strdup function is needed below by the patch by Denis Riviere,
+ * 2012/11/14. We need to define _XOPEN_SOURCE >= 500 before including
+ * <string.h> because strdup is not defined by default in strict ANSI mode
+ * (-std=c89). */
+#define _XOPEN_SOURCE 500
+#include <string.h>
+
 #include "nifti1_io.h"   /* typedefs, prototypes, macros, etc. */
 
 /*****===================================================================*****/

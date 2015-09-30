@@ -151,7 +151,7 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
   regfree( &regt );
   regfree( &regs );
   
-  if (!info.type == MultiFileFormatInfo::Single)
+  if (info.type != MultiFileFormatInfo::Single)
   {
     // Scan directory for matching files
     Directory dir( dirname );

@@ -296,9 +296,9 @@ std::ostream& std::operator << ( std::ostream& os,
 }
 
 
-template struct dcm::Vector3d< int32_t >;
-template struct dcm::Vector3d< float >;
-template struct dcm::Vector3d< double >;
+template class dcm::Vector3d< int32_t >;
+template class dcm::Vector3d< float >;
+template class dcm::Vector3d< double >;
 
 template dcm::Vector3d< int32_t >
 operator + ( const dcm::Vector3d< int32_t >& thing );
