@@ -1,5 +1,7 @@
 #include <dcmtk/config/osconfig.h>
 
+#include <cstdlib>
+
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DcmtkJpeg2000/djcodecd.h>
 #include <soma-io/Dicom/DcmtkJpeg2000/djcparam.h>
@@ -657,7 +659,7 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
       }
 
     }
-    else
+    else if(imageSamplesPerPixel == 3)
     {
 
       Sint32 i;
@@ -683,6 +685,10 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
 
       }
 
+    } else {
+      // we only handle one or three samples per pixel
+      delete[] j2kData;
+      return EC_InvalidTag;
     }
 
     delete[] j2kData;
