@@ -287,6 +287,7 @@ nifti_image    * nifti2_convert_nhdr2nim(struct nifti_2_header nhdr,
    doswap = need_nhdr2_swap(nhdr.dim[0], nhdr.sizeof_hdr); /* swap data flag */
 
    if( doswap < 0 ){
+      free(nim);
       if( doswap == -1 ) ERREX("bad dim[0]") ;
       ERREX("bad sizeof_hdr") ;  /* else */
    }
