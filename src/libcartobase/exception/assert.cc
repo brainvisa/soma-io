@@ -39,10 +39,6 @@ using namespace carto;
 assert_error::assert_error( const char* assertion, const char* file, int line )
              : logic_error( assertion ), _file( file ), _line( line )
 {
-  cerr << "A.I.M.S. assertion failed: " << assertion
-       << ", file " << file
-       << ", line " << line
-       << endl;
 }
 
 assert_error::~assert_error() throw()
@@ -56,25 +52,24 @@ const char* assert_error::file() const
 }
 
 
-int assert_error::line() const
+int assert_error::line() const throw()
 {
   return _line;
 }
-
-#ifdef CARTO_DEBUG
 
 namespace carto
 {
 
 // Function called when assert failed (it allows breakpoint setting)
-void assert_failed( const char * expression, 
-                    const char * fileName, 
+void assert_failed( const char * expression,
+                    const char * fileName,
                     int lineNumber )
 {
+  cerr << "A.I.M.S. assertion failed: " << expression
+       << ", file " << fileName
+       << ", line " << lineNumber
+       << endl;
   throw assert_error( expression, fileName, lineNumber );
 }
 
-}
-
-#endif
-
+} // namespace carto

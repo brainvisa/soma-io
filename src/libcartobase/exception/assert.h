@@ -49,7 +49,7 @@ class assert_error : public std::logic_error
     virtual ~assert_error() throw();
 
     const char* file() const;
-    int line() const;
+    int line() const throw();
 
   private:
     std::string _file;
@@ -61,25 +61,19 @@ class assert_error : public std::logic_error
 
 #undef ASSERT
 
-#ifdef CARTO_DEBUG
-
 // Function called when assert failed (it allows breakpoint setting)
-void assert_failed( const char *, const char *, int );
+void assert_failed( const char *, const char *, int )
+  __attribute__((noreturn, cold, nonnull));
+
+inline void test_assert( bool x, const char * ex, const char *file, int line )
+  __attribute__((nonnull));
 inline void test_assert( bool x, const char * ex, const char *file, int line )
 {
   if( !x ) carto::assert_failed( ex, file, line );
 }
-#else
 
-inline void test_assert( bool x, const char * ex, const char *file, int line )
-{
-  if( !x ) throw carto::assert_error( ex, file, line );
-}
+#define ASSERT( EX ) ( carto::test_assert( (EX), #EX, __FILE__, __LINE__ ) )
+
+
+} // namespace carto
 #endif
-
-#define ASSERT( EX ) carto::test_assert( EX, #EX, __FILE__, __LINE__ )
-
-
-} // namespace aims
-#endif
-
