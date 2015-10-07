@@ -45,11 +45,11 @@ int main()
   uuid1.generate();
   ASSERT( !uuid1.isNull() );
 
-#if defined(__linux) || defined(__osf__) || defined(_WIN32)
+#if defined(__linux) || defined(__osf__)
 
   ASSERT( ( uuid1.data[ 10 ] & 0x80 ) == 0);
 
-#else
+#elif !defined(_WIN32)
 
   ASSERT( ( uuid1.data[ 10 ] & 0x80 ) != 0);
 
@@ -59,11 +59,11 @@ int main()
   uuid2.generate();
   ASSERT( !uuid2.isNull() );
 
-#if defined(__linux) || defined(__osf__) || defined(_WIN32)
+#if defined(__linux) || defined(__osf__)
 
   ASSERT( ( uuid2.data[ 10 ] & 0x80 ) == 0);
 
-#else
+#elif !defined(_WIN32)
 
   ASSERT( ( uuid2.data[ 10 ] & 0x80 ) != 0);
 

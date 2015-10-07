@@ -40,6 +40,11 @@
 #include <cartobase/stream/fileutil.h>
 #include <fstream>
 
+#ifdef WIN32
+#include <windef.h>
+#include <winbase.h>
+#endif
+
 using namespace std;
 using namespace carto;
 
@@ -323,6 +328,11 @@ CartoApplication::CartoApplication( int argc, const char **argv,
   OptionsParser( argc, argv ),
   _documentation( documentation )
 {
+  
+#ifdef WIN32
+  SetErrorMode(SEM_NOGPFAULTERRORBOX);
+#endif
+
   _name = FileUtil::basename( argv[ 0 ] );
   Paths::setArgv0( argv[0] );
   addOption( verboseParameter, "--verbose",

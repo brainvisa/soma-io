@@ -227,7 +227,13 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
     Dicom/DcmtkJpeg2000/djrparam.cc )
 endif()
 
-add_definitions( -DSOMA_IO_DICOM -DHAVE_CONFIG_H )
+add_definitions( -DSOMA_IO_DICOM )
+
+if ( NOT WIN32 )
+  add_definitions( -DHAVE_CONFIG_H )
+else ()
+  add_definitions( -DUSE_STD_CXX_INCLUDES )
+endif ()
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 set(SOMADICOM_HEADERS ${_headers} PARENT_SCOPE)
