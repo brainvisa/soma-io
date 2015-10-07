@@ -159,7 +159,7 @@ std::string UUID::toString() const
   memcpy( &time_mid, &data[ 4 ], 2 );
   unsigned16 time_hi_and_version;
   memcpy( &time_hi_and_version, &data[ 6 ], 2 );
-  sprintf( buffer, "%08x-%04hx-%04hx-%02hx%02hx-%02x%02x%02x%02x%02x%02x",
+  sprintf( buffer, "%08x-%04hx-%04hx-%02x%02x-%02x%02x%02x%02x%02x%02x",
            time_low, time_mid, time_hi_and_version,
            data[  8 ], data[  9 ], data[ 10 ], data[ 11 ],
            data[ 12 ], data[ 13 ], data[ 14 ], data[ 15 ] );

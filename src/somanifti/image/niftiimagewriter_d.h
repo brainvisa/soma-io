@@ -31,6 +31,9 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+// It is not obvious how to fix these warnings, make them non-fatal for now
+#pragma GCC diagnostic warning "-Wsign-compare"
+
 #ifndef SOMAIO_IMAGE_NIFTIIMAGEWRITER_D_H
 #define SOMAIO_IMAGE_NIFTIIMAGEWRITER_D_H
 //--- plugin -----------------------------------------------------------------

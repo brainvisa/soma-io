@@ -159,7 +159,8 @@ char* MappingROAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
           cerr << "unable to use memory mapping\n";
           if( errno == ENOMEM )
             cerr << "Not enough memory left (or addressable)" << endl;
-          fds->close();
+          if(fds)
+            fds->close();
           return 0;
         }
       cerr << "unable to open " << name << " !" << endl;    

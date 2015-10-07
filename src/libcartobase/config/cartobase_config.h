@@ -161,6 +161,11 @@ using std::isinf;
 #define CARTO_LONG_IS_DISTINCT
 #endif
 
+// Ignore __attribute__ on non-GCC compilers
+#if !(defined(__GNUC__) || defined(__attribute__))
+#define __attribute__(a) /* nothing */
+#endif
+
 #include <cartobase/config/config.h>
 
 #endif // CARTOBASE_CONFIG_CARTOBASE_CONFIG_H
