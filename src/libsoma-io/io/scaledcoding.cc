@@ -170,7 +170,14 @@ bool canencode( const T * thing, float & slope,
     }
   }
   slope = intv;
-  offset = 32768. * slope + vmin;
+  double doffset = 32768. * double(slope) + vmin;
+  // check float overflow (scale/offsets are in float32 in nifti)
+  if( doffset < numeric_limits<float>::max()
+    || doffset > numeric_limits<float>::max() )
+    // we could probably do better, trying not to use value -32767
+    // but at least the volume will be correctly saved as float.
+    return false;
+  offset = float( doffset );
   if( maxerr )
     *maxerr = maxm;
   return true;
