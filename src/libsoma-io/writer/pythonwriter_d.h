@@ -400,7 +400,7 @@ void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w,
                  int indent, bool writeInternals )
 {
   soma::DataSource			& ds = *w.dataSource();
-  carto::Object			it = obj.objectIterator();
+  carto::Object			it;
   bool				first = true;
 
   ds.putch( '[' );
@@ -428,29 +428,26 @@ soma::PythonWriter::genericSequenceHelper( const carto::GenericObject & obj,
                                            bool writeInternals )
 {
   soma::DataSource    & ds = *w.dataSource();
-  // using GenericObject:: avoids a bug in gcc-2.96
-  const T   & x = obj.GenericObject::value<T>();
-  typename T::const_iterator    ix;
-  typename T::const_iterator    ex = x.end();
-  ValueObject<typename T::value_type>   de;
+  carto::Object ix = obj.objectIterator();
+  carto::Object de;
   bool              first = true;
 
   ds.putch( '[' );
-  for( ix=x.begin(); ix!=ex; ++ix )
-    {
-      if( first )
+  for( ix=obj.objectIterator(); ix->isValid(); ix->next() )
+  {
+    if( first )
     {
       first = false;
           ds.putch( ' ' );
     }
-      else
-        {
-          ds.putch( ',' );
-          ds.putch( ' ' );
-        }
-      de.getValue() = *ix;
-      genericHelper<typename T::value_type>( de, w, ind, writeInternals );
+    else
+    {
+      ds.putch( ',' );
+      ds.putch( ' ' );
     }
+    de = ix->currentValue();
+    genericHelper<typename T::value_type>( *de, w, ind, writeInternals );
+  }
   ds.putch( ' ' );
   ds.putch( ']' );
 }
