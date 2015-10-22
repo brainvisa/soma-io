@@ -1027,10 +1027,23 @@ namespace soma
               * nim->nt * nim->nu * nim->nv * nim->nw ;
 
     /* Grid spacings */
-    std::vector<float> vs;
-    hdr->getProperty( "voxel_size", vs );
-    for( i=vs.size(); i<4; ++i )
-      vs.push_back( 1. );
+    Object vso;
+    std::vector<float> vs( 4, 1.F );
+    try
+    {
+      vso = hdr->getProperty( "voxel_size" );
+      if( vso )
+      {
+        Object vso_it = vso->objectIterator();
+        for( int i=0; i<4 && vso_it->isValid(); vso_it->next(), ++i )
+        {
+          vs[i] = float( vso_it->currentValue()->getScalar() );
+        }
+      }
+    }
+    catch( ... )
+    {
+    }
     df = m2s.transform( Point3df( vs[0], vs[1], vs[2] ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
     std::vector<float> tvs(4);
