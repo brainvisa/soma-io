@@ -41,7 +41,8 @@ import numpy as np
 import soma
 from soma.path import split_path
 from soma.path import which
-from soma import argparse, aims, dicomaggregator
+from soma import argparse, aims
+from soma.dicom import aggregator
 import subprocess
 from soma.minf.api import readMinf
 
@@ -353,15 +354,20 @@ def convert_to_nifti_MR( serie ):
   check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
               [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
 
+  tags = ((0x0010, 0x0010), (0x0008, 0x0021),
+          (0x0008, 0x0060), (0x0008, 0x103e),
+          (0x0008, 0x0080))
+  filename = ''
+  for tag in tags:
+      try:
+          filename += ds[tag].value + '-'
+      except:
+          pass
   try:
-    outfile = os.path.join( args.output, \
-                                make_valid_filename( \
-                                  ds.PatientsName + '-' + ds.SeriesDate + '-' + \
-                                  ds.Modality + '-' + \
-                                  ds.SeriesDescription + '-' + \
-                                  ds.InstitutionName ) )
+      outfile = os.path.join(args.output, \
+                             make_valid_filename(filename[:-1]))
   except:
-    outfile = None
+      outfile = None
 
   outfiles = []
 
@@ -565,7 +571,7 @@ Convert input DICOM files into NIfTI files
         parser.parse_args( [ '-h' ] )
 
     # Aggregate input files
-    aggregator = dicomaggregator.DicomAggregator()
+    aggregator = aggregator.DicomAggregator()
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
 
