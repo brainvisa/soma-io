@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import os, shutil, string
 import dicom
-from soma import argparse, dicomaggregator
+from soma import argparse
+from soma.dicom import aggregator
 
 def createTree( serie ):
     def makeValidValue( value ):
@@ -85,7 +86,7 @@ Sort input DICOM files according to the following tree: <PatientsName>/<Modality
         pass
 
     # Aggregate input files
-    aggregator = dicomaggregator.DicomAggregator()
+    aggregator = aggregator.DicomAggregator()
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
 
