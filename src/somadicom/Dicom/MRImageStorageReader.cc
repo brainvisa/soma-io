@@ -43,7 +43,7 @@ bool dcm::MRImageStorageReader::getHeader(
                                         dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !dcm::MultiSliceReader::getHeader( proxy, info, datasetHeader ) )
+  if ( !dcm::MultiFileReader::getHeader( proxy, info, datasetHeader ) )
   {
 
     return false;

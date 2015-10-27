@@ -7,10 +7,12 @@
 #include <soma-io/Pattern/Singleton.h>
 #include <soma-io/Dicom/DatasetModule.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
+#include <soma-io/Dicom/DicomWriterFactory.h>
 #else
 #include <Pattern/Singleton.h>
 #include <Dicom/DatasetModule.h>
 #include <Dicom/DicomReaderFactory.h>
+#include <Dicom/DicomWriterFactory.h>
 #endif
 
 #include <string>
@@ -32,6 +34,7 @@ class DicomIO : public Singleton< DicomIO >
   public:
 
     bool registerReader( DicomReader* reader );
+    bool registerWriter( DicomWriter* writer );
 
     bool analyze( const std::string& fileName, DataInfo& dataInfo );
     bool check( const std::string& fileName,
@@ -41,6 +44,11 @@ class DicomIO : public Singleton< DicomIO >
                     DataInfo& dataInfo,
                     DicomDatasetHeader& datasetHeader );
     bool read( DicomDatasetHeader& datasetHeader, DicomProxy& proxy );
+    bool read( const std::string& fileName, DicomProxy& proxy );
+
+    bool write( const std::string& fileName,
+                DicomProxy& proxy,
+                bool forceSecondaryCapture = false );
 
   protected:
 
@@ -55,6 +63,7 @@ class DicomIO : public Singleton< DicomIO >
 
     DatasetModule _datasetModule;
     DicomReaderFactory _readerFactory;
+    DicomWriterFactory _writerFactory;
 
 };
 
@@ -66,5 +75,12 @@ class DicomIO : public Singleton< DicomIO >
 static bool init_##IMPLEMENTATION =                                            \
                                    dcm::DicomIO::getInstance().registerReader( \
                                    &dcm::IMPLEMENTATION::getInstance() )
+
+
+#define RegisterDicomWriterFunction( IMPLEMENTATION )                          \
+static bool init_##IMPLEMENTATION =                                            \
+                                   dcm::DicomIO::getInstance().registerWriter( \
+                                   &dcm::IMPLEMENTATION::getInstance() )
+
 
 #endif

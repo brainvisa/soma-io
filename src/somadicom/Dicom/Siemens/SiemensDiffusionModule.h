@@ -1,3 +1,4 @@
+
 #ifndef _SiemensDiffusionModule_h_
 #define _SiemensDiffusionModule_h_
 
@@ -24,8 +25,6 @@ class SiemensDiffusionModule : public DiffusionModule
     bool parseItem( DcmItem* dcmItem );
 
     int32_t getStep( DicomDatasetHeader& datasetHeader );
-
-  protected:
 
 };
 

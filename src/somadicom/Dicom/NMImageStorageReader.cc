@@ -23,8 +23,10 @@
 #include <dcmtk/dcmdata/dcdeftag.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
+
 dcm::NMImageStorageReader::NMImageStorageReader()
-                         : dcm::MultiSliceReader()
+                         : dcm::SingleFileReader(),
+                           dcm::MultiSliceReader()
 {
 }
 
@@ -80,9 +82,12 @@ bool dcm::NMImageStorageReader::getHeader(
 
 bool dcm::NMImageStorageReader::readHeader( DcmDataset* dataset )
 {
+
   if ( dataset )
   {
+
     _dataInfo->_fileCount = 1;
+    _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
     _positions.clear();
 
     Uint16 nSlices = 1;
@@ -118,40 +123,54 @@ bool dcm::NMImageStorageReader::readHeader( DcmDataset* dataset )
 
       if ( positionModule.parseItem( item ) )
       {
-        _positions.push_back( positionModule.getImagePosition() );
+
+        _dataInfo->_origin = positionModule.getImagePosition();
+
       }
+
     }
 
-    return dcm::MultiSliceReader::readHeader( dataset );
+    return dcm::SingleFileReader::readHeader( dataset );
+
   }
 
   return false;
 
 }
 
-bool dcm::NMImageStorageReader::buildIndexLut(DcmDataset* dataset)
+
+bool dcm::NMImageStorageReader::buildIndexLut( DcmDataset* dataset )
 {
-    bool _positiveSpacingBetweenSlices = true;
-    dcm::AcquisitionModule acquisitionModule;
-    if (acquisitionModule.parseItem(dataset) &&
-        acquisitionModule.getSpacingBetweenSlices() < 0)
+
+  dcm::AcquisitionModule acquisitionModule;
+  int32_t i, n = _dataInfo->_slices * _dataInfo->_frames;
+
+  _indexLut.resize( n );
+
+  if ( acquisitionModule.parseItem( dataset ) &&
+       ( acquisitionModule.getSpacingBetweenSlices() < 0 ) )
+  {
+
+    for ( i = 0; i < n; i++ )
     {
-        _positiveSpacingBetweenSlices = false;
+
+      _indexLut[ i ] = n - i - 1;
+
     }
 
-    int32_t i, n = _dataInfo->_slices * _dataInfo->_frames;
-    _indexLut.resize(n);
-    for (i = 0; i < n; i++)
+  }
+  else
+  {
+
+    for ( i = 0; i < n; i++ )
     {
-        if (_positiveSpacingBetweenSlices)
-        {
-        	_indexLut[i] = i;
-        }
-        else
-        {
-        	_indexLut[i] = (n-1)-i;
-        }
+
+      _indexLut[ i ] = i;
+
     }
 
-    return true;
+  }
+
+  return true;
+
 }

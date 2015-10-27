@@ -32,7 +32,7 @@
  */
 
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/image/dicomimagereader_d.h>
+#include <soma-io/image/dicomimagewriter_d.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 //--- cartobase --------------------------------------------------------------
@@ -43,7 +43,7 @@
 using namespace soma;
 using namespace carto;
 
-template class DicomImageReader<int16_t>;
-template class DicomImageReader<uint8_t>;
-template class DicomImageReader<uint16_t>;
-template class DicomImageReader<VoxelRGB>;
+template class DicomImageWriter<int16_t>;
+template class DicomImageWriter<uint8_t>;
+template class DicomImageWriter<uint16_t>;
+template class DicomImageWriter<VoxelRGB>;

@@ -1,14 +1,14 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/MultiSliceContext.h>
-#include <soma-io/Dicom/MultiSliceDicomImage.h>
+#include <soma-io/Dicom/DicomImage.h>
 #else
 #include <Dicom/MultiSliceContext.h>
-#include <Dicom/MultiSliceDicomImage.h>
+#include <Dicom/DicomImage.h>
 #endif
 
 
 dcm::MultiSliceContext::MultiSliceContext( 
-                                       dcm::MultiSliceDicomImage& dicomImage, 
+                                       dcm::DicomImage& dicomImage, 
                                        const std::vector< int32_t >& indexLut,
                                        const std::vector< int32_t >& selection )
 #ifdef SOMA_IO_DICOM

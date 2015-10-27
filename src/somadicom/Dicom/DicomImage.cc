@@ -60,38 +60,7 @@ bool dcm::DicomImage::load( const std::string& fileName )
     if ( _dicomFile.loadFile( fileName.c_str() ).good() )
     {
 
-      _dataset = _dicomFile.getDataset();
-
-      if ( _dataset )
-      {
-
-        DcmElement* element = 0;
-
-        if ( _dataset->findAndGetElement( DCM_PixelData, element ).good() )
-        {
-
-          _pixelData = OFstatic_cast( DcmPixelData*, element );
-
-          if ( _pixelData && _imageModule.parseItem( _dataset ) )
-          {
-
-            chooseImagePixel( _imageModule.getPhotometricInterpretation() );
-
-            if ( _image )
-            {
-
-              getImagePtr();
-              _image->initialize( _dataset );
-
-              return true;
-
-            }
-
-          }
-
-        }
-
-      }
+      return getPixelData( _dicomFile.getDataset() );
 
     }
 
@@ -167,7 +136,7 @@ void dcm::DicomImage::fillIndex( int32_t index, int32_t inputSlice )
 void dcm::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
 {
 
-  if ( _imagePtr )
+  if ( _imagePtr && _image )
   {
 
     _image->fill( _parameters, 
@@ -191,6 +160,47 @@ void dcm::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
 }
 
 
+bool dcm::DicomImage::getPixelData( DcmDataset* dataset )
+{
+
+  if ( dataset )
+  {
+
+    DcmElement* element = 0;
+    
+    _dataset = dataset;
+
+    if ( dataset->findAndGetElement( DCM_PixelData, element ).good() )
+    {
+
+      _pixelData = OFstatic_cast( DcmPixelData*, element );
+
+      if ( _pixelData && _imageModule.parseItem( dataset ) )
+      {
+
+        chooseImagePixel( _imageModule.getPhotometricInterpretation() );
+
+        if ( _image )
+        {
+
+          getImagePtr();
+          _image->initialize( dataset );
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
 void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
 {
 
@@ -209,16 +219,38 @@ void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
          ( _photometric == "MONOCHROME2" ) )
     {
 
-      if ( _dcmEVR == EVR_OW )
+      if ( ( _dcmEVR == EVR_OW ) && ( _proxy.getDataInfo()._depth > 8 ) )
       {
 
-        _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+        if ( _proxy.getDataInfo()._pixelRepresentation )
+        {
+
+          _image = new dcm::MonochromeImage< int16_t >( _proxy );
+
+        }
+        else
+        {
+
+          _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+
+        }
 
       }
       else
       {
 
-        _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+        if ( _proxy.getDataInfo()._pixelRepresentation )
+        {
+
+          _image = new dcm::MonochromeImage< int8_t >( _proxy );
+
+        }
+        else
+        {
+
+          _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+
+        }
 
       }
 
@@ -230,17 +262,18 @@ void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
       }
 
     }
-    else if ( _photometric == "RGB" )
-    {
-
-      _image = new dcm::RGBImage( _proxy, 
-                                  _imageModule.getPlanarConfiguration() );
-
-    }
     else if ( _photometric == "PALETTE COLOR" )
     {
 
       _image = new dcm::PaletteImage( _proxy );
+
+    }
+    else /* if ( ( _photometric == "RGB" ) ||
+                 ( _photometric == "YBR_FULL_422" ) ) */
+    {
+
+      _image = new dcm::RGBImage( _proxy, 
+                                  _imageModule.getPlanarConfiguration() );
 
     }
 

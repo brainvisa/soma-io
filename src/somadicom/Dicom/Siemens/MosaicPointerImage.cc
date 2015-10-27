@@ -16,9 +16,7 @@ dcm::MosaicPointerImage::MosaicPointerImage(
                                         dcm::ImagePixel::Parameters& parameters,
                                         int32_t mosaicSizeX,
                                         void* ptr )
-                       : dcm::MosaicDicomImage( proxy, 
-                                                parameters, 
-                                                mosaicSizeX )
+                       : dcm::MosaicDicomImage( proxy, parameters, mosaicSizeX )
 {
 
   dcm::DataInfo& info = proxy.getDataInfo();
@@ -33,11 +31,33 @@ dcm::MosaicPointerImage::MosaicPointerImage(
       break;
 
     case 2:
-      _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+      if ( info._pixelRepresentation )
+      {
+
+        _image = new dcm::MonochromeImage< int16_t >( _proxy );
+
+      }
+      else
+      {
+
+        _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+
+      }
       break;
 
     default:
-      _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+      if ( info._pixelRepresentation )
+      {
+
+        _image = new dcm::MonochromeImage< int8_t >( _proxy );
+
+      }
+      else
+      {
+
+        _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+
+      }
       break;
 
   }

@@ -48,10 +48,12 @@ class DicomImage
 
   protected:
 
+    virtual bool getPixelData( DcmDataset* dataset );
+
     void chooseImagePixel( const std::string& photometric );
 
     DicomProxy& _proxy;
-    ImagePixel::Parameters& _parameters;
+    ImagePixel::Parameters _parameters;
     ImagePixel::OffsetParameters _offsetParameters;
     DcmFileFormat _dicomFile;
     DcmDataset* _dataset;

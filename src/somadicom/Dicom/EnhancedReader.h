@@ -1,5 +1,5 @@
-#ifndef _NMImageStorageReader_h_
-#define _NMImageStorageReader_h_
+#ifndef _EnhancedReader_h_
+#define _EnhancedReader_h_
 
 
 #ifdef SOMA_IO_DICOM
@@ -11,21 +11,20 @@
 #include <Dicom/MultiSliceReader.h>
 #endif
 
-
-class DcmDataset;
+#include <string>
 
 
 namespace dcm
 {
 
 
-class NMImageStorageReader : public SingleFileReader,
-                             public MultiSliceReader
+class EnhancedReader : public SingleFileReader,
+                       public MultiSliceReader
 {
 
   public:
 
-    std::string getStorageUID();
+    EnhancedReader();
 
     virtual bool getHeader( HeaderProxy& header, 
                             DataInfo& info,
@@ -33,9 +32,8 @@ class NMImageStorageReader : public SingleFileReader,
 
   protected:
 
-    NMImageStorageReader();
-
     virtual bool readHeader( DcmDataset* dataset );
+
     virtual bool buildIndexLut( DcmDataset* dataset );
 
 };

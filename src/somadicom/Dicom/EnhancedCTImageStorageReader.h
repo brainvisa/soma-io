@@ -1,5 +1,5 @@
-#ifndef _EnhancedMRImageStorageReader_h_
-#define _EnhancedMRImageStorageReader_h_
+#ifndef _EnhancedCTImageStorageReader_h_
+#define _EnhancedCTImageStorageReader_h_
 
 
 #ifdef SOMA_IO_DICOM
@@ -14,7 +14,7 @@ namespace dcm
 {
 
 
-class EnhancedMRImageStorageReader : public EnhancedReader
+class EnhancedCTImageStorageReader : public EnhancedReader
 {
 
   public:
@@ -23,7 +23,7 @@ class EnhancedMRImageStorageReader : public EnhancedReader
 
   protected:
 
-    EnhancedMRImageStorageReader();
+    EnhancedCTImageStorageReader();
 
 };
 

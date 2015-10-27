@@ -10,38 +10,30 @@
 #endif
 
 
-class DcmDataset;
-
-
 namespace dcm
 {
 
 
 class HeaderProxy;
+class DataInfo;
 
 
-class MultiSliceReader : public DicomReader
+class MultiSliceReader
 {
 
   public:
 
     MultiSliceReader();
+    virtual ~MultiSliceReader();
 
-    virtual bool getHeader( HeaderProxy& header, 
-                            DataInfo& dataInfo,
-                            DicomDatasetHeader& datasetHeader );
+    bool getHeader( HeaderProxy& header, 
+                    DataInfo& dataInfo,
+                    DicomDatasetHeader& datasetHeader );
 
-    void setOrientation();
+    void setOrientation( DataInfo& dataInfo );
 
   protected:
 
-    virtual bool readHeader( DcmDataset* dataset );
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
-
-    virtual bool buildIndexLut( DcmDataset* dataset );
-
-    std::vector< int32_t > _indexLut;
     std::vector< Vector3d< double > > _positions;
 
 };

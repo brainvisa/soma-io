@@ -1,7 +1,6 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/somadicom.h>
 #include <soma-io/Dicom/DicomIO.h>
-#include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
@@ -11,7 +10,6 @@
 #endif
 #else
 #include <Dicom/DicomIO.h>
-#include <Dicom/DicomReaderFactory.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <System/DirectoryParser.h>
 #include <Container/DicomProxy.h>
@@ -45,6 +43,14 @@ bool dcm::DicomIO::registerReader( dcm::DicomReader* reader )
 {
 
   return _readerFactory.add( reader );
+
+}
+
+
+bool dcm::DicomIO::registerWriter( dcm::DicomWriter* writer )
+{
+
+  return _writerFactory.add( writer );
 
 }
 
@@ -115,8 +121,8 @@ bool dcm::DicomIO::getHeader( dcm::HeaderProxy& header,
                               dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  return _readerFactory.getHeader( _datasetModule,
-                                   header, 
+  return _readerFactory.getHeader( _datasetModule, 
+                                   header,
                                    dataInfo,
                                    datasetHeader );
 
@@ -139,7 +145,7 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
   DJ2KDecoderRegistration::registerCodecs();
 #endif
 
-  bool status = _readerFactory.read( _datasetModule,datasetHeader, proxy );
+  bool status = _readerFactory.read( _datasetModule, datasetHeader, proxy );
 
 #ifdef SOMA_IO_DICOM
 #ifdef SOMA_DICOM_JPEG2000_SUPPORT
@@ -151,6 +157,58 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
 #endif
   DJDecoderRegistration::cleanup();
   DcmRLEDecoderRegistration::cleanup();
+
+  return status;
+
+}
+
+
+bool dcm::DicomIO::read( const std::string& fileName, dcm::DicomProxy& proxy )
+{
+
+  bool status = false;
+
+  if ( !fileName.empty() )
+  {
+
+    dcm::DataInfo& info = proxy.getDataInfo();
+
+    if ( analyze( fileName, info ) )
+    {
+
+      dcm::DicomDatasetHeader datasetHeader( info );
+
+      if ( check( fileName, info, datasetHeader ) )
+      {
+
+        status = read( datasetHeader, proxy );
+
+      }
+
+    }
+
+  }
+
+  return status;
+
+}
+
+
+bool dcm::DicomIO::write( const std::string& fileName,
+                          dcm::DicomProxy& proxy,
+                          bool forceSecondaryCapture )
+{
+
+  bool status = false;
+
+  if ( !fileName.empty() )
+  {
+
+    status = _writerFactory.write( fileName, 
+                                   proxy,
+                                   forceSecondaryCapture );
+
+  }
 
   return status;
 
@@ -171,13 +229,14 @@ bool dcm::DicomIO::checkDicom( const std::string& fileName )
       int32_t length = 0;
       uint8_t dcmTest[] = { 0x44, 0x49, 0x43, 0x4D };
       uint8_t value[] = { 0, 0, 0, 0 };
-      int32_t* dcmTestInt = (int32_t*)dcmTest;
-      int32_t* valueInt = (int32_t*)value;
+      uint32_t* dcmTestInt = (uint32_t*)dcmTest;
+      uint32_t* valueInt = (uint32_t*)value;
 
       ifs.seekg( 0, ifs.end );
 
       length = ifs.tellg();
 
+      // first, test signature
       if ( length > 132 )
       {
 
@@ -186,14 +245,68 @@ bool dcm::DicomIO::checkDicom( const std::string& fileName )
 
       }
 
-      ifs.close();
-
       if ( *dcmTestInt == *valueInt )
       {
 
+        ifs.close();
         return true;
 
       }
+      else
+      {
+
+        uint8_t dcmTest2[] = { 0x08, 0x00, 0x00, 0x00, 0x55, 0x4C, 0x04, 0x00 };
+        uint8_t value2[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        uint64_t* dcmTestInt2 = (uint64_t*)dcmTest2;
+        uint64_t* valueInt2 = (uint64_t*)value2;
+
+        // second, test explicit dataset
+        if ( length > 8 )
+        {
+
+          ifs.seekg( 0, ifs.beg );
+          ifs.read( (char*)value2, 8 );
+
+        }
+
+        if ( *dcmTestInt2 == *valueInt2 )
+        {
+
+          ifs.close();
+          return true;
+
+        }
+        else
+        {
+
+          uint8_t dcmTest3[] = { 0x08, 0x00, 0x00, 0x00, 
+                                 0x04, 0x00, 0x00, 0x00 };
+          uint8_t value3[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+          uint64_t* dcmTestInt3 = (uint64_t*)dcmTest3;
+          uint64_t* valueInt3 = (uint64_t*)value3;
+
+          // third, test implicit dataset
+          if ( length > 8 )
+          {
+
+            ifs.seekg( 0, ifs.beg );
+            ifs.read( (char*)value3, 8 );
+
+          }
+
+          if ( *dcmTestInt3 == *valueInt3 )
+          {
+
+            ifs.close();
+            return true;
+
+          }
+
+        }
+
+      }
+
+      ifs.close();
 
     }
 

@@ -18,7 +18,7 @@ namespace dcm
 {
 
 
-class MultiSliceDicomImage;
+class DicomImage;
 
 
 #ifdef SOMA_IO_DICOM
@@ -30,7 +30,7 @@ class MultiSliceContext : public LoopContext
 
   public:
 
-    MultiSliceContext( MultiSliceDicomImage& dcmImage, 
+    MultiSliceContext( DicomImage& dcmImage, 
                        const std::vector< int32_t >& indexLut,
                        const std::vector< int32_t >& selection );
 
@@ -38,7 +38,7 @@ class MultiSliceContext : public LoopContext
 
   private:
 
-    MultiSliceDicomImage& _dicomImage;
+    DicomImage& _dicomImage;
     const std::vector< int32_t >& _indexLut;
     const std::vector< int32_t >& _selection;
 
