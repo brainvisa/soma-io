@@ -57,6 +57,7 @@
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "READER" )
 // localMsg must be undef at end of file
+
 //----------------------------------------------------------------------------
 
 namespace soma
@@ -220,7 +221,8 @@ namespace soma
   bool Reader<T>::read( T & obj, carto::Object header,
                         int passbegin, int passend )
   {
-    localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
+    localMsg( "<" + carto::DataTypeCode<T>::name() + "> "
+      + _datasourceinfo->url() );
 
     if( !header.isNone() )
       _datasourceinfo->header() = header;
@@ -242,9 +244,9 @@ namespace soma
 
     //// Checking format /////////////////////////////////////////////////////
     DataSourceInfoLoader  dsil; // manages the case of a not-none header
-    DataSourceInfo        dsi = dsil.check( *_datasourceinfo, _options,
-                                            ( passbegin < 2 ? 1 : passbegin - 1 ),
-                                            passend - 1 );
+    DataSourceInfo        dsi = dsil.check(
+      *_datasourceinfo, _options,
+      ( passbegin < 2 ? 1 : passbegin - 1 ), passend - 1 );
     if( dsi.list().empty() )
       dsil.launchException();
     if( !dsi.header().get() )
@@ -263,7 +265,7 @@ namespace soma
     if( !_options->getProperty( "format", format )
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
-    localMsg( "format: " + format );
+    localMsg( "format: " + format + " for file: " + uri );
 
     //// Reading data ////////////////////////////////////////////////////////
     set_S                        tried;
@@ -398,7 +400,8 @@ namespace soma
   template<class T>
   T* Reader<T>::read( carto::Object header, int passbegin, int passend )
   {
-    localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
+    localMsg( "<" + carto::DataTypeCode<T>::name() + "> "
+      + _datasourceinfo->url() );
 
     if( !header.isNone() )
       _datasourceinfo->header() = header;
@@ -433,7 +436,7 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
 
-    localMsg( "format: " + format );
+    localMsg( "format: " + format + " for file: " + uri );
 
     //// Reading data ////////////////////////////////////////////////////////
     set_S                         tried;

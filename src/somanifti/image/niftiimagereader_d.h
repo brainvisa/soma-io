@@ -339,6 +339,7 @@ namespace soma
     // check if it is a compressed streem to optimize reading
     char *tmpimgname = nifti_findimgname(nim->iname , nim->nifti_type);
     bool gzipped = nifti_is_gzfile( tmpimgname );
+
     free( tmpimgname );
     if( gzipped )
     {
@@ -474,7 +475,7 @@ namespace soma
   template <typename T>
   ImageReader<T>* NiftiImageReader<T>::cloneReader() const
   {
-    return new NiftiImageReader;
+    return new NiftiImageReader( formatID() );
   }
 
 }
