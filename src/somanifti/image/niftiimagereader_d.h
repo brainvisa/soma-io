@@ -338,6 +338,13 @@ namespace soma
 
     // check if it is a compressed streem to optimize reading
     char *tmpimgname = nifti_findimgname(nim->iname , nim->nifti_type);
+    if( !tmpimgname )
+    {
+      tmpimgname = nifti_findimgname( dsi.url().c_str(), nim->nifti_type );
+      // replace nifti structure filename by the correct one
+      free( nim->iname );
+      nim->iname = strdup( tmpimgname );
+    }
     bool gzipped = nifti_is_gzfile( tmpimgname );
 
     free( tmpimgname );

@@ -222,29 +222,39 @@ void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
     {
       // probably a problem... but we'll try like this
       ext.clear();
+      basename = dataname;
     }
 
     if( ext.empty() )
     {
-      if( FileUtil::fileStat( dataname + ".nii" ).find( '+' ) )
+      if( FileUtil::fileStat( dataname ).find( '+' ) != string::npos )
+      {
+        basename = dataname;
+        ext = "nii";
+      }
+      else if( FileUtil::fileStat( dataname + ".nii" ).find( '+' )
+        != string::npos )
       {
         basename = dataname;
         dataname = dataname + ".nii";
         ext = "nii";
       }
-      else if( FileUtil::fileStat( dataname + ".nii.gz" ).find( '+' ) )
+      else if( FileUtil::fileStat( dataname + ".nii.gz" ).find( '+' )
+        != string::npos )
       {
         basename = dataname;
         dataname = dataname + ".nii.gz";
         ext = "nii.gz";
       }
-      else if( FileUtil::fileStat( dataname + ".img" ).find( '+' ) )
+      else if( FileUtil::fileStat( dataname + ".img" ).find( '+' )
+        != string::npos )
       {
         basename = dataname;
         dataname = dataname + ".img";
         ext = "img";
       }
-      else if( FileUtil::fileStat( dataname + ".img.gz" ).find( '+' ) )
+      else if( FileUtil::fileStat( dataname + ".img.gz" ).find( '+' )
+        != string::npos )
       {
         basename = dataname;
         dataname = dataname + ".img.gz";
