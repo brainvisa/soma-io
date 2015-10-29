@@ -105,7 +105,7 @@ namespace carto {
   {
     int read;
     char ch = 0;
-    int i;
+    unsigned int i;
     VoxelValue<T,C> result;
     
     while( in &&

@@ -269,7 +269,7 @@ namespace soma {
 
   template <typename T>
   DataSourceInfo TiffImageWriter<T>::writeHeader(
-    DataSourceInfo dsi,
+    DataSourceInfo & dsi,
     const T * source,
     const std::vector<int> & pos,
     const std::vector<int> & size,

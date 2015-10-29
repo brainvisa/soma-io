@@ -349,6 +349,10 @@ static char * gni_history[] =
   "1.45 19 Jun 2013, D. Riviere, N. Souedet\n",
   "   - fixed nifti_read_collapsed_image() and nifti_read_subregion_image()\n",
   "     to support images larger than 2GB\n"
+  "1.46 29 Oct 2015, D. Riviere\n",
+  "   - allow unknown extensions in nifti_findhdrname()\n",
+  "   - for unknown extensions, in nifti_is_gzfile(), try to actually open\n",
+  "     the file and check gzip magic number to check compression\n",
   "----------------------------------------------------------------------\n"
 };
 static char gni_version[] = "nifti library version 1.45 (19 Jun, 2013)";
@@ -2660,14 +2664,35 @@ char * nifti_find_file_extension( const char * name )
 *//*--------------------------------------------------------------------*/
 int nifti_is_gzfile(const char* fname)
 {
+  FILE *cstream;
+  char c;
+  int compressed = 0;
   /* return true if the filename ends with .gz */
   if (fname == NULL) { return 0; }
 #ifdef HAVE_ZLIB
   { /* just so len doesn't generate compile warning */
      int len;
      len = (int)strlen(fname);
-     if (len < 3) return 0;  /* so we don't search before the name */
-     if (fileext_compare(fname + strlen(fname) - 3,".gz")==0) { return 1; }
+//      if (len < 3) return 0;  /* so we don't search before the name */
+     if (len >= 3 && fileext_compare(fname + strlen(fname) - 3,".gz")==0) { return 1; }
+     if (len >= 4 && fileext_compare(fname + strlen(fname) - 4,".nii")==0) { return 0; }
+     if (len >= 4 && fileext_compare(fname + strlen(fname) - 4,".img")==0) { return 0; }
+
+     /* Denis Riviere, 2015/10/29: really check compressed files */
+     cstream = fopen(fname, "rb");
+     if(cstream != NULL)
+     {
+        /* check magic number for gzip: 0x1f8b are the 1st two bytes */
+        c = fgetc(cstream);
+        if(c == '\x1f')
+        {
+           c = fgetc(cstream);
+           if(c == '\x8b')
+              compressed = 1;
+        }
+        fclose(cstream);
+        return compressed;
+     }
   }
 #endif
   return 0;
@@ -2774,6 +2799,13 @@ char * nifti_findhdrname(const char* fname)
         return hdrname; 
      } else
         efirst = 0;     /* note for below */
+   }
+   if ( !ext && nifti_fileexists(fname) )
+   {
+      /* file exists without known extension */
+      hdrname = nifti_strdup(fname);
+      free(basename);
+      return hdrname;
    }
 
    /* So the requested name is a basename, contains .img, or does not exist. */
