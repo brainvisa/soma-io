@@ -127,7 +127,7 @@ namespace carto
 	@param len 
 	@return this
     */
-    virtual std::streambuf* setbuf(char* p , int len);
+    virtual std::streambuf* setbuf(char* p , std::streamsize len);
     virtual pos_type seekoff( off_type, std::ios_base::seekdir, 
                               std::ios_base::openmode = std::ios_base::in 
                               | std::ios_base::out );

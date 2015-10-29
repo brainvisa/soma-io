@@ -49,7 +49,7 @@
 
    Denis 03/07/01
 */
-#define protected public
+#define protected public  // TODO remove this abomination
 #include <streambuf>
 #undef protected
 
@@ -136,7 +136,7 @@ fistreambuf<Extractor>::sync()
 
 template <class Extractor>
 streambuf*
-fistreambuf<Extractor>::setbuf(char* p , int len)
+fistreambuf<Extractor>::setbuf(char* p , std::streamsize len)
 {
 	return _source == 0 ? 0 : _source->setbuf(p, len);
 }
