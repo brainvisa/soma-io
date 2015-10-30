@@ -79,7 +79,8 @@ namespace soma
 
   protected:
     carto::rc_ptr<DataSourceInfo>  _datasourceinfo;
-    carto::rc_ptr<DataSource>      _datasource; ///\deprecated
+    carto::rc_ptr<DataSource>      _datasource
+      __attribute__((__deprecated__)); ///\deprecated
   };
 
 

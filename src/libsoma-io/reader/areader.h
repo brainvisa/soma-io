@@ -170,7 +170,8 @@ namespace soma
 
     // DO NOT USE! DEPRECIATED
     void readAttribute(carto::GenericObject* object, 
-		       const std::string& semantic);
+		       const std::string& semantic)
+      __attribute__((__deprecated__));
 
     //@}
 

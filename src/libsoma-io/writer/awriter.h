@@ -149,12 +149,14 @@ namespace soma
                           std::string::size_type size );
 
     // DO NOT USE! DEPRECIATED
-    void writeAttributes( const carto::GenericObject* object );
+    void writeAttributes( const carto::GenericObject* object )
+      __attribute__((__deprecated__));
 
     // DO NOT USE! DEPRECIATED
     void writeAttributes( const carto::GenericObject* object,
                           const std::set<std::string>& attributes, 
-                          std::string::size_type size );
+                          std::string::size_type size )
+      __attribute__((__deprecated__));
 
     //@}
 

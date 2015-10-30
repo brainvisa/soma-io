@@ -80,8 +80,9 @@ namespace soma
     void readIntDictionary2( carto::TypedObject<carto::IntDictionary> & obj );
 
 
-    /// obsolete: use attach() instead
-    void open( const std::string& filename );
+    /// \deprecated{obsolete: use attach() instead}
+    void open( const std::string& filename )
+      __attribute__((__deprecated__("use attach() instead")));
     void close();
     /// attach to an existing istream
     void attach( std::istream & s, int line_num = 1 );
