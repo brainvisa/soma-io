@@ -35,32 +35,14 @@
 //	H E A D E R  F I L E S
 //=============================================================================
 
-#if defined( _WIN32 ) || ( defined( __GNUC__ ) && ( __GNUC__-0 >= 3 ) )
-/* Bon OK je sais, il ne faut pas, c'est mal, il ne faut SURTOUT JAMAIS le 
-   faire, sous aucun pretexte, et sans exception, on ne doit jamais dire 
-   "ah oui mais la, vraiment, c'est le seul moyen!", si on le fait une fois, 
-   on est tente de le refaire. On ne doit pas non plus se refugier derriere 
-   le pretexte "oui mais aussi leur classe de base est mal faite, et dans les 
-   headers de tel systeme/compilateur ca passe tres bien alors je peux me 
-   permettre une fois", nonnonnon, ca n'est pas du tout la bonne solution.
-
-   Bref, vous avez compris: je le fais...
-   (Et Dimitri va m'engueuler...)
-
-   Denis 03/07/01
-*/
-#define protected public  // TODO remove this abomination
 #include <streambuf>
-#undef protected
-
-#endif	// _WIN32
 
 #include <cartobase/stream/fistreambuf.h>
 #include <cartobase/stream/uncomment.h>
 #include <cartobase/stream/counter.h>
-#include <limits.h>
-#include <assert.h>
-#include <stdio.h>
+#include <climits>
+#include <cassert>
+#include <cstdio>
 
 using namespace carto;
 using namespace std;
@@ -88,7 +70,7 @@ fistreambuf<Extractor>::fistreambuf(streambuf* source,
 template <class Extractor>
 fistreambuf<Extractor>::~fistreambuf()
 {
-	sync();
+	pubsync();
 	if (_delete)
 		delete _source;
 }
@@ -127,7 +109,7 @@ fistreambuf<Extractor>::sync()
 			result = _source->sputbackc(*gptr());
 			setg(0, 0, 0);
 		}
-		if (_source->sync() == EOF)
+		if (_source->pubsync() == EOF)
 			result = EOF;
 	}
 	return result;
@@ -138,7 +120,7 @@ template <class Extractor>
 streambuf*
 fistreambuf<Extractor>::setbuf(char* p , std::streamsize len)
 {
-	return _source == 0 ? 0 : _source->setbuf(p, len);
+	return _source == 0 ? 0 : _source->pubsetbuf(p, len);
 }
 
 
@@ -148,7 +130,7 @@ fistreambuf<Extractor>::seekoff( off_type type,
                                  ios_base::seekdir dir, 
                                  ios_base::openmode mode )
 {
-  return _source->seekoff( type, dir, mode );
+  return _source->pubseekoff( type, dir, mode );
 }
 
 //=============================================================================
