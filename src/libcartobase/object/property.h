@@ -89,27 +89,18 @@ public:
   Signal& getSignalPropertyChanged();
 
   // DictionaryInterface methods
-  template <typename T> void setProperty( const std::string &, const T & );
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  void setProperty( const std::string & key, const char * value )
-  { DictionaryInterface::setProperty( key, value ); }
+
   template <typename T> void addBuiltinProperty( const std::string &, T & );
   /// add an optional builtin property
   template <typename T> void addBuiltinProperty( const std::string &, T &, 
                                                  bool & provided );
-  template <typename T> bool getProperty( const std::string &, T & ) const;
 
+  template <typename T> bool getProperty( const std::string &, T & ) const;
+  template <typename T> void setProperty( const std::string &, const T & );
   virtual bool getProperty( const std::string &, Object & ) const;
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  Object getProperty( const std::string & key ) const
-  { return DictionaryInterface::getProperty( key ); }
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  Object getProperty( Object key ) const
-  { return DictionaryInterface::getProperty( key ); }
   virtual void setProperty( const std::string &, Object );
+  using DictionaryInterface::getProperty;
+  using DictionaryInterface::setProperty;
   virtual bool removeProperty( const std::string & );
   virtual bool hasProperty( const std::string & ) const;
   virtual size_t size() const;

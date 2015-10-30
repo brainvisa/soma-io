@@ -606,27 +606,10 @@ public:
   // DictionaryInterface methods
   virtual bool getProperty( const std::string &, Object & ) const;
   virtual bool isDictionary() const;
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  inline Object getProperty( const std::string & key ) const;
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  inline Object getProperty( Object key ) const;
-
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  template <typename U> 
-  inline bool getProperty( const std::string & key, 
-                           U & value ) const;
+  using DictionaryInterface::getProperty;
 
   virtual void setProperty( const std::string &, Object );
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  inline void setProperty( const std::string & key, const char * value );
-  /** Reimplementation needed because of a bizarre "feature" of the C++ 
-      language */
-  template <typename U> 
-  inline void setProperty( const std::string & key, const U & value );
+  using DictionaryInterface::setProperty;
 
   virtual bool removeProperty( const std::string & );
   virtual bool hasProperty( const std::string & ) const;
@@ -1442,44 +1425,6 @@ inline bool Object::isNone() const
   // may be replaced by a comparison to the global none object
   return get() == 0;
 }
-
-
-  //------------------//
- //  TypedObject<T>  //
-//------------------//
-
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline Object TypedObject<T>::getProperty( const std::string & key ) const
-{ return DictionaryInterface::getProperty( key ); }
-
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline Object TypedObject<T>::getProperty( Object key ) const
-{ return DictionaryInterface::getProperty( key ); }
-
-//-----------------------------------------------------------------------------
-template <typename T>
-template <typename U> 
-inline bool TypedObject<T>::getProperty( const std::string & key, 
-                                         U & value ) const
-{ return DictionaryInterface::getProperty( key, value ); }
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline void TypedObject<T>::setProperty( const std::string & key, 
-                                         const char * value )
-{ DictionaryInterface::setProperty( key, value ); }
-
-//-----------------------------------------------------------------------------
-template <typename T>
-template <typename U> 
-inline void TypedObject<T>::setProperty( const std::string & key, 
-                                         const U & value )
-{ DictionaryInterface::setProperty( key, value ); }
-
 
 
   //--------------------------------//
