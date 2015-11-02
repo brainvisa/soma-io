@@ -454,6 +454,54 @@ namespace soma
   //   I M A G E W R I T E R   M E T H O D S
   //==========================================================================
   template <typename T>
+  znzFile NiftiImageWriter<T>::writeNiftiHeader( carto::Object options ) const
+  {
+    nifti_image *nim = _nim->nim;
+    // check file extension
+    std::string fname = nim->fname;
+    std::string::size_type len = fname.length();
+    if( ( len >= 4
+          && ( fname.substr( len - 4, 4 ) == ".nii"
+            || fname.substr( len - 4, 4 ) == ".hdr" ) )
+        || ( len >= 7 && ( fname.substr( len-7, 7 ) == ".nii.gz"
+          || fname.substr( len - 7, 7 ) == ".hdr.gz" ) ) )
+      // regular extension: use the nifticlib function
+      return api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+
+    // non-standard extension check options
+    bool compressed = false, override_extension = false;
+    try
+    {
+      carto::Object oext = options->getProperty( "override_extension" );
+      override_extension = bool( oext->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    if( !override_extension )
+      // don't force ext: let nifticlib manage it
+      return api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+
+    try
+    {
+      carto::Object ocompressed = options->getProperty( "compressed" );
+      compressed = bool( ocompressed->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    znzFile zfp;
+    if( !compressed && len >= 3 && fname.substr( len - 3, 3 ) == ".gz" )
+      // extension is .gz: force compression
+      compressed = true;
+    zfp = znzopen( nim->fname , "wb", compressed );
+    // use lower_level nifti function
+    nifti_image_write_hdr_img2( nim, 2, "wb", zfp, 0 );
+    return zfp;
+  }
+
+
+  template <typename T>
   void NiftiImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
                                     const std::vector<int> & pos,
                                     const std::vector<int> & size,
@@ -515,7 +563,8 @@ namespace soma
         else
         {
           // header has not been written. do it.
-          zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+          zfp = writeNiftiHeader( options );
+//           zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
 //           _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
 //             new NiftiFileWrapper( zfp ) ) );
         }

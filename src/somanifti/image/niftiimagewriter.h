@@ -48,7 +48,25 @@ namespace soma
   class DataSourceInfo;
   class NiftiApiHelpers;
 
-  /// abstract ImageWriter for NIFTI files.
+  /** Abstract ImageWriter for NIFTI files.
+
+      It is subclassed in Nifti1ImageWriter and Nifti2ImageWriter for complete
+      implementations.
+
+      Supported specific write options (in addition to generic ones such as
+      "partial_writing"):
+
+      * "nifti_output_4d_volumes" (int 0/1): allow or forbid 4D images. If not
+        allowed, a series of 3D images (with numbers) will be written instead.
+      * "force_disk_data_type "(int 0/1): bypass the scale factor/offset
+        guessing which tries to write signed 16 bit values + scaling.
+      * "override_extension" (int 0/1): if set the standard nifti extensions
+        will not be appended if the specified file name is non-standard (not
+        ending with .nii, .nii.gz, .img, .img.gz, .hdr, .hdr.gz)
+      * "compressed" (int 0/1): if set, and if override_extension is also set,
+        use compression in the output stream. It is normally guessed by the
+        file extension, thus only used with non-standard extensions.
+  */
   template<typename T>
   class NiftiImageWriter : public ImageWriter<T>
   {
@@ -92,6 +110,7 @@ namespace soma
       void _writeDiffusionVectors( DataSource* bvalfile, DataSource* bvecfile,
                                    carto::Object header );
       void setApi( NiftiApiHelpers *napi ) { api = napi; }
+      znzFile writeNiftiHeader( carto::Object options ) const;
 
       virtual std::string formatName() const = 0;
       virtual bool checkDimsCompatibility() const = 0;
