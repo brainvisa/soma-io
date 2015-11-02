@@ -45,6 +45,13 @@ bool dcm::NMImageStorageReader::getHeader(
                                         dcm::DicomDatasetHeader& datasetHeader )
 {
 
+  if ( !dcm::SingleFileReader::getHeader( header, info, datasetHeader ) )
+  {
+
+    return false;
+
+  }
+
   if ( !dcm::MultiSliceReader::getHeader( header, info, datasetHeader ) )
   {
 
