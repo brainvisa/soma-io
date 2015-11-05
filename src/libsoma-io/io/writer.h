@@ -117,7 +117,7 @@ namespace soma
     /// this format is tried first, so you can use it to force the format,
     /// otherwise it will be determined from the filename extension (if
     /// available). If no extension and no format are given, the first
-    /// working format will be used. \\
+    /// working format will be used.
     /// It is possible to specify wich passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint
