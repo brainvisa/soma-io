@@ -132,7 +132,7 @@ namespace soma
       ///                 any use to the checker, but soma are
       ///                 ( \c resolution_level ).
       /// \return  A DataSourceInfo object containing a header, a list of
-      ///          DataSource and a list of Capabilities. \\
+      ///          DataSource and a list of Capabilities.
       /// It is possible to specify wich passes to process through
       /// \c passbegin and \c passend.
       /// - pass 1 : extension

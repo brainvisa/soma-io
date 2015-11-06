@@ -302,7 +302,8 @@ namespace carto
 	@param filename_arg name of the file
     */
     parse_error( const std::string& what_arg, int line_arg,
-                 const std::string& filename_arg = std::string() );
+                 const std::string& filename_arg = std::string() )
+      __attribute__((__deprecated__));
 
     virtual ~parse_error() throw ();
 

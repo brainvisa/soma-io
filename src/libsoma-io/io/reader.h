@@ -88,7 +88,7 @@ namespace soma
     /// \brief Finds the correct format and reads the object. 
     /// if \c format is specified, this format is tried first, so you can use
     /// it as a hint if you already know it (from the DataSourceInfoLoader
-    /// check ).\\
+    /// check ).
     /// It is possible to specify wich passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint
@@ -105,7 +105,7 @@ namespace soma
     /// allow subclasses. The object is created by \c new and can be deleted. 
     /// The default is just to create a T and call the read( T&, ... )
     /// function, but some specialized low-level readers may behave
-    /// differently.\\
+    /// differently.
     /// It is possible to specify wich passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint

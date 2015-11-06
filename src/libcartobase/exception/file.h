@@ -73,7 +73,8 @@ class CARTOBASE_API file_error : public errno_error
 	@param what_arg not used
 	@param filename_arg name of the file
     */
-    file_error( const std::string& what_arg, const std::string& filename_arg );
+    file_error( const std::string& what_arg, const std::string& filename_arg )
+      __attribute__((__deprecated__));
 
     ///
     virtual ~file_error() throw ();

@@ -166,6 +166,11 @@ using std::isinf;
 #define __attribute__(a) /* nothing */
 #endif
 
+// GCC < 4.5 does not support the argument to the __deprecated__ attribute
+#if (__GNUC__-0 < 4) || (__GNUC_MINOR__-0 < 5)
+#define __deprecated__(msg) __deprecated__
+#endif
+
 #include <cartobase/config/config.h>
 
 #endif // CARTOBASE_CONFIG_CARTOBASE_CONFIG_H

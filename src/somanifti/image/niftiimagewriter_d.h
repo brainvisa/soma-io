@@ -454,6 +454,54 @@ namespace soma
   //   I M A G E W R I T E R   M E T H O D S
   //==========================================================================
   template <typename T>
+  znzFile NiftiImageWriter<T>::writeNiftiHeader( carto::Object options ) const
+  {
+    nifti_image *nim = _nim->nim;
+    // check file extension
+    std::string fname = nim->fname;
+    std::string::size_type len = fname.length();
+    if( ( len >= 4
+          && ( fname.substr( len - 4, 4 ) == ".nii"
+            || fname.substr( len - 4, 4 ) == ".hdr" ) )
+        || ( len >= 7 && ( fname.substr( len-7, 7 ) == ".nii.gz"
+          || fname.substr( len - 7, 7 ) == ".hdr.gz" ) ) )
+      // regular extension: use the nifticlib function
+      return api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+
+    // non-standard extension check options
+    bool compressed = false, override_extension = false;
+    try
+    {
+      carto::Object oext = options->getProperty( "override_extension" );
+      override_extension = bool( oext->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    if( !override_extension )
+      // don't force ext: let nifticlib manage it
+      return api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+
+    try
+    {
+      carto::Object ocompressed = options->getProperty( "compressed" );
+      compressed = bool( ocompressed->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    znzFile zfp;
+    if( !compressed && len >= 3 && fname.substr( len - 3, 3 ) == ".gz" )
+      // extension is .gz: force compression
+      compressed = true;
+    zfp = znzopen( nim->fname , "wb", compressed );
+    // use lower_level nifti function
+    nifti_image_write_hdr_img2( nim, 2, "wb", zfp, 0 );
+    return zfp;
+  }
+
+
+  template <typename T>
   void NiftiImageWriter<T>::write( const T * source, DataSourceInfo & dsi,
                                     const std::vector<int> & pos,
                                     const std::vector<int> & size,
@@ -515,7 +563,8 @@ namespace soma
         else
         {
           // header has not been written. do it.
-          zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
+          zfp = writeNiftiHeader( options );
+//           zfp = api->nifti_image_write_hdr_img( _nim->nim, 2, "wb" );
 //           _znzfiles.push_back( carto::rc_ptr<NiftiFileWrapper>(
 //             new NiftiFileWrapper( zfp ) ) );
         }
@@ -736,7 +785,7 @@ namespace soma
   //==========================================================================
   template <typename T>
   void NiftiImageWriter<T>::buildDSList( DataSourceList & dsl,
-                                         carto::Object /*options*/,
+                                         carto::Object options,
                                          bool write4d, int dimt,
                                          carto::Object header ) const
   {
@@ -792,20 +841,54 @@ namespace soma
 
       if( ext.empty() )
       {
+        bool compressed = false;
+        bool override_ext = false;
+        try
+        {
+          Object ocomp = options->getProperty( "compressed" );
+          compressed = bool( ocomp->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+        try
+        {
+          Object oovext = options->getProperty( "override_extension" );
+          override_ext = bool( oovext->getScalar() );
+        }
+        catch( ... )
+        {
+        }
         basename = niiname;
         hdrname = "";
-        niiname = basename + ".nii";
-        ext = "nii";
-        shape = NII;
+        if( compressed )
+        {
+          niiname = basename + ".nii.gz";
+          ext = "nii.gz";
+          shape = NII_GZ;
+        }
+        else
+        {
+          niiname = basename + ".nii";
+          ext = "nii";
+          shape = NII;
+        }
+        if( override_ext )
+        {
+          niiname = basename;
+          ext = carto::FileUtil::extension( niiname );
+        }
       }
 
       if( !write4d && dimt > 1 )
       {
+        if( !ext.empty() )
+          ext = std::string( "." ) + ext;
         std::vector<char> name( basename.length() + 7, 0 );
-        minfname = basename + "_0000." + ext + ".minf";
+        minfname = basename + "_0000" + ext + ".minf";
         for( int t=0; t<dimt; ++t )
         {
-          sprintf( &name[0], "%s_%04d.", basename.c_str(), t );
+          sprintf( &name[0], "%s_%04d", basename.c_str(), t );
           if( shape == IMG )
             dsl.addDataSource( "hdr",
               carto::rc_ptr<DataSource>(
@@ -931,7 +1014,41 @@ namespace soma
 
     Object hdr = dsi.header();
 
-    // cf nifti_convert_nim2nhdr() to know which fields need to be filled 
+    // filenames
+
+//     bool compressed = false;
+    bool override_ext = false;
+//     try
+//     {
+//       Object ocomp = options->getProperty( "compressed" );
+//       compressed = bool( ocomp->getScalar() );
+//     }
+//     catch( ... )
+//     {
+//     }
+    try
+    {
+      Object oovext = options->getProperty( "override_extension" );
+      override_ext = bool( oovext->getScalar() );
+    }
+    catch( ... )
+    {
+    }
+    std::string niiname = dsi.url();
+//     if( compressed )
+//     {
+//       niiname = basename + ".nii.gz";
+//       ext = "nii.gz";
+//       shape = NII_GZ;
+//     }
+//     else
+//     {
+//       niiname = basename + ".nii";
+//       ext = "nii";
+//       shape = NII;
+//     }
+
+    // cf nifti_convert_nim2nhdr() to know which fields need to be filled
 
     /***********************/
     /* DATA DIMENSIONALITY */
@@ -1481,6 +1598,13 @@ namespace soma
       nim->nifti_type = NIFTI_FTYPE_NIFTI1_1;
     /* set fname, iname, byteorder from filenames or nifti_type */
     nifti_set_filenames( nim, mainfile->url().c_str(), 0, 1 );
+    if( override_ext )
+    {
+      free( nim->iname );
+      nim->iname = strdup( mainfile->url().c_str() );
+      free( nim->fname );
+      nim->fname = strdup( mainfile->url().c_str() );
+    }
     /* set nifti_type from  */
     //nifti_set_type_from_names( nim );
     /* set iname_offset from nifti_type */
