@@ -247,31 +247,55 @@ namespace soma {
     offset_t offset;
     long readout;
 
-    if( !open( DataSource::Read ) )
+    bool mustclose = !isOpen();
+
+    if( mustclose && !open( DataSource::Read ) )
       throw carto::open_error( "data source not available", url() );
-    for( t=0; t<vt; ++t )
-      for( z=0; z<vz; ++z )
-        for( y=0; y<vy; ++y )
-        {
-          if( !source()->isOpen() )
-            throw carto::eof_error( url() );
-          // we move in the file
-          setpos(ox,y+oy,z+oz,t+ot);
-          // we move in the buffer
-          offset = ((offset_t)t) * vz + z;
-          offset = offset * vy + y;
-          offset = offset * len;
-          char * target = ((char *)dest) + offset;
-          if( ( readout = readBlock( target, len ) ) != (long) len ) {
-            localMsg( "readBlock( failed at ( " +
-                      carto::toString( y ) + ", " +
-                      carto::toString( z ) + ", " +
-                      carto::toString( t ) + " ) : " +
-                      carto::toString( readout / sizeof(T) ) + " != " +
-                      carto::toString( (long) len / sizeof( T ) ) );
-            throw carto::eof_error( url() );
+
+    try
+    {
+      for( t=0; t<vt; ++t )
+        for( z=0; z<vz; ++z )
+          for( y=0; y<vy; ++y )
+          {
+            if( !source()->isOpen() )
+              throw carto::eof_error( url() );
+            // we move in the file
+            setpos(ox,y+oy,z+oz,t+ot);
+            // we move in the buffer
+            offset = ((offset_t)t) * vz + z;
+            offset = offset * vy + y;
+            offset = offset * len;
+            char * target = ((char *)dest) + offset;
+            if( ( readout = readBlock( target, len ) ) != (long) len ) {
+              localMsg( "readBlock( failed at ( " +
+                        carto::toString( y ) + ", " +
+                        carto::toString( z ) + ", " +
+                        carto::toString( t ) + " ) : " +
+                        carto::toString( readout / sizeof(T) ) + " != " +
+                        carto::toString( (long) len / sizeof( T ) ) );
+              throw carto::eof_error( url() );
+            }
           }
-        }
+    }
+    catch( ... )
+    {
+      if( mustclose )
+      {
+        close();
+        carto::rc_ptr<DataSource> hds = dsi.list().dataSource( "dim" );
+        if( hds )
+          hds->close();
+      }
+      throw;
+    }
+    if( mustclose )
+    {
+      close();
+      carto::rc_ptr<DataSource> hds = dsi.list().dataSource( "dim" );
+      if( hds )
+        hds->close();
+    }
   }
 
 
