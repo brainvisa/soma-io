@@ -375,18 +375,18 @@ def convert_to_nifti_MR( serie ):
   # NB : keep extension in case of bvec/bval (DTI images)
   for f in os.listdir(tmpdir):
 
-    extension = '.' + f.split( '.' )[ -1 ]
+    #extension = '.' + f.split( '.' )[ -1 ]
     if outfile == None:
-
       outfile = os.path.join( args.output, f )
+      
+    extension = os.path.splitext(f)[1]
+    outfile = os.path.splitext(outfile)[0]
 
     if os.path.exists( outfile + extension ):
-
       outfile = outfile + '_1'
 
     shutil.move(os.path.join(tmpdir, f), outfile + extension )
     if extension == '.nii':
-
       outfiles.append(outfile)
 
   # disapply rescaleSlope for Philips data
