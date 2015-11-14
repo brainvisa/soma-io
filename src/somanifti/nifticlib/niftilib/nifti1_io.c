@@ -349,10 +349,11 @@ static char * gni_history[] =
   "1.45 19 Jun 2013, D. Riviere, N. Souedet\n",
   "   - fixed nifti_read_collapsed_image() and nifti_read_subregion_image()\n",
   "     to support images larger than 2GB\n"
-  "1.46 29 Oct 2015, D. Riviere\n",
+  "1.46 14 Nov 2015, D. Riviere\n",
   "   - allow unknown extensions in nifti_findhdrname()\n",
   "   - for unknown extensions, in nifti_is_gzfile(), try to actually open\n",
   "     the file and check gzip magic number to check compression\n",
+  "   - in nifti_read_subregion_image(), close the file after use\n",
   "----------------------------------------------------------------------\n"
 };
 static char gni_version[] = "nifti library version 1.45 (19 Jun, 2013)";
@@ -7068,6 +7069,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
                 if(g_opts.debug > 1)
                   {
                   fprintf(stderr,"read of %d bytes failed\n",read_amount);
+                  znzclose(fp);
                   return -1;
                   }
                 }
@@ -7080,6 +7082,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
       }
     }
   }
+  znzclose(fp);
   return bytes;
 }
 
