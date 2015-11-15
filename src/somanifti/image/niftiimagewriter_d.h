@@ -511,9 +511,9 @@ namespace soma
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
-    int  st = _sizes[ 0 ][ 3 ];
-    int  vt = size[ 3 ];
-    int  ot = pos[ 3 ];
+    unsigned  st = static_cast<unsigned>( _sizes[ 0 ][ 3 ] );
+    unsigned  vt = static_cast<unsigned>( size[ 3 ] );
+    unsigned  ot = static_cast<unsigned>( pos[ 3 ] );
 
     bool  write4d = dsi.list().size( "nii" ) == 1;
 
@@ -591,7 +591,7 @@ namespace soma
     }
     else // write4d == false
     {
-      int f;
+      unsigned f;
 //       hdr.setProperty( "series_filenames", fnames );
 //       std::vector<int> vdim(4);
 //       vdim[0] = sx;
@@ -1120,7 +1120,7 @@ namespace soma
     nim->dim[2] = tdims[1];
     nim->dim[3] = tdims[2];
     nim->dim[4] = tdims[3];
-    int i;
+    unsigned i;
     for( i=dims.size()+1; i<8; ++i )
       nim->dim[i] = 1;
     nim->nx = nim->dim[1];
@@ -1152,7 +1152,7 @@ namespace soma
       if( vso )
       {
         Object vso_it = vso->objectIterator();
-        for( int i=0; i<4 && vso_it->isValid(); vso_it->next(), ++i )
+        for( i=0; i<4 && vso_it->isValid(); vso_it->next(), ++i )
         {
           vs[i] = float( vso_it->currentValue()->getScalar() );
         }
@@ -1576,12 +1576,12 @@ namespace soma
     std::vector<int> extcode;
     if( hdr->getProperty( "extcode", extcode ) )
     {
-      int next = extcode.size();
+      unsigned next = extcode.size();
       std::vector<std::vector<char> > extdata( next );
       hdr->getProperty( "extdata", extdata );
       if( extdata.size() < next )
         next = extdata.size();
-      for( int i=0; i<next; ++i )
+      for( i=0; i<next; ++i )
       {
         nifti_add_extension( nim, &extdata[i][0], extdata[i].size(),
                              extcode[i] );

@@ -40,6 +40,9 @@
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/parse.h>
 
+// DEBUG FIXME
+#include <iostream>
+
 using namespace carto;
 using namespace std;
 
@@ -111,19 +114,22 @@ SyntaxReader::read(SyntaxSet& rules)
   while (1)
   {
     token = nextToken();
-    if (_stream.eof() && token == "")
+    if( token == "" &&
+        ( _stream.eof()
+          // these strange conditions happen in gcc 5.2
+          || ( !_stream.good() && !_stream.bad() ) ) )
       break;
     if (token != Lexicon::begin())
       throw parse_error(Lexicon::begin(), token, \
         _filename, _stream.line());
 
     token = nextToken();
-    if (_stream.eof() || token != Lexicon::syntax())
+    if( _stream.eof() || !_stream.good() || token != Lexicon::syntax() )
       throw parse_error(Lexicon::syntax(), token, \
         _filename, _stream.line());
 
     token = nextToken();
-    if (_stream.eof() || rules.find(token) != rules.end())
+    if( _stream.eof() || !_stream.good() || rules.find(token) != rules.end() )
       throw parse_error("{new syntactic attribute}", \
         token, _filename, _stream.line());
 
@@ -140,6 +146,7 @@ SyntaxReader::read(Syntax& syntax)
   while (1)
   {
     token = nextToken();
+
     if (_stream.eof())
       throw parse_error(Lexicon::end(), token, \
         _filename, _stream.line());
@@ -148,14 +155,16 @@ SyntaxReader::read(Syntax& syntax)
     string name = token;
 
     token = nextToken();
-    if (_stream.eof())
+    if( _stream.eof()
+        // these strange conditions happen in gcc 5.2
+        || ( !_stream.good() && !_stream.bad() ) )
       throw parse_error("{semantic attribute type}", token, \
         _filename, _stream.line());
     string type = token;
 
     skipWhile(" \t");
     token = readUntil(" \t\n");
-    if (_stream.eof())
+    if( _stream.eof() || !_stream.good() )
       throw parse_error("!", token, \
         _filename, _stream.line());
     bool needed = (token == "") ? false : true;
