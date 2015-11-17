@@ -210,7 +210,7 @@ void Directory::mkdir() const
             S_IRWXU | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH
                 | S_IXOTH ) )
 #endif
-        throw file_error( "couldn't create directory", d->dirname );
+        throw file_error( d->dirname );
     }
   else
     closedir( dir );

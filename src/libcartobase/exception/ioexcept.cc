@@ -883,7 +883,7 @@ void io_error::launchExcept( int code, const string & excm,
     case 24:
       throw errno_error();
     case 25:
-      throw file_error( excm, "" );
+      throw file_error( "" );
     case 26:
       throw invalid_positive_integer( excm );
     case 27:
