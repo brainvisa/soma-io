@@ -152,45 +152,6 @@ namespace soma
                         const AllocatorContext & context, 
                         carto::Object options );
 
-    //========================================================================
-    //   O L D   M E T H O D S
-    //========================================================================
-
-    /// \deprecated
-    virtual void setupAndRead( T & obj, carto::Object header,
-                               carto::rc_ptr<DataSource> dsl,
-                               const AllocatorContext & context,
-                               carto::Object options )
-      __attribute__((__deprecated__));
-
-    /// \deprecated
-    virtual T* createAndRead( carto::Object header,
-                              carto::rc_ptr<DataSource> ds,
-                              const AllocatorContext & context,
-                              carto::Object options )
-      __attribute__((__deprecated__));
-
-    /// \deprecated
-    virtual AllocatorContext 
-    getAllocatorContext( carto::Object header, 
-                         carto::rc_ptr<DataSource> decoder, 
-                         const AllocatorContext & basecontext, 
-                         carto::Object options )
-      __attribute__((__deprecated__));
-
-    /// \deprecated
-    virtual carto::rc_ptr<DataSource> 
-    getDataSource( carto::Object header, 
-                   carto::rc_ptr<DataSource> source, 
-                   carto::Object options )
-      __attribute__((__deprecated__));
-
-    /// \deprecated
-    virtual void read( T & obj, carto::Object header, 
-                       const AllocatorContext & context, 
-                       carto::Object options )
-      __attribute__((__deprecated__));
-
   };
 
 }

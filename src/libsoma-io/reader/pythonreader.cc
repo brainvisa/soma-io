@@ -256,7 +256,7 @@ PythonReader::PythonReader( const string& filename, const SyntaxSet& rules,
   // cout << "PythonReader on file: " << filename << endl;
   // are files opened?
   if( !d->datasource->isOpen() )
-    throw file_error( "Can't open file for reading", d->datasource->url() );
+    throw file_error( d->datasource->url() );
   static_cast<cuifstream &>( static_cast<IStreamDataSource *>
       ( d->datasource.get() )->stream() ).enableUncomment( false );
 
@@ -587,15 +587,15 @@ GenericObject* PythonReader::read()
 string PythonReader::readVariableName()
 {
   if( !d->datasource )
-    throw file_error( "no IO source", "" );
+    throw file_error( "" );
   if( !is_open() )
     d->datasource->open( DataSource::Read );
   if( !is_open() )
-    throw file_error( "file not open", name() );
+    throw file_error( name() );
 
   skipWhile( " \t\n\\\r" );
   if( eof() )
-    throw file_error( "EOF", name() );
+    throw file_error( name() );
 
   // var name
   // string x = readUntil( "= \t\n\\\r" );
@@ -613,10 +613,10 @@ string PythonReader::readVariableName()
   }
 
   if( eof() )
-    throw file_error( "EOF", name() );
+    throw file_error( name() );
   skipWhile( " \t\n\\\r" );
   if( eof() )
-    throw file_error( "EOF", name() );
+    throw file_error( name() );
   c = d->datasource->getch();
   if( c != '=' )
     throw runtime_error( name() + ": Unrecognized syntax, line " 
@@ -630,15 +630,15 @@ GenericObject* PythonReader::read( GenericObject* object,
 {
   // cout << "PythonReader::read " << object << ", \"" << semantic << "\"\n";
   if( !d->datasource )
-    throw file_error( "no IO source", "" );
+    throw file_error( "" );
   if( !is_open() )
     d->datasource->open( DataSource::Read );
   if( !is_open() )
-    throw file_error( "file not open", name() );
+    throw file_error( name() );
 
   d->eof = false;
   if( eof() )
-    throw file_error( string( "EOF: line " ) + lineString(), name() );
+    throw file_error( name() );
 
   // cout << "source OK\n";
 
@@ -874,10 +874,10 @@ string PythonReader::readString( char sep, unsigned & n )
   do
   {
     if( eof() )
-      throw file_error( string( "EOF, line " ) + lineString(), name() );
+      throw file_error( name() );
     x = ds.getch();
     if( x == EOF || x == '\0' )
-      throw file_error( string( "EOF, line " ) + lineString(), name() );
+      throw file_error( name() );
     ++n;
     if( numch )
     {
@@ -957,7 +957,7 @@ bool PythonReader::readSyntax( string & synt )
   DataSource    & ds = *d->datasource;
 
   if( !ds.isOpen() )
-    throw file_error( string( "EOF, line " ) + lineString(), name() );
+    throw file_error( name() );
   unsigned  n = 0;
   bool      ok = true;
 
@@ -1017,10 +1017,10 @@ void PythonReader::readDictionary( GenericObject & obj )
   DataSource    & ds = *d->datasource;
 
   if( !ds.isOpen() )
-    throw file_error( string( "EOF, line " ) + lineString(), name() );
+    throw file_error( name() );
   skipWhile( " \t\n\\\r" );
   if( eof() )
-    throw file_error( string( "EOF, line " ) + lineString(), name() );
+    throw file_error( name() );
   char  c = ds.getch();
   if( c != '{' )
     throw runtime_error( string( "PythonReader: Not a dictionary: " )
@@ -1041,19 +1041,19 @@ PythonReader::readDictionary2( GenericObject & obj )
   GenericObject *de;
 
   if( eof() )
-    throw file_error( string( "EOF, line " ) + lineString(), name() );
+    throw file_error( name() );
 
   do
     {
       skipWhile( " \t\n\\\r" );
       if( eof() )
-        throw file_error( string( "EOF, line " ) + lineString(), name() );
+        throw file_error( name() );
       c = ds.getch();
       if( c == ',' )    // separator
         {
           skipWhile( " \t\n\\\r" );
           if( eof() )
-            throw file_error( string( "EOF, line " ) + lineString(), name() );
+            throw file_error( name() );
           c = ds.getch();
         }
       // cout << "char: " << c << endl;
@@ -1074,7 +1074,7 @@ PythonReader::readDictionary2( GenericObject & obj )
         case '"':
           id = readString( c, n );
           if( eof() )
-            throw file_error( string( "EOF, line " ) + lineString(), name() );
+            throw file_error( name() );
           if( id.empty() )
             {
               cerr << "empty identifier\n";
@@ -1099,7 +1099,7 @@ PythonReader::readDictionary2( GenericObject & obj )
         {
           skipWhile( " \t\n\\\r" );
           if( eof() )
-            throw file_error( string( "EOF, line " ) + lineString(), name() );
+            throw file_error( name() );
           c = ds.getch();
           if( c != ':' )
             {
@@ -1136,7 +1136,7 @@ PythonReader::readIntDictionary2( TypedObject<IntDictionary> & obj )
   GenericObject *de;
 
   if( !ds.isOpen() )
-    throw file_error( string( "EOF, line " ) + lineString(), name() );
+    throw file_error( name() );
 
   do
     {
