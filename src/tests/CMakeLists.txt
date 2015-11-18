@@ -63,3 +63,22 @@ endif()
 #   TARGET_LINK_LIBRARIES(somaGisIR_test          ${SOMA-IO_LIBRARIES})
 #   TARGET_LINK_LIBRARIES(somaPartialIO_test      ${SOMA-IO_LIBRARIES})
 #   TARGET_LINK_LIBRARIES(somaGisIW_test          ${SOMA-IO_LIBRARIES})
+
+# -- tests --
+
+add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoRcptr_test)
+add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoRcptr_test)
+add_test(cartoScopedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoScopedptr_test)
+add_test(cartoSharedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoSharedptr_test)
+add_test(cartoWeakptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoWeakptr_test)
+add_test(cartoAlgorithm_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoAlgorithm_test)
+add_test(cartoConversion_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoConversion_test)
+add_test(cartoDataTypeTraits_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoDataTypeTraits_test)
+add_test(cartoMultiThread_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoMultiThread_test)
+add_test(cartoMutex_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoMutex_test)
+add_test(cartoThreadedRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoThreadedRcptr_test)
+add_test(cartoUuid_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoUuid_test)
+add_test(cartoObject_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoObject_test)
+add_test(somaCapabilities_test "${CMAKE_BINARY_DIR}/bin/bv_env" somaCapabilities_test)
+add_test(somaDSList_test "${CMAKE_BINARY_DIR}/bin/bv_env" somaDSList_test)
+

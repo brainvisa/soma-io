@@ -36,6 +36,7 @@
 #include <cartobase/thread/threadedLoop.h>
 #include <cartobase/thread/thread.h>
 #include <iostream>
+#include <stdlib.h>
 #include <unistd.h>
 #ifdef _WIN32
 #include <windows.h>
@@ -110,6 +111,6 @@ int main( int /*argc*/, char* /*argv*/[] )
 		   
   threadedLoop.launch(); // start the loop process
 
-  return 1;
+  return EXIT_SUCCESS;
 
 }
