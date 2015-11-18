@@ -62,7 +62,7 @@ namespace soma
   /// may be empty. I haven't for now found any use to several "default" 
   /// entries.
   /// 
-  /// Access to a source is done using dataSource(...) methods.\n
+  /// Access to a source is done using dataSource(...) methods.
   /// Sources are ordered by increasing order of insertion and numbering 
   /// starts at 0.
   ///
