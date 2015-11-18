@@ -141,7 +141,7 @@ public:
 #ifdef CARTO_DEBUG
   inline virtual ~RCObject()
   {
-    int refCounter = _refCounter;
+    long refCounter = _refCounter;
     if( refCounter > 0 )
       std::cerr << "RCObject destructor called while " << refCounter 
                 << " references are still alive on object " << this 
@@ -552,7 +552,7 @@ void RCObject::construct( const_ref<T> *r, const T * pObject,
 #endif
   if( pObject )
     {
-      int x = pObject->_refCounter;
+      long x = pObject->_refCounter;
       if( externalowner && x == 0 )
       {
         --pObject->_refCounter;
