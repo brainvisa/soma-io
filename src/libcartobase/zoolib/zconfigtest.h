@@ -54,12 +54,17 @@
 // then it's OK to include ZooLib config
 #include "zconfig.h"
 
-// disable threaded implementation (too slow)
-#ifdef ZCONFIG_API_Thread
-#undef ZCONFIG_Compiler
-#undef ZCONFIG_OS
-#undef ZCONFIG_Processor
-#endif
+/* I remove this test because
+   * it was wrong: ZCONFIG_API_Thread is always defined if threading is
+     supported, even if atomic operations are enabled.
+   * we need thread safety
+*/
+// // disable threaded implementation (too slow)
+// #ifdef ZCONFIG_API_Thread
+// #undef ZCONFIG_Compiler
+// #undef ZCONFIG_OS
+// #undef ZCONFIG_Processor
+// #endif
 
 #endif
 
