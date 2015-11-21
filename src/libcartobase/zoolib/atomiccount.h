@@ -70,6 +70,11 @@ namespace boost
         return ZAtomic_Get( &value_ );
       }
 
+      atomic_count & operator=(long v)
+      {
+        ZAtomic_Set( &value_, v );
+      }
+
     private:
 
       atomic_count(atomic_count const &);
