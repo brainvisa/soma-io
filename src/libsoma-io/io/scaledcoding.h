@@ -37,14 +37,6 @@
 #include <soma-io/config/soma_config.h>
 #include <vector>
 
-namespace carto
-{
-  template <typename T> class Volume;
-}
-
-template <typename T> class AimsData;
-
-
 namespace soma
 {
 
