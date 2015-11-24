@@ -31,6 +31,8 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#include <cstdlib>
+
 #define private public // don't have time to augment the API for testing...
 #include <cartobase/uuid/uuid.h>
 #include <cartobase/exception/assert.h>
@@ -47,11 +49,11 @@ int main()
 
 #if defined(__linux) || defined(__osf__)
 
-  ASSERT( ( uuid1.data[ 10 ] & 0x80 ) == 0);
+  ASSERT( ( uuid1.data[ 10 ] & 0x01 ) == 0);
 
 #elif !defined(_WIN32)
 
-  ASSERT( ( uuid1.data[ 10 ] & 0x80 ) != 0);
+  ASSERT( ( uuid1.data[ 10 ] & 0x01 ) != 0);
 
 #endif
 
@@ -61,11 +63,11 @@ int main()
 
 #if defined(__linux) || defined(__osf__)
 
-  ASSERT( ( uuid2.data[ 10 ] & 0x80 ) == 0);
+  ASSERT( ( uuid2.data[ 10 ] & 0x01 ) == 0);
 
 #elif !defined(_WIN32)
 
-  ASSERT( ( uuid2.data[ 10 ] & 0x80 ) != 0);
+  ASSERT( ( uuid2.data[ 10 ] & 0x01 ) != 0);
 
 #endif
 
@@ -79,4 +81,5 @@ int main()
   uuid1 = uuid;
   ASSERT( uuid1 == uuid );
 
+  return EXIT_SUCCESS;
 }

@@ -411,7 +411,7 @@ void UUID::generate()
       memcpy( &node_id[ 2 ], &hostid, 4 );
       // Set multicast bit, to prevent conflicts with
       // genuine MAC addresses.
-      node_id[ 0 ] |= 0x80;
+      node_id[ 0 ] |= 0x01;
 
     }
     // Initialize time.
