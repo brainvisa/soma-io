@@ -1161,6 +1161,9 @@ namespace soma
     catch( ... )
     {
     }
+    if( hdr->hasProperty( "tr" ) )
+      vs[3] = hdr->getProperty( "tr" )->getScalar();
+
     df = m2s.transform( Point3df( vs[0], vs[1], vs[2] ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
     std::vector<float> tvs(4);

@@ -375,6 +375,8 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   vs.reserve( nim->ndim >= 3 ? nim->ndim : 3 );
   for( int i=1; i<=nim->ndim; ++i )
     vs.push_back( nim->pixdim[i] );
+  // 4th dimension of pixdim is assumed to be TR
+  float tr = nim->pixdim[4];
   for( int i=vs.size(); i<3; ++i )
     vs.push_back( 1. );
   // space: x,y,z, time: t and 3 extra; index 0 is used for qfac
@@ -616,6 +618,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   vs[1] = fabs( pvs[1] );
   vs[2] = fabs( pvs[2] );
   hdr->setProperty( "voxel_size", vs );
+  hdr->setProperty( "tr", tr );
 
   AffineTransformation3d vsM;
   vsM.matrix[0] = vs[0]; // voxel size in memory orientation
