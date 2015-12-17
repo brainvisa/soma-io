@@ -56,7 +56,8 @@ bool dcm::MRImageStorageReader::getHeader(
   if ( mrModule.parseHeader( datasetHeader ) )
   {
 
-    proxy.addAttribute( "tr", mrModule.getTR() );
+    proxy.addAttribute( "TRs", mrModule.getTR() );
+    proxy.addAttribute( "tr", mrModule.getTR()[ 0 ] );
     proxy.addAttribute( "TEs", mrModule.getTE() );
     proxy.addAttribute( "te", mrModule.getTE()[ 0 ] );
 
