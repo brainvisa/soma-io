@@ -144,7 +144,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     {
 
       case 1:
-        type = "U8";
+        type = ( dataInfo._pixelRepresentation & 1 ) ? "S8" : "U8";
         break;
 
       case 2:
