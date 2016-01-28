@@ -114,12 +114,6 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   localMsg( "Image opened." );
   
   Object  hdr = Object::value( PropertySet() );  // header
-  int32_t resolution = 0;
-  try {
-    if( options.get() )
-      resolution = options->getProperty( "resolution_level" )->getScalar();
-  } catch( ... ) {
-  }
   int32_t i;
   
   // resolutions sizes
@@ -129,6 +123,21 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   vector<vector<int64_t> > rsizes( rcount, vector<int64_t>( 4, 1 ) );
   for( i=0; i<rcount; i++ )
     openslide_get_level_dimensions( osimage, i, &rsizes[i][0], &rsizes[i][1] );
+
+  int32_t resolution = 0;
+  try {
+    if( options.get() ) {
+      resolution = options->getProperty( "resolution_level" )->getScalar();
+      if (resolution < 0) {
+        try {
+          // Try to solve negative level values
+          resolution += rsizes.size();
+        }
+        catch(...){}
+      }
+    }
+  } catch( ... ) {
+  }
   
   // chosen resolution's downsampling
   float ds = rsizes[0][0]/rsizes[resolution][0];
