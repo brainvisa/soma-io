@@ -35,6 +35,7 @@
 #define SOMAIO_DATASOURCEINFO_DATASOURCEINFOLOADER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+#include <soma-io/io/formatdictionary.h>                    // IOObjectTypesDictionary
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/syntax.h>                              // SyntaxSet
 #include <cartobase/object/object.h>                        // usage of none()
@@ -160,8 +161,25 @@ namespace soma
 
       /// Extensions matching a specified format
       static std::set<std::string> extensions( const std::string & format );
+      
+      /// Formats matching a specified extension
+      static std::set<std::string> formats( const std::string & ext );
+
+      /// Available reading formats for an extension and a data type
+      static std::set<std::string> readFormats(const std::string & ext,
+                                               const std::string & data_type_name);
+
+      /// Available writing formats for an extension and a data type
+      static std::set<std::string> writeFormats(const std::string & ext,
+                                                const std::string & data_type_name);
 
     protected:
+      /// Available formats for an extension and a format info
+      static std::set<std::string> formats(
+          const std::string & ext, 
+          typename soma::IOObjectTypesDictionary::FormatInfo & format_info
+      );
+      
       struct Private;
       Private *d;
   };
