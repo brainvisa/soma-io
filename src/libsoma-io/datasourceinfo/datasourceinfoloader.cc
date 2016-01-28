@@ -223,7 +223,7 @@ set<string> DataSourceInfoLoader::readFormats(const string & ext,
                                               const string & data_type_name)
 {
   if (!data_type_name.empty()) {
-    typename IOObjectTypesDictionary::FormatInfo format_info 
+    IOObjectTypesDictionary::FormatInfo format_info 
              = IOObjectTypesDictionary::readTypes()[data_type_name];
            
     return DataSourceInfoLoader::formats(ext, format_info);
@@ -236,7 +236,7 @@ set<string> DataSourceInfoLoader::writeFormats(const string & ext,
                                                const string & data_type_name)
 {
   if (!data_type_name.empty()) {
-    typename IOObjectTypesDictionary::FormatInfo format_info 
+    IOObjectTypesDictionary::FormatInfo format_info 
              = IOObjectTypesDictionary::writeTypes()[data_type_name];
            
     return DataSourceInfoLoader::formats(ext, format_info);
