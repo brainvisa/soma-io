@@ -177,7 +177,7 @@ namespace soma
       /// Available formats for an extension and a format info
       static std::set<std::string> formats(
           const std::string & ext, 
-          typename soma::IOObjectTypesDictionary::FormatInfo & format_info
+          soma::IOObjectTypesDictionary::FormatInfo & format_info
       );
       
       struct Private;

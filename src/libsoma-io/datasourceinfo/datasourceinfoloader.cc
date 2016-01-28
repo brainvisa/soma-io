@@ -199,7 +199,7 @@ set<string> DataSourceInfoLoader::formats( const string & ext )
 
 set<string> DataSourceInfoLoader::formats(
     const string & ext,
-    typename IOObjectTypesDictionary::FormatInfo & format_info
+    IOObjectTypesDictionary::FormatInfo & format_info
 )
 {
   const set<string> formats_ext = DataSourceInfoLoader::formats(ext);
