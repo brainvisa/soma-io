@@ -46,6 +46,7 @@
 #include <cartobase/stream/fileutil.h>              // used to find extensions
 #include <cartobase/config/verbose.h>                       // verbosity level
 //--- system -----------------------------------------------------------------
+#include <algorithm>
 #include <cstdlib>
 #include <memory>
 #include <map>
@@ -180,6 +181,68 @@ set<string> DataSourceInfoLoader::extensions( const string & format )
     if( ie->second == format )
       out_exts.insert( ie->first );
   return out_exts;
+}
+
+set<string> DataSourceInfoLoader::formats( const string & ext )
+{
+  Private_Static        & ps = getstatic();
+  pair<multimap<string, string>::const_iterator, 
+       multimap<string, string>::const_iterator> ir = ps.extensions.equal_range(
+                                                                       ext
+                                                                    );
+  set<string> out_formats;
+  for(multimap<string, string>::const_iterator it=ir.first; it!=ir.second; ++it)
+    out_formats.insert(it->second);
+  
+  return out_formats;
+}
+
+set<string> DataSourceInfoLoader::formats(
+    const string & ext,
+    typename IOObjectTypesDictionary::FormatInfo & format_info
+)
+{
+  const set<string> formats_ext = DataSourceInfoLoader::formats(ext);
+  const set<string> formats_info = format_info();
+  vector<string> formats(
+      max(formats_info.size(), formats_ext.size())
+  );
+  vector<string>::iterator it = set_intersection(
+      formats_info.begin(), formats_info.end(),
+      formats_ext.begin(), formats_ext.end(),
+      formats.begin()
+  );       
+  formats.resize(it - formats.begin());
+    
+  // Soma formats were found in the intersection that matches object type,
+  // data type and extension requirements       
+  return set<string>(formats.begin(), formats.end());
+}
+
+set<string> DataSourceInfoLoader::readFormats(const string & ext,
+                                              const string & data_type_name)
+{
+  if (!data_type_name.empty()) {
+    typename IOObjectTypesDictionary::FormatInfo format_info 
+             = IOObjectTypesDictionary::readTypes()[data_type_name];
+           
+    return DataSourceInfoLoader::formats(ext, format_info);
+  }
+  
+  return set<string>();
+}
+
+set<string> DataSourceInfoLoader::writeFormats(const string & ext,
+                                               const string & data_type_name)
+{
+  if (!data_type_name.empty()) {
+    typename IOObjectTypesDictionary::FormatInfo format_info 
+             = IOObjectTypesDictionary::writeTypes()[data_type_name];
+           
+    return DataSourceInfoLoader::formats(ext, format_info);
+  }
+  
+  return set<string>();
 }
 
 //============================================================================

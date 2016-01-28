@@ -52,7 +52,7 @@
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
-#define localMsg( message ) cartoCondMsg( 4, message, "OSIMAGEWRITER" )
+#define localMsg( message ) cartoCondMsg( 4, message, "OSIMAGEREADER" )
 // localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
@@ -155,8 +155,16 @@ namespace soma {
 
     int32_t level = 0;
     try {
-      if( options.get() )
+      if( options.get() ) {
         level = options->getProperty( "resolution_level" )->getScalar();
+        if (level < 0) {
+          try {
+            // Try to solve negative level values
+            level += _sizes.size();
+          }
+          catch(...){}
+        }
+      }
     } catch( ... ) {
     }
 
