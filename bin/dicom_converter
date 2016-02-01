@@ -37,6 +37,7 @@ import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
 import dicom
+import sys
 import numpy as np
 import soma
 from soma.path import split_path
@@ -116,9 +117,12 @@ def get_start_and_duration_times( serie ):
 
 def check_transfer_syntax_uid(dicomFile):
     ds = dicom.read_file(dicomFile)
-    if not ds.is_big_endian:
+    if sys.byteorder == "little":
         return
     check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+#    if not ds.is_big_endian:
+#        return
+#    check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
 
 def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
