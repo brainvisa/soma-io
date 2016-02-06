@@ -594,6 +594,22 @@ namespace interface_internal
   };
 
 
+  //---------------------------------------------------------------------------
+  // NoneInterface default implementation
+  //---------------------------------------------------------------------------
+
+
+  template <typename T, bool B>
+  class NoneImpl
+  {
+  public:
+    static inline bool isNone( const TypedObject<T> & )
+    {
+      return false;
+    }
+  };
+
+
      //-----------------------------------------------//
     // Build a ValueObject if T is not a pointer to  //
    //  a subclass of GenericObject                  //
@@ -1298,7 +1314,7 @@ namespace interface_internal
     typename V::const_iterator _iterator; 
     typename V::const_iterator _end; 
   };
-  
+
 } // namespace interface_internal
 
 template <typename V>

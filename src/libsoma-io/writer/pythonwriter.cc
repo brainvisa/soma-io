@@ -56,7 +56,8 @@ PythonWriter::PythonWriter( const std::string& filename,
 			    const SyntaxSet& rules, const HelperSet& helpers )
   : _rules(rules), 
     _datasource( new FileDataSource( filename, 0, DataSource::Write ) ), 
-    _singleLine( false ), _catchFunction( 0 ), _quoteChar( '\'' )
+    _singleLine( false ), _catchFunction( 0 ), _quoteChar( '\'' ),
+    _noneString( "None" )
 {
   init( helpers );
   _datasource->open( DataSource::Write );
@@ -65,7 +66,7 @@ PythonWriter::PythonWriter( const std::string& filename,
 
 PythonWriter::PythonWriter( const SyntaxSet& rules, const HelperSet& helpers )
   : _rules(rules), _datasource(), _singleLine( false ), _catchFunction( 0 ),
-    _quoteChar( '\'' )
+    _quoteChar( '\'' ), _noneString( "None" )
 {
   init( helpers );
 }
@@ -74,7 +75,7 @@ PythonWriter::PythonWriter( const SyntaxSet& rules, const HelperSet& helpers )
 PythonWriter::PythonWriter( rc_ptr<DataSource> ds, 
 			    const SyntaxSet& rules, const HelperSet& helpers )
   : _rules(rules), _datasource( ds ), _singleLine( false ),
-    _catchFunction( 0 ), _quoteChar( '\'' )
+    _catchFunction( 0 ), _quoteChar( '\'' ), _noneString( "None" )
 {
   init( helpers );
 }
@@ -399,10 +400,10 @@ void PythonWriter::write( const GenericObject & object, int indent,
     // is there to make the warning non-fatal when using -Werror.
     #pragma clang diagnostic push
     #pragma clang diagnostic warning "-Wtautological-undefined-compare"
-    if( &object == 0 )	// "None" object
+    if( &object == 0 || object.isNone() )	// "None" object
     #pragma clang diagnostic pop
       {
-        AsciiDataSourceTraits<string>::write( *dataSource(), "None" );
+        AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
         if( !is_open() )
           io_error::launchErrnoExcept();
         return;

@@ -110,6 +110,8 @@ namespace soma
     void setCatchFunction( CatchFunction f );
     char quoteCharacter() const { return _quoteChar; }
     void setQuoteCharacter( char q ) { _quoteChar = q; }
+    std::string noneString() const { return _noneString; }
+    void setNoneString( const std::string & none ) { _noneString = none; }
 
     /// utility function
     void writeString( DataSource &, std::string );
@@ -128,6 +130,7 @@ namespace soma
     bool                      _singleLine;
     CatchFunction             _catchFunction;
     char                      _quoteChar;
+    std::string               _noneString;
   };
 } // namespace soma
 

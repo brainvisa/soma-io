@@ -383,16 +383,25 @@ void DictionaryInterface::copyProperties( Object other )
     setProperty( i->key(), i->currentValue() );
 }
 
+
   //---------------------//
  //  SyntaxedInterface  //
 //---------------------//
-
 
 //---------------------------------------------------------------------------
 SyntaxedInterface::~SyntaxedInterface()
 {
 }
 
-} // namespace carto
+    //-----------------//
+   //  NoneInterface  //
+  //-----------------//
 
+//---------------------------------------------------------------------------
+NoneInterface::~NoneInterface()
+{
+}
+
+
+} // namespace carto
 

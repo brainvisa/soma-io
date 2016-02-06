@@ -759,8 +759,29 @@ GenericObject* PythonReader::read( GenericObject* object,
     case '+':
     case 'i': // inf
     case 'I': // Inf/INF
-    case 'n': // nan
       type = "double";
+      break;
+    case 'n': // null / nan
+      {
+        const string    none = "null";
+        unsigned    count = 0;
+        while( is_open() && !eof()
+               && ( c = d->datasource->getch() ) == none[count] )
+          ++count;
+        if( count != none.length() )
+          {
+            if( count == 1 && ( c == 'a' ) )
+              {
+                type = "double"; // try nan
+                d->datasource->ungetch( c );
+                break;
+              }
+            d->datasource->ungetch( c );
+            type = "";
+            break;
+          }
+        type = "None";
+      }
       break;
     case 'N':
       {
@@ -815,7 +836,7 @@ GenericObject* PythonReader::read( GenericObject* object,
   // failed
   char buffer[10];
   sprintf( buffer, "%d", line() );
-  throw runtime_error( string( "Can't read attribute " ) + semantic 
+  throw runtime_error( string( "Can't read attribute " ) + semantic
                        + " of type " + type + " in " + name() 
                        + ", line " + buffer );
 }
@@ -1120,6 +1141,8 @@ PythonReader::readDictionary2( GenericObject & obj )
           else
             obj.setProperty( id, Object( de ) );
         }
+      else // None object
+        obj.setProperty( id, carto::none() );
     }
   while( !end && !eof() );
 }
