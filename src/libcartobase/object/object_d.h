@@ -621,6 +621,21 @@ std::string TypedObject<T>::key() const
 }
 
 
+//-----------------------------------------------------------------------------
+// NoneInterface methods
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool TypedObject<T>::isNone() const
+{
+  return interface_internal::
+    NoneImpl< T, SUPERSUBCLASS(NoneInterface,T) >
+    ::isNone( *this );
+}
+
+
   //------------------//
  //  ValueObject<T>  //
 //------------------//

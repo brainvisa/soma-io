@@ -75,6 +75,7 @@ bool JsonFormatWriter::write( const GenericObject & obj,
     }
   PythonWriter  pw( ds, synt, hs );
   pw.setQuoteCharacter( '"' );
+  pw.setNoneString( "null" );
   pw.write( obj, writeinternals, false );
   return true;
 }

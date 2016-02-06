@@ -428,6 +428,26 @@ class Object;
   };
 
 
+    //------------------//
+   //  NoneInterface   //
+  //------------------//
+
+  /** Specialized NoneInterface for empty objects (null, None).
+  */
+  class NoneInterface : public virtual Interface
+  {
+  public:
+
+    virtual ~NoneInterface();
+
+    /** Returns false if the stored object doesn't actually implement
+        the NoneInterface API (needed since all GenericObject
+        inherit this interface whatever they actually contain)
+    */
+    virtual bool isNone() const = 0;
+  };
+
+
   //-----------------//
  //  GenericObject  //
 //-----------------//
@@ -440,7 +460,8 @@ class CARTOBASE_API GenericObject :
   public virtual DictionaryInterface,
   public virtual IterableInterface,
   public virtual IteratorInterface,
-  public virtual DictionaryIteratorInterface
+  public virtual DictionaryIteratorInterface,
+  public virtual NoneInterface
 {
 public:
   virtual ~GenericObject();
@@ -628,6 +649,9 @@ public:
   // DictionaryIteratorInterface methods
   virtual bool isDictionaryIterator() const;
   virtual std::string key() const;
+
+  // NoneInterface methods
+  virtual bool isNone() const;
 
 private:
   Interface *_getGenericInterface();
