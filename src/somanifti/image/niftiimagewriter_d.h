@@ -365,8 +365,9 @@ namespace
       tmax = tt+1;
     }
 
-    if( !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax, zfp,
-      strides, vx, vy, vz, ox, oy, oz ) )
+    if( !source ||
+        !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax,
+          zfp, strides, vx, vy, vz, ox, oy, oz ) )
     {
       int  y, z, t;
       // region line size
@@ -391,23 +392,27 @@ namespace
         + inc[0] * strides[0];
       const T *pt0;
       size_t numbytes = vx * sizeof( T ), ss;
-      std::vector<T> buf( vx );
+      std::vector<T> buf( vx, T(0) );
       T *d = 0;
 
       for( int t=tmin; t<tmax; ++t )
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
           {
-            d0f = mems2m.transform( soma::Point3df( 0, y, z ) );
-            d0[0] = int( rint( d0f[0] ) );
-            d0[1] = int( rint( d0f[1] ) );
-            d0[2] = int( rint( d0f[2] ) );
-            d0[3] = t;
-            pt0 = source + d0[3] * strides[3] + d0[2] * strides[2]
-              + d0[1] * strides[1] + d0[0] * strides[0];
-            d = &buf[0];
-            for( int x=0; x<vx; ++x, pt0 += pinc )
-              *d++ = *pt0;
+            if( source )
+            {
+              d0f = mems2m.transform( soma::Point3df( 0, y, z ) );
+              d0[0] = int( rint( d0f[0] ) );
+              d0[1] = int( rint( d0f[1] ) );
+              d0[2] = int( rint( d0f[2] ) );
+              d0[3] = t;
+              pt0 = source + d0[3] * strides[3] + d0[2] * strides[2]
+                + d0[1] * strides[1] + d0[0] * strides[0];
+              d = &buf[0];
+              for( int x=0; x<vx; ++x, pt0 += pinc )
+                *d++ = *pt0;
+            }
+            // else source is null: unallocated data, will write zeros.
 
             // calculate offset on disk
             offset = t * dstrides[3] + (z + oz) * dstrides[2]
@@ -763,17 +768,17 @@ namespace soma
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
-    //--- partial-io case ----------------------------------------------------
-    if( options->hasProperty( "unallocated" ) )
-    {
-      localMsg( "building file for partial writing..." );
-      if( _sizes.empty() )
-        updateParams( dsi );
-
-
-      // TODO
-
-    }
+//     //--- partial-io case ----------------------------------------------------
+//     if( options->hasProperty( "unallocated" ) )
+//     {
+//       localMsg( "building file for partial writing..." );
+//       if( _sizes.empty() )
+//         updateParams( dsi );
+//
+//
+//       // TODO
+//
+//     }
 
     //------------------------------------------------------------------------
     localMsg( "done writing header." );
