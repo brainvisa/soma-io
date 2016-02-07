@@ -251,6 +251,9 @@ namespace soma {
     else if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
 
+    std::vector<T> buf( vx, T(0) );
+    const char *buf0 = reinterpret_cast<const char *>( &buf[0] );
+
     for( t=0; t<vt; ++t )
       for( z=0; z<vz; ++z )
         for( y=0; y<vy; ++y ) {
@@ -260,8 +263,12 @@ namespace soma {
           setpos(ox,y+oy,z+oz,t+ot);
           // we move in the buffer
           // FIXME: stride[0] not taken into account for now
-          char * target = (char *)( source + strides[3] * t + strides[2] * z
-            + strides[1] * y );
+          const char *target;
+          if( source )
+            target = reinterpret_cast<const char *>( source + strides[3] * t
+              + strides[2] * z + strides[1] * y );
+          else
+            target = buf0;
           if( writeBlock( target, len ) != (long) len )
             throw carto::eof_error( url() );
         }
@@ -373,21 +380,21 @@ namespace soma {
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
-    //--- partial-io case ----------------------------------------------------
-    if( options->hasProperty( "unallocated" ) ) {
-      localMsg( "building file for partial writing..." );
-      if( _sizes.empty() )
-        updateParams( dsi );
-      ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
-                                  dsi.list().dataSource( "ima" )->url() );
-      if( !open( DataSource::Write ) )
-        throw carto::open_error( "data source not available", url() );
-      T value[1] = {0};
-      //at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
-      setpos( dim[0]-2, dim[1]-1, dim[2]-1, dim[3]-1);
-      if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
-            throw carto::eof_error( url() );
-    }
+//     //--- partial-io case ----------------------------------------------------
+//     if( options->hasProperty( "unallocated" ) ) {
+//       localMsg( "building file for partial writing..." );
+//       if( _sizes.empty() )
+//         updateParams( dsi );
+//       ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
+//                                   dsi.list().dataSource( "ima" )->url() );
+//       if( !open( DataSource::Write ) )
+//         throw carto::open_error( "data source not available", url() );
+//       T value[1] = {0};
+//       //at( (dim[0]*dim[1]*dim[2]*dim[3]-1)*sizeof(T) );
+//       setpos( dim[0]-2, dim[1]-1, dim[2]-1, dim[3]-1);
+//       if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
+//             throw carto::eof_error( url() );
+//     }
 
     //------------------------------------------------------------------------
     localMsg( "done writing header." );

@@ -64,7 +64,10 @@ namespace soma
       /// one or more of these dimensions are of no interest for the format, 
       /// they take the value 0 ( pos ) or 1 ( size )
       /// \param source  Buffer containing the region to write. It must be of
-      ///                length size[0]*size[1]*size[2]*size[3]*sizeof(T)
+      ///                length size[0]*size[1]*size[2]*size[3]*sizeof(T).
+      ///                A NULL pointer is allowed here, and means that data
+      ///                is unallocated in memory. In such a case, the writer
+      ///                will write the correct amount of zero data.
       /// \param pos     Position of the first voxel of the region to write.
       /// \param size    Size of the region to write.
       /// \param strides Offsets between voxels in each direction.
@@ -78,7 +81,7 @@ namespace soma
 
       /// This function is called before the actual writing by a FormatWriter.
       /// It builds dsi's DataSourceList and writes the header if any is
-      /// needed. It may also allocate file space for partial writing.
+      /// needed.
       /// Image data is also passed because some formats may make use of it to
       /// build some specific header information (like scale factors).
       virtual DataSourceInfo writeHeader( DataSourceInfo & dsi, 

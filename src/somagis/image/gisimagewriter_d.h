@@ -248,13 +248,23 @@ namespace soma {
 
     bool mustclose = !isOpen();
 
-    if( options->hasProperty( "partial_writing" ) && !open( DataSource::ReadWrite ) )
+    if( options->hasProperty( "partial_writing" )
+        && !open( DataSource::ReadWrite ) )
       throw carto::open_error( "data source not available", url() );
     else if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
 
     try
     {
+      if( !source ) // unallocated data
+      {
+        setpos( sx-1, sy-1, sz-1, st-1 );
+        T value = 0;
+        if( writeBlock( reinterpret_cast<const char *>( &value ), sizeof(T) )
+            != (long) sizeof(T) )
+          throw carto::eof_error( url() );
+      }
+      else
         for( t=0; t<vt; ++t )
             for( z=0; z<vz; ++z )
                 for( y=0; y<vy; ++y )
@@ -264,7 +274,7 @@ namespace soma {
                     // we move in the buffer
                     // FIXME: stride[0] not taken into account for now
                     char * target = (char *)( source
-                                              + strides[3] * t 
+                                              + strides[3] * t
                                               + strides[2] * z
                                               + strides[1] * y );
                     if( writeBlock( target, len ) != (long) len )
@@ -416,35 +426,35 @@ namespace soma {
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
-    //--- partial-io case ----------------------------------------------------
-    if( options->hasProperty( "unallocated" ) ) {
-      localMsg( "building file for partial writing..." );
-      if( _sizes.empty() )
-        updateParams( dsi );
-      ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
-                                  dsi.list().dataSource( "ima" )->url() );
-      
-      bool mustclose = !isOpen();
-      if( !open( DataSource::Write ) )
-        throw carto::open_error( "data source not available", url() );
-      
-      try {
-        T value[1] = {0};
-        setpos( dim[0]-1, dim[1]-1, dim[2]-1, dim[3]-1);
-        localMsg( "book " + carto::toString((long)at()+sizeof(T)) );
-        if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
-          throw carto::eof_error( url() );
-      }
-      catch( ... ) {
-        if( mustclose ) {
-          close();
-        }
-        throw;
-      }
-      if( mustclose ) {
-        close();
-      }
-    }
+//     //--- partial-io case ----------------------------------------------------
+//     if( options->hasProperty( "unallocated" ) ) {
+//       localMsg( "building file for partial writing..." );
+//       if( _sizes.empty() )
+//         updateParams( dsi );
+//       ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
+//                                   dsi.list().dataSource( "ima" )->url() );
+//
+//       bool mustclose = !isOpen();
+//       if( !open( DataSource::Write ) )
+//         throw carto::open_error( "data source not available", url() );
+//
+//       try {
+//         T value[1] = {0};
+//         setpos( dim[0]-1, dim[1]-1, dim[2]-1, dim[3]-1);
+//         localMsg( "book " + carto::toString((long)at()+sizeof(T)) );
+//         if( writeBlock( (char * ) value, sizeof(T) ) != (long) sizeof(T) )
+//           throw carto::eof_error( url() );
+//       }
+//       catch( ... ) {
+//         if( mustclose ) {
+//           close();
+//         }
+//         throw;
+//       }
+//       if( mustclose ) {
+//         close();
+//       }
+//     }
 
     //------------------------------------------------------------------------
     localMsg( "done writing header." );
