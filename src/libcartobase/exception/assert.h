@@ -62,8 +62,14 @@ class assert_error : public std::logic_error
 #undef ASSERT
 
 // Function called when assert failed (it allows breakpoint setting)
+#if defined( __GNUC__ ) \
+  && ( __GNUC__ > 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ >= 3) )
+// cold attribute is defined from gcc 4.3
 void assert_failed( const char *, const char *, int )
   __attribute__((noreturn, cold, nonnull));
+#else
+void assert_failed( const char *, const char *, int );
+#endif
 
 inline void test_assert( bool x, const char * ex, const char *file, int line )
   __attribute__((nonnull));
