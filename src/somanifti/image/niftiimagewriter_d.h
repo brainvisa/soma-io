@@ -513,6 +513,8 @@ namespace soma
                                     const std::vector<long> & strides,
                                     carto::Object options )
   {
+    // std::cout << "NiftiImageWriter<T>::write\n";
+
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
@@ -1443,7 +1445,21 @@ namespace soma
                 break;
               }
         }
-        if( !ok && nim->sform_code == NIFTI_XFORM_UNKNOWN )
+        /* The NIFTI format specs are somewhat ambiguous on the question
+           whether to fill or not the sform matrix if the qform is already
+           filled with the same transform. Many software packages actually do
+           so (typically duplicating the scanner transform in both qform and
+           sform) so that there is always a sform. AIMS/Soma-IO did not do so
+           before version 4.5 because we chose not du duplicate information,
+           but it appears that some software might use sform unconditionally
+           and disregard qform, so it may be safer to duplicate the scanner
+           matrix.
+           Thus we now fill sform if it has not been yet, and overwrite it if
+           we have a different transform information than the one currently in
+           the qform.
+        */
+        if( nim->sform_code == NIFTI_XFORM_UNKNOWN
+          || nim->sform_code == nim->qform_code )
         {
           ok = true;
           nim->sform_code = xform_code;
