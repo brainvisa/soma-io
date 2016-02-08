@@ -232,7 +232,6 @@ template<>
 void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWriter & w,
 			      int indent, bool writeInternals )
 {
-//   std::cout << "dictHelper<std::string>\n";
   soma::DataSource				& ds = *w.dataSource();
   const carto::IterableInterface 
     & y = *obj.getInterface<carto::IterableInterface>();
