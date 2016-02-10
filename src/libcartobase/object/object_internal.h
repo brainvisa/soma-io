@@ -2191,7 +2191,7 @@ namespace interface_internal {
       const std::map<std::string, Object> & self = o1.getValue();
       if( self.size() != o2.size() )
         return false;
-      typename std::map<std::string, Object>::const_iterator it;
+      std::map<std::string, Object>::const_iterator it;
       Object value;
       for( it=self.begin(); it!=self.end(); ++it )
       {
