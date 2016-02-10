@@ -65,6 +65,24 @@ GenericObject::~GenericObject()
 
 
 //-----------------------------------------------------------------------------
+bool GenericObject::operator == ( const GenericObject & other ) const
+{
+  cout << "GenericObject::operator ==\n";
+  if( this == &other )
+    return true;
+  if( isScalar() )
+    return ScalarInterface::operator == ( other );
+  if( isString() )
+    return StringInterface::operator == ( other );
+  if( isDictionary() )
+    return DictionaryInterface::operator == ( other );
+  if( isIterable() )
+    return IterableInterface::operator == ( other );
+  return false;
+}
+
+
+//-----------------------------------------------------------------------------
 bool Object::isSameObject( const Object &other ) const
 {
   if ( isNull() ) return other.isNull();
@@ -204,6 +222,12 @@ bool ScalarInterface::isScalar() const
   return true;
 }
 
+//---------------------------------------------------------------------------
+bool ScalarInterface::operator == ( const ScalarInterface & other ) const
+{
+  return getScalar() == other.getScalar();
+}
+
 
     //-------------------//
    //  StringInterface  //
@@ -222,6 +246,11 @@ bool StringInterface::isString() const
 }
 
 
+//---------------------------------------------------------------------------
+bool StringInterface::operator == ( const StringInterface & other ) const
+{
+  return getString() == other.getString();
+}
     //-----------------//
    //  SizeInterface  //
   //-----------------//
@@ -245,6 +274,25 @@ IterableInterface::~IterableInterface()
 //---------------------------------------------------------------------------
 bool IterableInterface::isIterable() const
 {
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool IterableInterface::operator == ( const IterableInterface & other ) const
+{
+  if( !other.isIterable() )
+    return false;
+//   if( size() != other.size() )
+//     return false;
+  Object it, it2;
+  for( it=objectIterator(), it2=other.objectIterator();
+        it->isValid() && it2->isValid(); it->next(), it2->next() )
+  {
+    if( !it2->isValid() || it->currentValue() != it2->currentValue() )
+      return false;
+  }
+  if( it->isValid() || it2->isValid() )
+    return false;
   return true;
 }
 
@@ -383,6 +431,30 @@ void DictionaryInterface::copyProperties( Object other )
     setProperty( i->key(), i->currentValue() );
 }
 
+//---------------------------------------------------------------------------
+bool DictionaryInterface::operator == ( const DictionaryInterface & o2 ) const
+{
+  if( !isDictionary() || !o2.isDictionary() )
+    return false;
+  if( size() != o2.size() )
+    return false;
+  Object it, other_value;
+  for( it=objectIterator(); it->isValid(); it->next() )
+  {
+    try
+    {
+      other_value = o2.getProperty( it->key() );
+      if( it->currentValue() != other_value )
+        return false;
+    }
+    catch( ... )
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 
   //---------------------//
  //  SyntaxedInterface  //
@@ -392,6 +464,15 @@ void DictionaryInterface::copyProperties( Object other )
 SyntaxedInterface::~SyntaxedInterface()
 {
 }
+
+//---------------------------------------------------------------------------
+bool SyntaxedInterface::operator == ( const SyntaxedInterface & o2 ) const
+{
+  if( !hasSyntax() || !o2.hasSyntax() )
+    return false;
+  return getSyntax() == o2.getSyntax();
+}
+
 
     //-----------------//
    //  NoneInterface  //

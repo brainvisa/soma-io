@@ -98,6 +98,14 @@ namespace interface_internal
                                              "object of type " ) + 
                                 DataTypeCode<T>::name() );
     }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      throw std::runtime_error( std::string( "Cannot convert scalar to "
+                                             "object of type " ) +
+                                DataTypeCode<T>::name() );
+    }
   };
 
   template <typename T>
@@ -118,6 +126,12 @@ namespace interface_internal
     static inline void setScalar( TypedObject<T> &object, double value )
     {
       object.getValue().setScalar( value );
+    }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue().getScalar() == o2.getScalar();
     }
   };
 
@@ -150,6 +164,14 @@ namespace interface_internal
                                              "object of type " ) + 
                                 DataTypeCode<T>::name() );
     }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+       throw std::runtime_error( std::string( "Cannot convert string to "
+                                             "object of type " ) +
+                                DataTypeCode<T>::name() );
+    }
   };
 
   template <typename T>
@@ -171,6 +193,12 @@ namespace interface_internal
                                   const std::string &value )
     {
       object.getValue().setString( value );
+    }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isString() && o1.getValue().getString() == o2.getString();
     }
   };
 
@@ -400,6 +428,14 @@ namespace interface_internal
                                 "Dictionary" );
     }
 
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      throw std::runtime_error( std::string( "object of type " ) +
+                                DataTypeCode<T>::name() + " is not a "
+                                "Dictionary" );
+    }
+
   };
 
   template <typename T>
@@ -442,6 +478,31 @@ namespace interface_internal
       object.getValue().clearProperties();
     }
 
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      if( !o2.isDictionary() )
+        return false;
+      const T & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      Object it, other_value;
+      for( it=self.objectIterator(); it->isValid(); it->next() )
+      {
+        try
+        {
+          other_value = o2.getProperty( it->key() );
+          if( it->currentValue() != other_value )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
   };
 
 
@@ -468,6 +529,14 @@ namespace interface_internal
                                 " is not iterable" );
       return Object();
     }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      throw std::runtime_error( std::string( "object of type " ) +
+                                DataTypeCode<T>::name() +
+                                " is not iterable" );
+    }
   };
 
   template <typename T>
@@ -484,6 +553,25 @@ namespace interface_internal
     {
       return object.getValue().objectIterator();
     }
+
+    static inline bool equals( const TypedObject<T> & o1,
+                               const GenericObject & o2 )
+    {
+      if( !o2.isIterable() )
+        return false;
+      const T & self = o1.getValue();
+      if( o1.size() != o2.size() )
+        return false;
+      Object it, it2;
+      for( it=self.objectIterator(), it2=o2.objectIterator();
+           it->isValid(); it->next(), it2->next() )
+      {
+        if( !it2->isValid() || it->currentValue() != it2->currentValue() )
+          return false;
+      }
+      return true;
+    }
+
   };
 
 
@@ -664,6 +752,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<char>( value );
     }
+
+    static inline bool equals( const TypedObject<char> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
 
@@ -691,6 +785,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<unsigned char>( value );
     }
+
+    static inline bool equals( const TypedObject<unsigned char> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
 
@@ -717,6 +817,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<signed char>( value );
     }
+
+    static inline bool equals( const TypedObject<signed char> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
     //--------//
@@ -741,6 +847,12 @@ namespace interface_internal
     static inline void setScalar( TypedObject<bool> &to, double value )
     {
       to.getValue() = static_cast<bool>( value );
+    }
+
+    static inline bool equals( const TypedObject<bool> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
     }
   };
 
@@ -768,6 +880,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<unsigned short>( value );
     }
+
+    static inline bool equals( const TypedObject<unsigned short> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
 
@@ -794,6 +912,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<short>( value );
     }
+
+    static inline bool equals( const TypedObject<short> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
     //------------//
@@ -818,6 +942,12 @@ namespace interface_internal
     static inline void setScalar( TypedObject<unsigned> &to, double value )
     {
       to.getValue() = static_cast<unsigned>( value );
+    }
+
+    static inline bool equals( const TypedObject<unsigned> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
     }
   };
 
@@ -845,6 +975,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<int>( value );
     }
+
+    static inline bool equals( const TypedObject<int> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
 
@@ -870,6 +1006,12 @@ namespace interface_internal
     static inline void setScalar( TypedObject<long> &to, double value )
     {
       to.getValue() = static_cast<long>( value );
+    }
+
+    static inline bool equals( const TypedObject<long> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
     }
   };
 
@@ -898,6 +1040,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<unsigned long>( value );
     }
+
+    static inline bool equals( const TypedObject<unsigned long> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
 
@@ -924,6 +1072,12 @@ namespace interface_internal
     {
       to.getValue() = static_cast<float>( value );
     }
+
+    static inline bool equals( const TypedObject<float> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
   };
 
     //----------//
@@ -948,6 +1102,12 @@ namespace interface_internal
     static inline void setScalar( TypedObject<double> &to, double value )
     {
       to.getValue() = value;
+    }
+
+    static inline bool equals( const TypedObject<double> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
     }
   };
 
@@ -977,6 +1137,12 @@ namespace interface_internal
     {
       to.getValue() = toString( value );
     }
+
+    static inline bool equals( const TypedObject<std::string> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isString() && o1.getValue() == o2.getString();
+    }
   };
 
 
@@ -1003,6 +1169,12 @@ namespace interface_internal
                                   const std::string &value )
     {
       to.getValue() = value;
+    }
+
+    static inline bool equals( const TypedObject<std::string> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isString() && o1.getValue() == o2.getString();
     }
   };
 
@@ -1292,6 +1464,25 @@ namespace interface_internal
 
     static inline Object 
     objectIterator( const TypedObject<std::vector<T> > & object );
+
+    static inline bool equals( const TypedObject< std::vector<T> > & o1,
+                               const GenericObject & o2 )
+    {
+      if( !o2.isIterable() )
+        return false;
+      const std::vector<T> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      Object it, it2;
+      for( it=o1.objectIterator(), it2=o2.objectIterator();
+           it->isValid(); it->next(), it2->next() )
+      {
+        if( !it2->isValid() || it->currentValue() != it2->currentValue() )
+          return false;
+      }
+      return true;
+    }
+
   };
   
   
@@ -1475,6 +1666,36 @@ namespace interface_internal {
 
     static inline Object 
     objectIterator( const TypedObject<std::set<T> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::set<T> > & o1,
+      const GenericObject & o2 )
+    {
+      if( !o2.isIterable() )
+        return false;
+      const std::set<T> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      Object it2, value;
+      for( it2=o2.objectIterator(); it2->isValid(); it2->next() )
+      {
+        value = it2->currentValue();
+        if( !value.get() )
+          return false;
+        try
+        {
+          const T & tval = value->value<T>();
+          if( self.find( tval ) == self.end() )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
   };
 
 
@@ -1554,6 +1775,33 @@ namespace interface_internal {
 
     static inline Object 
     objectIterator( const TypedObject<std::map<T, U> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::map<std::string, T> > & o1,
+      const GenericObject & o2 )
+    {
+      if( !o2.isDictionary() )
+        return false;
+      const std::map<T, U> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      Object it, value;
+      for( it=o1.objectIterator(); it->isValid(); it->next() )
+      {
+        try
+        {
+          value = o2.getProperty( it->key() );
+          if( it->currentValue() != value )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
   };
 
   template <typename M>
@@ -1624,7 +1872,31 @@ namespace interface_internal {
 
     static inline Object 
     objectIterator( const TypedObject<std::map<T, Object> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::map<T, Object> > & o1,
+      const GenericObject & o2 )
+    {
+      if( !o2.isIterable() )
+        return false;
+      const std::map<T, Object> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      typename std::map<T, Object>::const_iterator it;
+      Object it2, value;
+      // the key T cannot be checked in o2. The only thing we can do here is
+      // to check values in same order.
+      // this is incomplete, agreed.
+      for( it=self.begin(), it2=o2.objectIterator(); it!=self.end();
+           ++it, it2->next() )
+      {
+        if( it->second != it2->currentValue() )
+          return false;
+      }
+      return true;
+    }
   };
+
 
   template <typename T>
   class MapIterator< std::map< T, Object > > : public IteratorInterface
@@ -1724,6 +1996,31 @@ namespace interface_internal {
     {
       return object.getValue().find( key ) != object.getValue().end();
     }
+
+    static bool equals( const TypedObject<std::map<std::string, T> > &
+                        object, const GenericObject & other )
+    {
+      if( !other.isDictionary() )
+        return false;
+      const std::map<std::string, T> & self = object.getValue();
+      if( self.size() != other.size() )
+        return false;
+      Object it, other_value;
+      for( it=object.objectIterator(); it->isValid(); it->next() )
+      {
+        try
+        {
+          other_value = other.getProperty( it->key() );
+          if( it->currentValue() != other_value )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
   };
 
 
@@ -1782,6 +2079,33 @@ namespace interface_internal {
 
     static inline Object 
     objectIterator( const TypedObject<std::map<std::string, T> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::map<std::string, T> > & o1,
+      const GenericObject & o2 )
+    {
+      if( !o2.isDictionary() )
+        return false;
+      const std::map<std::string, T> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      Object it, value;
+      for( it=o1.objectIterator(); it->isValid(); it->next() )
+      {
+        try
+        {
+          value = o2.getProperty( it->key() );
+          if( it->currentValue() != value )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
   };
 
 
@@ -1857,6 +2181,34 @@ namespace interface_internal {
     static inline Object 
     objectIterator( const 
                     TypedObject<std::map<std::string, Object> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::map<std::string, Object> > & o1,
+      const GenericObject & o2 )
+    {
+      if( !o2.isDictionary() )
+        return false;
+      const std::map<std::string, Object> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      typename std::map<std::string, Object>::const_iterator it;
+      Object value;
+      for( it=self.begin(); it!=self.end(); ++it )
+      {
+        try
+        {
+          value = o2.getProperty( it->first );
+          if( it->second != value )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
   };
 
 
