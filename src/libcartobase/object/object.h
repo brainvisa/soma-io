@@ -127,6 +127,10 @@ class Object;
         scalar-compatible interface
     */
     virtual void setScalar( double ) = 0;
+    /// equality test
+    virtual bool operator == ( const ScalarInterface & other ) const;
+    virtual bool operator != ( const ScalarInterface & other ) const
+    { return ! operator == ( other ); }
   };
 
 
@@ -157,6 +161,10 @@ class Object;
         string-compatible interface
     */
     virtual void setString( const std::string & ) = 0;
+    /// equality test
+    virtual bool operator == ( const StringInterface & other ) const;
+    virtual bool operator != ( const StringInterface & other ) const
+    { return ! operator == ( other ); }
   };
 
 
@@ -197,6 +205,10 @@ class Object;
     virtual bool isIterable() const;
     /// returns an object implementing the IteratorIntrerface
     virtual Object objectIterator() const = 0;
+    /// equality test
+    virtual bool operator == ( const IterableInterface & other ) const;
+    virtual bool operator != ( const IterableInterface & other ) const
+    { return ! operator == ( other ); }
   };
 
 
@@ -404,6 +416,10 @@ class Object;
     /** copy all properties of the \c source object to \c this object. 
         \c source must implement DictionaryInterface */
     virtual void copyProperties( Object source );
+    /// equality test
+    virtual bool operator == ( const DictionaryInterface & other ) const;
+    virtual bool operator != ( const DictionaryInterface & other ) const
+    { return ! operator == ( other ); }
   };
 
 
@@ -425,6 +441,10 @@ class Object;
     virtual std::string getSyntax() const = 0;
     virtual bool hasSyntax() const = 0;
     virtual void setSyntax( const std::string& syntactic ) = 0;
+    /// equality test
+    virtual bool operator == ( const SyntaxedInterface & other ) const;
+    virtual bool operator != ( const SyntaxedInterface & other ) const
+    { return ! operator == ( other ); }
   };
 
 
@@ -469,8 +489,8 @@ public:
   /// cloning copy
   virtual Object clone() const = 0;
   /// type() returns the DataTypeCode::name() of the underlying object type
-  virtual std::string type() const = 0;  
-  
+  virtual std::string type() const = 0;
+
   /** Retreive value in object, const reference.
       This function only works if type T matches the actual value type 
       stored in the object, otherwise it throws an exception */
@@ -515,6 +535,9 @@ public:
   /// const access to an interface
   template <typename T>
   const T *getInterface() const;
+  virtual bool operator == ( const GenericObject & other ) const;
+  virtual bool operator != ( const GenericObject & other ) const
+  { return ! operator == ( other ); }
 
 protected:
   friend class Object;
@@ -573,6 +596,9 @@ public:
       carto::none()
   */
   bool isNone() const;
+  inline bool operator == ( const Object & other ) const;
+  inline bool operator != ( const Object & other ) const
+  { return ! operator == ( other ); }
 };
  
 
@@ -652,6 +678,8 @@ public:
 
   // NoneInterface methods
   virtual bool isNone() const;
+
+  virtual bool operator == ( const GenericObject & other ) const;
 
 private:
   Interface *_getGenericInterface();
@@ -1341,6 +1369,17 @@ inline Object & Object::operator = ( const Object &other )
       ( static_cast< const rc_ptr<GenericObject> & >( other ) );
   }
   return *this;
+}
+
+
+//-----------------------------------------------------------------------------
+inline bool Object::operator == ( const Object &other ) const
+{
+  if ( this == &other || ( !get() && !other.get() ) )
+    return true;
+  if( !get() || !other.get() )
+    return false;
+  return *get() == *other.get();
 }
 
 

@@ -636,6 +636,32 @@ bool TypedObject<T>::isNone() const
 }
 
 
+//-----------------------------------------------------------------------------
+template <typename T>
+bool TypedObject<T>::operator == ( const GenericObject & other ) const
+{
+  if( this == &other )
+    return true;
+  if( isScalar() )
+    return interface_internal::
+      ScalarImpl< T, SUPERSUBCLASS(ScalarInterface,T) >
+        ::equals( *this, other );
+  if( isString() )
+    return interface_internal::
+      StringImpl< T, SUPERSUBCLASS(StringInterface,T) >
+        ::equals( *this, other );
+  if( isDictionary() )
+    return interface_internal::
+      DictionaryImpl< T, SUPERSUBCLASS(DictionaryInterface,T) >
+        ::equals( *this, other );
+  if( isIterable() )
+    return interface_internal::
+      IterableImpl< T, SUPERSUBCLASS(IterableInterface,T) >
+        ::equals( *this, other );
+  return false;
+}
+
+
   //------------------//
  //  ValueObject<T>  //
 //------------------//
