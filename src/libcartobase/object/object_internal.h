@@ -1777,7 +1777,7 @@ namespace interface_internal {
     objectIterator( const TypedObject<std::map<T, U> > & object );
 
     static inline bool equals(
-      const TypedObject< std::map<std::string, T> > & o1,
+      const TypedObject< std::map<T, U> > & o1,
       const GenericObject & o2 )
     {
       if( !o2.isDictionary() )
