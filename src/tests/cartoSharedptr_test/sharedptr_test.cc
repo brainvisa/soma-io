@@ -52,6 +52,8 @@ namespace
 int main( int, char** )
 {
   {
+    using carto::weak_ptr; // avoid C++11 conflict
+
     Toto  *obj = new Toto;
     cout << "no ref. canDel: " << obj->testDeletable() << " (should be false)"
         << endl;
@@ -111,6 +113,8 @@ int main( int, char** )
 
   cout << "---- / redoing all tests using the generic shared_ptr / ----\n";
   {
+    using carto::shared_ptr; // avoid C++11 conflict
+
     Toto  *obj = new Toto;
     shared_ptr<Toto> *sp = new shared_ptr<Toto>( shared_ptr<Toto>::Strong,
         obj );
@@ -170,6 +174,8 @@ int main( int, char** )
 
   cout << "---- / shared_ptr copy/reset tests / ----\n";
   {
+    using carto::shared_ptr; // avoid C++11 conflict
+
     Toto *obj = new Toto;
     shared_ptr<Toto> sp( shared_ptr<Toto>::WeakShared, obj );
     shared_ptr<Toto> sp2 = sp;
