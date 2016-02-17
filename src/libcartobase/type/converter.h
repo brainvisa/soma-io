@@ -286,12 +286,12 @@ namespace carto
   }
 
 
-#define CARTO_SPECIALIZED_RAWCONVERTER_ROUNDED_CONVERT( IN , OUT ) \
+#define CARTO_SPECIALIZED_RAWCONVERTER_ROUNDED_CONVERT( INP , OUTP ) \
 template<> \
 inline \
-void RawConverter< IN , OUT >::convert( const IN &in, OUT & out ) const \
+void RawConverter< INP , OUTP >::convert( const INP &in, OUTP & out ) const \
 { \
-   out = static_cast<OUT>( rint( in ) ); \
+   out = static_cast<OUTP>( rint( in ) ); \
 }
   // Specialization for integer conversions rawconverter methods
   // In the case of conversion to integer types, we must round values,
