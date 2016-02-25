@@ -87,7 +87,8 @@ DataSourceInfo::DataSourceInfo( const DataSourceInfo & other )
   _capabilities( other._capabilities ), 
   _datasourcelist( other._datasourcelist ),
   _privateiodata( other._privateiodata ),
-  _identifiedFormat( other._identifiedFormat )
+  _identifiedFormat( other._identifiedFormat ),
+  _identifiedFileExtension( other._identifiedFileExtension )
 {
 }
 
