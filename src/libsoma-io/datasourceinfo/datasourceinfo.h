@@ -113,6 +113,10 @@ namespace soma
       std::string identifiedFormat() const { return _identifiedFormat; }
       void setIdentifiedFormat( const std::string & format )
       { _identifiedFormat = format; }
+      std::string identifiedFileExtension() const
+      { return _identifiedFileExtension; }
+      void setIdentifiedFileExtension( const std::string & ext )
+      { _identifiedFileExtension = ext; }
 
     protected:
       carto::Object           _header;
@@ -120,6 +124,7 @@ namespace soma
       DataSourceList          _datasourcelist;
       carto::Object           _privateiodata;
       std::string             _identifiedFormat;
+      std::string             _identifiedFileExtension;
   };
 
 }

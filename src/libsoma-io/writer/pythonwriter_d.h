@@ -39,8 +39,6 @@
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/writer/pythonwriter.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
-//--- cartobase --------------------------------------------------------------
-#include <cartobase/object/object_d.h>
 //----------------------------------------------------------------------------
 
 namespace {

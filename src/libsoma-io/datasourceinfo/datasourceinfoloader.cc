@@ -245,6 +245,36 @@ set<string> DataSourceInfoLoader::writeFormats(const string & ext,
   return set<string>();
 }
 
+
+namespace
+{
+  // set identified extension and format in DataSourceInfo
+  void setFileExtension( DataSourceInfo & dsi, const string & url,
+                         const string & format,
+                         const multimap<string, string> & ext_map )
+  {
+    dsi.setIdentifiedFormat( format );
+    multimap<string, string>::const_iterator ie, ee = ext_map.end();
+    size_t size = 0, flen = url.length(), elen;
+    string longest;
+    for( ie=ext_map.begin(); ie!=ee; ++ie )
+      if( ie->second == format )
+      {
+        elen = ie->first.length();
+        if( elen > size
+            && url.substr( flen - elen - 1, elen + 1 )
+               == string(".") + ie->first )
+        {
+          longest = ie->first;
+          size = elen;
+        }
+      }
+    if( size > 0 )
+      dsi.setIdentifiedFileExtension( longest );
+  }
+
+}
+
 //============================================================================
 //    C H E C K I N G   F O R M A T
 //============================================================================
@@ -295,10 +325,24 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
 
   // find filename extension if it's a file //////////////////////////////////
   string  ext;
+  list<string> exts;
+  string cut_url = FileUtil::basename( url );
   int     excp = 0;
   localMsg( "filename: " + url );
-  ext = FileUtil::extension( url );
-  localMsg( "ext : " + ext );
+  do
+  {
+    ext = FileUtil::extension( cut_url );
+    if( !ext.empty() )
+    {
+      if( !exts.empty() )
+        exts.push_front( ext + "." + *exts.begin() );
+      else
+        exts.push_front( ext );
+      localMsg( "ext : " + ext );
+      cut_url = cut_url.substr( 0, cut_url.length() - 1 - ext.length() );
+    }
+  }
+  while( !ext.empty() );
 
   // Check compatible formats ////////////////////////////////////////////////
   set<string>            tried;
@@ -344,7 +388,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
       {
         d->state = Ok;
         DataSourceInfo dsi2 = reader->check( dsi, *this, options );
-        dsi2.setIdentifiedFormat( format );
+        setFileExtension( dsi2, url, format, ps.extensions );
         return dsi2;
       }
       catch( exception & e )
@@ -362,36 +406,41 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
   //// Pass 1 : try every matching format until one works ////////////////////
   if( passbegin <= 1 && passend >= 1 )
   {
-    iext = ps.extensions.equal_range( ext );
-    for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
-      if( tried.find( ie->second ) == notyet )
-      {
-        localMsg( "1. trying " + (*ie).second + "..." );
-        reader = formatInfo( ie->second );
-        if( reader )
+    list<string>::const_iterator iel, eel = exts.end();
+    for( iel=exts.begin(); iel!=eel; ++iel )
+    {
+      ext = *iel;
+      iext = ps.extensions.equal_range( ext );
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+        if( tried.find( ie->second ) == notyet )
         {
-          try
+          localMsg( "1. trying " + (*ie).second + "..." );
+          reader = formatInfo( ie->second );
+          if( reader )
           {
-            d->state = Ok;
-            DataSourceInfo dsi2 = reader->check( dsi, *this, options );
-            dsi2.setIdentifiedFormat( ie->second );
-            return dsi2;
+            try
+            {
+              d->state = Ok;
+              DataSourceInfo dsi2 = reader->check( dsi, *this, options );
+              setFileExtension( dsi2, url, ie->second, ps.extensions );
+              return dsi2;
+            }
+            catch( exception & e )
+            {
+              localMsg( "1. failed : " + string( e.what() ) );
+              d->state = Error;
+              io_error::keepExceptionPriority( e, excp, d->errorcode,
+                                              d->errormsg );
+              pds->at( dspos );
+            }
+            tried.insert( ie->second );
           }
-          catch( exception & e )
-          {
-            localMsg( "1. failed : " + string( e.what() ) );
-            d->state = Error;
-            io_error::keepExceptionPriority( e, excp, d->errorcode,
-                                            d->errormsg );
-            pds->at( dspos );
-          }
-          tried.insert( ie->second );
         }
-      }
+    }
   }
 
   //// Pass 2 : not found or none works: try readers with no extension ///////
-  if( passbegin <= 2 && passend >= 2 && !ext.empty() )
+  if( passbegin <= 2 && passend >= 2 && !exts.empty() )
   {
     localMsg( "not found yet... pass2..." );
     iext = ps.extensions.equal_range( "" );
@@ -406,7 +455,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
           {
             d->state = Ok;
             DataSourceInfo dsi2 = reader->check( dsi, *this, options );
-            dsi2.setIdentifiedFormat( ie->second );
+            setFileExtension( dsi2, url, ie->second, ps.extensions );
             return dsi2;
           }
           catch( exception & e )
@@ -439,7 +488,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
           {
             d->state = Ok;
             DataSourceInfo dsi2 = reader->check( dsi, *this, options );
-            dsi2.setIdentifiedFormat( ie->second );
+            setFileExtension( dsi2, url, ie->second, ps.extensions );
             return dsi2;
           }
           catch( exception & e )

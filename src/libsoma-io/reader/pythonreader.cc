@@ -38,7 +38,6 @@
 #include <soma-io/datasource/streamdatasource.h>
 #include <soma-io/reader/pythonreader_d.h>
 //--- cartobase --------------------------------------------------------------
-#include <cartobase/object/object_d.h>
 #include <cartobase/object/syntobject.h>
 #include <cartobase/exception/parse.h>
 #include <cartobase/exception/file.h>
@@ -1261,6 +1260,9 @@ SyntaxSet & PythonReader::syntaxes()
    return d->rules;
 }
 
+
+// include this just at the end.
+#include <cartobase/object/object_d.h>
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::Helper )
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonReader::HelperSet )

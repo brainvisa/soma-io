@@ -67,7 +67,6 @@ NiftiPlugin::NiftiPlugin() : Plugin()
     exts[2] = "img";
     exts[3] = "img.gz";
     exts[4] = "hdr";
-    exts[5] = "gz";
 
     //////////////////////////////////////////////////////////////////////////
     ////                         C H E C K E R                            ////
