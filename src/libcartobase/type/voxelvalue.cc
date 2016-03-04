@@ -36,10 +36,13 @@
 #include <cartobase/type/types.h>
 //----------------------------------------------------------------------------
 
-using namespace carto;
 using namespace std;
+
+namespace carto {
 
 template class VoxelValue< uint8_t, 3 >;
 template class VoxelValue< uint8_t, 4 >;
 template class VoxelValue< float, 2 >;
 template class VoxelValue< double, 2 >;
+
+} // namespace carto

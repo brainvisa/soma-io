@@ -41,8 +41,9 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma {
 
 template class GisImageReader<int8_t>;
 template class GisImageReader<int16_t>;
@@ -59,3 +60,5 @@ template class GisImageReader<VoxelRGBA>;
 template class GisImageReader<VoxelHSV>;
 template class GisImageReader<std::complex<float> >;
 template class GisImageReader<std::complex<double> >;
+
+} // namespace soma

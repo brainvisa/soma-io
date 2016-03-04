@@ -41,8 +41,9 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma {
 
 template class TiffImageReader<int8_t>;
 template class TiffImageReader<int16_t>;
@@ -59,3 +60,5 @@ template class TiffImageReader<VoxelRGBA>;
 template class TiffImageReader<VoxelHSV>;
 // template class TiffImageReader<std::complex<float> >;
 // template class TiffImageReader<std::complex<double> >;
+
+} // namespace soma

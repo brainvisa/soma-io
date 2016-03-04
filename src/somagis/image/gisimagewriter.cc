@@ -41,8 +41,9 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma {
 
 template class GisImageWriter<int8_t>;
 template class GisImageWriter<int16_t>;
@@ -59,3 +60,5 @@ template class GisImageWriter<VoxelRGBA>;
 template class GisImageWriter<VoxelHSV>;
 template class GisImageWriter<std::complex<float> >;
 template class GisImageWriter<std::complex<double> >;
+
+} // namespace soma

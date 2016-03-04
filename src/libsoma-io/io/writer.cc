@@ -39,9 +39,10 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
 using namespace std;
+
+namespace soma {
 
 GenericWriter::GenericWriter()
   : _datasourceinfo( new DataSourceInfo )
@@ -131,3 +132,4 @@ void GenericWriter::attach( ostream & stream )
 template class Writer<GenericObject>;
 template class Writer<Object>;
 
+} // namespace soma
