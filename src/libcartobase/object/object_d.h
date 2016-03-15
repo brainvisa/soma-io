@@ -190,9 +190,6 @@ template <typename T>
 TypedObject<T>::TypedObject()
 {
   GenericObjectTypeDeclared<T>::check();
-#ifdef CARTO_DEBUG
-  _debugInstantiation = _debugInstantiation;
-#endif
 }
 
 
