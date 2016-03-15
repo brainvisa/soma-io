@@ -41,7 +41,6 @@
 #include <cartobase/object/property.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
 using namespace std;
 
@@ -56,11 +55,11 @@ namespace soma
     return new ValueObject<PropertySet>;
   }
 
-}
-
 template class Reader<GenericObject>;
 template class FormatReader<GenericObject>;
 template class FormatDictionary<GenericObject>;
 template class Reader<Object>;
 template class FormatReader<Object>;
 template class FormatDictionary<Object>;
+
+} // namespace soma

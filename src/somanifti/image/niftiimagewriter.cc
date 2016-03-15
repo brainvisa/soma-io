@@ -41,8 +41,9 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma {
 
 template class NiftiImageWriter<int8_t>;
 template class Nifti1ImageWriter<int8_t>;
@@ -105,3 +106,4 @@ template class NiftiImageWriter<cdouble>;
 template class Nifti1ImageWriter<cdouble>;
 template class Nifti2ImageWriter<cdouble>;
 
+} // namespace soma

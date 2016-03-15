@@ -40,8 +40,10 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma
+{
 
 template class ImageWriter<int8_t>;
 template class ImageWriter<int16_t>;
@@ -62,3 +64,5 @@ template class ImageWriter<cdouble>;
 // char may be a different type from int8_t and uint8_t
 template class ImageWriter<char>;
 #endif
+
+} // namespace soma

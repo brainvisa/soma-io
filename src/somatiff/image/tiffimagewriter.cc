@@ -41,8 +41,9 @@
 #include <cartobase/type/voxelhsv.h>
 //----------------------------------------------------------------------------
 
-using namespace soma;
 using namespace carto;
+
+namespace soma {
 
 template class TiffImageWriter<int8_t>;
 template class TiffImageWriter<int16_t>;
@@ -55,3 +56,5 @@ template class TiffImageWriter<double>;
 template class TiffImageWriter<VoxelRGB>;
 template class TiffImageWriter<VoxelRGBA>;
 template class TiffImageWriter<VoxelHSV>;
+
+} // namespace soma

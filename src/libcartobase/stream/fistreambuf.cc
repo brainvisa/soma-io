@@ -44,8 +44,9 @@
 #include <cassert>
 #include <cstdio>
 
-using namespace carto;
 using namespace std;
+
+namespace carto {
 
 //=============================================================================
 //	M E T H O D S
@@ -139,3 +140,5 @@ fistreambuf<Extractor>::seekoff( off_type type,
 
 template class fistreambuf<UncommentExtractor>;
 template class fistreambuf<CounterExtractor>;
+
+} // namespace carto
