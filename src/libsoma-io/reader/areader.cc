@@ -98,14 +98,17 @@ namespace
     if( is.eof() )
       return;
 
-    if( !StreamUtil::skip( is ) )
+    if( !StreamUtil::skip( is, " \t" ) )
       return;
 
     string s;
     StreamUtil::getline( is, s );
-    string::size_type i1 = s.find_first_not_of(" \t");
-    string::size_type i2 = s.find_last_not_of(" \t\n\r");
-    s = s.substr(i1, i2-i1+1);
+    if( !s.empty() )
+    {
+      string::size_type i1 = s.find_first_not_of(" \t");
+      string::size_type i2 = s.find_last_not_of(" \t\n\r");
+      s = s.substr(i1, i2-i1+1);
+    }
     object.setProperty(semantic, s);
   }
 
