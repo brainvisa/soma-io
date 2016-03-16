@@ -38,7 +38,6 @@
 #include <soma-io/datasource/filedatasource.h>
 #include <soma-io/datasource/streamdatasource.h>
 //--- cartobase --------------------------------------------------------------
-#include <cartobase/object/object_d.h>
 #include <cartobase/object/property.h>
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/ioexcept.h>
@@ -510,6 +509,8 @@ SyntaxSet & PythonWriter::syntaxes()
    return _rules;
 }
 
+// include this just at the end.
+#include <cartobase/object/object_d.h>
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonWriter::Helper )
 INSTANTIATE_GENERIC_OBJECT_TYPE( PythonWriter::HelperSet )

@@ -1,6 +1,6 @@
 #include <soma-io/Object/CartoHeader.h>
 
-#include <cartobase/object/object_d.h>
+#include <cartobase/object/object.h>
 
 
 dcm::CartoHeader::CartoHeader( carto::Object header )

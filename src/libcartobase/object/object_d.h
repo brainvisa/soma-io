@@ -37,10 +37,10 @@
 #include <cartobase/object/object.h>
 
 #define INSTANTIATE_GENERIC_OBJECT_TYPE( T )    \
-  template class TypedObject< T >; \
-  template class ValueObject< T >; \
-  template class ReferenceObject< T >; \
-  template class PointerObject< T >; \
+  template class carto::TypedObject< T >;       \
+  template class carto::ValueObject< T >;       \
+  template class carto::ReferenceObject< T >;   \
+  template class carto::PointerObject< T >;     \
   template \
     T const &GenericObject::value< T >() const; \
   template \

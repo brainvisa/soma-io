@@ -38,8 +38,6 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/reader/pythonreader.h>
-//--- cartobase --------------------------------------------------------------
-#include <cartobase/object/object_d.h>
 //----------------------------------------------------------------------------
 
 struct soma::PythonReader::Private

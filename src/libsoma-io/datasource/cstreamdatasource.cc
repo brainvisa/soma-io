@@ -103,7 +103,7 @@ bool CStreamDataSource::open ( int mode )
       smode = "wb";
       break;
     case ReadWrite:
-      smode = "r+";
+      smode = "rb+";
       break;
     }
   _f = fopen( url().c_str(), smode );
