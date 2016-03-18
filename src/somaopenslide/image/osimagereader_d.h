@@ -145,10 +145,10 @@ namespace soma {
   //==========================================================================
   template <typename T>
   void OSImageReader<T>::read( T * dest, DataSourceInfo & dsi,
-                               std::vector<int> & pos,
-                               std::vector<int> & size,
-                               std::vector<long> & /* stride */,
-                               carto::Object      options )
+                               std::vector<int>  & pos,
+                               std::vector<int>  & size,
+                               std::vector<long> & stride,
+                               carto::Object       options )
   {
     if( _sizes.empty() )
       updateParams( dsi );
@@ -167,19 +167,116 @@ namespace soma {
       }
     } catch( ... ) {
     }
+    
+    // strides in dest data
+    if( stride.size() < 4 )
+      stride.resize( 4, 0 );
+    if( stride[0] == 0 )
+      stride[0] = 1;
+    if( stride[1] == 0 )
+      stride[1] = size[0] * stride[0];
+    if( stride[2] == 0 )
+      stride[2] = size[1] * stride[1];
+    if( stride[3] == 0 )
+      stride[3] = size[2] * stride[2];
+
+    localMsg("OpenSlide: strides [" + carto::toString(stride[0]) + ", "
+                                    + carto::toString(stride[1]) + ", "
+                                    + carto::toString(stride[2]) + ", "
+                                    + carto::toString(stride[3]) + "]");
+    
+    // Get tile sizes for the level
+    std::vector<std::vector<int64_t> > tsizes;
+    try {
+      dsi.privateIOData()->getProperty("tile_size", tsizes);
+    } catch( ... ) {
+    }
 
     int64_t posx = (int64_t) pos[0] * _sizes[0][0] / _sizes[ level ][0];
     int64_t posy = (int64_t) pos[1] * _sizes[0][1] / _sizes[ level ][1];
     int64_t sizex = (int64_t) size[0];
     int64_t sizey = (int64_t) size[1];
-
-    openslide_read_region( _osimage, (uint32_t *) dest, posx, posy,
-                           level, sizex, sizey );
-
+    
     uint32_t bo = SOMAIO_BYTE_ORDER;
     std::string byte_order( (char*) &bo );
 //     localMsg( "swapVoxels( " + carto::toString( byte_order != "ABCD" ) + " )" );
-    swapVoxels( dest, sizex*sizey, byte_order != "ABCD" );
+
+    if ((stride[0] == 1)
+     && (stride[1] == (size[0] * stride[0]))
+     && (stride[2] == (size[1] * stride[1]))
+     && (stride[3] == (size[2] * stride[2]))) {
+      // Optimal case where data can be read completly to contiguous memory
+      // area
+      localMsg("OpenSlide: optimal reading to contiguous area")
+      openslide_read_region(_osimage,
+                            (uint32_t*)dest,
+                            posx, posy,
+                            level,
+                            sizex, sizey);
+      swapVoxels(dest, sizex * sizey, byte_order != "ABCD");
+    }
+    else {
+      localMsg("OpenSlide: reading to not contiguous area using strides")
+      // The default is to consider that the region read is an entire tile
+      // but if we get tile sizes in the header information, we try to optimize
+      // the read using the given tile sizes
+      int64_t tsizex = sizex,
+              tsizey = sizey;
+      
+      if (tsizes.size() > 1) {
+        try {
+          // Try to read using tile sizes
+          tsizex = tsizes[level][0];
+          tsizey = tsizes[level][1];
+        }
+        catch(...){}
+      }
+      
+      // Estimate the number of tiles to read in the region
+      int64_t tcountx = (sizex + tsizex - 1) / tsizex;
+      int64_t tcounty = (sizey + tsizey - 1) / tsizey;
+      localMsg("OpenSlide: tile size " + carto::toString(tsizex)
+                                       + "x" + carto::toString(tsizey)
+                      + " tile count " + carto::toString(tcountx)
+                                       + "x" + carto::toString(tcounty) );
+
+      uint32_t * pdest;
+      int64_t offset, tsizexmax, tsizeymax;
+      //int32_t progress = 0, progress2 = 0;
+        
+      for (int64_t t = 0; t < size[3]; ++t) {      
+        for (int64_t z = 0; z < size[2]; ++z) {
+          // Read tile data by line to the destination buffer.
+          // This is necessary to optimize read using
+          // openslide cache mechanisms
+          for (int64_t ty = 0; ty < tcounty; ++ty) {
+            // progress2 = progress;
+            // progress = (((t * size[2] + z) * tcounty) + ty) * 100 / (size[3] * size[2] * tcounty);
+            // if (progress != progress2) {
+            //   localMsg("tile reading: " + carto::toString(progress) + "%");
+            // }
+                
+            tsizeymax = std::min(tsizey, sizey - (tsizey * ty));
+            for (int64_t tx = 0; tx < tcountx; ++tx) {
+              tsizexmax = std::min(tsizex, sizex - (tsizex * tx));
+              for (int64_t l = 0; l < tsizeymax; ++l) {
+                offset = pos[0] + tsizex * tx
+                      + (pos[1] + tsizey * ty + l) * stride[1] 
+                      + (pos[2] + z) * stride[2]
+                      + (pos[3] + t) * stride[3];
+                pdest = (uint32_t *) (dest) + offset;
+                openslide_read_region(_osimage,
+                                      pdest,
+                                      (int64_t)(pos[0] + tsizex * tx) * _sizes[0][0] / _sizes[ level ][0], 
+                                      (int64_t)(pos[1] + tsizey * ty + l) * _sizes[0][1] / _sizes[ level ][1],
+                                      level, tsizexmax, 1);
+                swapVoxels((T*)pdest, tsizexmax, byte_order != "ABCD");
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
 
