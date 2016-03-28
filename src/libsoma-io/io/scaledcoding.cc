@@ -51,6 +51,9 @@ bool canencode( const T * thing, float & slope,
                 const std::vector<int> & sizes,
                 bool enableoffset, double *maxerr )
 {
+  using std::isnan;
+  using std::isinf;
+
   int y, z, x, f, dx = sizes[0], dy = sizes[1],
     dz = sizes[2], dt = sizes[3];
   long sx = strides[0], sy = strides[1], sz = strides[2], st = strides[3];
@@ -187,6 +190,8 @@ bool canencode( const T * thing, float & slope,
 
 namespace soma
 {
+  using std::isnan;
+  using std::isinf;
 
   template <>
   bool canEncodeAsScaledS16( const float * vol, float & slope,

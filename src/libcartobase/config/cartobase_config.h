@@ -145,8 +145,6 @@ typedef unsigned int uint32_t;
 #else
 // Standards-compliant compiler
 #  include <cmath>
-   using std::isnan;
-   using std::isinf;
 #endif
 
 #ifdef __MINGW32__
