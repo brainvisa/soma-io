@@ -127,29 +127,24 @@ typedef unsigned int uint32_t;
 
 // isnan() portablility function or macro
 #if defined( _WIN32 ) && !defined( isnan )
-#ifdef __MINGW32__
-#include <math.h>
-#else
-#include <float.h>
-#define rint(x) floor(x+0.5)
-#define isnan(x) _isnan(x)
-#endif
-#endif
-
-// BUG On MacOS 10.2 / 10.3
-#if defined( __APPLE__ )
-#include <cmath>
-#if (__GNUC__==3) && (__GNUC_MINOR__<=3)
-#define      isnan( x )         ( ( sizeof ( x ) == sizeof(double) ) ?        \
+#  ifdef __MINGW32__
+#    include <math.h>
+#  else
+#    include <float.h>
+#    define rint(x) floor(x+0.5)
+#    define isnan(x) _isnan(x)
+#  endif
+#elif defined( __APPLE__ ) && (__GNUC__==3) && (__GNUC_MINOR__<=3)
+     // BUG On MacOS 10.2 / 10.3
+#    include <cmath>
+#    define  isnan( x )         ( ( sizeof ( x ) == sizeof(double) ) ?        \
                               __isnand ( x ) :                                \
                                 ( sizeof ( x ) == sizeof( float) ) ?          \
                               __isnanf ( x ) :                                \
                               __isnan  ( x ) )
 #else
-// g++ > 3.3 (MacOS 10.4+)
-using std::isnan;
-using std::isinf;
-#endif
+// Standards-compliant compiler
+#  include <cmath>
 #endif
 
 #ifdef __MINGW32__
