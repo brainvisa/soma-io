@@ -92,7 +92,7 @@ void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
     localMsg( "minf: " + dsl.dataSource( "minf" )->url() );
 }
 
-//--- BUILDING HEADER --------------------------------------------------------
+//--- READING HEADER ---------------------------------------------------------
 Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
 {
   string  fname = hds->url();
@@ -113,7 +113,6 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   }
   localMsg( "Image opened." );
   
-  Object  hdr = Object::value( PropertySet() );  // header
   int32_t i;
   
   // resolutions sizes
@@ -124,6 +123,37 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   for( i=0; i<rcount; i++ )
     openslide_get_level_dimensions( osimage, i, &rsizes[i][0], &rsizes[i][1] );
 
+  // tiles sizes
+  localMsg( "Reading tile sizes..." );    
+  vector<vector<int64_t> > tsizes( rcount, vector<int64_t>( 4, 1 ) );
+  for(i=0; i<rcount;++i) {
+    try {
+      carto::stringTo<int64_t>(
+                        std::string(
+                            openslide_get_property_value(
+                                osimage, 
+                                std::string("openslide.level[" 
+                                + carto::toString(i) 
+                                + "].tile-width")
+                                .c_str())),
+                        tsizes[i][0]);
+      carto::stringTo<int64_t>(
+                        std::string(
+                            openslide_get_property_value(
+                                osimage, 
+                                std::string("openslide.level[" 
+                                + carto::toString(i) 
+                                + "].tile-height")
+                                .c_str())),
+                        tsizes[i][1]);
+      
+      localMsg( "Level " + carto::toString(i) + " tile sizes: " 
+                + carto::toString(tsizes[i][0]) 
+                + "x" + carto::toString(tsizes[i][1]));
+    } catch( ... ) {
+    }  
+  }
+  
   int32_t resolution = 0;
   try {
     if( options.get() ) {
@@ -160,18 +190,31 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   localMsg( "Image closed." );
   
   string type = "RGBA";
-  hdr->setProperty( "sizeX", (int)rsizes[resolution][0] );
-  hdr->setProperty( "sizeY", (int)rsizes[resolution][1] );
-  hdr->setProperty( "sizeZ", (int)rsizes[resolution][2] );
-  hdr->setProperty( "sizeT", (int)rsizes[resolution][3] );
-  hdr->setProperty( "volume_dimension", rsizes[resolution] );
-  hdr->setProperty( "resolutions_dimension", rsizes );
-  hdr->setProperty( "format", string( "OpenSlide" ) );
-  hdr->setProperty( "voxel_size", vs );
-  hdr->setProperty( "object_type", "Volume" );
-  hdr->setProperty( "data_type", type );
   
-  return hdr;
+  Object  data = Object::value( PropertySet() );  // data contains both header
+                                                  // and private read data
+  // Set header properties
+  Object  hdrdata = Object::value( PropertySet() );  // header
+  hdrdata->setProperty( "sizeX", (int)rsizes[resolution][0] );
+  hdrdata->setProperty( "sizeY", (int)rsizes[resolution][1] );
+  hdrdata->setProperty( "sizeZ", (int)rsizes[resolution][2] );
+  hdrdata->setProperty( "sizeT", (int)rsizes[resolution][3] );
+  hdrdata->setProperty( "volume_dimension", rsizes[resolution] );
+  hdrdata->setProperty( "resolutions_dimension", rsizes );
+  hdrdata->setProperty( "format", string( "OpenSlide" ) );
+  hdrdata->setProperty( "voxel_size", vs );
+  hdrdata->setProperty( "object_type", "Volume" );
+  hdrdata->setProperty( "data_type", type );
+  
+  // Set private data properties
+  Object  privatedata = Object::value( PropertySet() );  // private data
+  privatedata->setProperty( "tile_size", tsizes );
+  
+  // Set header and private data in data returned
+  data->setProperty( "header", hdrdata );
+  data->setProperty( "privatedata", privatedata );
+  
+  return data;
 }
 
 //============================================================================
@@ -213,7 +256,10 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
   if( doread ) {
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "ima" ).get();
-    dsi.header() = _buildHeader( hds, options );
+    carto::Object data = _buildHeader( hds, options );
+    
+    dsi.header() = data->getProperty( "header" );
+    dsi.privateIOData() = data->getProperty( "privatedata" );   
     
     localMsg( "Reading minf..." );
     if( !dsi.list().empty( "minf" ) ) {
@@ -235,6 +281,8 @@ DataSourceInfo OSFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekLine( true );
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
+    dsi.capabilities().setRandomAccessEfficient( false );
+    dsi.capabilities().setHandleStrides( true );
   }
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );

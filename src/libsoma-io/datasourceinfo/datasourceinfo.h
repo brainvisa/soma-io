@@ -105,8 +105,8 @@ namespace soma
           be available in FormatReader and FormatWriter operations. Thus,
           the FormatChecker can store such data in this object.
       */
-      const carto::Object privateIOData() const { return _privateiodata; }
-            carto::Object privateIOData()       { return _privateiodata; }
+      const carto::Object & privateIOData() const { return _privateiodata; }
+            carto::Object & privateIOData()       { return _privateiodata; }
       const DataSourceList & list() const { return _datasourcelist; }
             DataSourceList & list()       { return _datasourcelist; }
       std::string url() const { return _datasourcelist.dataSource()->url(); }
