@@ -174,11 +174,11 @@ namespace soma {
     if( stride[0] == 0 )
       stride[0] = 1;
     if( stride[1] == 0 )
-      stride[1] = size[0] * stride[0];
+      stride[1] = ((long)size[0]) * stride[0];
     if( stride[2] == 0 )
-      stride[2] = size[1] * stride[1];
+      stride[2] = ((long)size[1]) * stride[1];
     if( stride[3] == 0 )
-      stride[3] = size[2] * stride[2];
+      stride[3] = ((long)size[2]) * stride[2];
 
     localMsg("OpenSlide: strides [" + carto::toString(stride[0]) + ", "
                                     + carto::toString(stride[1]) + ", "
@@ -202,12 +202,12 @@ namespace soma {
 //     localMsg( "swapVoxels( " + carto::toString( byte_order != "ABCD" ) + " )" );
 
     if ((stride[0] == 1)
-     && (stride[1] == (size[0] * stride[0]))
-     && (stride[2] == (size[1] * stride[1]))
-     && (stride[3] == (size[2] * stride[2]))) {
+     && (stride[1] == ((long)size[0]) * stride[0])
+     && (stride[2] == ((long)size[1]) * stride[1])
+     && (stride[3] == ((long)size[2]) * stride[2])) {
+      localMsg("OpenSlide: reading contiguous area")
       // Optimal case where data can be read completly to contiguous memory
       // area
-      localMsg("OpenSlide: optimal reading to contiguous area")
       openslide_read_region(_osimage,
                             (uint32_t*)dest,
                             posx, posy,
@@ -216,6 +216,16 @@ namespace soma {
       swapVoxels(dest, sizex * sizey, byte_order != "ABCD");
     }
     else {
+      localMsg("OpenSlide: strides [" 
+                                    + carto::toString(stride[0]) + ", "
+                                    + carto::toString(stride[1]) + ", "
+                                    + carto::toString(stride[2]) + ", "
+                                    + carto::toString(stride[3]) + "]"
+                       + " differs from ones processed using view sizes ["
+                                    + carto::toString(1) + ", "
+                                    + carto::toString(((long)size[0]) * stride[0]) + ", "
+                                    + carto::toString(((long)size[1]) * stride[1]) + ", "
+                                    + carto::toString(((long)size[2]) * stride[2]) + "]");
       localMsg("OpenSlide: reading to not contiguous area using strides")
       // The default is to consider that the region read is an entire tile
       // but if we get tile sizes in the header information, we try to optimize
@@ -225,9 +235,15 @@ namespace soma {
       
       if (tsizes.size() > 1) {
         try {
-          // Try to read using tile sizes
-          tsizex = tsizes[level][0];
-          tsizey = tsizes[level][1];
+          // Due to cache limitations of openslide (32MB that approximatevely 
+          // corresponds to 4 tiles RGBA of 1200x1600), it is important
+          // to read the data accordingly to this limitation and to optimize 
+          // the loading process it is necessary to divide the tile size by 2.
+          // It allows to only have to maintain 2 tiles in cache instead of 5.
+          // This consequently reduces the number of times that data are read
+          // from disk.
+          tsizex = tsizes[level][0] / 2;
+          tsizey = tsizes[level][1] / 2;
         }
         catch(...){}
       }
@@ -242,28 +258,33 @@ namespace soma {
 
       uint32_t * pdest;
       int64_t offset, tsizexmax, tsizeymax;
-      //int32_t progress = 0, progress2 = 0;
+//       int32_t progress = 0, progress2 = 0;
         
       for (int64_t t = 0; t < size[3]; ++t) {      
         for (int64_t z = 0; z < size[2]; ++z) {
           // Read tile data by line to the destination buffer.
           // This is necessary to optimize read using
           // openslide cache mechanisms
-          for (int64_t ty = 0; ty < tcounty; ++ty) {
-            // progress2 = progress;
-            // progress = (((t * size[2] + z) * tcounty) + ty) * 100 / (size[3] * size[2] * tcounty);
-            // if (progress != progress2) {
-            //   localMsg("tile reading: " + carto::toString(progress) + "%");
-            // }
-                
+          for (int64_t ty = 0; ty < tcounty; ++ty) {               
             tsizeymax = std::min(tsizey, sizey - (tsizey * ty));
             for (int64_t tx = 0; tx < tcountx; ++tx) {
               tsizexmax = std::min(tsizex, sizex - (tsizex * tx));
+//               progress2 = progress;
+//               progress = ((((t * size[2] + z) * tcounty) + ty) * tcountx + tx) * 100
+//                        / (size[3] * size[2] * tcounty * tcountx);
+//               if (progress != progress2) {
+//                 localMsg("tile reading: " + carto::toString(progress) + "%");
+//               }
+//               localMsg("start tile reading: tx " + carto::toString(tx)
+//                                         + " ty " + carto::toString(ty)
+//                                         + " " + carto::toString(tsizexmax)
+//                                         + "x" + carto::toString(tsizeymax));
+
               for (int64_t l = 0; l < tsizeymax; ++l) {
-                offset = pos[0] + tsizex * tx
-                      + (pos[1] + tsizey * ty + l) * stride[1] 
-                      + (pos[2] + z) * stride[2]
-                      + (pos[3] + t) * stride[3];
+                offset = tsizex * tx
+                       + (tsizey * ty + l) * stride[1] 
+                       + z * stride[2]
+                       + t * stride[3];
                 pdest = (uint32_t *) (dest) + offset;
                 openslide_read_region(_osimage,
                                       pdest,
@@ -272,6 +293,9 @@ namespace soma {
                                       level, tsizexmax, 1);
                 swapVoxels((T*)pdest, tsizexmax, byte_order != "ABCD");
               }
+
+              // localMsg("end tile reading: tx " + carto::toString(tx)
+              //                         + " ty " + carto::toString(ty));
             }
           }
         }
