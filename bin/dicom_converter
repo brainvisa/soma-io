@@ -117,12 +117,25 @@ def get_start_and_duration_times( serie ):
 
 def check_transfer_syntax_uid(dicomFile):
     ds = dicom.read_file(dicomFile)
-    if sys.byteorder == "little":
-        return
-    check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
-#    if not ds.is_big_endian:
-#        return
-#    check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+    if dicom.__version__ > 0.9.5:
+        try:
+            #Encrypted Content Transfer Syntax UID
+            transfer_uid = ds[(0x400, 0x500)][0][(0x400, 0x510)].value
+            if transfer_uid == dicom.UID.ExplicitVRBigEndian:
+                is_big_endian = True
+            elif transfer_uid in [dicom.UID.DeflatedExplicitVRLittleEndian,
+                                  dicom.UID.ExplicitVRLittleEndian,
+                                  dicom.UID.ImplicitVRLittleEndian]:
+                is_big_endian = False
+        except:
+            raise ValueError("\"Encrypted Content Transfer Syntax UID\" not found")
+    else:
+        is_big_endian = ds.is_big_endian
+
+    if is_big_endian:
+        check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+    else:
+        pass
 
 def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
