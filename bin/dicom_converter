@@ -8,9 +8,9 @@
 #
 # This software is governed by the CeCILL license version 2 under
 # French law and abiding by the rules of distribution of free software.
-# You can  use, modify and/or redistribute the software under the 
+# You can  use, modify and/or redistribute the software under the
 # terms of the CeCILL license version 2 as circulated by CEA, CNRS
-# and INRIA at the following URL "http://www.cecill.info". 
+# and INRIA at the following URL "http://www.cecill.info".
 #
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
@@ -25,8 +25,8 @@
 # therefore means  that it is reserved for developers  and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or 
-# data to be ensured and,  more generally, to use and operate it in the 
+# requirements in conditions enabling the security of their systems and/or
+# data to be ensured and,  more generally, to use and operate it in the
 # same conditions as regards security.
 #
 # The fact that you are presently reading this means that you have had
@@ -116,11 +116,11 @@ def get_start_and_duration_times( serie ):
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
 def check_transfer_syntax_uid(dicomFile):
-    ds = dicom.read_file(dicomFile)
     if dicom.__version__ > "0.9.5":
         try:
             #Encrypted Content Transfer Syntax UID
-            transfer_uid = ds[(0x400, 0x500)][0][(0x400, 0x510)].value
+            df = dicom.filereader
+            transfer_uid = df.read_file_meta_info(dicomFile)[(0x002,0x010)].value
             if transfer_uid == dicom.UID.ExplicitVRBigEndian:
                 is_big_endian = True
             elif transfer_uid in [dicom.UID.DeflatedExplicitVRLittleEndian,
@@ -130,6 +130,7 @@ def check_transfer_syntax_uid(dicomFile):
         except:
             raise ValueError("\"Encrypted Content Transfer Syntax UID\" not found")
     else:
+        ds = dicom.read_file(dicomFile)
         is_big_endian = ds.is_big_endian
 
     if is_big_endian:
@@ -159,13 +160,13 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
         shutil.copy(f, tempfile)
         os.chmod(tempfile, 0777)
-        
+
         try:
             check_transfer_syntax_uid(tempfile)
             check_jpeg(tempfile)
         except OSError:
             print "The DICOM converter needs DCMTK binaries to convert", f
-        
+
         ds = dicom.read_file(tempfile)
 
         if modality == "":
@@ -200,7 +201,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             rescaleparamsbytime[ time ] = []
 
         indexesbytime[time].append(ds.ImagePositionPatient[2])
-        
+
         slope = 1
         inter = 0
         scale_factor = 1
@@ -395,7 +396,7 @@ def convert_to_nifti_MR( serie ):
     #extension = '.' + f.split( '.' )[ -1 ]
     if outfile == None:
       outfile = os.path.join( args.output, f )
-      
+
     extension = os.path.splitext(f)[1]
     outfile = os.path.splitext(outfile)[0]
 
@@ -465,13 +466,13 @@ def convert_to_nifti_NM( serie ):
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
     os.chmod(tempFile, 0777)
-    
+
     try:
         check_transfer_syntax_uid(tempFile)
         check_jpeg(tempFile)
     except OSError:
         print "The DICOM converter needs DCMTK binaries to convert", f
-    
+
     ds = dicom.read_file(tempFile)
     tags = ((0x0010, 0x0010), (0x0008, 0x0020),
             (0x0008, 0x0060), (0x0008, 0x103e),
@@ -494,7 +495,7 @@ def convert_to_nifti_NM( serie ):
 #                                  ds.Modality + '-' + \
 #                                  ds.SeriesDescription + '-' + \
 #                                  ds.InstitutionName ) + ".nii" )
-#        
+#
 #    except:
 #        outfile = None
 
@@ -518,7 +519,7 @@ def convert_to_nifti_NM( serie ):
         newattributes = {'referentials': [uuid],
                          'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
-        
+
 #        try:
 #            detectorInf = ds.DetectorInformations
 #            if len(detectorInf) == 1:
