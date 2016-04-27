@@ -46,10 +46,9 @@ OFCondition DJ2KDecoderBase::decode(
 
   if ( jas_init() )
   {
-
     //return EC_J2KJasperInitializationFailure;
-    return OFConditionConst( OFM_dcmjp2k, 7, OF_error, 
-                             "Jasper: initialization failed" );
+    return OFCondition( OFM_dcmjp2k, 7, OF_error,
+                        "Jasper: initialization failed" );
 
   }
 
@@ -167,9 +166,8 @@ OFCondition DJ2KDecoderBase::decode(
   {
 
     //return EC_J2KUnsupportedBitDepth;
-    return OFConditionConst(
-                          OFM_dcmjp2k, 4, OF_error, 
-                          "Unsupported bit depth in JPEG-2000 transfer syntax");
+    return OFCondition( OFM_dcmjp2k, 4, OF_error,
+                        "Unsupported bit depth in JPEG-2000 transfer syntax");
 
   }
 
@@ -305,8 +303,8 @@ OFCondition DJ2KDecoderBase::decodeFrame(
   {
 
     //return EC_J2KJasperInitializationFailure;
-    return OFConditionConst( OFM_dcmjp2k, 7, OF_error, 
-                             "Jasper: initialization failed" );
+    return OFCondition( OFM_dcmjp2k, 7, OF_error,
+                        "Jasper: initialization failed" );
 
   }
 
@@ -383,9 +381,8 @@ OFCondition DJ2KDecoderBase::decodeFrame(
   {
 
     //return EC_J2KUnsupportedBitDepth;
-    return OFConditionConst(
-                          OFM_dcmjp2k, 4, OF_error, 
-                          "Unsupported bit depth in JPEG-2000 transfer syntax");
+    return OFCondition( OFM_dcmjp2k, 4, OF_error,
+                        "Unsupported bit depth in JPEG-2000 transfer syntax");
 
   }
 
@@ -491,9 +488,9 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
   {
 
     //result = EC_J2KCannotComputeNumberOfFragments;
-    result = OFConditionConst(
-                     OFM_dcmjp2k, 10, OF_error, 
-                     "Cannot compute number of fragments for JPEG-2000 frame" );
+    result = OFCondition(
+                    OFM_dcmjp2k, 10, OF_error,
+                    "Cannot compute number of fragments for JPEG-2000 frame" );
 
   }
 
@@ -567,8 +564,8 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
     {
 
       //return EC_J2KJasperCannotOpenStream;
-      return OFConditionConst( OFM_dcmjp2k, 8, OF_error, 
-                               "Jasper: cannot open stream" );
+      return OFCondition( OFM_dcmjp2k, 8, OF_error,
+                          "Jasper: cannot open stream" );
 
     }
 
@@ -580,8 +577,8 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
     {
 
       //return EC_J2KJasperDecodeFailure;
-      return OFConditionConst( OFM_dcmjp2k, 9, OF_error, 
-                               "Jasper: decoding failed" );
+      return OFCondition( OFM_dcmjp2k, 9, OF_error,
+                          "Jasper: decoding failed" );
 
     }
 
