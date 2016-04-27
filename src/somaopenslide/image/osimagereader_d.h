@@ -120,9 +120,9 @@ namespace soma {
       }
       // transform ARGB -> RGBA
       if( byteswap )
-        *ptr32 = ( ( *ptr32 >> 8 ) | 0xff000000 );
+        *ptr32 = ( ( *ptr32 >> 8 ) | ( *ptr32 << 24 ) );
       else
-        *ptr32 = ( ( *ptr32 << 8 ) | 0x000000ff );
+        *ptr32 = ( ( *ptr32 << 8 ) | ( *ptr32 >> 24 ) );
     }
   }
 
@@ -180,10 +180,10 @@ namespace soma {
     if( stride[3] == 0 )
       stride[3] = ((long)size[2]) * stride[2];
 
-    localMsg("OpenSlide: strides [" + carto::toString(stride[0]) + ", "
-                                    + carto::toString(stride[1]) + ", "
-                                    + carto::toString(stride[2]) + ", "
-                                    + carto::toString(stride[3]) + "]");
+//     localMsg("OpenSlide: strides [" + carto::toString(stride[0]) + ", "
+//                                     + carto::toString(stride[1]) + ", "
+//                                     + carto::toString(stride[2]) + ", "
+//                                     + carto::toString(stride[3]) + "]");
     
     // Get tile sizes for the level
     std::vector<std::vector<int64_t> > tsizes;
@@ -281,16 +281,22 @@ namespace soma {
 //                                         + "x" + carto::toString(tsizeymax));
 
               for (int64_t l = 0; l < tsizeymax; ++l) {
-                offset = tsizex * tx
-                       + (tsizey * ty + l) * stride[1] 
+                offset = tsizex * tx * stride[0]
+                       + (tsizey * ty + l) * stride[1]
                        + z * stride[2]
                        + t * stride[3];
-                pdest = (uint32_t *) (dest) + offset;
+
+                pdest = ((uint32_t *)dest) + offset;
                 openslide_read_region(_osimage,
                                       pdest,
-                                      (int64_t)(pos[0] + tsizex * tx) * _sizes[0][0] / _sizes[ level ][0], 
-                                      (int64_t)(pos[1] + tsizey * ty + l) * _sizes[0][1] / _sizes[ level ][1],
+                                      (int64_t)(pos[0] + tsizex * tx)
+                                              * _sizes[0][0]
+                                              / _sizes[ level ][0], 
+                                      (int64_t)(pos[1] + tsizey * ty + l)
+                                              * _sizes[0][1]
+                                              / _sizes[ level ][1],
                                       level, tsizexmax, 1);
+                
                 swapVoxels((T*)pdest, tsizexmax, byte_order != "ABCD");
               }
 

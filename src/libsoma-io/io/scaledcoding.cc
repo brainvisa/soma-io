@@ -35,7 +35,7 @@
 #include <cartobase/type/limits.h>
 #include <soma-io/io/scaledcoding.h>
 #include <set>
-#include <math.h>
+#include <cmath>
 
 using namespace soma;
 using namespace carto;
