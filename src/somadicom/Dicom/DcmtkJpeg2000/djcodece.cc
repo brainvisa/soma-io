@@ -21,6 +21,13 @@
 
 #include <jasper/jasper.h>
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 361
+  // OFCondition has undergone an incompatible change between 3.6.0 and 3.6.1
+#  define build_OFCondition OFCondition
+#else
+#  define build_OFCondition OFConditionConst
+#endif
+
 
 DJ2KEncoderBase::DJ2KEncoderBase()
                : DcmCodec()
@@ -382,7 +389,7 @@ OFCondition DJ2KEncoderBase::encode(
 #endif
 
   //return EC_J2KNotSupportedYet;
-  return OFCondition( OFM_dcmjp2k, 6, OF_error, "Not supported yet" );
+  return build_OFCondition( OFM_dcmjp2k, 6, OF_error, "Not supported yet" );
 
 }
 
