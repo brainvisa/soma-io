@@ -349,20 +349,47 @@ void RawConverter< INP , OUTP >::convert( const INP &in, OUTP & out ) const \
       }
   }
 
+#if __cplusplus >= 201103L
   template<typename T>
-  inline T min_limit() {
-    /// Returns the negative minimum value, because for some types
-    /// (double and float) the min value is the nearest value to 0
-    T result = std::numeric_limits<T>::min();
-
-    if ( std::numeric_limits<T>::is_signed ) {
-      if ( result > 0 ) {
-        result = 0 - std::numeric_limits<T>::max();
-      }
-    }
-
-    return result;
+  inline T min_limit()
+  {
+    // in C++11 we have numeric_limits<T>::lowest()
+    return numeric_limits<T>::lowest();
   }
+
+#else
+  namespace internal
+  {
+    // use a class to get partial specialization
+    template <typename T, bool is_min=std::numeric_limits<T>::is_integer>
+    class limits_complement
+    {
+    public:
+      static T lowest()
+      {
+        return std::numeric_limits<T>::min();
+      }
+    };
+
+    template <typename T>
+    class limits_complement<T, false>
+    {
+    public:
+      static T lowest()
+      {
+        /// Returns the negative minimum value, because for float types
+        /// (double and float) the min value is the nearest value to 0
+        return 0 - std::numeric_limits<T>::max();
+      }
+    };
+  }
+
+  template<typename T>
+  inline T min_limit()
+  {
+    return internal::limits_complement<T>::lowest();
+  }
+#endif
 
   template<typename T>
   inline bool ismin_limit( T value ){
