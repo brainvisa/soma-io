@@ -60,7 +60,7 @@ namespace carto {
     public:
       //=== TYPES =====================================================
       typedef T ChannelType;
-      
+
       //=== CONSTANTS =====================================================
       static const unsigned int channelcount = C;
 
@@ -70,10 +70,10 @@ namespace carto {
       ~VoxelValue();
 
       //=== OPERATORS ========================================================
-      bool operator == ( const VoxelValue<T,C> & );
-      bool operator != ( const VoxelValue<T,C> & );
-      bool operator == ( const T & );
-      bool operator != ( const T & );
+      bool operator == ( const VoxelValue<T,C> & ) const;
+      bool operator != ( const VoxelValue<T,C> & ) const;
+      bool operator == ( const T & ) const;
+      bool operator != ( const T & ) const;
 
       //=== ACCESSORS ========================================================
       inline
@@ -107,13 +107,13 @@ namespace carto {
     char ch = 0;
     unsigned int i;
     VoxelValue<T,C> result;
-    
+
     while( in &&
            ( in.peek() == ' ' || in.peek() == '\t' || in.peek() == '\n' ) )
       in >> ch;
     if ( in.peek () == '(' )
       in >> ch;
-    
+
     in >> read >> ch;
     result[0] = static_cast<T>( read );
     for( i=1; i<C; ++i )
@@ -121,12 +121,12 @@ namespace carto {
         in >> read >> ch;
         result[i] = static_cast<T>( read );
       }
-    
+
     if( ch != 0 && ch != ')' )
       in.setstate (std::ios::failbit);
     else if (in.good())
       aa = result;
-    
+
     return in;
   }
 
