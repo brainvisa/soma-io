@@ -126,7 +126,7 @@ BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )
 add_library( soma-io SHARED ${_somaio_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
-target_link_libraries( soma-io cartobase )
+target_link_libraries( soma-io cartobase "${CMAKE_DL_LIBS}" )
 BRAINVISA_INSTALL( TARGETS soma-io
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )

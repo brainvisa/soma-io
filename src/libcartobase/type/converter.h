@@ -353,8 +353,8 @@ void RawConverter< INP , OUTP >::convert( const INP &in, OUTP & out ) const \
   template<typename T>
   inline T min_limit()
   {
-    // in C++11 we have numeric_limits<T>::lowest()
-    return numeric_limits<T>::lowest();
+    // in C++11 we have std::numeric_limits<T>::lowest()
+    return std::numeric_limits<T>::lowest();
   }
 
 #else
