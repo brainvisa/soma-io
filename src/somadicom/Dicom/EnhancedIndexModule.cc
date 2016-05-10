@@ -116,7 +116,7 @@ bool dcm::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
       uint32_t i, nItems = seq->card();
       std::vector< std::pair< int32_t, int32_t > > tmpLut( nItems );
 
-      _zCount = dim ? 0 : _numberOfFrames;
+      _zCount = ( dim > 1 ) ? 0 : _numberOfFrames;
 
       for ( i = 0; i < nItems; i++ )
       {
