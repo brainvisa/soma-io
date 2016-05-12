@@ -1374,6 +1374,7 @@ namespace soma
     nifti_mat44_to_orientation( S2M_m44, &icod, &jcod, &kcod );
 
     bool s2moriented = false, s2morientedbis;
+    bool qform_is_sform = false;
 
     for( i=0; i<nt; ++i )
     {
@@ -1419,8 +1420,8 @@ namespace soma
         bool ok = false;
         int xform_code = NiftiReferential( ref );
         if( ( ( xform_code == NIFTI_XFORM_SCANNER_ANAT )
-              /* || (xform_code == NIFTI_XFORM_ALIGNED_ANAT) */ )
-              && (nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
+              || ( nim->sform_code != NIFTI_XFORM_UNKNOWN ) )
+              && ( nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
         {
           nim->qform_code = xform_code;
           nifti_mat44_to_quatern( R, &nim->quatern_b, &nim->quatern_c,
@@ -1459,9 +1460,15 @@ namespace soma
            the qform.
         */
         if( nim->sform_code == NIFTI_XFORM_UNKNOWN
-          || nim->sform_code == nim->qform_code )
+          || ( !ok && qform_is_sform ) )
         {
-          ok = true;
+          if( ok )
+            qform_is_sform = true;
+          else
+          {
+            qform_is_sform = false;
+            ok = true;
+          }
           nim->sform_code = xform_code;
           for( int x=0; x<4; ++x )
             for( int j=0; j<4; ++j )
