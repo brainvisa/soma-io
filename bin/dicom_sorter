@@ -4,6 +4,7 @@ import os, shutil, string
 import dicom
 from soma import argparse
 from soma.dicom import aggregator
+import sys, traceback
 
 def createTree( serie ):
     def makeValidValue( value ):
@@ -22,6 +23,10 @@ def createTree( serie ):
         seriesDescription = makeValidValue( ds.SeriesDescription )
         seriesInstanceUid = makeValidValue( ds.SeriesInstanceUID )
     except:
+        print "Exception in user code:"
+        print '-'*60
+        traceback.print_exc(file=sys.stdout)
+        print '-'*60
         return
     
     try:
@@ -41,7 +46,11 @@ def createTree( serie ):
         sessionPatientDirNames.append( patientDirName )
         os.mkdir( patientDirName )
     except:
-        pass
+        print "Exception in user code:"
+        print '-'*60
+        traceback.print_exc(file=sys.stdout)
+        print '-'*60
+
     
     try:
         # Create serie directory
@@ -59,9 +68,13 @@ def createTree( serie ):
             while os.path.exists( destFile ):
                 destFile = baseDestFile + "_" + str( num )
                 num += 1
-            shutil.copy( f, destFile )
+            shutil.copyfile( f, destFile )
     except:
-        pass
+        print "Exception in user code:"
+        print '-'*60
+        traceback.print_exc(file=sys.stdout)
+        print '-'*60
+
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser( description =
