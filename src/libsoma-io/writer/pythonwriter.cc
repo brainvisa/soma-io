@@ -394,13 +394,7 @@ void PythonWriter::write( const GenericObject & object, int indent,
     if( !is_open() )
       throw stream_fail_error( "cannot write", name() );
 
-    // This test is wrong because a reference cannot be null in well-defined
-    // C++ code, any code passing NULL to this function is broken. The pragma
-    // is there to make the warning non-fatal when using -Werror.
-    #pragma clang diagnostic push
-    #pragma clang diagnostic warning "-Wtautological-undefined-compare"
-    if( &object == 0 || object.isNone() )	// "None" object
-    #pragma clang diagnostic pop
+    if( object.isNone() )	// "None" object
       {
         AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
         if( !is_open() )

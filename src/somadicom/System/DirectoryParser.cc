@@ -102,6 +102,8 @@ std::string dcm::DirectoryParser::getFirstFile()
 
       }
 
+      closedir( directory );
+
     }
 
   }
