@@ -155,7 +155,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
     # Sort 4D DICOM files by time
     for f in serie:
-        tempfile = mkstemp()[1]
+        tempfile = mkstemp(suffix='.dcm')[1]
         tempfiles.append( tempfile )
 
         shutil.copy(f, tempfile)
@@ -465,6 +465,9 @@ def convert_to_nifti_NM( serie ):
     tmpDir = mkdtemp()
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
+    if not tempFile.endswith('.dcm'):
+      shutil.move(tempFile, tempFile+'.dcm')
+      tempFile += '.dcm'
     os.chmod(tempFile, 0777)
 
     try:
