@@ -42,10 +42,10 @@ class DicomDataContext : public LoopContext
 
   private:
 
+    DicomProxy& _proxy;
     const std::vector< int32_t >& _selection;
     std::vector< std::string >& _fileList;
     std::vector< int32_t >& _lut;
-    DicomProxy& _proxy;
     ImagePixel::Parameters _parameters;
 
 };

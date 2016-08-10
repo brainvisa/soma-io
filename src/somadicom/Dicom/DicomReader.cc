@@ -79,12 +79,14 @@ bool dcm::DicomReader::check( const dcm::DatasetModule& datasetModule,
 
   bool noFlip = dataInfo._noFlip;
   bool noDemosaic = dataInfo._noDemosaic;
+  bool modalityLut = dataInfo._modalityLut;
   std::string selectedFile = directory.getSelectedFile();
 
   _dataInfo = &dataInfo;
   _dataInfo->clear();
   _dataInfo->_noFlip = noFlip;
   _dataInfo->_noDemosaic = noDemosaic;
+  _dataInfo->_modalityLut = modalityLut;
 
   if ( selectFiles( directory, 
                     datasetModule.getSeriesInstanceUID(), 
@@ -204,7 +206,7 @@ bool dcm::DicomReader::getHeader( dcm::HeaderProxy& header,
 
   }
 
-  if ( modalityLutModule.parseHeader( datasetHeader ) )
+  if ( !info._modalityLut && modalityLutModule.parseHeader( datasetHeader ) )
   {
 
     header.addAttribute( "rescale_intercept",  
@@ -310,8 +312,8 @@ bool dcm::DicomReader::readHeader( dcm::DicomDatasetHeader& datasetHeader )
     }
 
     _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
-    _dataInfo->_minimum = ( 1 << _dataInfo->_bitsStored ) - 1;
-    _dataInfo->_maximum = 1 - ( 1 << _dataInfo->_bitsStored );
+    _dataInfo->_minimum = float( ( 1 << _dataInfo->_bitsStored ) - 1 );
+    _dataInfo->_maximum = float( 1 - ( 1 << _dataInfo->_bitsStored ) );
 
     return readHeader( &dataset );
 

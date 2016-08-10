@@ -56,6 +56,7 @@ set( _headers
   Dicom/ImageModule.h
   Dicom/ImagePixel.h
   Dicom/ModalityLutModule.h
+  Dicom/MonochromeFloatImage.h
   Dicom/MonochromeImage.h
   Dicom/MRImageStorageReader.h
   Dicom/MRModule.h
@@ -168,6 +169,7 @@ set( _sources
   Dicom/ImageModule.cc
   Dicom/ImagePixel.cc
   Dicom/ModalityLutModule.cc
+  Dicom/MonochromeFloatImage.cc
   Dicom/MonochromeImage.cc
   Dicom/MRImageStorageReader.cc
   Dicom/MRModule.cc

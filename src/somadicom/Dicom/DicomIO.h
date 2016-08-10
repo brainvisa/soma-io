@@ -36,7 +36,9 @@ class DicomIO : public Singleton< DicomIO >
     bool registerReader( DicomReader* reader );
     bool registerWriter( DicomWriter* writer );
 
-    bool analyze( const std::string& fileName, DataInfo& dataInfo );
+    bool analyze( const std::string& fileName,
+                  DataInfo& dataInfo,
+                  bool applyModalityLut = false );
     bool check( const std::string& fileName,
                 DataInfo& dataInfo,
                 DicomDatasetHeader& datasetHeader );
@@ -44,7 +46,9 @@ class DicomIO : public Singleton< DicomIO >
                     DataInfo& dataInfo,
                     DicomDatasetHeader& datasetHeader );
     bool read( DicomDatasetHeader& datasetHeader, DicomProxy& proxy );
-    bool read( const std::string& fileName, DicomProxy& proxy );
+    bool read( const std::string& fileName,
+               DicomProxy& proxy,
+               bool applyModalityLut = false );
 
     bool write( const std::string& fileName,
                 DicomProxy& proxy,

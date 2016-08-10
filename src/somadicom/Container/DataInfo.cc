@@ -11,8 +11,8 @@ dcm::DataInfo::DataInfo()
                _bitsStored( 8 ),
                _pixelRepresentation( 0 ),
                _invertLut( false ),
-               _minimum( 0 ),
-               _maximum( 0 ),
+               _minimum( 0.0f ),
+               _maximum( 0.0f ),
                _width( 1 ),
                _height( 1 ),
                _slices( 1 ),
@@ -20,6 +20,7 @@ dcm::DataInfo::DataInfo()
                _spacingBetweenSlices( 1.0 ),
                _repetitionTime( 1.0 ),
                _fileCount( 0 ),
+               _modalityLut( false ),
                _mosaic( false ),
                _noFlip( false ),
                _noDemosaic( false )
@@ -57,6 +58,7 @@ dcm::DataInfo::DataInfo( const dcm::DataInfo& other )
                _patientOrientation( other._patientOrientation ),
                _datasetHeader( other._datasetHeader ),
                _boundingBox( other._boundingBox ),
+               _modalityLut( other._modalityLut ),
                _mosaic( other._mosaic ),
                _noFlip( other._noFlip ),
                _noDemosaic( other._noDemosaic )
@@ -81,8 +83,8 @@ void dcm::DataInfo::clear()
   _bitsStored = 8;
   _pixelRepresentation = 0;
   _invertLut = false;
-  _minimum = 0;
-  _maximum = 0;
+  _minimum = 0.0f;
+  _maximum = 0.0f;
   _width = 1;
   _height = 1;
   _slices = 1;
@@ -99,6 +101,7 @@ void dcm::DataInfo::clear()
   _origin = dcm::Vector3d< double >( 0.0, 0.0, 0.0 );
   _datasetHeader.clear();
   _boundingBox = dcm::BoundingBox< int32_t >();
+  _modalityLut = false;
   _mosaic = false;
   _noFlip = false;
   _noDemosaic = false;
@@ -109,12 +112,16 @@ void dcm::DataInfo::clear()
 void dcm::DataInfo::initialize()
 {
 
-  _bpp = ( _depth >> 3 ) * _spp;
-
-  if ( !_maximum )
+  if ( _modalityLut )
   {
 
-    _maximum = ( 1 << _depth ) - 1;
+    _bpp = int32_t( sizeof( float ) );
+
+  }
+  else
+  {
+
+    _bpp = ( _depth >> 3 ) * _spp;
 
   }
 

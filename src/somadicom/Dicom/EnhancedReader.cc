@@ -43,7 +43,7 @@ bool dcm::EnhancedReader::getHeader( dcm::HeaderProxy& proxy,
   if ( dcm::SingleFileReader::getHeader( proxy, info, datasetHeader ) )
   {
 
-    if ( !proxy.hasAttribute( "rescale_intercept" ) )
+    if ( !info._modalityLut && !proxy.hasAttribute( "rescale_intercept" ) )
     {
 
       dcm::EnhancedModalityLutModule modalityLutModule;
@@ -102,6 +102,21 @@ bool dcm::EnhancedReader::readHeader( DcmDataset* dataset )
       _dataInfo->_resolution.x = pixelModule.getPixelSpacingX();
       _dataInfo->_resolution.y = pixelModule.getPixelSpacingY();
       _dataInfo->_resolution.z = tmpDouble;
+
+    }
+
+    if ( _dataInfo->_modalityLut )
+    {
+
+      dcm::EnhancedModalityLutModule modalityLutModule;
+
+      if ( modalityLutModule.parseDataset( dataset ) )
+      {
+
+        _slope = modalityLutModule.getRescaleSlope();
+        _intercept = modalityLutModule.getRescaleIntercept();
+
+      }
 
     }
 

@@ -70,7 +70,7 @@ bool dcm::MultiframeReader::readData( dcm::DicomDatasetHeader& datasetHeader,
       dcm::DataInfo& info = proxy.getDataInfo();
       int32_t startT = info._boundingBox.getLowerT();
       int32_t count = info._boundingBox.getUpperT() - startT + 1;
-      int32_t min = 0, max = 0;
+      float min = 0.0f, max = 0.0f;
 
       dcm::MultiFrameContext context( *dicomImage );
 #ifdef SOMA_IO_DICOM
@@ -86,15 +86,15 @@ bool dcm::MultiframeReader::readData( dcm::DicomDatasetHeader& datasetHeader,
       if ( min != max )
       {
 
-        info._minimum = int32_t( min );
-        info._maximum = int32_t( max );
+        info._minimum = min;
+        info._maximum = max;
 
       }
       else
       {
 
-        info._minimum = 0;
-        info._maximum = ( 1 << info._bitsStored ) - 1;
+        info._minimum = 0.0;
+        info._maximum = float( ( 1 << info._bitsStored ) - 1 );
 
       }
       

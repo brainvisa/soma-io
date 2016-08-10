@@ -39,8 +39,8 @@ class DataInfo
     int32_t _pixelRepresentation;
     bool _invertLut;
 
-    int32_t _minimum;
-    int32_t _maximum;
+    float _minimum;
+    float _maximum;
 
     int32_t _width;
     int32_t _height;
@@ -66,6 +66,7 @@ class DataInfo
 
     BoundingBox< int32_t > _boundingBox;
 
+    bool _modalityLut;
     bool _mosaic;
     bool _noFlip;
     bool _noDemosaic;

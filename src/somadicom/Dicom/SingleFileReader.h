@@ -38,6 +38,8 @@ class SingleFileReader : public DicomReader
     virtual DicomImage* getDicomImage( DicomProxy& proxy );
 
     std::vector< int32_t > _indexLut;
+    std::vector< double > _slope;
+    std::vector< double > _intercept;
 
 };
 

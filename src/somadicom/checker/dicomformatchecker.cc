@@ -97,7 +97,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
 
     // fast check
-    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo ) )
+    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
     {
       // open file
 //       fdi.open();
@@ -153,6 +153,10 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
       case 3:
         type = "RGB";
+        break;
+
+      case 4:
+        type = "FLOAT";
         break;
 
       default:

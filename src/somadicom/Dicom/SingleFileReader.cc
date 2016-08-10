@@ -85,7 +85,11 @@ bool dcm::SingleFileReader::readData( dcm::DicomDatasetHeader& datasetHeader,
       if ( n > 1 )
       {
 
-        dcm::MultiSliceContext context( *dicomImage, _indexLut, selection );
+        dcm::MultiSliceContext context( *dicomImage,
+                                        _indexLut,
+                                        selection,
+                                        _slope,
+                                        _intercept );
 #ifdef SOMA_IO_DICOM
         carto::ThreadedLoop threadedLoop( &context, 
                                           0, 
@@ -106,27 +110,10 @@ bool dcm::SingleFileReader::readData( dcm::DicomDatasetHeader& datasetHeader,
 
       }
 
-      if ( info._bpp < 3 )
+      if ( info._bpp != 3 )
       {
 
-        int32_t min = 0, max = 0;
-
-        dicomImage->getMinMaxValues( min, max );
-
-        if ( min != max )
-        {
-
-          info._minimum = int32_t( min );
-          info._maximum = int32_t( max );
-
-        }
-        else
-        {
-
-          info._minimum = 0;
-          info._maximum = ( 1 << info._bitsStored ) - 1;
-
-        }
+        dicomImage->getMinMaxValues( info._minimum, info._maximum );
 
       }
 

@@ -2,6 +2,8 @@
 #include <soma-io/config/somadicom.h>
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
+#include <soma-io/Dicom/ModalityLutModule.h>
+#include <soma-io/Dicom/EnhancedModalityLutModule.h>
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Object/HeaderProxy.h>
@@ -11,6 +13,8 @@
 #else
 #include <Dicom/DicomIO.h>
 #include <Dicom/DicomDatasetHeader.h>
+#include <Dicom/ModalityLutModule.h>
+#include <Dicom/EnhancedModalityLutModule.h>
 #include <System/DirectoryParser.h>
 #include <Container/DicomProxy.h>
 #include <Object/HeaderProxy.h>
@@ -56,7 +60,8 @@ bool dcm::DicomIO::registerWriter( dcm::DicomWriter* writer )
 
 
 bool dcm::DicomIO::analyze( const std::string& fileName,
-                            dcm::DataInfo& dataInfo )
+                            dcm::DataInfo& dataInfo,
+                            bool applyModalityLut )
 {
 
   dcm::DirectoryParser directory( fileName );
@@ -70,7 +75,9 @@ bool dcm::DicomIO::analyze( const std::string& fileName,
     if ( header.loadFile( selectedFile.c_str() ).good() )
     {
 
-      if ( _datasetModule.parseItem( header.getDataset() ) )
+      DcmDataset* dataset = header.getDataset();
+
+      if ( _datasetModule.parseItem( dataset ) )
       {
 
         int32_t bits = _datasetModule.getBitsAllocated();
@@ -78,6 +85,24 @@ bool dcm::DicomIO::analyze( const std::string& fileName,
         dataInfo._depth = bits < 8 ? 8 : bits;
         dataInfo._spp = _datasetModule.getSamplesPerPixel();
         dataInfo._bpp = ( dataInfo._depth >> 3 ) * dataInfo._spp;
+        dataInfo._pixelRepresentation = _datasetModule.getPixelRepresentation();
+
+        if ( applyModalityLut )
+        {
+
+          dcm::ModalityLutModule modalityLutModule;
+          dcm::EnhancedModalityLutModule enhancedModalityLutModule;
+
+          if ( modalityLutModule.parseDataset( dataset ) ||
+               enhancedModalityLutModule.parseDataset( dataset ) )
+          {
+
+            dataInfo._depth = 32;
+            dataInfo._modalityLut = true;
+
+          }
+
+        }
 
         return true;
 
@@ -155,6 +180,7 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
   DJ2KDecoderRegistration::cleanup();
   DJLSDecoderRegistration::cleanup();
 #endif
+
   DJDecoderRegistration::cleanup();
   DcmRLEDecoderRegistration::cleanup();
 
@@ -163,7 +189,9 @@ bool dcm::DicomIO::read( dcm::DicomDatasetHeader& datasetHeader,
 }
 
 
-bool dcm::DicomIO::read( const std::string& fileName, dcm::DicomProxy& proxy )
+bool dcm::DicomIO::read( const std::string& fileName,
+                         dcm::DicomProxy& proxy,
+                         bool applyModalityLut )
 {
 
   bool status = false;
@@ -173,7 +201,7 @@ bool dcm::DicomIO::read( const std::string& fileName, dcm::DicomProxy& proxy )
 
     dcm::DataInfo& info = proxy.getDataInfo();
 
-    if ( analyze( fileName, info ) )
+    if ( analyze( fileName, info, applyModalityLut ) )
     {
 
       dcm::DicomDatasetHeader datasetHeader( info );
