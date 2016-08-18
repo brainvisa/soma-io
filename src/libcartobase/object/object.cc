@@ -313,6 +313,23 @@ bool IteratorInterface::isIterator() const
 }
 
 
+    //-------------------------//
+   //  KeyIteratorInterface   //
+  //-------------------------//
+
+
+//---------------------------------------------------------------------------
+KeyIteratorInterface::~KeyIteratorInterface()
+{
+}
+
+//---------------------------------------------------------------------------
+bool KeyIteratorInterface::isKeyIterator() const
+{
+  return true;
+}
+
+
     //--------------------------------//
    //  DictionaryIteratorInterface   //
   //--------------------------------//
@@ -325,6 +342,23 @@ DictionaryIteratorInterface::~DictionaryIteratorInterface()
 
 //---------------------------------------------------------------------------
 bool DictionaryIteratorInterface::isDictionaryIterator() const
+{
+  return true;
+}
+
+
+    //----------------------------//
+   //  IntKeyIteratorInterface   //
+  //----------------------------//
+
+
+//---------------------------------------------------------------------------
+IntKeyIteratorInterface::~IntKeyIteratorInterface()
+{
+}
+
+//---------------------------------------------------------------------------
+bool IntKeyIteratorInterface::isIntKeyIterator() const
 {
   return true;
 }
