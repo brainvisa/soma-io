@@ -172,17 +172,17 @@ void PropertySet::setProperty( const std::string &key, Object value )
 
 
 //-----------------------------------------------------------------------------
-bool PropertySet::removeProperty( const std::string &key )
+bool PropertySet::_erase( const std::string &key, bool force_builtin )
 {
   Properties::iterator it = _properties.find( key );
   if ( it != _properties.end() ) {
-    if ( it->second.builtin )
+    if ( !force_builtin && it->second.builtin )
       {
         if( it->second.builtin != &_mandatoryProperty && *it->second.builtin )
-          {
-            *it->second.builtin = false;
-            return true;
-          }
+        {
+          *it->second.builtin = false;
+          return true;
+        }
         return false;
       }
     for( PropertiesOrder::iterator it2 = _propertiesOrder.begin();

@@ -101,7 +101,8 @@ public:
   virtual void setProperty( const std::string &, Object );
   using DictionaryInterface::getProperty;
   using DictionaryInterface::setProperty;
-  virtual bool removeProperty( const std::string & );
+  virtual bool removeProperty( const std::string & key )
+  { return _erase( key ); }
   virtual bool hasProperty( const std::string & ) const;
   virtual size_t size() const;
   virtual void clearProperties();
@@ -113,6 +114,12 @@ public:
   class iterator;
 
   inline iterator getIterator() const;
+
+  /// change the reference to a builtin property
+  template <typename T> void changeBuiltinProperty( const std::string &, T & );
+  /// change the reference to an optional builtin property
+  template <typename T> void changeBuiltinProperty( const std::string &, T &,
+                                                    bool & provided );
 
 private:
 
@@ -156,6 +163,7 @@ public:
 private:
 
   inline void _insert( const std::string &key, const Property &value );
+  bool _erase( const std::string &key, bool force_builtin = false );
 
   Properties _properties;
   PropertiesOrder _propertiesOrder;
@@ -243,7 +251,7 @@ void PropertySet::addBuiltinProperty( const std::string &key, T &reference )
 
 //-----------------------------------------------------------------------------
 template <typename T> 
-void PropertySet::addBuiltinProperty( const std::string &key, T &reference, 
+void PropertySet::addBuiltinProperty( const std::string &key, T &reference,
                                       bool & provided )
 {
   Properties::iterator it = _properties.find( key );
@@ -252,6 +260,37 @@ void PropertySet::addBuiltinProperty( const std::string &key, T &reference,
   } else {
     throw std::runtime_error( std::string( "Built-in property " ) + key + 
                               " already exists" );
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+void PropertySet::changeBuiltinProperty( const std::string &key, T &reference )
+{
+  Properties::iterator it = _properties.find( key );
+  if ( it != _properties.end() ) {
+    _erase( key, true );
+    addBuiltinProperty( key, reference );
+  } else {
+    throw std::runtime_error( std::string( "Built-in property " ) + key +
+                              " does not exist" );
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+void PropertySet::changeBuiltinProperty( const std::string &key, T &reference,
+                                         bool & provided )
+{
+  Properties::iterator it = _properties.find( key );
+  if ( it != _properties.end() ) {
+    _erase( key, true );
+    addBuiltinProperty( key, reference, provided );
+  } else {
+    throw std::runtime_error( std::string( "Built-in property " ) + key +
+                              " does not exist" );
   }
 }
 
