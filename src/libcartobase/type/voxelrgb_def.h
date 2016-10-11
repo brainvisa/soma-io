@@ -35,6 +35,7 @@
 #define CARTOBASE_TYPE_RGB_DEF_H
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/type/types.h>
+#include <cartobase/type/voxelvalue_d.h>
 #include <cartobase/exception/assert.h>
 //--- system -----------------------------------------------------------------
 //#define CARTO_DEBUG_RGB
