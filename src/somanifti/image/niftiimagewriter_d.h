@@ -122,7 +122,8 @@ namespace
                                const T* data, int tmin, int tmax,
                                znzFile zfp, 
                                const std::vector<long> & strides,
-                               int vx, int vy, int vz, int ox, int oy, int oz )
+                               int vx, int vy, int vz, int ox, int oy, int oz,
+                               int ot )
   {
     bool scalef;
     std::vector<float> s(2);
@@ -171,7 +172,7 @@ namespace
               *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
             // calculate offset on disk
-            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
               + (y + oy) * dstrides[1] + ox * dstrides[0];
             offset2 = offset;
             offset -= cur_offset;
@@ -199,7 +200,7 @@ namespace
                                const carto::VoxelRGB*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -211,7 +212,7 @@ namespace
                                const carto::VoxelRGBA*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -223,7 +224,7 @@ namespace
                                const carto::VoxelHSV*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -235,7 +236,7 @@ namespace
                                const cfloat*,
                                int, int, znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -247,7 +248,7 @@ namespace
                                const cdouble*,
                                int, int, znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -356,8 +357,8 @@ namespace
     int tmin, tmax;
     if(tt < 0)
     {
-      tmin = ot;
-      tmax = ot + vt;
+      tmin = 0;
+      tmax = vt;
     }
     else
     {
@@ -367,7 +368,7 @@ namespace
 
     if( !source ||
         !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax,
-          zfp, strides, vx, vy, vz, ox, oy, oz ) )
+          zfp, strides, vx, vy, vz, ox, oy, oz, ot ) )
     {
       int  y, z, t;
       // region line size
@@ -415,7 +416,7 @@ namespace
             // else source is null: unallocated data, will write zeros.
 
             // calculate offset on disk
-            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
               + (y + oy) * dstrides[1] + ox * dstrides[0];
             offset2 = offset;
             offset -= cur_offset;
