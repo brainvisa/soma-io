@@ -215,7 +215,6 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   int            dim;
   Object         hdr = Object::value( PropertySet() );  // header
   int            c;
-  vector<float>  vs(4, 1.);
 
   //--- reading sizex, sizey, sizez, sizet -----------------------------------
   if( !StreamUtil::skip( *hds, " \t\n\r" ) )
@@ -233,6 +232,8 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
     c = hds->getch();
     hds->ungetch( c );
   }
+  size_t ndim = dims.size();
+  vector<float>  vs( ndim, 1. );
 
   const Syntax  &sx = DataSourceInfoLoader::minfSyntax()[ "__generic__" ];
 

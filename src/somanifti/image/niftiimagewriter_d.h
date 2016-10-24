@@ -81,10 +81,13 @@ namespace soma
   void NiftiImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    if( !dsi.header()->getProperty( "volume_dimension", _sizes[ 0 ] ) )
+    {
+      dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+      dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+      dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+      dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    }
 
     dsi.privateIOData()->getProperty( "nifti_structure", _nim );
   }
@@ -119,11 +122,11 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object & hdr,
                                nifti_image *nim, 
                                const soma::AffineTransformation3d & m,
-                               const T* data, int tmin, int tmax,
+                               const T* data,
                                znzFile zfp, 
                                const std::vector<long> & strides,
-                               int vx, int vy, int vz, int ox, int oy, int oz,
-                               int ot )
+                               const std::vector<int> & vsz,
+                               const std::vector<int> & opos )
   {
     bool scalef;
     std::vector<float> s(2);
@@ -133,7 +136,8 @@ namespace
         && hdr->getProperty( "scale_offset", s[1] ) )
     {
       soma::Point3df d0f;
-      std::vector<int> d0(4);
+      size_t dim, ndim = vsz.size();
+      std::vector<int> d0( ndim, 0  );
       soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
           - m.transform( soma::Point3df( 0, 0, 0 ) );
       std::vector<int> inc(3);
@@ -147,47 +151,66 @@ namespace
 
       // region line size
       long offset, cur_offset = 0, offset2;
-      std::vector<long> dstrides(4);
+      std::vector<long> dstrides( ndim, 0 );
       dstrides[0] = sizeof(int16_t);
-      dstrides[1] = nim->nx * dstrides[0];
-      dstrides[2] = nim->ny * dstrides[1];
-      dstrides[3] = nim->nz * dstrides[2];
+      for( dim=0; dim<ndim - 1; ++dim )
+        dstrides[ dim + 1 ] = nim->dim[dim] * dstrides[dim];
 
+      size_t vx = vsz[0];
       size_t numbytes = vx * sizeof( int16_t ), ss;
       std::vector<int16_t> buf( vx );
       int16_t *d = 0;
-      for( int t=tmin; t<tmax; ++t )
-        for( int z=0; z<vz; ++z )
-          for( int y=0; y<vy; ++y )
-          {
-            d0f = m.transform( soma::Point3df( 0, y, z ) );
-            d0[0] = int( rint( d0f[0] ) );
-            d0[1] = int( rint( d0f[1] ) );
-            d0[2] = int( rint( d0f[2] ) );
-            d0[3] = t;
-            d = &buf[0];
-            p0 = data + d0[3] * strides[3] + d0[2] * strides[2]
-              + d0[1] * strides[1] + d0[0] * strides[0];
-            for( int x=0; x<vx; ++x, p0 += pinc )
-              *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
-            // calculate offset on disk
-            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
-              + (y + oy) * dstrides[1] + ox * dstrides[0];
-            offset2 = offset;
-            offset -= cur_offset;
-            cur_offset = offset2 + numbytes;
-            znzseek( zfp, offset, SEEK_CUR );
-            // write at specified location
-            ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
-            if( ss != numbytes )
+      std::vector<int> volpos( ndim, 0 );
+      bool nextrow = false, ended = false;
+      while( !ended )
+      {
+        nextrow = true;
+        for( dim=1; dim<ndim; ++dim )
+        {
+          if( nextrow )
+          {
+            ++volpos[dim];
+            if( volpos[dim] == vsz[dim] )
             {
-              y = nim->ny;
-              z = nim->nz;
-              t = tmax;
-              carto::io_error::launchErrnoExcept();
+              if( dim == ndim - 1 )
+                ended = true;
+              volpos[dim] = 0;
             }
+            else
+              nextrow = false;
           }
+        }
+        if( !ended )
+        {
+          d0 = volpos;
+          d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
+          d0[0] = int( rint( d0f[0] ) );
+          d0[1] = int( rint( d0f[1] ) );
+          d0[2] = int( rint( d0f[2] ) );
+          d = &buf[0];
+          p0 = data;
+          offset = 0;
+          for( dim=0; dim<ndim; ++dim )
+          {
+            // memory pointer/offset
+            p0 += d0[dim] * strides[dim];
+            // disk offset
+            offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
+          }
+          for( int x=0; x<vx; ++x, p0 += pinc )
+            *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
+
+          offset2 = offset;
+          offset -= cur_offset;
+          cur_offset = offset2 + numbytes;
+          znzseek( zfp, offset, SEEK_CUR );
+          // write at specified location
+          ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
+          if( ss != numbytes )
+            carto::io_error::launchErrnoExcept();
+        }
+      }
       return true;
     }
     return false;
@@ -198,9 +221,10 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
                                const soma::AffineTransformation3d &,
                                const carto::VoxelRGB*,
-                               int, int, znzFile, 
+                               znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int, int )
+                               const std::vector<int> &,
+                               const std::vector<int> & )
   {
     return false;
   }
@@ -210,9 +234,10 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
                                const soma::AffineTransformation3d &,
                                const carto::VoxelRGBA*,
-                               int, int, znzFile, 
+                               znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int, int )
+                               const std::vector<int> &,
+                               const std::vector<int> & )
   {
     return false;
   }
@@ -222,9 +247,10 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
                                const soma::AffineTransformation3d &,
                                const carto::VoxelHSV*,
-                               int, int, znzFile, 
+                               znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int, int )
+                               const std::vector<int> &,
+                               const std::vector<int> & )
   {
     return false;
   }
@@ -234,9 +260,10 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
                                const soma::AffineTransformation3d &,
                                const cfloat*,
-                               int, int, znzFile,
+                               znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int, int )
+                               const std::vector<int> &,
+                               const std::vector<int> & )
   {
     return false;
   }
@@ -246,11 +273,102 @@ namespace
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
                                const soma::AffineTransformation3d &,
                                const cdouble*,
-                               int, int, znzFile,
+                               znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int, int )
+                               const std::vector<int> &,
+                               const std::vector<int> & )
   {
     return false;
+  }
+
+
+  template <typename T>
+  void writeWithoutScaleFactor( const carto::Object & hdr,
+                                nifti_image *nim,
+                                const soma::AffineTransformation3d & m,
+                                const T* data,
+                                znzFile zfp,
+                                const std::vector<long> & strides,
+                                const std::vector<int> & vsz,
+                                const std::vector<int> & opos )
+  {
+    soma::Point3df d0f;
+    size_t dim, ndim = vsz.size();
+    std::vector<int> d0( ndim, 0  );
+    soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
+        - m.transform( soma::Point3df( 0, 0, 0 ) );
+    std::vector<int> inc(3);
+    inc[0] = int( rint( incf[0] ) );
+    inc[1] = int( rint( incf[1] ) );
+    inc[2] = int( rint( incf[2] ) );
+    long pinc = inc[2] * strides[2]
+      + inc[1] * strides[1]
+      + inc[0] * strides[0];
+    const T *p0;
+
+    // region line size
+    long offset, cur_offset = 0, offset2;
+    std::vector<long> dstrides( ndim, 0 );
+    dstrides[0] = sizeof(T);
+    for( dim=0; dim<ndim - 1; ++dim )
+      dstrides[ dim + 1 ] = nim->dim[dim + 1] * dstrides[dim];
+
+    size_t vx = vsz[0];
+    size_t numbytes = vx * sizeof( T ), ss;
+    std::vector<T> buf( vx );
+    T *d = 0;
+
+    std::vector<int> volpos( ndim, 0 );
+    bool nextrow = false, ended = false;
+    while( !ended )
+    {
+      nextrow = true;
+      for( dim=1; dim<ndim; ++dim )
+      {
+        if( nextrow )
+        {
+          ++volpos[dim];
+          if( volpos[dim] == vsz[dim] )
+          {
+            if( dim == ndim - 1 )
+              ended = true;
+            volpos[dim] = 0;
+          }
+          else
+            nextrow = false;
+        }
+      }
+
+      if( !ended )
+      {
+        d0 = volpos;
+        d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
+        d0[0] = int( rint( d0f[0] ) );
+        d0[1] = int( rint( d0f[1] ) );
+        d0[2] = int( rint( d0f[2] ) );
+        d = &buf[0];
+        p0 = data;
+        offset = 0;
+        for( dim=0; dim<ndim; ++dim )
+        {
+          // memory pointer/offset
+          p0 += d0[dim] * strides[dim];
+          // disk offset
+          offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
+        }
+        for( int x=0; x<vx; ++x, p0 += pinc )
+          *d++ = *p0;
+
+        offset2 = offset;
+        offset -= cur_offset;
+        cur_offset = offset2 + numbytes;
+        znzseek( zfp, offset, SEEK_CUR );
+        // write at specified location
+        ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
+        if( ss != numbytes )
+          carto::io_error::launchErrnoExcept();
+      }
+    }
   }
 
 
@@ -314,10 +432,10 @@ namespace
     soma::Point3df vsize = m2s.transform(
       soma::Point3df( size[0], size[1], size[2] ) )
       - m2s.transform( p0 );
-    int  vx = int( rint( fabs( vsize[ 0 ] ) ) );
-    int  vy = int( rint( fabs( vsize[ 1 ] ) ) );
-    int  vz = int( rint( fabs( vsize[ 2 ] ) ) );
-    int  vt = size[ 3 ];
+    std::vector<int> tr_size = size;
+    tr_size[0] = int( rint( fabs( vsize[ 0 ] ) ) );
+    tr_size[1] = int( rint( fabs( vsize[ 1 ] ) ) );
+    tr_size[2] = int( rint( fabs( vsize[ 2 ] ) ) );
 
     // region position, in disk orientation
     soma::Point3df orig = m2s.transform(
@@ -325,115 +443,51 @@ namespace
     soma::Point3df pend = m2s.transform(
       soma::Point3df( pos[0] + size[0] - 1, pos[1] + size[1] - 1,
                       pos[2] + size[2] - 1 ) );
-    int  ox = std::min( int( rint( fabs( orig[ 0 ] ) ) ),
-                        int( rint( fabs( pend[ 0 ] ) ) ) );
-    int  oy = std::min( int( rint( fabs( orig[ 1 ] ) ) ),
-                        int( rint( fabs( pend[ 1 ] ) ) ) );
-    int  oz = std::min( int( rint( fabs( orig[ 2 ] ) ) ),
-                        int( rint( fabs( pend[ 2 ] ) ) ) );
-    int  ot = pos[ 3 ];
-
+    std::vector<int> tr_pos = pos;
+    if( tr_pos.size() < tr_size.size() )
+      tr_pos.resize( tr_size.size(), 0 );
+    tr_pos[0] = std::min( int( rint( fabs( orig[ 0 ] ) ) ),
+                          int( rint( fabs( pend[ 0 ] ) ) ) );
+    tr_pos[1] = std::min( int( rint( fabs( orig[ 1 ] ) ) ),
+                          int( rint( fabs( pend[ 1 ] ) ) ) );
+    tr_pos[2] = std::min( int( rint( fabs( orig[ 2 ] ) ) ),
+                          int( rint( fabs( pend[ 2 ] ) ) ) );
     // TODO: still need a s2m matrix for the memory object
     // memory volume-size s2m
     mems2m = m;
-    p = soma::Point3df( vx - 1, 0, 0 );
+    p = soma::Point3df( tr_size[0] - 1, 0, 0 );
     tp = mems2m.transform( soma::Point3df( 1, 0, 0 ) ) - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 2 );
-    p = soma::Point3df( 0, vy - 1, 0 );
+    p = soma::Point3df( 0, tr_size[1] - 1, 0 );
     tp = mems2m.transform( soma::Point3df( 0, 1, 0 ) )
       - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 2 );
-    p = soma::Point3df( 0, 0, vz - 1 );
+    p = soma::Point3df( 0, 0, tr_size[2] - 1 );
     tp = mems2m.transform( soma::Point3df( 0, 0, 1 ) )
       - mems2m.transform( p0 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 2 );
 
+    size_t dim, ndim = sizes[0].size();
+
     int tmin, tmax;
-    if(tt < 0)
+    if( tt >= 0 )
     {
-      tmin = 0;
-      tmax = vt;
-    }
-    else
-    {
-      tmin = tt;
-      tmax = tt+1;
+      for( dim=4; dim<ndim; ++dim )
+        tr_size[dim] = 1;
+      tr_pos[3] =  tt;
     }
 
     if( !source ||
-        !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax,
-          zfp, strides, vx, vy, vz, ox, oy, oz, ot ) )
-    {
-      int  y, z, t;
-      // region line size
-      long offset, cur_offset = 0, offset2;
-      std::vector<long> dstrides(4);
-      dstrides[0] = sizeof(T);
-      dstrides[1] = nim->nx * dstrides[0];
-      dstrides[2] = nim->ny * dstrides[1];
-      dstrides[3] = nim->nz * dstrides[2];
-
-      soma::Point3df d0f;
-      std::vector<int> d0(4);
-      soma::Point3df incf = mems2m.transform( soma::Point3df( 1, 0, 0 ) )
-          - mems2m.transform( p0 );
-      std::vector<int> inc(3);
-      inc[0] = int( rint( incf[0] ) );
-      inc[1] = int( rint( incf[1] ) );
-      inc[2] = int( rint( incf[2] ) );
-
-      long pinc = inc[2] * strides[2]
-        + inc[1] * strides[1]
-        + inc[0] * strides[0];
-      const T *pt0;
-      size_t numbytes = vx * sizeof( T ), ss;
-      std::vector<T> buf( vx, T(0) );
-      T *d = 0;
-
-      for( int t=tmin; t<tmax; ++t )
-        for( int z=0; z<vz; ++z )
-          for( int y=0; y<vy; ++y )
-          {
-            if( source )
-            {
-              d0f = mems2m.transform( soma::Point3df( 0, y, z ) );
-              d0[0] = int( rint( d0f[0] ) );
-              d0[1] = int( rint( d0f[1] ) );
-              d0[2] = int( rint( d0f[2] ) );
-              d0[3] = t;
-              pt0 = source + d0[3] * strides[3] + d0[2] * strides[2]
-                + d0[1] * strides[1] + d0[0] * strides[0];
-              d = &buf[0];
-              for( int x=0; x<vx; ++x, pt0 += pinc )
-                *d++ = *pt0;
-            }
-            // else source is null: unallocated data, will write zeros.
-
-            // calculate offset on disk
-            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
-              + (y + oy) * dstrides[1] + ox * dstrides[0];
-            offset2 = offset;
-            offset -= cur_offset;
-            cur_offset = offset2 + numbytes;
-            znzseek( zfp, offset, SEEK_CUR );
-            // write at specified location
-            ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
-            if( ss != numbytes )
-            {
-              // ok = false;
-              y = nim->ny;
-              z = nim->nz;
-              t = tmax;
-              carto::io_error::launchErrnoExcept();
-            }
-          }
-    }
+        !expandNiftiScaleFactor( hdr, nim, mems2m, source,
+          zfp, strides, tr_size, tr_pos ) )
+      writeWithoutScaleFactor( hdr, nim, mems2m, source,
+        zfp, strides, tr_size, tr_pos );
   }
 
 } // namespace {}
@@ -1067,12 +1121,15 @@ namespace soma
 
     /* Dimensions of grid array */
     std::vector<int> dims(4, 1);
-    hdr->getProperty( "sizeX", dims[0] );
-    hdr->getProperty( "sizeY", dims[1] );
-    hdr->getProperty( "sizeZ", dims[2] );
-    hdr->getProperty( "sizeT", dims[3] );
+    if( !hdr->getProperty( "volume_dimension", dims ) )
+    {
+      hdr->getProperty( "sizeX", dims[0] );
+      hdr->getProperty( "sizeY", dims[1] );
+      hdr->getProperty( "sizeZ", dims[2] );
+      hdr->getProperty( "sizeT", dims[3] );
+    }
 
-    if( dims[3] == 1 )
+    if( dims.size() == 4 && dims[3] == 1 )
     {
       dims.erase( dims.begin() + 3 );
       if( dims[2] == 1 )
@@ -1105,11 +1162,10 @@ namespace soma
     AffineTransformation3d m2s = s2m.inverse();
     Point3df df = m2s.transform( Point3df( dims[0], dims[1], dims[2] ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
-    std::vector<int> tdims(4);
+    std::vector<int> tdims = dims;
     tdims[0] = short( rint( fabs( df[0] ) ) );
     tdims[1] = short( rint( fabs( df[1] ) ) );
     tdims[2] = short( rint( fabs( df[2] ) ) );
-    tdims[3] = dims[3];
     // fix s2m dims if needed (happens in case image dims have changed)
     s2m.matrix(0,3) = 0; // erase initial translation
     s2m.matrix(1,3) = 0;
@@ -1126,14 +1182,12 @@ namespace soma
     s2m.matrix(1,3) = pp[1];
     s2m.matrix(2,3) = pp[2];
 
+    size_t dim, ndim = dims.size();
     nim->ndim = nim->dim[0] = dims.size();
-    nim->dim[1] = tdims[0];
-    nim->dim[2] = tdims[1];
-    nim->dim[3] = tdims[2];
-    nim->dim[4] = tdims[3];
-    unsigned i;
-    for( i=dims.size()+1; i<8; ++i )
-      nim->dim[i] = 1;
+    for( dim=0; dim<ndim; ++dim )
+      nim->dim[dim + 1] = tdims[dim];
+    for( dim=ndim+1; dim<8; ++dim )
+      nim->dim[dim] = 1;
     nim->nx = nim->dim[1];
     nim->ny = nim->dim[2];
     nim->nz = nim->dim[3];
@@ -1156,16 +1210,16 @@ namespace soma
 
     /* Grid spacings */
     Object vso;
-    std::vector<float> vs( 4, 1.F );
+    std::vector<float> vs( ndim, 1.F );
     try
     {
       vso = hdr->getProperty( "voxel_size" );
       if( vso )
       {
         Object vso_it = vso->objectIterator();
-        for( i=0; i<4 && vso_it->isValid(); vso_it->next(), ++i )
+        for( dim=0; dim<ndim && vso_it->isValid(); vso_it->next(), ++dim )
         {
-          vs[i] = float( vso_it->currentValue()->getScalar() );
+          vs[dim] = float( vso_it->currentValue()->getScalar() );
         }
       }
     }
@@ -1177,19 +1231,16 @@ namespace soma
 
     df = m2s.transform( Point3df( vs[0], vs[1], vs[2] ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
-    std::vector<float> tvs(4);
+    std::vector<float> tvs = vs;
     tvs[0] = fabs( df[0] );
     tvs[1] = fabs( df[1] );
     tvs[2] = fabs( df[2] );
-    tvs[3] = vs[3];
 
     nim->pixdim[0] = 0;
-    nim->pixdim[1] = tvs[0];
-    nim->pixdim[2] = tvs[1];
-    nim->pixdim[3] = tvs[2];
-    nim->pixdim[4] = tvs[3];
-    for( i=vs.size()+1; i<8; ++i )
-      nim->pixdim[i] = 1.0;
+    for( dim=0; dim<ndim; ++dim )
+      nim->pixdim[dim + 1] = tvs[dim];
+    for( dim=ndim+1; dim<8; ++dim )
+      nim->pixdim[dim] = 1.0;
     nim->dx = nim->pixdim[1];
     nim->dy = nim->pixdim[2];
     nim->dz = nim->pixdim[3];
@@ -1371,6 +1422,7 @@ namespace soma
     // s2m orientation codes
     std::vector<float> mvec = s2m.toVector();
     mat44 S2M_m44;
+    int i;
     for( i=0; i<4; ++i )
       for( int j=0; j<4; ++j )
         S2M_m44.m[i][j] = mvec[j+4*i];

@@ -296,7 +296,6 @@ namespace soma {
                 throw carto::eof_error( url() );
           }
         }
-
       }
     }
     catch( std::exception & e )
