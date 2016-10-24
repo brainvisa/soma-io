@@ -199,7 +199,12 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   hdrdata->setProperty( "sizeY", (int)rsizes[resolution][1] );
   hdrdata->setProperty( "sizeZ", (int)rsizes[resolution][2] );
   hdrdata->setProperty( "sizeT", (int)rsizes[resolution][3] );
-  hdrdata->setProperty( "volume_dimension", rsizes[resolution] );
+  vector<int> dims;
+  dims.reserve( rsizes[resolution].size() );
+  vector<int64_t>::const_iterator irs, ers = rsizes[resolution].end();
+  for( irs=rsizes[resolution].begin(); irs!=ers; ++irs )
+    dims.push_back( (int) *irs );
+  hdrdata->setProperty( "volume_dimension", dims );
   hdrdata->setProperty( "resolutions_dimension", rsizes );
   hdrdata->setProperty( "format", string( "OpenSlide" ) );
   hdrdata->setProperty( "voxel_size", vs );

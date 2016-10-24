@@ -211,7 +211,8 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   DefaultAsciiItemReader<float>   fir;
 
   string         token, type, byteord, binar;
-  int            sizex = 1, sizey = 1, sizez = 1, sizet = 1;
+  vector<int>    dims;
+  int            dim;
   Object         hdr = Object::value( PropertySet() );  // header
   int            c;
   vector<float>  vs(4, 1.);
@@ -219,31 +220,18 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
   //--- reading sizex, sizey, sizez, sizet -----------------------------------
   if( !StreamUtil::skip( *hds, " \t\n\r" ) )
     throw wrong_format_error( fname );
-  if( iir.read( *hds, &sizex ) != 1 )
-    throw wrong_format_error( fname );
-  if( !StreamUtil::skip( *hds, " \t" ) )
-    throw wrong_format_error( fname );
   c = hds->getch();
   hds->ungetch( c );
-  if( c != '\n' && c != '\r' ) {
-    if( iir.read( *hds, &sizey ) != 1 )
+  while( c != '\n' && c != '\r' )
+  {
+    if( iir.read( *hds, &dim ) != 1 )
       throw wrong_format_error( fname );
+    else
+      dims.push_back( dim );
     if( !StreamUtil::skip( *hds, " \t" ) )
       throw wrong_format_error( fname );
     c = hds->getch();
     hds->ungetch( c );
-    if( c != '\n' && c != '\r' ) {
-      if( iir.read( *hds, &sizez ) != 1 )
-        throw wrong_format_error( fname );
-      if( !StreamUtil::skip( *hds, " \t" ) )
-        throw wrong_format_error( fname );
-      c = hds->getch();
-      hds->ungetch( c );
-      if( c != '\n' && c != '\r' ) {
-        if( iir.read( *hds, &sizet ) != 1 )
-          throw wrong_format_error( fname );
-      }
-    }
   }
 
   const Syntax  &sx = DataSourceInfoLoader::minfSyntax()[ "__generic__" ];
@@ -326,18 +314,21 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
                                  "end ?", fname );
   }
 
-  /*
-  vector<int> sz(4);
-  sz[0] = sizex;
-  sz[1] = sizey;
-  sz[2] = sizez;
-  sz[3] = sizet;
-  hdr->setProperty( "volume_dimension", sz );
-  */
-  hdr->setProperty( "sizeX", sizex );
-  hdr->setProperty( "sizeY", sizey );
-  hdr->setProperty( "sizeZ", sizez );
-  hdr->setProperty( "sizeT", sizet );
+  hdr->setProperty( "volume_dimension", dims );
+  if( dims.size() >= 1 )
+  {
+    hdr->setProperty( "sizeX", dims[0] );
+    if( dims.size() >= 2 )
+    {
+      hdr->setProperty( "sizeY", dims[1] );
+      if( dims.size() >= 3 )
+      {
+        hdr->setProperty( "sizeZ", dims[2] );
+        if( dims.size() >= 4 )
+          hdr->setProperty( "sizeT", dims[3] );
+      }
+    }
+  }
   hdr->setProperty( "format", string( "GIS" ) );
   hdr->setProperty( "voxel_size", vs );
   // the following shape is more logical, but incompatible with AIMS.

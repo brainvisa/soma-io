@@ -416,13 +416,16 @@ namespace soma {
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
     std::vector<int> dims( 4, 0 );
-    dsi.header()->getProperty( "sizeX", dims[ 0 ] );
-    dsi.header()->getProperty( "sizeY", dims[ 1 ] );
-    dsi.header()->getProperty( "sizeZ", dims[ 2 ] );
-    dsi.header()->getProperty( "sizeT", dims[ 3 ] );
-    minf->setProperty( "volume_dimension", dims );
+    if( !minf->getProperty( "volume_dimension", dims ) )
+    {
+      minf->getProperty( "sizeX", dims[ 0 ] );
+      minf->getProperty( "sizeY", dims[ 1 ] );
+      minf->getProperty( "sizeZ", dims[ 2 ] );
+      minf->getProperty( "sizeT", dims[ 3 ] );
+      minf->setProperty( "volume_dimension", dims );
+    }
     minf->setProperty( "voxel_size",
-                       dsi.header()->getProperty( "voxel_size" ) );
+                       minf->getProperty( "voxel_size" ) );
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
