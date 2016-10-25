@@ -54,6 +54,7 @@ namespace carto
     NDIterator_base & operator ++();
 
     bool ended() const;
+    virtual void reset();
 
   protected:
     std::vector<int> _dims;
@@ -168,6 +169,13 @@ namespace carto
   inline bool NDIterator_base::ended() const
   {
     return _ended;
+  }
+
+
+  void NDIterator_base::reset()
+  {
+    _offset = 0;
+    _position = std::vector<int>( _dims.size(), 0 );
   }
 
 

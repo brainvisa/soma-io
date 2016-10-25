@@ -263,6 +263,7 @@ namespace soma {
         int dim;
         bool nextrow = false, ended = false;
         size_t stride;
+        volpos[1] = -1;
         dpos[0] = pos[0];
         while( !ended )
         {

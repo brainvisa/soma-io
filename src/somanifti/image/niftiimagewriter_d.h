@@ -162,6 +162,7 @@ namespace
       int16_t *d = 0;
 
       std::vector<int> volpos( ndim, 0 );
+      volpos[1] = -1;
       bool nextrow = false, ended = false;
       while( !ended )
       {
@@ -319,6 +320,7 @@ namespace
     T *d = 0;
 
     std::vector<int> volpos( ndim, 0 );
+    volpos[1] = -1;
     bool nextrow = false, ended = false;
     while( !ended )
     {

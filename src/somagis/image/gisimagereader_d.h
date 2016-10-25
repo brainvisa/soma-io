@@ -246,6 +246,7 @@ namespace soma {
     try
     {
       std::vector<int> volpos( ndim, 0 ), dpos( ndim, 0 );
+      volpos[1] = -1;
       int dim;
       bool nextrow = false, ended = false;
       size_t stride;
