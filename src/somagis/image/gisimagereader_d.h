@@ -280,12 +280,18 @@ namespace soma {
           // FIXME: stride[0] not taken into account for now
           char * target = (char *)( dest + stride );
           if( ( readout = readBlock( target, len ) ) != (long) len ) {
-            localMsg( "readBlock( failed at ( " +
-                      carto::toString( y ) + ", " +
-                      carto::toString( z ) + ", " +
-                      carto::toString( t ) + " ) : " +
-                      carto::toString( readout / sizeof(T) ) + " != " +
-                      carto::toString( (long) len / sizeof( T ) ) );
+#ifdef CARTO_DEBUG
+           std::cerr << "readBlock( failed at ( ";
+            for (int d=0; d < ndim; ++d){
+                if (d > 0)
+                    std::cerr << ",";
+                std::cerr << carto::toString(volpos[d]);
+            }
+            std::cerr << ") : "
+                      << carto::toString( readout / sizeof(T) ) + " != " +
+                         carto::toString( (long) len / sizeof( T ) )
+                      << std::endl;
+#endif
             throw carto::eof_error( url() );
           }
         }
