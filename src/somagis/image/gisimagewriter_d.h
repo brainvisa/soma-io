@@ -51,6 +51,7 @@
 #include <cartobase/object/property.h>                      // header, options
 #include <cartobase/type/types.h>                           // to write header
 #include <cartobase/stream/fileutil.h>                          // utilitaires
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -259,43 +260,22 @@ namespace soma {
       }
       else
       {
-        std::vector<int> volpos( ndim, 0 ), dpos( ndim, 0 );
+        std::vector<int> dpos( ndim, 0 );
         int dim;
-        bool nextrow = false, ended = false;
-        size_t stride;
-        volpos[1] = -1;
         dpos[0] = pos[0];
-        while( !ended )
+        const_line_NDIterator<T> it( source, size, strides );
+
+        for( ; !it.ended(); ++it )
         {
-          nextrow = true;
-          stride = 0;
           for( dim=1; dim<ndim; ++dim )
-          {
-            if( nextrow )
-            {
-              ++volpos[dim];
-              if( volpos[dim] == size[dim] )
-              {
-                if( dim == ndim - 1 )
-                  ended = true;
-                volpos[dim] = 0;
-              }
-              else
-                nextrow = false;
-            }
-            stride += strides[dim] * volpos[dim];
-            dpos[dim] = volpos[dim] + pos[dim];
-          }
-          if( !ended )
-          {
-            // we move in the file
-            setpos( dpos );
-            // we move in the buffer
-            // FIXME: stride[0] not taken into account for now
-            char * target = (char *)( source + stride );
-            if( writeBlock( target, len ) != (long) len )
-                throw carto::eof_error( url() );
-          }
+            dpos[dim] = it.position()[dim] + pos[dim];
+          // we move in the file
+          setpos( dpos );
+          // we move in the buffer
+          // FIXME: stride[0] not taken into account for now
+          const char * target = (char *) &*it;
+          if( writeBlock( target, len ) != (long) len )
+              throw carto::eof_error( url() );
         }
       }
     }

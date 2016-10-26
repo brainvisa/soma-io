@@ -47,6 +47,10 @@ namespace carto
     NDIterator_base( const std::vector<int> & dims );
     NDIterator_base( const std::vector<int> & dims,
                      const std::vector<int> & strides );
+    NDIterator_base( const std::vector<int> & dims,
+                     const std::vector<size_t> & strides );
+    NDIterator_base( const std::vector<int> & dims,
+                     const std::vector<long> & strides );
     virtual ~NDIterator_base() {}
     const std::vector<int> & position() const;
     offset_t offset() const;
@@ -57,8 +61,11 @@ namespace carto
     virtual void reset();
 
   protected:
+    template <typename T>
+    static std::vector<size_t> to_int_v( const std::vector<T> & v );
+
     std::vector<int> _dims;
-    std::vector<int> _strides;
+    std::vector<size_t> _strides;
     std::vector<int> _position;
     offset_t _offset;
     bool _ended;
@@ -70,7 +77,11 @@ namespace carto
   public:
     line_NDIterator_base( const std::vector<int> & dims );
     line_NDIterator_base( const std::vector<int> & dims,
-                     const std::vector<int> & strides );
+                          const std::vector<int> & strides );
+    line_NDIterator_base( const std::vector<int> & dims,
+                          const std::vector<size_t> & strides );
+    line_NDIterator_base( const std::vector<int> & dims,
+                          const std::vector<long> & strides );
     virtual ~line_NDIterator_base() {}
 
     NDIterator_base & operator ++();
@@ -83,6 +94,10 @@ namespace carto
     NDIterator( T* buffer, const std::vector<int> & dims );
     NDIterator( T* buffer, const std::vector<int> & dims,
                 const std::vector<int> & strides );
+    NDIterator( T*buffer, const std::vector<int> & dims,
+                const std::vector<size_t> & strides );
+    NDIterator( T* buffer, const std::vector<int> & dims,
+                const std::vector<long> & strides );
     virtual ~NDIterator() {}
 
     T & operator * () const;
@@ -98,6 +113,10 @@ namespace carto
     const_NDIterator( const T* buffer, const std::vector<int> & dims );
     const_NDIterator( const T* buffer, const std::vector<int> & dims,
                       const std::vector<int> & strides );
+    const_NDIterator( const T* buffer, const std::vector<int> & dims,
+                      const std::vector<size_t> & strides );
+    const_NDIterator( const T* buffer, const std::vector<int> & dims,
+                      const std::vector<long> & strides );
     virtual ~const_NDIterator() {}
 
     const T & operator * () const;
@@ -113,6 +132,10 @@ namespace carto
     line_NDIterator( T* buffer, const std::vector<int> & dims );
     line_NDIterator( T* buffer, const std::vector<int> & dims,
                      const std::vector<int> & strides );
+    line_NDIterator( T* buffer, const std::vector<int> & dims,
+                     const std::vector<size_t> & strides );
+    line_NDIterator( T* buffer, const std::vector<int> & dims,
+                     const std::vector<long> & strides );
     virtual ~line_NDIterator() {}
 
     T & operator * () const;
@@ -129,6 +152,10 @@ namespace carto
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims );
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
                            const std::vector<int> & strides );
+    const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
+                           const std::vector<size_t> & strides );
+    const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
+                           const std::vector<long> & strides );
     virtual ~const_line_NDIterator() {}
 
     const T & operator * () const;
@@ -143,14 +170,40 @@ namespace carto
   inline NDIterator_base::NDIterator_base( const std::vector<int> & dims )
     : _dims( dims ), _position( dims.size(), 0 ), _offset( 0 ), _ended( false )
   {
+    if( dims.empty() )
+      _ended = true;
   }
 
 
   inline NDIterator_base::NDIterator_base( const std::vector<int> & dims,
     const std::vector<int> & strides )
+    : _dims( dims ), _strides( NDIterator_base::to_int_v( strides ) ),
+      _position( dims.size(), 0 ),
+      _offset( 0 ), _ended( false )
+  {
+    if( dims.empty() )
+      _ended = true;
+  }
+
+
+  inline NDIterator_base::NDIterator_base( const std::vector<int> & dims,
+    const std::vector<size_t> & strides )
     : _dims( dims ), _strides( strides ), _position( dims.size(), 0 ),
       _offset( 0 ), _ended( false )
   {
+    if( dims.empty() )
+      _ended = true;
+  }
+
+
+  inline NDIterator_base::NDIterator_base( const std::vector<int> & dims,
+    const std::vector<long> & strides )
+    : _dims( dims ), _strides( NDIterator_base::to_int_v( strides ) ),
+      _position( dims.size(), 0 ),
+      _offset( 0 ), _ended( false )
+  {
+    if( dims.empty() )
+      _ended = true;
   }
 
 
@@ -172,10 +225,22 @@ namespace carto
   }
 
 
-  void NDIterator_base::reset()
+  inline void NDIterator_base::reset()
   {
     _offset = 0;
     _position = std::vector<int>( _dims.size(), 0 );
+  }
+
+
+  template <typename T> inline
+  std::vector<size_t> NDIterator_base::to_int_v( const std::vector<T> & v )
+  {
+    std::vector<size_t> ov( v.size() );
+    std::vector<size_t>::iterator io = ov.begin();
+    typename std::vector<T>::const_iterator i, e = v.end();
+    for( i=v.begin(); i!=e; ++i, ++io )
+      *io = (size_t) *i;
+    return ov;
   }
 
 
@@ -211,6 +276,8 @@ namespace carto
     const std::vector<int> & dims )
     : NDIterator_base( dims )
   {
+    if( dims.size() < 2 )
+      _ended = true;
   }
 
 
@@ -218,6 +285,26 @@ namespace carto
     const std::vector<int> & dims, const std::vector<int> & strides )
     : NDIterator_base( dims, strides )
   {
+    if( dims.size() < 2 )
+      _ended = true;
+  }
+
+
+  inline line_NDIterator_base::line_NDIterator_base(
+    const std::vector<int> & dims, const std::vector<size_t> & strides )
+    : NDIterator_base( dims, strides )
+  {
+    if( dims.size() < 2 )
+      _ended = true;
+  }
+
+
+  inline line_NDIterator_base::line_NDIterator_base(
+    const std::vector<int> & dims, const std::vector<long> & strides )
+    : NDIterator_base( dims, strides )
+  {
+    if( dims.size() < 2 )
+      _ended = true;
   }
 
 
@@ -259,6 +346,22 @@ namespace carto
   template <typename T> inline
   NDIterator<T>::NDIterator( T* buffer, const std::vector<int> & dims,
                              const std::vector<int> & strides )
+    : NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  NDIterator<T>::NDIterator( T* buffer, const std::vector<int> & dims,
+                             const std::vector<size_t> & strides )
+    : NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  NDIterator<T>::NDIterator( T* buffer, const std::vector<int> & dims,
+                             const std::vector<long> & strides )
     : NDIterator_base( dims, strides ), _buffer( buffer )
   {
   }
@@ -312,6 +415,22 @@ namespace carto
   }
 
 
+  template <typename T> inline
+  line_NDIterator<T>::line_NDIterator( T* buffer, const std::vector<int> & dims,
+                                       const std::vector<size_t> & strides )
+    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  line_NDIterator<T>::line_NDIterator( T* buffer, const std::vector<int> & dims,
+                                       const std::vector<long> & strides )
+    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
   template <typename T> inline T & line_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
@@ -331,6 +450,24 @@ namespace carto
   const_line_NDIterator<T>::const_line_NDIterator(
     const T* buffer, const std::vector<int> & dims,
     const std::vector<int> & strides )
+    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  const_line_NDIterator<T>::const_line_NDIterator(
+    const T* buffer, const std::vector<int> & dims,
+    const std::vector<size_t> & strides )
+    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  const_line_NDIterator<T>::const_line_NDIterator(
+    const T* buffer, const std::vector<int> & dims,
+    const std::vector<long> & strides )
     : line_NDIterator_base( dims, strides ), _buffer( buffer )
   {
   }

@@ -62,6 +62,7 @@
 #include <cartobase/type/voxelrgba.h>
 #include <cartobase/type/voxelhsv.h>
 #include <cartobase/config/version.h>
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -161,56 +162,36 @@ namespace
       std::vector<int16_t> buf( vx );
       int16_t *d = 0;
 
-      std::vector<int> volpos( ndim, 0 );
-      volpos[1] = -1;
-      bool nextrow = false, ended = false;
-      while( !ended )
+      carto::line_NDIterator_base it( vsz, strides );
+      for( ; !it.ended(); ++it )
       {
-        nextrow = true;
-        for( dim=1; dim<ndim; ++dim )
+        const std::vector<int> & volpos = it.position();
+        d0 = volpos;
+        d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
+        d0[0] = int( rint( d0f[0] ) );
+        d0[1] = int( rint( d0f[1] ) );
+        d0[2] = int( rint( d0f[2] ) );
+        d = &buf[0];
+        p0 = data;
+        offset = 0;
+        for( dim=0; dim<ndim; ++dim )
         {
-          if( nextrow )
-          {
-            ++volpos[dim];
-            if( volpos[dim] == vsz[dim] )
-            {
-              if( dim == ndim - 1 )
-                ended = true;
-              volpos[dim] = 0;
-            }
-            else
-              nextrow = false;
-          }
+          // memory pointer/offset
+          p0 += d0[dim] * strides[dim];
+          // disk offset
+          offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
         }
-        if( !ended )
-        {
-          d0 = volpos;
-          d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
-          d0[0] = int( rint( d0f[0] ) );
-          d0[1] = int( rint( d0f[1] ) );
-          d0[2] = int( rint( d0f[2] ) );
-          d = &buf[0];
-          p0 = data;
-          offset = 0;
-          for( dim=0; dim<ndim; ++dim )
-          {
-            // memory pointer/offset
-            p0 += d0[dim] * strides[dim];
-            // disk offset
-            offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
-          }
-          for( int x=0; x<vx; ++x, p0 += pinc )
-            *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
+        for( int x=0; x<vx; ++x, p0 += pinc )
+          *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
-          offset2 = offset;
-          offset -= cur_offset;
-          cur_offset = offset2 + numbytes;
-          znzseek( zfp, offset, SEEK_CUR );
-          // write at specified location
-          ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
-          if( ss != numbytes )
-            carto::io_error::launchErrnoExcept();
-        }
+        offset2 = offset;
+        offset -= cur_offset;
+        cur_offset = offset2 + numbytes;
+        znzseek( zfp, offset, SEEK_CUR );
+        // write at specified location
+        ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
+        if( ss != numbytes )
+          carto::io_error::launchErrnoExcept();
       }
       return true;
     }
@@ -319,57 +300,36 @@ namespace
     std::vector<T> buf( vx );
     T *d = 0;
 
-    std::vector<int> volpos( ndim, 0 );
-    volpos[1] = -1;
-    bool nextrow = false, ended = false;
-    while( !ended )
+    carto::line_NDIterator_base it( vsz, strides );
+    for( ; !it.ended(); ++it )
     {
-      nextrow = true;
-      for( dim=1; dim<ndim; ++dim )
+      const std::vector<int> & volpos = it.position();
+      d0 = volpos;
+      d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
+      d0[0] = int( rint( d0f[0] ) );
+      d0[1] = int( rint( d0f[1] ) );
+      d0[2] = int( rint( d0f[2] ) );
+      d = &buf[0];
+      p0 = data;
+      offset = 0;
+      for( dim=0; dim<ndim; ++dim )
       {
-        if( nextrow )
-        {
-          ++volpos[dim];
-          if( volpos[dim] == vsz[dim] )
-          {
-            if( dim == ndim - 1 )
-              ended = true;
-            volpos[dim] = 0;
-          }
-          else
-            nextrow = false;
-        }
+        // memory pointer/offset
+        p0 += d0[dim] * strides[dim];
+        // disk offset
+        offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
       }
+      for( int x=0; x<vx; ++x, p0 += pinc )
+        *d++ = *p0;
 
-      if( !ended )
-      {
-        d0 = volpos;
-        d0f = m.transform( soma::Point3df( 0, volpos[1], volpos[2] ) );
-        d0[0] = int( rint( d0f[0] ) );
-        d0[1] = int( rint( d0f[1] ) );
-        d0[2] = int( rint( d0f[2] ) );
-        d = &buf[0];
-        p0 = data;
-        offset = 0;
-        for( dim=0; dim<ndim; ++dim )
-        {
-          // memory pointer/offset
-          p0 += d0[dim] * strides[dim];
-          // disk offset
-          offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
-        }
-        for( int x=0; x<vx; ++x, p0 += pinc )
-          *d++ = *p0;
-
-        offset2 = offset;
-        offset -= cur_offset;
-        cur_offset = offset2 + numbytes;
-        znzseek( zfp, offset, SEEK_CUR );
-        // write at specified location
-        ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
-        if( ss != numbytes )
-          carto::io_error::launchErrnoExcept();
-      }
+      offset2 = offset;
+      offset -= cur_offset;
+      cur_offset = offset2 + numbytes;
+      znzseek( zfp, offset, SEEK_CUR );
+      // write at specified location
+      ss = znzwrite( (void*) &buf[0] , 1 , numbytes , zfp );
+      if( ss != numbytes )
+        carto::io_error::launchErrnoExcept();
     }
   }
 
