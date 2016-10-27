@@ -272,6 +272,8 @@ namespace soma
     // dest is supposed to be allocated
 
     size_t dim, ndim = size.size();
+    if( ndim > 7 )
+      ndim = 7; // NIFTI is limited to 7 dimensions.
 
     // region size
     int  vx = size[ 0 ];
@@ -328,8 +330,8 @@ namespace soma
     Point3df d0f;
     std::vector<int> d0;
 
-    int subbb0[8] = { 0, 0, 0, 0, 0, 0, 0, 0 },
-    subbb1[8] = { 0, 0, 0, 1, 1, 1, 1, 1 };
+    int subbb0[7] = { 0, 0, 0, 0, 0, 0, 0 },
+    subbb1[7] = { 0, 0, 0, 1, 1, 1, 1 };
     subbb0[0] = ipos[0];
     subbb0[1] = ipos[1];
     subbb0[2] = ipos[2];
@@ -462,10 +464,6 @@ namespace soma
       NDIterator_base it( tsize, tstrides );
       for( ; !it.ended(); ++it )
       {
-        std::cout << "tpos: ";
-        for(dim=0; dim<tsize.size(); ++dim )
-          std::cout << it.position()[dim] << ", ";
-        std::cout << "offset: " << it.offset() << std::endl;
         toff = 0;
         for( dim=3; dim<ndim; ++dim )
         {
@@ -475,7 +473,6 @@ namespace soma
           else
             subbb0[dim] = volpos[dim];
         }
-        std::cout << "toff: " << toff << std::endl;
 
         if( !gzipped )
         {

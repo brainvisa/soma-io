@@ -138,6 +138,8 @@ namespace
     {
       soma::Point3df d0f;
       size_t dim, ndim = vsz.size();
+      if( ndim > 7 )
+        ndim = 7; // NIFTI is limited to 7D
       std::vector<int> d0( ndim, 0  );
       soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
           - m.transform( soma::Point3df( 0, 0, 0 ) );
@@ -276,6 +278,8 @@ namespace
   {
     soma::Point3df d0f;
     size_t dim, ndim = vsz.size();
+    if( ndim > 7 )
+      ndim = 7; // NIFTI is limited to 7D
     std::vector<int> d0( ndim, 0  );
     soma::Point3df incf = m.transform( soma::Point3df( 1, 0, 0 ) )
         - m.transform( soma::Point3df( 0, 0, 0 ) );
@@ -436,6 +440,12 @@ namespace
     dataTOnim_checks2m( mems2m, p, tp, 2, 2 );
 
     size_t dim, ndim = sizes[0].size();
+    if( ndim > 7 )
+    {
+      ndim = 7; // NIFTI is limited to 7D
+      tr_size.resize( ndim );
+      tr_pos.resize( ndim );
+    }
 
     int tmin, tmax;
     if( tt >= 0 )
@@ -689,7 +699,7 @@ namespace soma
     const std::vector<long> & strides,
     carto::Object options )
   {
-    // wheck if it will be a sequence of 3D volumes
+    // check if it will be a sequence of 3D volumes
     bool  write4d = true;
     try
     {
@@ -1091,17 +1101,6 @@ namespace soma
       hdr->getProperty( "sizeT", dims[3] );
     }
 
-    if( dims.size() == 4 && dims[3] == 1 )
-    {
-      dims.erase( dims.begin() + 3 );
-      if( dims[2] == 1 )
-      {
-        dims.erase( dims.begin() + 2 );
-        if( dims[1] == 1 )
-          dims.erase( dims.begin() + 1 );
-      }
-    }
-
     AffineTransformation3d s2m;
     try
     {
@@ -1143,6 +1142,19 @@ namespace soma
     s2m.matrix(0,3) = pp[0];
     s2m.matrix(1,3) = pp[1];
     s2m.matrix(2,3) = pp[2];
+
+    if( dims.size() > 7 )
+      dims.resize( 7 );
+    if( dims.size() == 4 && dims[3] == 1 )
+    {
+      dims.erase( dims.begin() + 3 );
+      if( dims[2] == 1 )
+      {
+        dims.erase( dims.begin() + 2 );
+        if( dims[1] == 1 )
+          dims.erase( dims.begin() + 1 );
+      }
+    }
 
     size_t dim, ndim = dims.size();
     nim->ndim = nim->dim[0] = dims.size();

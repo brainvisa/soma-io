@@ -611,12 +611,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   hdr->setProperty( "sizeY", dims[1] );
   hdr->setProperty( "sizeZ", dims[2] );
   hdr->setProperty( "sizeT", dims[3] );
-  for( size_t i=4; i<dims.size(); ++i )
-  {
-    stringstream s;
-    s << "sizeDim" << i;
-    hdr->setProperty( s.str(), dims[i] );
-  }
+  hdr->setProperty( "volume_dimension", dims );
 
   Point3df pvs = s2m.transform( Point3df( vs[0], vs[1], vs[2] ) )
       - s2m.transform( Point3df( 0, 0, 0 ) );
