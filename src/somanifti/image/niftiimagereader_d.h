@@ -410,12 +410,13 @@ namespace soma
         toff = 0;
         for( dim=3; dim<ndim; ++dim )
         {
-          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim - 3 ];
+          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim ];
           if( gzipped )
             toff += istride[dim] * it.position()[ dim - 3 ];
+          else
+            subbb0[dim] = volpos[dim];
         }
 
-        subbb0[3] = volpos[3];
         if( !gzipped )
         {
           ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
@@ -461,15 +462,21 @@ namespace soma
       NDIterator_base it( tsize, tstrides );
       for( ; !it.ended(); ++it )
       {
+        std::cout << "tpos: ";
+        for(dim=0; dim<tsize.size(); ++dim )
+          std::cout << it.position()[dim] << ", ";
+        std::cout << "offset: " << it.offset() << std::endl;
         toff = 0;
         for( dim=3; dim<ndim; ++dim )
         {
-          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim - 3 ];
+          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim ];
           if( gzipped )
             toff += istride[dim] * it.position()[ dim - 3 ];
+          else
+            subbb0[dim] = volpos[dim];
         }
+        std::cout << "toff: " << toff << std::endl;
 
-        subbb0[3] = volpos[3];
         if( !gzipped )
         {
           ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
