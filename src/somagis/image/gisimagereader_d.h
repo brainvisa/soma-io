@@ -45,6 +45,7 @@
 #include <soma-io/reader/itemreader.h>                      // read + byteswap
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -229,10 +230,10 @@ namespace soma {
   {
     if( _sizes.empty() )
       updateParams( dsi );
-    
+
     // dest is supposed to be allocated
-    
-    size_t ndim = size.size();
+
+    size_t dim, ndim = size.size();
     // region line size
     offset_t  len = size[0] * sizeof( T );
     offset_t offset;
@@ -245,55 +246,34 @@ namespace soma {
 
     try
     {
-      std::vector<int> volpos( ndim, 0 ), dpos( ndim, 0 );
-      volpos[1] = -1;
-      int dim;
-      bool nextrow = false, ended = false;
-      size_t stride;
+      carto::line_NDIterator<T> it( dest, size, strides );
+      std::vector<int> dpos( ndim, 0 );
       dpos[0] = pos[0];
-      while( !ended )
+
+      for( ; !it.ended(); ++it )
       {
-        nextrow = true;
-        stride = 0;
         for( dim=1; dim<ndim; ++dim )
-        {
-          if( nextrow )
-          {
-            ++volpos[dim];
-            if( volpos[dim] == size[dim] )
-            {
-              if( dim == ndim - 1 )
-                ended = true;
-              volpos[dim] = 0;
-            }
-            else
-              nextrow = false;
-          }
-          stride += strides[dim] * volpos[dim];
-          dpos[dim] = volpos[dim] + pos[dim];
-        }
-        if( !ended )
-        {
-          // we move in the file
-          setpos( dpos );
-          // we move in the buffer
-          // FIXME: stride[0] not taken into account for now
-          char * target = (char *)( dest + stride );
-          if( ( readout = readBlock( target, len ) ) != (long) len ) {
+          dpos[dim] = it.position()[dim] + pos[dim];
+
+        // we move in the file
+        setpos( dpos );
+        // we move in the buffer
+        // FIXME: stride[0] not taken into account for now
+        char * target = (char *) &*it;
+        if( ( readout = readBlock( target, len ) ) != (long) len ) {
 #ifdef CARTO_DEBUG
-           std::cerr << "readBlock( failed at ( ";
-            for (int d=0; d < ndim; ++d){
-                if (d > 0)
-                    std::cerr << ",";
-                std::cerr << carto::toString(volpos[d]);
-            }
-            std::cerr << ") : "
-                      << carto::toString( readout / sizeof(T) ) + " != " +
-                         carto::toString( (long) len / sizeof( T ) )
-                      << std::endl;
-#endif
-            throw carto::eof_error( url() );
+          std::cerr << "readBlock( failed at ( ";
+          for (int d=0; d < ndim; ++d){
+              if (d > 0)
+                  std::cerr << ",";
+              std::cerr << carto::toString(it.position()[d]);
           }
+          std::cerr << ") : "
+                    << carto::toString( readout / sizeof(T) ) + " != " +
+                        carto::toString( (long) len / sizeof( T ) )
+                    << std::endl;
+#endif
+          throw carto::eof_error( url() );
         }
       }
     }

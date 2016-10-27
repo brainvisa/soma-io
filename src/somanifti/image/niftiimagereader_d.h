@@ -114,11 +114,9 @@ namespace soma
                                    std::vector<long> & stride,
                                    carto::Object      options )
   {
-    std::cout << "read nifti\n";
     if( _sizes.empty() || _nim.isNull() )
       updateParams( dsi );
 
-    std::cout << "updateParams done.\n";
     std::string dt;
     dsi.header()->getProperty( "disk_data_type", dt );
 
