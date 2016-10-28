@@ -390,7 +390,10 @@ namespace soma {
     *ds << "-type " << carto::DataTypeCode<T>::dataType() << "\n";
     // header :: voxel size
     *ds << "-dx " << vs[0] << " -dy " << vs[1]
-        << " -dz " << vs[2] << " -dt " << vs[3] << "\n";
+        << " -dz " << vs[2] << " -dt " << vs[3];
+    for( i=4; i<ndim; ++i )
+      *ds << " -dx" << i << " " << vs[i];
+    *ds << "\n";
     // header :: byte ordering
     *ds << "-bo ";
     uint magicNumber = SOMAIO_BYTE_ORDER;

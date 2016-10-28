@@ -265,6 +265,14 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
       fir.read( *hds, &vs[2] );
     else if (token == "dt" )
       fir.read( *hds, &vs[3] );
+    else if (token == "dx4" )
+      fir.read( *hds, &vs[4] );
+    else if (token == "dx5" )
+      fir.read( *hds, &vs[5] );
+    else if (token == "dx6" )
+      fir.read( *hds, &vs[6] );
+    else if (token == "dx7" )
+      fir.read( *hds, &vs[7] );
     else if (token == "bo" )
       sir.read( *hds, &byteord );
     else if (token == "om" )
