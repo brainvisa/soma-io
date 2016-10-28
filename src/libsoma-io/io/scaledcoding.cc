@@ -34,8 +34,10 @@
 #include <cstdlib>
 #include <cartobase/type/limits.h>
 #include <soma-io/io/scaledcoding.h>
+#include <cartobase/containers/nditerator.h>
 #include <set>
 #include <cmath>
+#include <iostream>
 
 using namespace soma;
 using namespace carto;
@@ -53,6 +55,7 @@ bool canencode( const T * thing, float & slope,
 {
   using std::isnan;
   using std::isinf;
+  std::cout << "canencode...\n";
 
   int y, z, x, f, dx = sizes[0], dy = sizes[1],
     dz = sizes[2], dt = sizes[3];
@@ -62,6 +65,7 @@ bool canencode( const T * thing, float & slope,
     offset = 0.;
     if( maxerr )
       *maxerr = 0.;
+    std::cout << "fail step 1\n";
     return false; // because we don't know the values yet.
   }
   long sx = strides[0], sy = strides[1], sz = strides[2], st = strides[3];
@@ -75,22 +79,28 @@ bool canencode( const T * thing, float & slope,
 
   if( !enableoffset )
     values.insert( 0 ); // 0 must be a valid value if no offset is allowed
-  for( f=0; f<dt; ++f )
-    for( z=0; z<dz; ++z )
-      for( y=0; y<dy; ++y )
-        for( x=0; x<dx; ++x )
-        {
-          val = thing[ x * sx+ y * sy + z * sz + f * st ];
-          if( isnan( val ) || isinf( val ) )
-            return false;
-          if( val < vmin )
-            vmin = val;
-          if( val > vmax )
-            vmax = val;
-          values.insert( val );
-          if( values.size() > 65536 )
-            return false;
-        }
+  const_line_NDIterator<T> it( thing, sizes, strides );
+  for( ; !it.ended(); ++it )
+  {
+    const T* buf = &*it;
+    for( x=0; x<dx; ++x, ++buf )
+    {
+      val = *buf;
+      if( isnan( val ) || isinf( val ) )
+        return false;
+      if( val < vmin )
+        vmin = val;
+      if( val > vmax )
+        vmax = val;
+      values.insert( val );
+      if( values.size() > 65536 )
+      {
+        std::cout << "too many values.\n";
+        return false;
+      }
+    }
+  }
+  cout << "values: " << values.size() << ", min: " << vmin << ", max: " << vmax << endl;
 
   if( !enableoffset )
   {
@@ -134,6 +144,7 @@ bool canencode( const T * thing, float & slope,
       intvl.insert( v );
     off = *iv;
   }
+  cout << "intv: " << intv << endl;
 
 
   iv = intvl.begin();
@@ -149,8 +160,11 @@ bool canencode( const T * thing, float & slope,
         if( span / intv2 <= 65536.5 )
           intv2 = span / 65535.; // fix rounding error
         else
+        {
+          std::cout << "range too large\n";
           // no hope
           return false;
+        }
       }
       v = ::fabs( intv2 - rint( intv2 / intv ) * intv );
       if( v > 0 ) //intv * 1e-3 )
@@ -176,18 +190,27 @@ bool canencode( const T * thing, float & slope,
     {
       maxm = v;
       if( v > 1e-2 )
+      {
+        std::cout << "bad interval\n";
         return false;
+      }
     }
   }
-  slope = intv;
-  double doffset = 32768. * double(slope) + vmin;
+  slope = float( intv );
+  double nmax = (vmax - vmin) / slope;
+  std::cout << "nmax: " << nmax << endl;
+  double doffset = std::min( 32768., floor(nmax/2) ) * double(slope) + vmin;
   // check float overflow (scale/offsets are in float32 in nifti)
-  if( doffset < numeric_limits<float>::max()
+  if( doffset < -numeric_limits<float>::max()
     || doffset > numeric_limits<float>::max() )
     // we could probably do better, trying not to use value -32767
     // but at least the volume will be correctly saved as float.
+  {
+    std::cout << "overflow, slope: " << slope << ", vmin: " << vmin << endl;
     return false;
+  }
   offset = float( doffset );
+  std::cout << "OK, slope: " << slope << ", offset: " << offset << endl;
   if( maxerr )
     *maxerr = maxm;
   return true;

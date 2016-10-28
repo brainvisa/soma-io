@@ -157,7 +157,7 @@ namespace
       std::vector<long> dstrides( ndim, 0 );
       dstrides[0] = sizeof(int16_t);
       for( dim=0; dim<ndim - 1; ++dim )
-        dstrides[ dim + 1 ] = nim->dim[dim] * dstrides[dim];
+        dstrides[ dim + 1 ] = nim->dim[dim + 1] * dstrides[dim];
 
       size_t vx = vsz[0];
       size_t numbytes = vx * sizeof( int16_t ), ss;
@@ -181,9 +181,9 @@ namespace
           // memory pointer/offset
           p0 += d0[dim] * strides[dim];
           // disk offset
-          offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
+          offset += ( volpos[dim] + opos[dim] ) * dstrides[dim];
         }
-        for( int x=0; x<vx; ++x, p0 += pinc )
+        for( size_t x=0; x<vx; ++x, p0 += pinc )
           *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
         offset2 = offset;
@@ -321,9 +321,9 @@ namespace
         // memory pointer/offset
         p0 += d0[dim] * strides[dim];
         // disk offset
-        offset += ( volpos[dim]  + opos[dim] ) * dstrides[dim];
+        offset += ( volpos[dim] + opos[dim] ) * dstrides[dim];
       }
-      for( int x=0; x<vx; ++x, p0 += pinc )
+      for( size_t x=0; x<vx; ++x, p0 += pinc )
         *d++ = *p0;
 
       offset2 = offset;
@@ -1396,7 +1396,7 @@ namespace soma
     // s2m orientation codes
     std::vector<float> mvec = s2m.toVector();
     mat44 S2M_m44;
-    int i;
+    unsigned i;
     for( i=0; i<4; ++i )
       for( int j=0; j<4; ++j )
         S2M_m44.m[i][j] = mvec[j+4*i];
