@@ -181,7 +181,9 @@ bool carto::Headered::disconnect( const std::string& propertyFilterName,
       PropertyFilter::Signal::slot_list_type 
         sl = ( *f )->getSignal().sigcslots();
       PropertyFilter::Signal::iterator	is, es = sl.end();
-      for( is=sl.begin(); is!=es && &(*is)!=&slot; ++is ) ;
+      for( is=sl.begin();
+           is!=es && static_cast<const sigc::slot_base*>(&(*is))!=static_cast<const sigc::slot_base*>(&slot);
+           ++is ) ;
       if( is != es )
         {
           is->disconnect();
