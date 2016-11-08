@@ -48,6 +48,15 @@ TARGET_LINK_LIBRARIES(somaDSList_test           soma-io)
 TARGET_LINK_LIBRARIES(somaRGB_test              soma-io)
 TARGET_LINK_LIBRARIES(somaGetPluginFile_test    soma-io)
 
+BRAINVISA_INSTALL( TARGETS cartoRcptr_test cartoScopedptr_test
+              cartoSharedptr_test cartoWeakptr_test cartoAlgorithm_test
+              cartoConversion_test cartoDataTypeTraits_test
+              cartoMultiThread_test cartoMutex_test cartoThreadedRcptr_test
+              cartoUuid_test cartoObject_test somaCapabilities_test
+              somaDSList_test
+              DESTINATION bin
+              COMPONENT ${PROJECT_NAME}-test )
+
 # Plugins test
 BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test   somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
 TARGET_LINK_LIBRARIES(somaGisFormatCheck_test   soma-io cartobase)
@@ -66,19 +75,18 @@ endif()
 
 # -- tests --
 
-add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoRcptr_test)
-add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoRcptr_test)
-add_test(cartoScopedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoScopedptr_test)
-add_test(cartoSharedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoSharedptr_test)
-add_test(cartoWeakptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoWeakptr_test)
-add_test(cartoAlgorithm_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoAlgorithm_test)
-add_test(cartoConversion_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoConversion_test)
-add_test(cartoDataTypeTraits_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoDataTypeTraits_test)
-add_test(cartoMultiThread_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoMultiThread_test)
-add_test(cartoMutex_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoMutex_test)
-add_test(cartoThreadedRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoThreadedRcptr_test)
-add_test(cartoUuid_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoUuid_test)
-add_test(cartoObject_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" cartoObject_test)
-add_test(somaCapabilities_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" somaCapabilities_test)
-add_test(somaDSList_test "${CMAKE_BINARY_DIR}/bin/bv_env${CMAKE_EXECUTABLE_SUFFIX}" somaDSList_test)
+add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoRcptr_test)
+add_test(cartoScopedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoScopedptr_test)
+add_test(cartoSharedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoSharedptr_test)
+add_test(cartoWeakptr_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoWeakptr_test)
+add_test(cartoAlgorithm_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoAlgorithm_test)
+add_test(cartoConversion_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoConversion_test)
+add_test(cartoDataTypeTraits_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoDataTypeTraits_test)
+add_test(cartoMultiThread_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoMultiThread_test)
+add_test(cartoMutex_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoMutex_test)
+add_test(cartoThreadedRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoThreadedRcptr_test)
+add_test(cartoUuid_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoUuid_test)
+add_test(cartoObject_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" cartoObject_test)
+add_test(somaCapabilities_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" somaCapabilities_test)
+add_test(somaDSList_test "${CMAKE_BINARY_DIR}/bin/bv_env_test" somaDSList_test)
 
