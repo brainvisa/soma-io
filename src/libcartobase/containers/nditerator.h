@@ -52,14 +52,14 @@ namespace carto
                      const std::vector<size_t> & strides );
     NDIterator_base( const std::vector<int> & dims,
                      const std::vector<long> & strides );
-    virtual ~NDIterator_base() {}
+    // virtual ~NDIterator_base() {}
     const std::vector<int> & position() const;
     off_t offset() const;
 
     NDIterator_base & operator ++();
 
     bool ended() const;
-    virtual void reset();
+    void reset();
 
   protected:
     template <typename T>
@@ -83,7 +83,7 @@ namespace carto
                           const std::vector<size_t> & strides );
     line_NDIterator_base( const std::vector<int> & dims,
                           const std::vector<long> & strides );
-    virtual ~line_NDIterator_base() {}
+    // virtual ~line_NDIterator_base() {}
 
     NDIterator_base & operator ++();
   };
@@ -99,7 +99,7 @@ namespace carto
                 const std::vector<size_t> & strides );
     NDIterator( T* buffer, const std::vector<int> & dims,
                 const std::vector<long> & strides );
-    virtual ~NDIterator() {}
+    // virtual ~NDIterator() {}
 
     T & operator * () const;
 
@@ -118,7 +118,7 @@ namespace carto
                       const std::vector<size_t> & strides );
     const_NDIterator( const T* buffer, const std::vector<int> & dims,
                       const std::vector<long> & strides );
-    virtual ~const_NDIterator() {}
+    // virtual ~const_NDIterator() {}
 
     const T & operator * () const;
 
@@ -137,7 +137,7 @@ namespace carto
                      const std::vector<size_t> & strides );
     line_NDIterator( T* buffer, const std::vector<int> & dims,
                      const std::vector<long> & strides );
-    virtual ~line_NDIterator() {}
+    // virtual ~line_NDIterator() {}
 
     T & operator * () const;
 
@@ -157,7 +157,7 @@ namespace carto
                            const std::vector<size_t> & strides );
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
                            const std::vector<long> & strides );
-    virtual ~const_line_NDIterator() {}
+    // virtual ~const_line_NDIterator() {}
 
     const T & operator * () const;
 
