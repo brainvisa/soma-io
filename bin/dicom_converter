@@ -144,7 +144,17 @@ def check_jpeg(dicomFile):
         return
     check_call([which("dcmdjpeg"), dicomFile, dicomFile])
 
-def convert_to_nifti( serie, mergeDynSeries = True ):
+def removeCorruptTags(dataset):
+    data_tag_list = list(dataset.viewkeys())
+    for tag in data_tag_list:
+        try:
+            data_element = dataset[tag]
+        except KeyError, e:
+            print("KeyError: %s" % e)
+            print("Tag %s will be erase" % tag)
+            dataset.pop(tag)
+
+def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -168,6 +178,8 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             print "The DICOM converter needs DCMTK binaries to convert", f
 
         ds = dicom.read_file(tempfile)
+        if remove_corrupt_tags:
+            removeCorruptTags(ds)
 
         if modality == "":
             try:
@@ -359,12 +371,14 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
     add_version_to_minf(minf, get_mcverter())
 
-def convert_to_nifti_MR( serie ):
+def convert_to_nifti_MR( serie,  remove_corrupt_tags=True):
 
   uuid = None
   series_instance_uid = None
 
   ds = dicom.read_file( serie[ 0 ] )
+  if remove_corrupt_tags:
+    removeCorruptTags(ds)
 
   dcm2niiOptions = [ '-b', findSharedFile( 'dcm2nii_DV.ini' ) ]
 
@@ -461,7 +475,7 @@ def convert_to_nifti_MR( serie ):
   print >> fd, "attributes = ", header
   fd.close()
 
-def convert_to_nifti_NM( serie ):
+def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
     tmpDir = mkdtemp()
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
@@ -477,6 +491,8 @@ def convert_to_nifti_NM( serie ):
         print "The DICOM converter needs DCMTK binaries to convert", f
 
     ds = dicom.read_file(tempFile)
+    if remove_corrupt_tags:
+        removeCorruptTags(ds)
     tags = ((0x0010, 0x0010), (0x0008, 0x0020),
             (0x0008, 0x0060), (0x0008, 0x103e),
             (0x0008, 0x0080))
@@ -600,6 +616,7 @@ Convert input DICOM files into NIfTI files
     for serie in aggregator._aggregate_sources.values():
 
       ds = dicom.read_file( serie[ 0 ] )
+
       try:
         modality = ds.Modality
       except:
