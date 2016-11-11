@@ -93,7 +93,7 @@ template <class Inserter>
 int
 fostreambuf<Inserter>::sync()
 {
-	return _sink == 0 ? EOF : _sink->sync();
+	return _sink == 0 ? EOF : _sink->pubsync();
 }
 
 
@@ -101,5 +101,5 @@ template <class Inserter>
 streambuf*
 fostreambuf<Inserter>::setbuf(char* p , int len)
 {
-	return _sink == 0 ? 0 : _sink->setbuf(p, len);
+	return _sink == 0 ? 0 : _sink->pubsetbuf(p, len);
 }
