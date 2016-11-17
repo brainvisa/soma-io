@@ -36,7 +36,6 @@
 
 #include <cartobase/config/cartobase_config.h>
 #include <vector>
-#include <sys/types.h>
 
 
 namespace carto
@@ -54,7 +53,7 @@ namespace carto
                      const std::vector<long> & strides );
     // virtual ~NDIterator_base() {}
     const std::vector<int> & position() const;
-    off_t offset() const;
+    uint64_t offset() const;
 
     NDIterator_base & operator ++();
 
@@ -68,7 +67,7 @@ namespace carto
     std::vector<int> _dims;
     std::vector<size_t> _strides;
     std::vector<int> _position;
-    off_t _offset;
+    uint64_t _offset;
     bool _ended;
   };
 
@@ -214,7 +213,7 @@ namespace carto
   }
 
 
-  inline off_t NDIterator_base::offset() const
+  inline uint64_t NDIterator_base::offset() const
   {
     return _offset;
   }
