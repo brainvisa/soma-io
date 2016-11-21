@@ -404,6 +404,13 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+    vector<int> dims( 4, 1 );
+    if( dsi.header()->getProperty( "volume_dimension", dims ) )
+      if( dims.size() < 4 )
+      {
+        dims.resize( 4, 1 );
+        dsi.header()->setProperty( "volume_dimension", dims );
+      }
     dsi.header()->setProperty( "object_type", obtype );
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );
