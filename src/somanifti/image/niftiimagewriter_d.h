@@ -301,7 +301,7 @@ namespace
 
     size_t vx = vsz[0];
     size_t numbytes = vx * sizeof( T ), ss;
-    std::vector<T> buf( vx );
+    std::vector<T> buf( vx, 0 );
     T *d = 0;
 
     carto::line_NDIterator_base it( vsz, strides );
@@ -323,8 +323,9 @@ namespace
         // disk offset
         offset += ( volpos[dim] + opos[dim] ) * dstrides[dim];
       }
-      for( size_t x=0; x<vx; ++x, p0 += pinc )
-        *d++ = *p0;
+      if( data != 0 )
+        for( size_t x=0; x<vx; ++x, p0 += pinc )
+          *d++ = *p0;
 
       offset2 = offset;
       offset -= cur_offset;
@@ -1714,7 +1715,7 @@ namespace soma
       catch( ... )
       {
       }
-      if( !forcedDT )
+      if( !forcedDT && source )
       {
         // double maxm = 0;
         float scale = 1, offset = 0;
