@@ -35,6 +35,7 @@
 #define CARTOBASE_STREAM_FDINHIBITOR_H
 
 #include <string>
+#include <map>
 #include <stdio.h>
 
 namespace carto
@@ -48,7 +49,14 @@ namespace carto
    */
 class fdinhibitor
 {
+public:
+  class ResetCallback
+  {
   public:
+    virtual ~ResetCallback();
+    virtual void operator ()( int fd ) = 0;
+  };
+
   /** fd: file descriptor to inhibate, permanent: if false, don't reopen the
       stream when deleting the fdinhibitor */
   fdinhibitor( int fd, bool permanent=false )
@@ -64,8 +72,16 @@ class fdinhibitor
 
   void	close(void);
   void	open(void);
+  void notify( int fd );
 
-  private:
+  static void registerResetCallback( const std::string & name,
+                                     ResetCallback *cbk );
+  static bool hasResetCallback( const std::string & name );
+  static void unregisterResetCallback( const std::string & name );
+
+private:
+  static std::map<std::string, ResetCallback *> & _callbacks();
+
   int           _fd;
   int           _fdsave;
   int           _fdblocker;
