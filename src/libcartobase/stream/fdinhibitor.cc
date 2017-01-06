@@ -37,8 +37,21 @@
 #include <cartobase/stream/fileutil.h>
 #endif
 #include <iostream>
+#include <errno.h>
 
 using namespace carto;
+using namespace std;
+
+fdinhibitor::ResetCallback::~ResetCallback()
+{
+}
+
+
+map<string, fdinhibitor::ResetCallback *> & fdinhibitor::_callbacks()
+{
+  static map<string, ResetCallback *> _callbacks_map;
+  return _callbacks_map;
+}
 
 
 fdinhibitor::~fdinhibitor()
@@ -76,6 +89,46 @@ void	fdinhibitor::open(void)
     std::cerr.clear( std::ios_base::goodbit );
   else if( _fd == STDIN_FILENO )
     std::cin.clear( std::ios_base::goodbit );
+  errno = 0;
   _fdblocker = 0;
   _fdsave = 0;
+
+  notify( _fd );
 }
+
+
+void fdinhibitor::notify( int fd )
+{
+  map<string, ResetCallback *> & callbacks = _callbacks();
+  map<string, ResetCallback *>::iterator i, e = callbacks.end();
+
+  for( i=callbacks.begin(); i!=e; ++i )
+    (*i->second)( fd );
+}
+
+
+void fdinhibitor::registerResetCallback( const std::string & name,
+                                         ResetCallback *cbk )
+{
+  unregisterResetCallback( name );
+  _callbacks()[name] = cbk;
+}
+
+
+bool fdinhibitor::hasResetCallback( const std::string & name )
+{
+  return _callbacks().find(name) != _callbacks().end();
+}
+
+
+void fdinhibitor::unregisterResetCallback( const std::string & name )
+{
+  map<string, ResetCallback *> & callbacks = _callbacks();
+  map<string, ResetCallback *>::iterator i = callbacks.find( name );
+  if( i != callbacks.end() )
+  {
+    callbacks.erase( i );
+    delete i->second;
+  }
+}
+
