@@ -67,7 +67,7 @@ void fdinhibitor::close(void)
 #ifdef _WIN32
   _tmpfile = FileUtil::temporaryFile("fdinhibitor", _fdblocker);
 #else
-  _fdblocker = ::open( "/dev/null", O_APPEND );
+  _fdblocker = ::open( "/dev/null", O_APPEND | O_WRONLY );
 #endif
   dup2(_fdblocker, _fd);
 }
