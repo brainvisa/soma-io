@@ -68,7 +68,27 @@ bool dcm::DicomWriter::write( const std::string& fileName,
     else
     {
 
-      baseDirectory = fileName;
+      if ( fileName[ fileName.length() - 1 ] == '/' )
+      {
+
+        baseDirectory = fileName;
+
+      }
+      else
+      {
+
+        outputFileName = fileName;
+        pos = outputFileName.rfind( "/" );
+
+        if ( pos != std::string::npos )
+        {
+
+          baseDirectory = outputFileName.substr( 0, pos + 1 );
+          outputFileName = outputFileName.substr( pos + 1 );
+
+        }
+
+      }
 
     }
 
