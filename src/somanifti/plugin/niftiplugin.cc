@@ -61,7 +61,7 @@ namespace soma
 
 NiftiPlugin::NiftiPlugin() : Plugin()
 {
-    vector<string>  exts(6);
+    vector<string>  exts(5);
     exts[0] = "nii";
     exts[1] = "nii.gz";
     exts[2] = "img";
