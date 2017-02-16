@@ -44,7 +44,27 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
   DcmDataset* dataset = fileFormat.getDataset();
   dcm::DataInfo& info = proxy.getDataInfo();
 
-  std::string patientName = fileName;
+  // Search for DICOM extension 
+  std::string extension = "";
+  std::string fileNameWithoutExt = fileName;
+
+  size_t pos = fileName.rfind( ".dcm" );
+  if ( pos == std::string::npos )
+  {
+
+    pos = fileName.rfind( ".dic" );
+
+  }
+
+  if ( pos != std::string::npos )
+  {
+
+    fileNameWithoutExt = fileName.substr( 0, pos );
+    extension = fileName.substr( pos );
+      
+  }
+  
+  std::string patientName = fileNameWithoutExt;
   std::string studyID = "1";
   std::string seriesID = "1000";
   struct tm* tms;
@@ -232,7 +252,7 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
 
       std::string fileName = directoryName + patientName + "_" +
                              studyID + "_" + seriesID + "_" + instanceUID +
-                             ".dcm";
+                             extension;
 
       if ( fileFormat.saveFile( fileName.c_str(), 
                                 EXS_LittleEndianExplicit ).bad() )

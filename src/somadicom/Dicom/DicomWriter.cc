@@ -40,6 +40,7 @@ bool dcm::DicomWriter::write( const std::string& fileName,
 
     std::string baseDirectory = "./";
     std::string outputFileName = "Unknown";
+    std::string extension = "";
 
     size_t pos = fileName.rfind( ".dcm" );
     if ( pos == std::string::npos )
@@ -53,6 +54,7 @@ bool dcm::DicomWriter::write( const std::string& fileName,
     {
 
       outputFileName = fileName.substr( 0, pos );
+      extension = fileName.substr( pos );
 
       pos = outputFileName.rfind( "/" );
 
@@ -122,7 +124,9 @@ bool dcm::DicomWriter::write( const std::string& fileName,
     gettimeofday( &tv_start, NULL );
 #endif
 
-    bool status = writeDatasets( baseDirectory, outputFileName, proxy );
+    bool status = writeDatasets( baseDirectory, 
+                                 outputFileName + extension, 
+                                 proxy );
 
 #ifdef MINI_VIEWER
     gettimeofday( &tv_stop, NULL );
