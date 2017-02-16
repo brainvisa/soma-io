@@ -59,7 +59,7 @@
 #include <vector>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
-#define localMsg( message ) cartoCondMsg( 4, message, "NIFTIIMAGEWRITER" )
+#define localMsg( message ) cartoCondMsg( 4, message, "DICOMIMAGEWRITER" )
 // localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ namespace soma
   template <typename T>
   void DicomImageWriter<T>::updateParams( DataSourceInfo & dsi )
   {
-    _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
+    _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4, 1) );
     _voxel_size = std::vector<float>( 4, 1.0f );
     dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
     dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
@@ -109,14 +109,15 @@ namespace soma
                                    const std::vector<int> & /* size */,
                                    const std::vector<long> & /* strides */,
                                    carto::Object /* options */ )
-  {
+  {    
     if( _sizes.empty() )
       updateParams( dsi );
 
     dcm::DataInfo dataInfo;
     std::string dataType = carto::DataTypeCode< T >::dataType();
+    localMsg("dataType:" + carto::toString(dataType));
     std::string basename = dsi.list().dataSource( "dcm", 0 )->url();
-
+    localMsg("basename:" + carto::toString(basename));
     dataInfo._pixelRepresentation = 0;
 
     if ( dataType == "U8" )
@@ -142,11 +143,12 @@ namespace soma
     }
     else
     {
+      localMsg("datatype_format_error for dataType:" + carto::toString(dataType));
       throw datatype_format_error( 
                                  "DICOM writer does not support this data type",
                                  basename );
     }
-
+    
     dataInfo._invertLut = false;
     dataInfo._width = _sizes[ 0 ][ 0 ];
     dataInfo._height = _sizes[ 0 ][ 1 ];
@@ -161,8 +163,13 @@ namespace soma
     dataInfo._boundingBox.setUpperZ( _sizes[ 0 ][ 2 ] - 1 );
     dataInfo._boundingBox.setUpperT( _sizes[ 0 ][ 3 ] - 1 );
 
+    localMsg("DicomProxy declaration");
     dcm::DicomProxy data( (uint8_t*)source, &dataInfo );
+    
+    localMsg("DicomProxy allocation");
     data.allocate(); // to set up accessors
+    
+    localMsg("DicomIO writting");
     dcm::DicomIO::getInstance().write( basename, data );
     
   }

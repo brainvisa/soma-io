@@ -112,7 +112,8 @@ void dcm::DataInfo::clear()
 void dcm::DataInfo::initialize()
 {
 
-  if ( _modalityLut )
+  // NS-2017-02-16: lut can only be used when a voxel has 1 sample per pixel.
+  if ( _modalityLut && (_spp == 1) )
   {
 
     _bpp = int32_t( sizeof( float ) );
@@ -124,7 +125,7 @@ void dcm::DataInfo::initialize()
     _bpp = ( _depth >> 3 ) * _spp;
 
   }
-
+            
   _sliceSize = _width * _height;
   _volumeSize = _sliceSize * _slices;
   _datasetSize = _volumeSize * _frames;
@@ -139,10 +140,10 @@ void dcm::DataInfo::initialize()
 
     dcm:: Vector3d< int32_t > size = _patientOrientation.getOnDiskSize();
 
-    _boundingBox = dcm::BoundingBox< int32_t >( 0, size.x - 1,
-                                                0, size.y - 1,
-                                                0, size.z - 1,
-                                                0, _frames - 1 );
+    _boundingBox = dcm::BoundingBox< int32_t >( 0, (size.x - 1 < 0 ? 0 : size.x - 1),
+                                                0, (size.y - 1 < 0 ? 0 : size.y - 1),
+                                                0, (size.z - 1 < 0 ? 0 : size.z - 1),
+                                                0, (_frames - 1 < 0 ? 0 : _frames - 1) );
 
   }
 
