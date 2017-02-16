@@ -46,7 +46,7 @@ bool dcm::ModalityLutModule::parseItem( DcmItem* dcmItem )
     _rescaleIntercept.push_back( intercept );
     _rescaleSlope.push_back( slope );
 
-    return true;
+    return ((intercept != 0.0) || (slope != 1.0));
 
   }
 
