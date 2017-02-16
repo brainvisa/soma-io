@@ -132,10 +132,10 @@ void dcm::DataInfo::initialize()
 
     dcm:: Vector3d< int32_t > size = _patientOrientation.getOnDiskSize();
 
-    _boundingBox = dcm::BoundingBox< int32_t >( 0, size.x - 1,
-                                                0, size.y - 1,
-                                                0, size.z - 1,
-                                                0, _frames - 1 );
+    _boundingBox = dcm::BoundingBox< int32_t >( 0, (size.x - 1 < 0 ? 0 : size.x - 1),
+                                                0, (size.y - 1 < 0 ? 0 : size.y - 1),
+                                                0, (size.z - 1 < 0 ? 0 : size.z - 1),
+                                                0, (_frames - 1 < 0 ? 0 : _frames - 1) );
 
   }
 
