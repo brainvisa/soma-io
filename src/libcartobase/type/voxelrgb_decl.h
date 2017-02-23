@@ -120,8 +120,10 @@ namespace carto {
 
   VoxelRGB operator + (const VoxelRGB &aa, const VoxelRGB &bb);
   VoxelRGB operator + (const VoxelRGB &aa, const uint8_t  &bb);
+  VoxelRGB operator + (const uint8_t  &aa, const VoxelRGB &bb);
   VoxelRGB operator - (const VoxelRGB &aa, const VoxelRGB &bb);
   VoxelRGB operator - (const VoxelRGB &aa, const uint8_t  &bb);
+  VoxelRGB operator - (const uint8_t  &aa, const VoxelRGB &bb);
   VoxelRGB operator * (const VoxelRGB &aa, const uint8_t  &bb);
   VoxelRGB operator * (const VoxelRGB &aa, const uint16_t &bb);
   VoxelRGB operator * (const VoxelRGB &aa, const uint32_t &bb);

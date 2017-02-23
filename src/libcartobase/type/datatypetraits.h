@@ -41,7 +41,7 @@
 #include <cartobase/type/voxelhsv.h>
 
 
-#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_SINGLE_CHANNEL( T, IS_SCALAR, LONG ) \
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_SINGLE_CHANNEL( T, IS_SCALAR, LONG, HAS_BOOL_CONVERSION ) \
 template <> \
 struct DataTypeTraits< T > \
 { \
@@ -51,10 +51,11 @@ struct DataTypeTraits< T > \
     \
     static const bool is_scalar = IS_SCALAR; \
     static const bool is_multichannel = false; \
+    static const bool has_bool_conversion = HAS_BOOL_CONVERSION; \
     static const unsigned int channelcount = 1; \
 }; \
 
-#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_MULTI_CHANNEL( T, IS_SCALAR, LONG ) \
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_MULTI_CHANNEL( T, IS_SCALAR, LONG, HAS_BOOL_CONVERSION ) \
 template <> \
 struct DataTypeTraits< T > \
 { \
@@ -64,16 +65,18 @@ struct DataTypeTraits< T > \
     \
     static const bool is_scalar = false; \
     static const bool is_multichannel = true; \
+    static const bool has_bool_conversion = HAS_BOOL_CONVERSION; \
     static const unsigned int channelcount = T::channelcount; \
 }; \
 
-#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( T, IS_SCALAR, IS_MULTICHANNEL, LONG ) \
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_##IS_MULTICHANNEL(T, IS_SCALAR, LONG) \
+#define DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( T, IS_SCALAR, IS_MULTICHANNEL, LONG, HAS_BOOL_CONVERSION ) \
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION_##IS_MULTICHANNEL(T, IS_SCALAR, LONG, HAS_BOOL_CONVERSION) \
 
 #define DATA_TYPE_TRAITS_INSTANCIATE_SPECIALIZATION( T ) \
   const bool carto::DataTypeTraits< T >::is_scalar; \
-  const unsigned int carto::DataTypeTraits< T >::channelcount; \
   const bool carto::DataTypeTraits< T >::is_multichannel; \
+  const bool carto::DataTypeTraits< T >::has_bool_conversion; \
+  const unsigned int carto::DataTypeTraits< T >::channelcount; \
 
 
 namespace carto {
@@ -100,30 +103,31 @@ namespace carto {
 
       static const bool is_scalar = false;
       static const bool is_multichannel = false;
+      static const bool has_bool_conversion = false;
       static const unsigned int channelcount = 0;
   };
 
   /// DataTypeTraits base types specialization
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( bool, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint8_t, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int8_t, true, SINGLE_CHANNEL, intmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint16_t, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int16_t, true, SINGLE_CHANNEL, intmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint32_t, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int32_t, true, SINGLE_CHANNEL, intmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long, true, SINGLE_CHANNEL, intmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long long, true, SINGLE_CHANNEL, uintmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long long, true, SINGLE_CHANNEL, intmax_t )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( float, true, SINGLE_CHANNEL, double )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( double, true, SINGLE_CHANNEL, double )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cfloat, false, SINGLE_CHANNEL, cdouble )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cdouble, false, SINGLE_CHANNEL, cdouble )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( bool, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint8_t, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int8_t, true, SINGLE_CHANNEL, intmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint16_t, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int16_t, true, SINGLE_CHANNEL, intmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( uint32_t, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( int32_t, true, SINGLE_CHANNEL, intmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long, true, SINGLE_CHANNEL, intmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( unsigned long long, true, SINGLE_CHANNEL, uintmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long long, true, SINGLE_CHANNEL, intmax_t, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( float, true, SINGLE_CHANNEL, double, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( double, true, SINGLE_CHANNEL, double, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cfloat, false, SINGLE_CHANNEL, cdouble, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cdouble, false, SINGLE_CHANNEL, cdouble, true )
 
   /// DataTypeTraits carto::VoxelValue specialization
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGB, false, MULTI_CHANNEL, carto::VoxelRGB )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGBA, false, MULTI_CHANNEL, carto::VoxelRGBA )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelHSV, false, MULTI_CHANNEL, carto::VoxelHSV )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGB, false, MULTI_CHANNEL, carto::VoxelRGB, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGBA, false, MULTI_CHANNEL, carto::VoxelRGBA, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelHSV, false, MULTI_CHANNEL, carto::VoxelHSV, true )
 
 }
 

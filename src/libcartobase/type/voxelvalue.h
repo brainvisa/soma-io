@@ -74,6 +74,9 @@ namespace carto {
       bool operator != ( const VoxelValue<T,C> & ) const;
       bool operator == ( const T & ) const;
       bool operator != ( const T & ) const;
+      
+      //=== CONVERSION =======================================================
+      operator bool() const;
 
       //=== ACCESSORS ========================================================
       inline

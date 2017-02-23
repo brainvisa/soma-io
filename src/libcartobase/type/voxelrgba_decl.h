@@ -123,8 +123,10 @@ namespace carto {
 
   VoxelRGBA operator + (const VoxelRGBA &aa, const VoxelRGBA &bb);
   VoxelRGBA operator + (const VoxelRGBA &aa, const uint8_t   &bb);
+  VoxelRGBA operator + (const uint8_t   &aa, const VoxelRGBA &bb);
   VoxelRGBA operator - (const VoxelRGBA &aa, const VoxelRGBA &bb);
   VoxelRGBA operator - (const VoxelRGBA &aa, const uint8_t   &bb);
+  VoxelRGBA operator - (const uint8_t   &aa, const VoxelRGBA &bb);
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint8_t   &bb);
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint16_t  &bb);
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint32_t  &bb);

@@ -111,8 +111,10 @@ namespace carto {
 
   VoxelHSV operator + (const VoxelHSV &aa, const VoxelHSV &bb);
   VoxelHSV operator + (const VoxelHSV &aa, const uint8_t  &bb);
+  VoxelHSV operator + (const uint8_t  &aa, const VoxelHSV &bb);
   VoxelHSV operator - (const VoxelHSV &aa, const VoxelHSV &bb);
   VoxelHSV operator - (const VoxelHSV &aa, const uint8_t  &bb);
+  VoxelHSV operator - (const uint8_t  &aa, const VoxelHSV &bb);
   VoxelHSV operator * (const VoxelHSV &aa, const uint8_t  &bb);
   VoxelHSV operator * (const VoxelHSV &aa, const uint16_t &bb);
   VoxelHSV operator * (const VoxelHSV &aa, const uint32_t &bb);
@@ -428,6 +430,16 @@ namespace carto {
   }
 
   inline
+  VoxelHSV operator + (const uint8_t &aa, const VoxelHSV &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "HSV:: uint8_t + HSV" << std::endl;
+    #endif
+    VoxelHSV result( aa );
+    return result += bb;
+  }
+  
+  inline
   VoxelHSV operator - (const VoxelHSV &aa, const VoxelHSV &bb)
   {
     #ifdef CARTO_DEBUG_RGB
@@ -447,6 +459,16 @@ namespace carto {
     return result -= bb;
   }
 
+  inline
+  VoxelHSV operator - (const uint8_t &aa, const VoxelHSV &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "HSV:: uint8_t - HSV" << std::endl;
+    #endif
+    VoxelHSV result( aa );
+    return result -= bb;
+  }
+  
   inline
   VoxelHSV operator * (const VoxelHSV &aa, const uint8_t &bb)
   {

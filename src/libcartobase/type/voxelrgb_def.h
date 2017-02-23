@@ -394,6 +394,16 @@ namespace carto {
   }
 
   inline
+  VoxelRGB operator + (const uint8_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint8_t + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
+  inline
   VoxelRGB operator - (const VoxelRGB &aa, const VoxelRGB &bb)
   {
     #ifdef CARTO_DEBUG_RGB
@@ -413,6 +423,16 @@ namespace carto {
     return result -= bb;
   }
 
+  inline
+  VoxelRGB operator - (const uint8_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint8_t - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
   inline
   VoxelRGB operator * (const VoxelRGB &aa, const uint8_t &bb)
   {

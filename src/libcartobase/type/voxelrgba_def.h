@@ -463,6 +463,16 @@ namespace carto {
   }
 
   inline
+  VoxelRGBA operator + (const uint8_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA::  uint8_t + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
   VoxelRGBA operator - (const VoxelRGBA &aa, const VoxelRGBA &bb)
   {
     #ifdef CARTO_DEBUG_RGB
@@ -482,6 +492,16 @@ namespace carto {
     return result -= bb;
   }
 
+  inline
+  VoxelRGBA operator - (const uint8_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint8_t - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint8_t &bb)
   {

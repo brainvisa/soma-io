@@ -117,6 +117,19 @@ namespace carto {
     return !( (*this) == bb );
   }
 
+  //=== CONVERSION =======================================================
+  template <typename T, unsigned int C>
+  VoxelValue<T,C>::operator bool() const
+  {
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: bool()" << std::endl;
+    #endif
+    unsigned int i;
+    for( i=0; i<C; ++i )
+      if( (*this)[ i ] != T(0) )
+        return true;
+    return false;
+  }
 }
 
 #endif
