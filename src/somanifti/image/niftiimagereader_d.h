@@ -45,6 +45,7 @@
 #include <soma-io/nifticlib/niftilib/nifti2_io.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
+#include <cartobase/type/datatypetraits.h>              // datatypetraits
 #include <cartobase/type/voxelrgb.h>
 #include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
@@ -238,7 +239,8 @@ namespace
   template <typename T> inline T _scaledValue(
     const T & value, double scale, double offset)
   {
-    return (T) ( value * scale + offset );
+    return (T) ( value * scale 
+              + (typename carto::DataTypeTraits<T>::ChannelType)offset );
   }
 
 
