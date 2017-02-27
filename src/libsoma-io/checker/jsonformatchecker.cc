@@ -91,6 +91,7 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
   for( i=0; i<n && ds->isOpen(); ++i )
   {
     c = static_cast<char>(ds->getch());
+    readsign += c;
     if( c != ' ' && c != '\t' && c != '\n' )
     {
       if( (*sign)[i] != c )
@@ -103,14 +104,11 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
         else
           break;
       }
-      readsign += c;
     }
   }
   if( ds->isOpen() )
   {
     // rewind
-    if( i != n )
-      ds->ungetch( c );
     for( int j=readsign.length()-1; j>=0; --j )
       ds->ungetch( readsign[j] );
   }
