@@ -392,7 +392,57 @@ namespace carto {
     VoxelRGB result( aa );
     return result += bb;
   }
-
+ 
+  inline
+  VoxelRGB operator + (const VoxelRGB &aa, const uint16_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB + uint16_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+ 
+  inline
+  VoxelRGB operator + (const VoxelRGB &aa, const uint32_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB + uint32_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+ 
+  inline
+  VoxelRGB operator + (const VoxelRGB &aa, const uint64_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB + uint64_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+ 
+  inline
+  VoxelRGB operator + (const VoxelRGB &aa, const float &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB + float" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+ 
+  inline
+  VoxelRGB operator + (const VoxelRGB &aa, const double &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB + double" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
   inline
   VoxelRGB operator + (const uint8_t &aa, const VoxelRGB &bb)
   {
@@ -403,6 +453,56 @@ namespace carto {
     return result += bb;
   }
   
+  inline
+  VoxelRGB operator + (const uint16_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint16_t + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGB operator + (const uint32_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint32_t + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGB operator + (const uint64_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint64_t + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGB operator + (const float &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: float + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGB operator + (const double &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: double + RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result += bb;
+  }
+
   inline
   VoxelRGB operator - (const VoxelRGB &aa, const VoxelRGB &bb)
   {
@@ -422,7 +522,57 @@ namespace carto {
     VoxelRGB result( aa );
     return result -= bb;
   }
-
+ 
+  inline
+  VoxelRGB operator - (const VoxelRGB &aa, const uint16_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB - uint16_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+ 
+  inline
+  VoxelRGB operator - (const VoxelRGB &aa, const uint32_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB - uint32_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+ 
+  inline
+  VoxelRGB operator - (const VoxelRGB &aa, const uint64_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB - uint64_t" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+ 
+  inline
+  VoxelRGB operator - (const VoxelRGB &aa, const float &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB - float" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+ 
+  inline
+  VoxelRGB operator - (const VoxelRGB &aa, const double &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: RGB - double" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
   inline
   VoxelRGB operator - (const uint8_t &aa, const VoxelRGB &bb)
   {
@@ -433,6 +583,56 @@ namespace carto {
     return result -= bb;
   }
   
+  inline
+  VoxelRGB operator - (const uint16_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint16_t - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGB operator - (const uint32_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint32_t - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGB operator - (const uint64_t &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: uint64_t - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGB operator - (const float &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: float - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGB operator - (const double &aa, const VoxelRGB &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: double - RGB" << std::endl;
+    #endif
+    VoxelRGB result( aa );
+    return result -= bb;
+  }
+
   inline
   VoxelRGB operator * (const VoxelRGB &aa, const uint8_t &bb)
   {

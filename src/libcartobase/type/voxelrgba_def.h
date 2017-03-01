@@ -463,15 +463,115 @@ namespace carto {
   }
 
   inline
-  VoxelRGBA operator + (const uint8_t &aa, const VoxelRGBA &bb)
+  VoxelRGBA operator + (const VoxelRGBA &aa, const uint16_t &bb)
   {
     #ifdef CARTO_DEBUG_RGB
-      std::cout << "RGBA::  uint8_t + RGBA" << std::endl;
+      std::cout << "RGBA:: RGBA + uint16_t" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+
+  inline
+  VoxelRGBA operator + (const VoxelRGBA &aa, const uint32_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA + uint32_t" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+
+  inline
+  VoxelRGBA operator + (const VoxelRGBA &aa, const uint64_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA + uint64_t" << std::endl;
     #endif
     VoxelRGBA result( aa );
     return result += bb;
   }
   
+  inline
+  VoxelRGBA operator + (const VoxelRGBA &aa, const float &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA + float" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const VoxelRGBA &aa, const double &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA + double" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const uint8_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint8_t + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const uint16_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint16_t + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const uint32_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint32_t + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const uint64_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint64_t + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const float &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: float + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+  
+  inline
+  VoxelRGBA operator + (const double &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: double + RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result += bb;
+  }
+
   inline
   VoxelRGBA operator - (const VoxelRGBA &aa, const VoxelRGBA &bb)
   {
@@ -493,6 +593,56 @@ namespace carto {
   }
 
   inline
+  VoxelRGBA operator - (const VoxelRGBA &aa, const uint16_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA - uint16_t" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+
+  inline
+  VoxelRGBA operator - (const VoxelRGBA &aa, const uint32_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA - uint32_t" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const VoxelRGBA &aa, const uint64_t &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA - uint64_t" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const VoxelRGBA &aa, const float &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA - float" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const VoxelRGBA &aa, const double &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: RGBA - double" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+ 
+  inline
   VoxelRGBA operator - (const uint8_t &aa, const VoxelRGBA &bb)
   {
     #ifdef CARTO_DEBUG_RGB
@@ -502,6 +652,56 @@ namespace carto {
     return result -= bb;
   }
   
+  inline
+  VoxelRGBA operator - (const uint16_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint16_t - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const uint32_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint32_t - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const uint64_t &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: uint64_t - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const float &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: float - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+  
+  inline
+  VoxelRGBA operator - (const double &aa, const VoxelRGBA &bb)
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGBA:: double - RGBA" << std::endl;
+    #endif
+    VoxelRGBA result( aa );
+    return result -= bb;
+  }
+
   inline
   VoxelRGBA operator * (const VoxelRGBA &aa, const uint8_t &bb)
   {
