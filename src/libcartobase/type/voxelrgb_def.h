@@ -570,7 +570,7 @@ namespace carto {
       std::cout << "RGB:: RGB - double" << std::endl;
     #endif
     VoxelRGB result( aa );
-    return result -= bb;
+    return result -= static_cast<uint8_t>(bb);
   }
   
   inline
@@ -580,7 +580,7 @@ namespace carto {
       std::cout << "RGB:: uint8_t - RGB" << std::endl;
     #endif
     VoxelRGB result( aa );
-    return result -= static_cast<uint8_t>(bb);
+    return result -= bb;
   }
   
   inline
