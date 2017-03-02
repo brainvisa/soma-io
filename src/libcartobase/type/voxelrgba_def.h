@@ -499,7 +499,7 @@ namespace carto {
       std::cout << "RGBA:: RGBA + float" << std::endl;
     #endif
     VoxelRGBA result( aa );
-    return result += bb;
+    return result += static_cast<uint8_t>(bb);
   }
   
   inline
@@ -509,7 +509,7 @@ namespace carto {
       std::cout << "RGBA:: RGBA + double" << std::endl;
     #endif
     VoxelRGBA result( aa );
-    return result += bb;
+    return result += static_cast<uint8_t>(bb);
   }
   
   inline
@@ -558,7 +558,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: float + RGBA" << std::endl;
     #endif
-    VoxelRGBA result( aa );
+    VoxelRGBA result( static_cast<uint8_t>(aa) );
     return result += bb;
   }
   
@@ -568,7 +568,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: double + RGBA" << std::endl;
     #endif
-    VoxelRGBA result( aa );
+    VoxelRGBA result( static_cast<uint8_t>(aa) );
     return result += bb;
   }
 
@@ -629,7 +629,7 @@ namespace carto {
       std::cout << "RGBA:: RGBA - float" << std::endl;
     #endif
     VoxelRGBA result( aa );
-    return result -= bb;
+    return result -= static_cast<uint8_t>(bb);
   }
   
   inline
@@ -639,7 +639,7 @@ namespace carto {
       std::cout << "RGBA:: RGBA - double" << std::endl;
     #endif
     VoxelRGBA result( aa );
-    return result -= bb;
+    return result -= static_cast<uint8_t>(bb);
   }
  
   inline
@@ -688,7 +688,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: float - RGBA" << std::endl;
     #endif
-    VoxelRGBA result( aa );
+    VoxelRGBA result( static_cast<uint8_t>(aa) );
     return result -= bb;
   }
   
@@ -698,7 +698,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "RGBA:: double - RGBA" << std::endl;
     #endif
-    VoxelRGBA result( aa );
+    VoxelRGBA result( static_cast<uint8_t>(aa) );
     return result -= bb;
   }
 

@@ -466,7 +466,7 @@ namespace carto {
       std::cout << "HSV:: HSV + float" << std::endl;
     #endif
     VoxelHSV result( aa );
-    return result += bb;
+    return result += static_cast<uint8_t>(bb);
   }
  
   inline
@@ -476,7 +476,7 @@ namespace carto {
       std::cout << "HSV:: HSV + double" << std::endl;
     #endif
     VoxelHSV result( aa );
-    return result += bb;
+    return result += static_cast<uint8_t>(bb);
   }
   
   inline
@@ -525,7 +525,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: float + HSV" << std::endl;
     #endif
-    VoxelHSV result( aa );
+    VoxelHSV result( static_cast<uint8_t>(aa) );
     return result += bb;
   }
   
@@ -535,7 +535,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: double + HSV" << std::endl;
     #endif
-    VoxelHSV result( aa );
+    VoxelHSV result( static_cast<uint8_t>(aa) );
     return result += bb;
   }
 
@@ -596,7 +596,7 @@ namespace carto {
       std::cout << "HSV:: HSV - float" << std::endl;
     #endif
     VoxelHSV result( aa );
-    return result -= bb;
+    return result -= static_cast<uint8_t>(bb);
   }
  
   inline
@@ -606,7 +606,7 @@ namespace carto {
       std::cout << "HSV:: HSV - double" << std::endl;
     #endif
     VoxelHSV result( aa );
-    return result -= bb;
+    return result -= static_cast<uint8_t>(bb);
   }
   
   inline
@@ -655,7 +655,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: float - HSV" << std::endl;
     #endif
-    VoxelHSV result( aa );
+    VoxelHSV result( static_cast<uint8_t>(aa) );
     return result -= bb;
   }
   
@@ -665,7 +665,7 @@ namespace carto {
     #ifdef CARTO_DEBUG_RGB
       std::cout << "HSV:: double - HSV" << std::endl;
     #endif
-    VoxelHSV result( aa );
+    VoxelHSV result( static_cast<uint8_t>(aa) );
     return result -= bb;
   }
 
