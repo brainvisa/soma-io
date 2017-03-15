@@ -44,6 +44,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <list>
 #include <typeinfo>
 #ifdef CARTO_DEBUG
 #include <cartobase/config/verbose.h>
@@ -958,7 +959,10 @@ DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<long long> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<unsigned long long> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<float> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<double> > )
+DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<std::string> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::set<unsigned> > )
+
+DECLARE_GENERIC_OBJECT_TYPE( std::list<std::vector<std::string> > )
 
 DECLARE_GENERIC_OBJECT_TYPE( std::set<int> )
 DECLARE_GENERIC_OBJECT_TYPE( std::set<unsigned> )
