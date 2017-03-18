@@ -354,6 +354,9 @@ static char * gni_history[] =
   "   - for unknown extensions, in nifti_is_gzfile(), try to actually open\n",
   "     the file and check gzip magic number to check compression\n",
   "   - in nifti_read_subregion_image(), close the file after use\n",
+  "1.47 18 Mar 2017, D. Riviere\n",
+  "   - fixed strides in nifti_read_subregion_image() and compute_strides()\n",
+  "     to support images larger than 2GB\n",
   "----------------------------------------------------------------------\n"
 };
 static char gni_version[] = "nifti library version 1.45 (19 Jun, 2013)";
@@ -6875,7 +6878,7 @@ long int nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
 ** stride array.
 */
 static void
-compute_strides(int *strides,const int *size,int nbyper)
+compute_strides(long int *strides,const int *size,int nbyper)
 {
   int i;
   strides[0] = nbyper;
@@ -6924,7 +6927,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
   long int bytes = 0;           /* total # bytes read */
   long int total_alloc_size;    /* size of buffer allocation */
   char *readptr;                /* where in *data to read next */
-  int strides[7];               /* strides between dimensions */
+  long int strides[7];          /* strides between dimensions */
   int collapsed_dims[8];        /* for read_collapsed_image */
   int *image_size;              /* pointer to dimensions in header */
   long int initial_offset;
