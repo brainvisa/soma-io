@@ -6881,10 +6881,10 @@ static void
 compute_strides(long int *strides,const int *size,int nbyper)
 {
   int i;
-  strides[0] = nbyper;
+  strides[0] = (long) nbyper;
   for(i = 1; i < 7; i++)
     {
-    strides[i] = size[i-1] * strides[i-1];
+    strides[i] = ((long) size[i-1]) * strides[i-1];
     }
 }
 
@@ -7055,7 +7055,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
             {
             for(n = si[1]; n < (si[1] + rs[1]); n++)
               {
-              int nread,read_amount;
+              long int nread,read_amount;
               offset = initial_offset +
                 (i * strides[6]) +
                 (j * strides[5]) +
@@ -7065,13 +7065,13 @@ long int nifti_read_subregion_image( nifti_image * nim,
                 (n * strides[1]) +
                 (si[0] * strides[0]);
               znzseek(fp, offset, SEEK_SET); /* seek to current row */
-              read_amount = rs[0] * nim->nbyper; /* read a row of the subregion*/
+              read_amount = ((long) rs[0]) * nim->nbyper; /* read a row of the subregion*/
               nread = (int)nifti_read_buffer(fp, readptr, read_amount, nim);
               if(nread != read_amount)
                 {
                 if(g_opts.debug > 1)
                   {
-                  fprintf(stderr,"read of %d bytes failed\n",read_amount);
+                  fprintf(stderr,"read of %ld bytes failed\n",read_amount);
                   znzclose(fp);
                   return -1;
                   }
