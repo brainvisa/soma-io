@@ -361,7 +361,15 @@ namespace soma
       return;
     _allocated = false;
     if( _alloc == &MemoryAllocator::singleton() )
+    {
+#if __cplusplus >= 201100
+      T* p = ptr;
+      for( size_t i=0; i<n; ++i )
+        std::allocator<T>::destroy( p++ );
+#else
       std::_Destroy( ptr, ptr + n );
+#endif
+    }
     _alloc->deallocate( reinterpret_cast<char*>( ptr ), n, sizeof( T ) );
   }
 
