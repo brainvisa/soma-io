@@ -36,6 +36,7 @@
 
 #include <cartobase/config/cartobase_config.h>
 #include <stdexcept>
+#include <string>
 
 namespace carto
 {
