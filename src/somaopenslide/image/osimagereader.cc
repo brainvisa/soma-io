@@ -42,4 +42,8 @@
 using namespace soma;
 using namespace carto;
 
-template class OSImageReader<VoxelRGBA>;
+namespace carto
+{
+  template class OSImageReader<VoxelRGBA>;
+}
+
