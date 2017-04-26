@@ -10,10 +10,10 @@ def createTree( serie ):
     def makeValidValue( value ):
         valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
         return ''.join( c for c in value.replace( ' ', '_' ) if c in valid_chars )
-    
+
     if len( serie ) == 0:
         return
-    
+
     first = serie[ 0 ]
     try:
         # Get DICOM information to build file tree
@@ -28,7 +28,7 @@ def createTree( serie ):
         traceback.print_exc(file=sys.stdout)
         print '-'*60
         return
-    
+
     try:
         patientDirName = os.path.join( args.output, \
                                        patientName )
@@ -39,7 +39,7 @@ def createTree( serie ):
             while os.path.exists( patientDirName + "_" + str( inc ) ) and \
                   patientDirName + "_" + str( inc ) not in sessionPatientDirNames:
                 inc += 1
-        
+
         # Create patient directory
         if inc > 1:
             patientDirName += "_" + str( inc )
@@ -51,7 +51,7 @@ def createTree( serie ):
         traceback.print_exc(file=sys.stdout)
         print '-'*60
 
-    
+
     try:
         # Create serie directory
         serieDir = os.path.join( patientDirName, \
@@ -59,7 +59,7 @@ def createTree( serie ):
         if args.unique:
             serieDir += "_" + seriesInstanceUid
         os.mkdir( serieDir )
-        
+
         # Copy DICOM files into serie directory
         for f in serie:
             baseDestFile = os.path.join( serieDir, os.path.basename( f ) )
@@ -69,13 +69,14 @@ def createTree( serie ):
                 destFile = baseDestFile + "_" + str( num )
                 num += 1
             shutil.copyfile( f, destFile )
+        os.chmod(serieDir, 0444)
     except:
         print "Exception in user code:"
         print '-'*60
         traceback.print_exc(file=sys.stdout)
         print '-'*60
 
-    
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser( description =
 '''
