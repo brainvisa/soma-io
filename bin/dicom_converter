@@ -260,7 +260,7 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
 
         tmpdir = mkdtemp()
         tmpdirsByTime.update({t: tmpdir })
-        check_call( [ get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
+        check_call( [ 'bv_unenv', get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
         try:
             for unneededFile in glob.glob(os.path.join(tmpdir, "*_info.txt")):
                 os.remove(unneededFile)
