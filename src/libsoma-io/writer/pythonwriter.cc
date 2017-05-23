@@ -385,7 +385,33 @@ bool PythonWriter::isInternal( const string & syntax, const string & semantic )
 }
 
 
-void PythonWriter::write( const GenericObject & object, int indent, 
+void PythonWriter::write( const Object & object, int indent,
+                          const string & syntax, const string & semantic,
+                          bool writeInternals )
+{
+  if( object.isNull() )
+  {
+    try
+    {
+      AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
+      if( !is_open() )
+        io_error::launchErrnoExcept();
+      return;
+    }
+    catch( exception & e )
+    {
+      if( _catchFunction )
+        _catchFunction( *this, e, object );
+      else
+        throw;
+    }
+  }
+  else
+    write( *object, indent, syntax, semantic, writeInternals );
+}
+
+
+void PythonWriter::write( const GenericObject & object, int indent,
                           const string & syntax, const string & semantic,
                           bool writeInternals )
 {
@@ -395,12 +421,12 @@ void PythonWriter::write( const GenericObject & object, int indent,
       throw stream_fail_error( "cannot write", name() );
 
     if( object.isNone() )	// "None" object
-      {
-        AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
-        if( !is_open() )
-          io_error::launchErrnoExcept();
-        return;
-      }
+    {
+      AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
+      if( !is_open() )
+        io_error::launchErrnoExcept();
+      return;
+    }
 
     string	type = object.type();
     if( type == "object" )
@@ -468,7 +494,7 @@ void PythonWriter::write( const GenericObject & object, int indent,
   catch( exception & e )
   {
     if( _catchFunction )
-      _catchFunction( *this, e, object );
+      _catchFunction( *this, e, Object::reference( object ) );
     else
       throw;
   }
