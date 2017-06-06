@@ -103,13 +103,17 @@ BRAINVISA_COPY_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/share"
                           "share/${PROJECT_NAME}-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}"
                           ${PROJECT_NAME} )
 
-if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo" OR "${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel" )
-  set( CARTO_DEBUGMODE "release" )
-else()
-  if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-    set( CARTO_DEBUGMODE "debug" )
+if(NOT CARTO_DEBUGMODE)
+  if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" 
+     OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo" 
+     OR "${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel" )
+        set( CARTO_DEBUGMODE "release" )
   else()
-    set( CARTO_DEBUGMODE "default" )
+    if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+        set( CARTO_DEBUGMODE "debug" )
+    else()
+      set( CARTO_DEBUGMODE "default" )
+    endif()
   endif()
 endif()
 
@@ -121,6 +125,11 @@ if( "${CARTO_DEBUGMODE}" STREQUAL "debug" )
 else()
   set( CARTO_DEBUG 0 )
 endif()
+
+if(CARTO_DEBUGREF)
+  set( SOMA-IO_DEFINITIONS ${SOMA-IO_DEFINITIONS} "-DDEBUG_REF" )
+endif()
+
 add_definitions(${SOMA-IO_DEFINITIONS})
 
 ## Include directories
