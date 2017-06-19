@@ -35,45 +35,45 @@
 
 #include <cartobase/thread/mutex.h>
 #include <iostream>
-#ifdef _WIN32
-#include <cartobase/thread/mutexprivatewindows.h>
-#else
+// #ifdef _WIN32
+// #include <cartobase/thread/mutexprivatewindows.h>
+// #else
 #include <cartobase/thread/mutexprivatepthread.h>
-#endif
+// #endif
 
 
 carto::Mutex::Mutex( int type ) : d( new Mutex::Private )
 {
-#ifdef _WIN32
-
-  // windows mutexes are always recursive as far as I understand
-  d->mutex = CreateMutex( 0, true, 0 );
-  // on windows mutexes are initially locked
-  ReleaseMutex( d->mutex );
-
-#else
+// #ifdef _WIN32
+// 
+//   // windows mutexes are always recursive as far as I understand
+//   d->mutex = CreateMutex( 0, true, 0 );
+//   // on windows mutexes are initially locked
+//   ReleaseMutex( d->mutex );
+// 
+// #else
 
   pthread_mutexattr_init( &d->attributes );
   setType( type );
 
   pthread_mutex_init( &d->mutex, &d->attributes );
 
-#endif
+// #endif
 }
 
 
 carto::Mutex::~Mutex()
 {
-#ifdef _WIN32
-
-  CloseHandle( d->mutex );
-
-#else
+// #ifdef _WIN32
+// 
+//   CloseHandle( d->mutex );
+// 
+// #else
 
   pthread_mutexattr_destroy( &d->attributes );
   pthread_mutex_destroy( &d->mutex );
 
-#endif
+// #endif
 
   delete d;
 }
@@ -81,39 +81,39 @@ carto::Mutex::~Mutex()
 
 void carto::Mutex::lock()
 {
-#ifdef _WIN32
-
-  WaitForSingleObject( d->mutex, INFINITE );
-
-#else
+// #ifdef _WIN32
+// 
+//   WaitForSingleObject( d->mutex, INFINITE );
+// 
+// #else
 
   if ( pthread_mutex_trylock( &d->mutex ) )
     pthread_mutex_lock( &d->mutex );
 
-#endif
+// #endif
 }
 
 
 void carto::Mutex::unlock()
 {
-#ifdef _WIN32
-
-  ReleaseMutex( d->mutex );
-
-#else
+// #ifdef _WIN32
+// 
+//   ReleaseMutex( d->mutex );
+// 
+// #else
 
   pthread_mutex_unlock( &d->mutex );
 
-#endif
+// #endif
 }
 
 void carto::Mutex::setProcessPrivate()
 {
-#ifdef _WIN32
-
-  // TODO
-
-#else
+// #ifdef _WIN32
+// 
+//   // TODO
+// 
+// #else
 #if !defined( __GLIBC__ ) || __GLIBC_PREREQ(2,2)
   if ( pthread_mutexattr_setpshared( &d->attributes, 
                                      PTHREAD_PROCESS_PRIVATE ) )
@@ -121,17 +121,17 @@ void carto::Mutex::setProcessPrivate()
 #else
 #warning "carto::Mutex::setProcessPrivate() won't work, needs glibc >= 2.2"
 #endif
-#endif
+// #endif
 }
 
 
 void carto::Mutex::setProcessShared()
 {
-#ifdef _WIN32
-
-  // TODO
-
-#else
+// #ifdef _WIN32
+// 
+//   // TODO
+// 
+// #else
 #if (!defined( __GLIBC__ ) || ( __GLIBC_PREREQ(2,2) ) )
 
   if ( pthread_mutexattr_setpshared( &d->attributes, PTHREAD_PROCESS_SHARED ) )
@@ -140,45 +140,45 @@ void carto::Mutex::setProcessShared()
 #else
 #warning "carto::Mutex::setProcessShared() won't work, needs glibc >= 2.2"
 #endif
-#endif
+// #endif
 }
 
 
 void carto::Mutex::setRecursive()
 {
-#ifdef _WIN32
-
-#else
+// #ifdef _WIN32
+// 
+// #else
 //#if !defined( __GNUC__ ) || defined( __USE_UNIX98 )
   pthread_mutexattr_settype( &d->attributes, PTHREAD_MUTEX_RECURSIVE );
 //#else
 //#warning setRecursive is not working
 //#endif
-#endif
+// #endif
 }
 
 
 void carto::Mutex::setFast()
 {
-#ifdef _WIN32
-
-#else
+// #ifdef _WIN32
+// 
+// #else
 //#if !defined( __GNUC__ ) || defined( __USE_UNIX98 )
   pthread_mutexattr_settype( &d->attributes, PTHREAD_MUTEX_NORMAL );
 //#endif
-#endif
+// #endif
 }
 
 
 void carto::Mutex::setErrorChecking()
 {
-#ifdef _WIN32
-
-#else
+// #ifdef _WIN32
+// 
+// #else
 //#if !defined( __GNUC__ ) || defined( __USE_UNIX98 )
   pthread_mutexattr_settype( &d->attributes, PTHREAD_MUTEX_ERRORCHECK );
 //#endif
-#endif
+// #endif
 }
 
 
