@@ -38,6 +38,13 @@
 #include <string>
 #include <list>
 
+
+#ifdef _WIN32
+#define CARTOBASE_STREAM_NULLDEVICE "nul"
+#else
+#define CARTOBASE_STREAM_NULLDEVICE "/dev/null"
+#endif
+
 namespace carto
 {
   class Object;

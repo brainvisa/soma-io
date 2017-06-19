@@ -59,15 +59,10 @@ public:
 
   /** fd: file descriptor to inhibate, permanent: if false, don't reopen the
       stream when deleting the fdinhibitor */
-  fdinhibitor( int fd, bool permanent=false )
-    : _fd( fd ), _fdsave( 0 ), _fdblocker( 0 ), _permanent( permanent )
-  {}
+  fdinhibitor( int fd, bool permanent=false );
   /** fd: file to inhibate, permanent: if false, don't reopen the
       stream when deleting the fdinhibitor */
-  fdinhibitor( FILE *fd, bool permanent=false )
-    : _fd( fileno( fd ) ), _fdsave( 0 ), _fdblocker( 0 ),
-      _permanent( permanent )
-  {}
+  fdinhibitor( FILE *fd, bool permanent=false );
   ~fdinhibitor();
 
   void	close(void);
@@ -85,9 +80,6 @@ private:
   int           _fd;
   int           _fdsave;
   int           _fdblocker;
-#ifdef _WIN32
-  std::string   _tmpfile;
-#endif
   bool          _permanent;
 
 };
