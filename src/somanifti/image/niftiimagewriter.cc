@@ -94,9 +94,9 @@ template class NiftiImageWriter<VoxelRGBA>;
 template class Nifti1ImageWriter<VoxelRGBA>;
 template class Nifti2ImageWriter<VoxelRGBA>;
 
-template class NiftiImageWriter<VoxelHSV>;
-template class Nifti1ImageWriter<VoxelHSV>;
-template class Nifti2ImageWriter<VoxelHSV>;
+//template class NiftiImageWriter<VoxelHSV>;
+//template class Nifti1ImageWriter<VoxelHSV>;
+//template class Nifti2ImageWriter<VoxelHSV>;
 
 template class NiftiImageWriter<cfloat>;
 template class Nifti1ImageWriter<cfloat>;

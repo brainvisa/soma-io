@@ -63,6 +63,7 @@
 #include <cartobase/type/voxelhsv.h>
 #include <cartobase/config/version.h>
 //--- system -----------------------------------------------------------------
+#include <cstdio>
 #include <memory>
 #include <vector>
 //--- debug ------------------------------------------------------------------
@@ -545,7 +546,7 @@ namespace soma
     nifti_image *nim = _nim->nim;
 
     bool ok = true;
-    carto::fdinhibitor fdi( 2 );
+    carto::fdinhibitor fdi( stderr );
     fdi.close(); // disable output on stderr
 
     if( write4d || st == 1 )
@@ -673,7 +674,7 @@ namespace soma
     const std::vector<long> & strides,
     carto::Object options )
   {
-    // wheck if it will be a sequence of 3D volumes
+    // check if it will be a sequence of 3D volumes
     bool  write4d = true;
     try
     {
@@ -804,6 +805,7 @@ namespace soma
       NII,
       NII_GZ,
       IMG,
+      IMG_GZ
     };
     format_shape shape = NII_GZ;
 
@@ -821,18 +823,25 @@ namespace soma
       {
         ext = ext = carto::FileUtil::extension( basename );
         basename = carto::FileUtil::removeExtension( basename );
-        if( ext != "nii" )
+        if(( ext != "nii" ) && (ext != "img") && (ext != "hdr"))
           ext = "";
-        else
+        if ((ext == "img") || (ext == "hdr")) {
+          ext = "img.gz";
+          shape = IMG_GZ;
+        }
+        else {
           ext = "nii.gz";
         shape = NII_GZ;
       }
-      if( ext == "nii" || ext == "nii.gz" || ext == "img" )
+      }
+      if( ext == "nii" || ext == "nii.gz" || ext == "img" || ext == "img.gz" )
       {
         niiname = basename + "." + ext;
-        if( ext == "img" )
+        if( (ext == "img") || (ext == "img.gz") )
         {
           hdrname = basename + ".hdr";
+          
+          if(ext == "img")
           shape = IMG;
         }
         else if( ext == "nii" )
@@ -897,7 +906,7 @@ namespace soma
         for( int t=0; t<dimt; ++t )
         {
           sprintf( &name[0], "%s_%04d", basename.c_str(), t );
-          if( shape == IMG )
+          if(( shape == IMG ) || (shape == IMG_GZ))
             dsl.addDataSource( "hdr",
               carto::rc_ptr<DataSource>(
                 new FileDataSource(
@@ -1210,6 +1219,8 @@ namespace soma
     if( !hdr->getProperty( "disk_data_type", type ) )
       type = carto::DataTypeCode<T>::dataType();
 
+    localMsg("disk data type read is "
+           + (type.size() > 0 ? type : "not specified"));
     if( type == "U8" )
       nim->datatype = DT_UINT8;
     else if( type == "S16" )
@@ -1685,7 +1696,7 @@ namespace soma
       catch( ... )
       {
       }
-      if( !forcedDT )
+      if( !forcedDT && source )
       {
         // double maxm = 0;
         float scale = 1, offset = 0;

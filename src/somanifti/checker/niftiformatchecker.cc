@@ -443,6 +443,9 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     cerr << "Unrecognized datatype code in NIFTI file \"" << fname
         << "\"" << endl;
   }
+  
+  localMsg("type: " + type + ", sz: " + carto::toString(sz));
+  
   hdr->setProperty( "disk_data_type", type );
   hdr->setProperty( "bits_allocated", (int) sz );
 
@@ -455,8 +458,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
 
   /* Scaling parameter: slope, intercept */
   string dt = type;
-  if( ( nim->scl_slope != 0.0 )
-       && ( ( nim->scl_slope != 1.0 ) || ( nim->scl_inter != 0.0 ) ) )
+  if ( nim->scl_slope != 0.0 )
   {
     hdr->setProperty( "scale_factor", (float) nim->scl_slope );
     hdr->setProperty( "scale_offset", (float) nim->scl_inter );
