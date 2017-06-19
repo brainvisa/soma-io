@@ -64,6 +64,7 @@
 #include <cartobase/config/version.h>
 #include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
+#include <cstdio>
 #include <memory>
 #include <vector>
 //--- debug ------------------------------------------------------------------
@@ -419,6 +420,7 @@ namespace
                           int( rint( fabs( pend[ 1 ] ) ) ) );
     tr_pos[2] = std::min( int( rint( fabs( orig[ 2 ] ) ) ),
                           int( rint( fabs( pend[ 2 ] ) ) ) );
+    
     // TODO: still need a s2m matrix for the memory object
     // memory volume-size s2m
     mems2m = m;
@@ -572,7 +574,7 @@ namespace soma
     nifti_image *nim = _nim->nim;
 
     bool ok = true;
-    carto::fdinhibitor fdi( 2 );
+    carto::fdinhibitor fdi( stderr );
     fdi.close(); // disable output on stderr
 
     if( write4d || st == 1 )
@@ -636,7 +638,6 @@ namespace soma
 //       hdr.setProperty( "volume_dimension", vdim );
 
       const DataSourceList & dsl = dsi.list();
-
       for( f=ot; f<ot+vt; ++f )
       {
 //         hdr.setName( dname + fnames[f] );
@@ -834,6 +835,7 @@ namespace soma
       NII,
       NII_GZ,
       IMG,
+      IMG_GZ
     };
     format_shape shape = NII_GZ;
 
@@ -851,19 +853,26 @@ namespace soma
       {
         ext = ext = carto::FileUtil::extension( basename );
         basename = carto::FileUtil::removeExtension( basename );
-        if( ext != "nii" )
+        if(( ext != "nii" ) && (ext != "img") && (ext != "hdr"))
           ext = "";
-        else
+        if ((ext == "img") || (ext == "hdr")) {
+          ext = "img.gz";
+          shape = IMG_GZ;
+        }
+        else {
           ext = "nii.gz";
-        shape = NII_GZ;
+          shape = NII_GZ;
+        }
       }
-      if( ext == "nii" || ext == "nii.gz" || ext == "img" )
+      if( ext == "nii" || ext == "nii.gz" || ext == "img" || ext == "img.gz" )
       {
         niiname = basename + "." + ext;
-        if( ext == "img" )
+        if( (ext == "img") || (ext == "img.gz") )
         {
           hdrname = basename + ".hdr";
-          shape = IMG;
+          
+          if(ext == "img")
+            shape = IMG;
         }
         else if( ext == "nii" )
           shape = NII;
@@ -927,7 +936,7 @@ namespace soma
         for( int t=0; t<dimt; ++t )
         {
           sprintf( &name[0], "%s_%04d", basename.c_str(), t );
-          if( shape == IMG )
+          if(( shape == IMG ) || (shape == IMG_GZ))
             dsl.addDataSource( "hdr",
               carto::rc_ptr<DataSource>(
                 new FileDataSource(
@@ -1134,6 +1143,7 @@ namespace soma
     s2m.matrix(2,3) = 0;
     Point3df p = s2m.transform( Point3df( tdims[0], tdims[1], tdims[2] ) ),
       pp( 0. );
+
     if( p[0] < 0 )
       pp[0] = -p[0] - 1;
     if( p[1] < 0 )
@@ -1170,7 +1180,8 @@ namespace soma
     nim->nu = nim->dim[5];
     nim->nv = nim->dim[6];
     nim->nw = nim->dim[7];
-    if(nim->dim[dims.size()] == 1)
+      
+    if((nim->dim[dims.size()] == 1) && (nim->dim[0] > 1))
       nim->ndim = nim->dim[0] -= 1;
 
     if (!allow4d)
@@ -1179,7 +1190,7 @@ namespace soma
       nim->dim[4] = nim->dim[5] = nim->dim[6] = nim->dim[7] = 1;
       nim->ndim = nim->dim[0] = (dims.size() >= 4)? 3 : dims.size();
     }
-
+    
     nim->nvox =  nim->nx * nim->ny * nim->nz
               * nim->nt * nim->nu * nim->nv * nim->nw ;
 
@@ -1212,6 +1223,7 @@ namespace soma
     tvs[2] = fabs( df[2] );
 
     nim->pixdim[0] = 0;
+    
     for( dim=0; dim<ndim; ++dim )
       nim->pixdim[dim + 1] = tvs[dim];
     for( dim=ndim+1; dim<8; ++dim )
@@ -1239,6 +1251,8 @@ namespace soma
     if( !hdr->getProperty( "disk_data_type", type ) )
       type = carto::DataTypeCode<T>::dataType();
 
+    localMsg("disk data type read is "
+           + (type.size() > 0 ? type : "not specified"));
     if( type == "U8" )
       nim->datatype = DT_UINT8;
     else if( type == "S16" )
