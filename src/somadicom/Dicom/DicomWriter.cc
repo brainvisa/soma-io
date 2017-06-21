@@ -20,6 +20,12 @@
 #include <iostream>
 #endif
 
+#ifdef WIN32
+#define DICOM_PATHSEP "\\"
+#else
+#define DICOM_PATHSEP "/"
+#endif
+
 
 dcm::DicomWriter::DicomWriter()
 {
@@ -34,11 +40,12 @@ dcm::DicomWriter::~DicomWriter()
 bool dcm::DicomWriter::write( const std::string& fileName,
                               dcm::DicomProxy& proxy )
 {
-
+//   std::cout << "DicomWriter::write, fileName: " << fileName
+//             << std::endl << std::flush;
   if ( !fileName.empty() )
   {
 
-    std::string baseDirectory = "./";
+    std::string baseDirectory = "." + std::string(DICOM_PATHSEP);
     std::string outputFileName = "Unknown";
     std::string extension = "";
 
@@ -56,7 +63,7 @@ bool dcm::DicomWriter::write( const std::string& fileName,
       outputFileName = fileName.substr( 0, pos );
       extension = fileName.substr( pos );
 
-      pos = outputFileName.rfind( "/" );
+      pos = outputFileName.rfind( DICOM_PATHSEP );
 
       if ( pos != std::string::npos )
       {
@@ -70,7 +77,7 @@ bool dcm::DicomWriter::write( const std::string& fileName,
     else
     {
 
-      if ( fileName[ fileName.length() - 1 ] == '/' )
+      if ( std::string(1, fileName[ fileName.length() - 1 ]) == DICOM_PATHSEP )
       {
 
         baseDirectory = fileName;
@@ -80,7 +87,7 @@ bool dcm::DicomWriter::write( const std::string& fileName,
       {
 
         outputFileName = fileName;
-        pos = outputFileName.rfind( "/" );
+        pos = outputFileName.rfind( DICOM_PATHSEP );
 
         if ( pos != std::string::npos )
         {
@@ -96,6 +103,10 @@ bool dcm::DicomWriter::write( const std::string& fileName,
 
     struct stat file_stat;
 
+//     std::cout << "DicomWriter::write, baseDirectory: " << baseDirectory
+//               << ", outputFileName: " << outputFileName
+//               << std::endl << std::flush;
+//     
     if ( stat( baseDirectory.c_str(), &file_stat ) )
     {
 
@@ -110,10 +121,10 @@ bool dcm::DicomWriter::write( const std::string& fileName,
 
     }
 
-    if ( baseDirectory[ baseDirectory.length() - 1 ] != '/' )
+    if ( std::string(1, baseDirectory[ baseDirectory.length() - 1 ]) != DICOM_PATHSEP )
     {
 
-      baseDirectory += "/";
+      baseDirectory += DICOM_PATHSEP;
 
     }
 
