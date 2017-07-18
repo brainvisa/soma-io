@@ -4,26 +4,20 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#include <soma-io/Dicom/SingleFileReader.h>
 #include <soma-io/Dicom/USReader.h>
 #else
+#include <Dicom/SingleFileReader.h>
 #include <Dicom/USReader.h>
 #endif
-
-#include <string>
-
-
-class DcmDataset;
 
 
 namespace dcm
 {
 
 
-class DicomDatasetHeader;
-class DicomProxy;
-
-
-class USImageStorageReader : public USReader
+class USImageStorageReader : public SingleFileReader,
+                             public USReader
 {
 
   public:
@@ -34,8 +28,7 @@ class USImageStorageReader : public USReader
 
     USImageStorageReader();
 
-    virtual bool readData( DicomDatasetHeader& datasetHeader,
-                           DicomProxy& proxy );
+    virtual bool readHeader( DcmDataset* dataset );
 
 };
 

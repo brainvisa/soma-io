@@ -69,9 +69,14 @@ class ImagePixel
                        int32_t t,
                        int32_t inputSlice = 0 ) = 0;
 
+    void setSlopeAndIntercept( float slope, float intercept );
+    float applyModalityLut( float value );
+
   protected:
 
     DicomProxy& _proxy;
+    float _slope;
+    float _intercept;
 
 };
 

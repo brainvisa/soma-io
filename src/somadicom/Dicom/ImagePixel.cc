@@ -86,7 +86,9 @@ dcm::ImagePixel::Parameters::Parameters(
 
 
 dcm::ImagePixel::ImagePixel( dcm::DicomProxy& proxy )
-               : _proxy( proxy )
+               : _proxy( proxy ),
+                 _slope( 1.0f ),
+                 _intercept( 0.0f )
 {
 }
 
@@ -100,5 +102,22 @@ bool dcm::ImagePixel::initialize( DcmDataset* /* dataset */ )
 {
 
   return true;
+
+}
+
+
+void dcm::ImagePixel::setSlopeAndIntercept( float slope, float intercept )
+{
+
+  _slope = slope;
+  _intercept = intercept;
+
+}
+
+
+float dcm::ImagePixel::applyModalityLut( float value )
+{
+
+  return value * _slope + _intercept;
 
 }

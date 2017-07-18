@@ -32,7 +32,7 @@ class MRModule : public DicomModule
     bool parseDataset( DcmDataset* dadaset );
     bool parseHeader( DicomDatasetHeader& datasetHeader );
 
-    double getTR() const;
+    const std::vector< double >& getTR() const;
     const std::vector< double >& getTE() const;
     const std::vector< double >& getTI() const;
     double getFlipAngle() const;
@@ -43,7 +43,7 @@ class MRModule : public DicomModule
 
   private:
 
-    double _tr;
+    std::vector< double > _tr;
     std::vector< double > _te;
     std::vector< double > _ti;
     double _flipAngle;

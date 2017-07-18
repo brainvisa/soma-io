@@ -1,39 +1,29 @@
-#ifndef _EnhancedMRImageStorageRerader_h_
-#define _EnhancedMRImageStorageRerader_h_
+#ifndef _EnhancedMRImageStorageReader_h_
+#define _EnhancedMRImageStorageReader_h_
 
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Dicom/MultiSliceReader.h>
+#include <soma-io/Dicom/EnhancedReader.h>
 #else
-#include <Dicom/MultiSliceReader.h>
+#include <Dicom/EnhancedReader.h>
 #endif
-
-#include <string>
 
 
 namespace dcm
 {
 
 
-class EnhancedMRImageStorageReader : public MultiSliceReader
+class EnhancedMRImageStorageReader : public EnhancedReader
 {
 
   public:
 
     std::string getStorageUID();
 
-    virtual bool getHeader( HeaderProxy& header, 
-                            DataInfo& info,
-                            DicomDatasetHeader& datasetHeader );
-
   protected:
 
     EnhancedMRImageStorageReader();
-
-    virtual bool readHeader( DcmDataset* dataset );
-
-    virtual bool buildIndexLut( DcmDataset* dataset );
 
 };
 

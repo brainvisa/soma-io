@@ -32,6 +32,7 @@ class DatasetModule : public DicomModule
     const std::string& getSeriesInstanceUID() const;
     int32_t getSamplesPerPixel() const;
     int32_t getBitsAllocated() const;
+    int32_t getPixelRepresentation() const;
 
   private:
 
@@ -40,6 +41,7 @@ class DatasetModule : public DicomModule
     std::string _seriesInstanceUID;
     int32_t _samplesPerPixel;
     int32_t _bitsAllocated;
+    int32_t _pixelRepresentation;
 
 }; 
 

@@ -255,8 +255,27 @@ bool dcm::BoundingBox< T >::isOnBoundary( const T& x,
 
 }
 
+template <class T>
+std::ostream& dcm::operator<<(std::ostream& os, const dcm::BoundingBox<T> & bb)
+{
+    // write BoundinBox to stream to stream
+    os << "[[" << bb.getLowerX() << ", "
+               << bb.getLowerY() << ", "
+               << bb.getLowerZ() << ", "
+               << bb.getLowerT() << "], "
+           "[" << bb.getUpperX() << ", "
+               << bb.getUpperY() << ", "
+               << bb.getUpperZ() << ", "
+               << bb.getUpperT() << "]]";
+    return os;
+}
 
 template class dcm::BoundingBox< int8_t >;
 template class dcm::BoundingBox< int16_t >;
 template class dcm::BoundingBox< int32_t >;
 template class dcm::BoundingBox< int64_t >;
+
+template std::ostream& dcm::operator<<(std::ostream& os, const dcm::BoundingBox<int8_t> & bb);
+template std::ostream& dcm::operator<<(std::ostream& os, const dcm::BoundingBox<int16_t> & bb);
+template std::ostream& dcm::operator<<(std::ostream& os, const dcm::BoundingBox<int32_t> & bb);
+template std::ostream& dcm::operator<<(std::ostream& os, const dcm::BoundingBox<int64_t> & bb);

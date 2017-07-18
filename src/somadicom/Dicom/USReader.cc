@@ -1,8 +1,10 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/USReader.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Dicom/USRegionSpatialModule.h>
 #else
 #include <Dicom/USReader.h>
+#include <Container/DataInfo.h>
 #include <Dicom/USRegionSpatialModule.h>
 #endif
 
@@ -11,38 +13,32 @@
 
 
 dcm::USReader::USReader()
-             : dcm::DicomReader()
 {
 }
 
 
-bool dcm::USReader::readHeader( DcmDataset* dataset )
+dcm::USReader::~USReader()
+{
+}
+
+
+bool dcm::USReader::readHeader( DcmDataset* dataset, dcm::DataInfo& dataInfo )
 {
 
   if ( dataset )
   {
 
-    if ( ( _dataInfo->_resolution.x <= 0.0 ) ||
-         ( _dataInfo->_resolution.y <= 0.0 ) )
+    dcm::USRegionSpatialModule spatialModule;
+
+    if ( spatialModule.parseItem( dataset ) )
     {
 
-      dcm::USRegionSpatialModule spatialModule;
+      dataInfo._resolution.x = spatialModule.getPhysicalDeltaX();
+      dataInfo._resolution.y = spatialModule.getPhysicalDeltaY();
 
-      if ( spatialModule.parseItem( dataset ) )
-      {
-
-        _dataInfo->_resolution.x = spatialModule.getPhysicalDeltaX();
-        _dataInfo->_resolution.y = spatialModule.getPhysicalDeltaY();
-
-        return true;
-
-      }
-
-      return false;
+      return true;
 
     }
-
-    return true;
 
   }
 

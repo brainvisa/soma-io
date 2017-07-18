@@ -43,7 +43,7 @@ bool dcm::ImageModule::parseItem( DcmItem* dcmItem )
     {
 
       _samplesPerPixel = int32_t( tmpUint16 );
-
+      
     }
 
     if ( dcmItem->findAndGetOFString( DCM_PhotometricInterpretation, 
@@ -52,7 +52,8 @@ bool dcm::ImageModule::parseItem( DcmItem* dcmItem )
 
       _photometricInterpretation = tmpString.c_str();
 
-      if ( _photometricInterpretation == "PALETTE COLOR" )
+      if (( _photometricInterpretation == "PALETTE COLOR" ) ||
+          ( _photometricInterpretation == "RGB" ))
       {
 
         _samplesPerPixel = 3;
@@ -118,7 +119,7 @@ bool dcm::ImageModule::parseItem( DcmItem* dcmItem )
     {
 
       _bitsStored = int32_t( tmpUint16 );
-
+      
     }
     else
     {

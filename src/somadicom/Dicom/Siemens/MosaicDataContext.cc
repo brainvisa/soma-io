@@ -41,8 +41,8 @@ void dcm::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
                                     _demosaicer.getMosaicSizeX() );
   dcm::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
-  int32_t min = 0;
-  int32_t max = 0;
+  float min = 0.0f;
+  float max = 0.0f;
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
@@ -50,7 +50,7 @@ void dcm::MosaicDataContext::doIt( int32_t startIndex, int32_t count )
     if ( dicomImage.load( _fileList[ _lut[ i ] ] ) )
     {
 
-      int32_t dMin = 0, dMax = 0;
+      float dMin = 0.0f, dMax = 0.0f;
 
       _demosaicer.demosaic( dicomImage, info, 0, i );
       dicomImage.getMinMaxValues( dMin, dMax );

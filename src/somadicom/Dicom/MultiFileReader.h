@@ -4,12 +4,12 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#include <soma-io/Dicom/DicomReader.h>
 #include <soma-io/Dicom/MultiSliceReader.h>
 #else
+#include <Dicom/DicomReader.h>
 #include <Dicom/MultiSliceReader.h>
 #endif
-
-#include <string>
 
 
 class DcmDataset;
@@ -19,12 +19,17 @@ namespace dcm
 {
 
 
-class MultiFileReader : public MultiSliceReader
+class MultiFileReader : public DicomReader,
+                        public MultiSliceReader
 {
 
   public:
 
     MultiFileReader();
+
+    virtual bool getHeader( HeaderProxy& header, 
+                            DataInfo& dataInfo,
+                            DicomDatasetHeader& datasetHeader );
 
   protected:
 

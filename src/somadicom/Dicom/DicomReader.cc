@@ -79,12 +79,14 @@ bool dcm::DicomReader::check( const dcm::DatasetModule& datasetModule,
 
   bool noFlip = dataInfo._noFlip;
   bool noDemosaic = dataInfo._noDemosaic;
+  bool modalityLut = dataInfo._modalityLut;
   std::string selectedFile = directory.getSelectedFile();
 
   _dataInfo = &dataInfo;
   _dataInfo->clear();
   _dataInfo->_noFlip = noFlip;
   _dataInfo->_noDemosaic = noDemosaic;
+  _dataInfo->_modalityLut = modalityLut;
 
   if ( selectFiles( directory, 
                     datasetModule.getSeriesInstanceUID(), 
@@ -204,11 +206,11 @@ bool dcm::DicomReader::getHeader( dcm::HeaderProxy& header,
 
   }
 
-  if ( modalityLutModule.parseHeader( datasetHeader ) )
+  if ( !info._modalityLut && modalityLutModule.parseHeader( datasetHeader ) )
   {
 
     header.addAttribute( "rescale_intercept",  
-                         modalityLutModule.getRescaleIntercept());
+                         modalityLutModule.getRescaleIntercept() );
     header.addAttribute( "rescale_slope", 
                          modalityLutModule.getRescaleSlope() );
 
@@ -228,7 +230,7 @@ bool dcm::DicomReader::read( dcm::DicomDatasetHeader& datasetHeader,
 
 #ifdef MINI_VIEWER
     struct timeval tv_start;
-    struct timeval tv_1;
+    struct timeval tv_stop;
 
     gettimeofday( &tv_start, NULL );
 #endif
@@ -237,9 +239,9 @@ bool dcm::DicomReader::read( dcm::DicomDatasetHeader& datasetHeader,
     bool status = readData( datasetHeader, proxy );
 
 #ifdef MINI_VIEWER
-    gettimeofday( &tv_1, NULL );
+    gettimeofday( &tv_stop, NULL );
 
-    double d1 = (double)( tv_1.tv_sec + tv_1.tv_usec / 1000000.0 - 
+    double d1 = (double)( tv_stop.tv_sec + tv_stop.tv_usec / 1000000.0 - 
                           tv_start.tv_sec - tv_start.tv_usec / 1000000.0 );
     std::cout << "Read time : " << std::endl;
     std::cout << "  - data read       : " << d1 << " s" << std::endl;
@@ -310,8 +312,8 @@ bool dcm::DicomReader::readHeader( dcm::DicomDatasetHeader& datasetHeader )
     }
 
     _dataInfo->_resolution.z = _dataInfo->_spacingBetweenSlices;
-    _dataInfo->_minimum = ( 1 << _dataInfo->_bitsStored ) - 1;
-    _dataInfo->_maximum = 1 - ( 1 << _dataInfo->_bitsStored );
+    _dataInfo->_minimum = float( ( 1 << _dataInfo->_bitsStored ) - 1 );
+    _dataInfo->_maximum = float( 1 - ( 1 << _dataInfo->_bitsStored ) );
 
     return readHeader( &dataset );
 

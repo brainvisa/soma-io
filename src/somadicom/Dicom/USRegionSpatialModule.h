@@ -21,12 +21,12 @@ class USRegionSpatialModule : public DicomModule
 
     USRegionSpatialModule();
 
-    bool parseItem( DcmItem* dcmItem );
+    virtual bool parseItem( DcmItem* dcmItem );
 
     double getPhysicalDeltaX() const;
     double getPhysicalDeltaY() const;
 
-  private:
+  protected:
 
     double _physicalDeltaX;
     double _physicalDeltaY;

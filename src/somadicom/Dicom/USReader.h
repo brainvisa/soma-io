@@ -4,9 +4,6 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Dicom/DicomReader.h>
-#else
-#include <Dicom/DicomReader.h>
 #endif
 
 
@@ -17,16 +14,20 @@ namespace dcm
 {
 
 
-class USReader : public DicomReader
+class DataInfo;
+
+
+class USReader
 {
 
   public:
 
     USReader();
+    virtual ~USReader();
 
   protected:
 
-    bool readHeader( DcmDataset* dataset );
+    bool readHeader( DcmDataset* dataset, DataInfo& dataInfo );
 
 };
 

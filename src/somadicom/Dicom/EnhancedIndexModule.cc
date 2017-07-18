@@ -62,40 +62,45 @@ bool dcm::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
 
       }
 
-      int32_t i;
-      DcmTagKey stackID( DCM_StackID );
-      DcmTagKey inStackPos( DCM_InStackPositionNumber );
-
-      for ( i = 0; i < dim; i++ )
+      if ( dim )
       {
 
-        OFString tmpString;
-        DcmItem* item = seq->getItem( i );
+        int32_t i;
+        DcmTagKey stackID( DCM_StackID );
+        DcmTagKey inStackPos( DCM_InStackPositionNumber );
 
-         if ( item->findAndGetOFString( DCM_DimensionIndexPointer, 
-                                        tmpString ).good() )
-         {
+        for ( i = 0; i < dim; i++ )
+        {
 
-           if ( !tmpString.compare( inStackPos.toString() ) )
-           {
+          OFString tmpString;
+          DcmItem* item = seq->getItem( i );
 
-             _zIndex = i;
+          if ( item->findAndGetOFString( DCM_DimensionIndexPointer, 
+                                         tmpString ).good() )
+          {
 
-           }
-           else if ( tmpString.compare( stackID.toString() ) )
-           {
+            if ( !tmpString.compare( inStackPos.toString() ) )
+            {
 
-             _tIndex = i;
+              _zIndex = i;
 
-           }
+            }
+            else if ( tmpString.compare( stackID.toString() ) )
+            {
 
-         }
+              _tIndex = i;
+
+            }
+
+          }  
+
+        }
 
       }
 
     }
 
-    if ( _zIndex < 0 )
+    if ( dim && ( _zIndex < 0 ) )
     {
 
       return false;
@@ -111,7 +116,7 @@ bool dcm::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
       uint32_t i, nItems = seq->card();
       std::vector< std::pair< int32_t, int32_t > > tmpLut( nItems );
 
-      _zCount = 0;
+      _zCount = ( dim > 1 ) ? 0 : _numberOfFrames;
 
       for ( i = 0; i < nItems; i++ )
       {
@@ -125,19 +130,30 @@ bool dcm::EnhancedIndexModule::parseItem( DcmItem* dcmItem )
 
           Uint32 z, t = 1;
 
-          tmpItem->findAndGetUint32( DCM_DimensionIndexValues, z, _zIndex );
-
-          if ( dim == 3 )
+          if ( dim )
           {
 
-            tmpItem->findAndGetUint32( DCM_DimensionIndexValues, t, _tIndex );
+            tmpItem->findAndGetUint32( DCM_DimensionIndexValues, z, _zIndex );
+
+            if ( dim == 3 )
+            {
+
+              tmpItem->findAndGetUint32( DCM_DimensionIndexValues, t, _tIndex );
+
+            }
+
+            if  ( int32_t( z ) > _zCount )
+            {
+
+              _zCount = z;
+
+            }
 
           }
-
-          if  ( int32_t( z ) > _zCount )
+          else
           {
 
-            _zCount = z;
+            tmpItem->findAndGetUint32( DCM_InStackPositionNumber, z );
 
           }
 

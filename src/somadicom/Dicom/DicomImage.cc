@@ -1,12 +1,14 @@
 #ifdef SOMA_IO_DICOM
 #include <soma-io/Dicom/DicomImage.h>
 #include <soma-io/Dicom/MonochromeImage.h>
+#include <soma-io/Dicom/MonochromeFloatImage.h>
 #include <soma-io/Dicom/RGBImage.h>
 #include <soma-io/Dicom/PaletteImage.h>
 #include <soma-io/Container/DicomProxy.h>
 #else
 #include <Dicom/DicomImage.h>
 #include <Dicom/MonochromeImage.h>
+#include <Dicom/MonochromeFloatImage.h>
 #include <Dicom/RGBImage.h>
 #include <Dicom/PaletteImage.h>
 #include <Container/DicomProxy.h>
@@ -60,38 +62,7 @@ bool dcm::DicomImage::load( const std::string& fileName )
     if ( _dicomFile.loadFile( fileName.c_str() ).good() )
     {
 
-      _dataset = _dicomFile.getDataset();
-
-      if ( _dataset )
-      {
-
-        DcmElement* element = 0;
-
-        if ( _dataset->findAndGetElement( DCM_PixelData, element ).good() )
-        {
-
-          _pixelData = OFstatic_cast( DcmPixelData*, element );
-
-          if ( _pixelData && _imageModule.parseItem( _dataset ) )
-          {
-
-            chooseImagePixel( _imageModule.getPhotometricInterpretation() );
-
-            if ( _image )
-            {
-
-              getImagePtr();
-              _image->initialize( _dataset );
-
-              return true;
-
-            }
-
-          }
-
-        }
-
-      }
+      return getPixelData( _dicomFile.getDataset() );
 
     }
 
@@ -167,7 +138,7 @@ void dcm::DicomImage::fillIndex( int32_t index, int32_t inputSlice )
 void dcm::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
 {
 
-  if ( _imagePtr )
+  if ( _imagePtr && _image )
   {
 
     _image->fill( _parameters, 
@@ -182,11 +153,81 @@ void dcm::DicomImage::fill( int32_t z, int32_t t, int32_t inputSlice )
 }
 
 
-void dcm::DicomImage::getMinMaxValues( int32_t& min, int32_t& max )
+void dcm::DicomImage::getMinMaxValues( float& min, float& max )
 {
 
-  min = _imageModule.getSmallestPixelValue();
-  max = _imageModule.getLargestPixelValue();
+  if ( _image )
+  {
+
+    int32_t minInt = _imageModule.getSmallestPixelValue();
+    int32_t maxInt = _imageModule.getLargestPixelValue();
+
+    if ( minInt == maxInt )
+    {
+
+      minInt = 0;
+      maxInt = ( 1 << _proxy.getDataInfo()._bitsStored ) - 1;
+
+    }
+
+    min = _image->applyModalityLut( float( minInt ) );
+    max = _image->applyModalityLut( float( maxInt ) );
+
+  }
+
+}
+
+
+void dcm::DicomImage::setSlopeAndIntercept( double slope, double intercept )
+{
+
+  if ( _image )
+  {
+
+    _image->setSlopeAndIntercept( slope, intercept );
+
+  }
+
+}
+
+
+bool dcm::DicomImage::getPixelData( DcmDataset* dataset )
+{
+
+  if ( dataset )
+  {
+
+    DcmElement* element = 0;
+    
+    _dataset = dataset;
+
+    if ( dataset->findAndGetElement( DCM_PixelData, element ).good() )
+    {
+
+      _pixelData = OFstatic_cast( DcmPixelData*, element );
+
+      if ( _pixelData && _imageModule.parseItem( dataset ) )
+      {
+
+        chooseImagePixel( _imageModule.getPhotometricInterpretation() );
+
+        if ( _image )
+        {
+
+          getImagePtr();
+          _image->initialize( dataset );
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return false;
 
 }
 
@@ -209,16 +250,82 @@ void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
          ( _photometric == "MONOCHROME2" ) )
     {
 
-      if ( _dcmEVR == EVR_OW )
+      if ( _proxy.getDataInfo()._modalityLut )
       {
 
-        _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+        if ( ( _dcmEVR == EVR_OW ) && ( _proxy.getDataInfo()._depth > 8 ) )
+        {
+
+          if ( _proxy.getDataInfo()._pixelRepresentation )
+          {
+
+            _image = new dcm::MonochromeFloatImage< int16_t >( _proxy );
+
+          }
+          else
+          {
+
+            _image = new dcm::MonochromeFloatImage< uint16_t >( _proxy );
+
+          }
+
+        }
+        else
+        {
+
+          if ( _proxy.getDataInfo()._pixelRepresentation )
+          {
+
+            _image = new dcm::MonochromeFloatImage< int8_t >( _proxy );
+
+          }
+          else
+          {
+
+            _image = new dcm::MonochromeFloatImage< uint8_t >( _proxy );
+
+          }
+
+        }
 
       }
       else
       {
 
-        _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+        if ( ( _dcmEVR == EVR_OW ) && ( _proxy.getDataInfo()._depth > 8 ) )
+        {
+
+          if ( _proxy.getDataInfo()._pixelRepresentation )
+          {
+
+            _image = new dcm::MonochromeImage< int16_t >( _proxy );
+
+          }
+          else
+          {
+
+            _image = new dcm::MonochromeImage< uint16_t >( _proxy );
+
+          }
+
+        }
+        else
+        {
+
+          if ( _proxy.getDataInfo()._pixelRepresentation )
+          {
+
+            _image = new dcm::MonochromeImage< int8_t >( _proxy );
+
+          }
+          else
+          {
+
+            _image = new dcm::MonochromeImage< uint8_t >( _proxy );
+
+          }
+
+        }
 
       }
 
@@ -230,17 +337,18 @@ void dcm::DicomImage::chooseImagePixel( const std::string& photometric )
       }
 
     }
-    else if ( _photometric == "RGB" )
-    {
-
-      _image = new dcm::RGBImage( _proxy, 
-                                  _imageModule.getPlanarConfiguration() );
-
-    }
     else if ( _photometric == "PALETTE COLOR" )
     {
 
       _image = new dcm::PaletteImage( _proxy );
+
+    }
+    else /* if ( ( _photometric == "RGB" ) ||
+                 ( _photometric == "YBR_FULL_422" ) ) */
+    {
+
+      _image = new dcm::RGBImage( _proxy, 
+                                  _imageModule.getPlanarConfiguration() );
 
     }
 

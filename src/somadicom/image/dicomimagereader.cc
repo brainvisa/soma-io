@@ -45,9 +45,10 @@ using namespace carto;
 
 namespace carto
 {
+  template class DicomImageReader<int8_t>;
   template class DicomImageReader<int16_t>;
   template class DicomImageReader<uint8_t>;
   template class DicomImageReader<uint16_t>;
+  template class DicomImageReader<float>;
   template class DicomImageReader<VoxelRGB>;
 }
-

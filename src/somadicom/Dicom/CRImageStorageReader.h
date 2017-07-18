@@ -4,9 +4,9 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
-#include <soma-io/Dicom/MultiFileReader.h>
+#include <soma-io/Dicom/SingleFileReader.h>
 #else
-#include <Dicom/MultiFileReader.h>
+#include <Dicom/SingleFileReader.h>
 #endif
 
 
@@ -14,7 +14,7 @@ namespace dcm
 {
 
 
-class CRImageStorageReader : public MultiFileReader
+class CRImageStorageReader : public SingleFileReader
 {
 
   public:

@@ -32,7 +32,7 @@
  */
 
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/checker/dicomformatchecker.h>             // class declaration
+#include <soma-io/checker/dicomformatchecker.h>           // class declaration
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DataInfoCache.h>
@@ -53,7 +53,7 @@
 #include <cartobase/stream/fdinhibitor.h>
 //--- system -----------------------------------------------------------------
 #include <cstdio>
-#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
+#define SOMAIO_BYTE_ORDER 0x41424344    //"ABCD" in ascii -> used for byteswap
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "DICOMFORMATCHECKER" )
@@ -97,13 +97,13 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
 
     // fast check
-    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo ) )
+    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
     {
       // open file
 //       fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
-
+    
     // select files and read information relevent for memory allocation
     dcm::DicomDatasetHeader datasetHeader( dataInfo );
 
@@ -115,7 +115,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 //       fdi.open();
       throw wrong_format_error( "Error in DICOM dataset", imaname );
     }
-
+    
     // open file
     fdi.open();
 

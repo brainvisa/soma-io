@@ -4,6 +4,7 @@
 #include <soma-io/System/DirectoryParser.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/Object/HeaderProxy.h>
 #include <soma-io/Dicom/DicomSelectContext.h>
 #include <soma-io/Dicom/DicomSortContext.h>
 #include <soma-io/Dicom/DicomDataContext.h>
@@ -15,6 +16,7 @@
 #include <System/DirectoryParser.h>
 #include <Dicom/DicomDatasetHeader.h>
 #include <Container/DicomProxy.h>
+#include <Object/HeaderProxy.h>
 #include <Dicom/DicomSelectContext.h>
 #include <Dicom/DicomSortContext.h>
 #include <Dicom/DicomDataContext.h>
@@ -28,8 +30,26 @@
 
 
 dcm::MultiFileReader::MultiFileReader()
-                    : dcm::MultiSliceReader()
+                    : dcm::DicomReader(),
+                      dcm::MultiSliceReader()
 {
+}
+
+
+bool dcm::MultiFileReader::getHeader( dcm::HeaderProxy& header, 
+                                      dcm::DataInfo& dataInfo,
+                                      dcm::DicomDatasetHeader& datasetHeader )
+{
+
+  if ( dcm::MultiSliceReader::getHeader( header, dataInfo, datasetHeader ) )
+  {
+
+    return dcm::DicomReader::getHeader( header, dataInfo, datasetHeader );
+
+  }
+
+  return false;
+
 }
 
 
@@ -203,7 +223,8 @@ bool dcm::MultiFileReader::sortFiles( dcm::DicomDatasetHeader& datasetHeader )
 
     }
 
-    setOrientation();
+    dcm::MultiSliceReader::setOrientation( *_dataInfo );
+    dcm::DicomReader::setOrientation();
 
     return true;
 
