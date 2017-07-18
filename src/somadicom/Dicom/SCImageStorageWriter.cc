@@ -316,7 +316,7 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
 
       }
 
-      sliceLocation += info._resolution.z;
+      sliceLocation -= info._resolution.z;
 
     }
 
