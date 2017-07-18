@@ -78,7 +78,19 @@ namespace soma
     dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
     dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
     dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
-    dsi.header()->getProperty( "voxel_size", _voxel_size );
+    try
+    {
+      carto::Object vso = dsi.header()->getProperty( "voxel_size" );
+      if ( vso.get() )
+      {
+        int i, nvs = std::min( vso->size(), _sizes[ 0 ].size() );
+        for( i=0; i<nvs; ++i )
+          _voxel_size[i] = (float) vso->getArrayItem(i)->getScalar();
+      }
+    }
+    catch( ... )
+    {
+    }
   }
 
   template <typename T>
