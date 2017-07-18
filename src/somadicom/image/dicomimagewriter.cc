@@ -47,4 +47,5 @@ template class DicomImageWriter<int8_t>;
 template class DicomImageWriter<uint8_t>;
 template class DicomImageWriter<int16_t>;
 template class DicomImageWriter<uint16_t>;
+template class DicomImageWriter<float>;
 template class DicomImageWriter<VoxelRGB>;

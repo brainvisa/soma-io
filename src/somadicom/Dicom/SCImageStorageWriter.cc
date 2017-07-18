@@ -2,6 +2,7 @@
 #include <soma-io/Dicom/SCImageStorageWriter.h>
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Container/DicomProxy.h>
+#include <soma-io/io/scaledcoding.h>
 #else
 #include <Dicom/SCImageStorageWriter.h>
 #include <Dicom/DicomIO.h>
@@ -138,9 +139,23 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
 
   dataset->putAndInsertUint16( DCM_Rows, info._height );
   dataset->putAndInsertUint16( DCM_Columns, info._width );
-  dataset->putAndInsertUint16( DCM_BitsAllocated, info._depth );
-  dataset->putAndInsertUint16( DCM_BitsStored, info._depth );
-  dataset->putAndInsertUint16( DCM_HighBit, info._depth - 1 );
+
+  if ( info._modalityLut && ( info._depth == 32 ) )
+  {
+
+    dataset->putAndInsertUint16( DCM_BitsAllocated, 16 );
+    dataset->putAndInsertUint16( DCM_BitsStored, 16 );
+    dataset->putAndInsertUint16( DCM_HighBit, 15 );
+
+  }
+  else
+  {
+
+    dataset->putAndInsertUint16( DCM_BitsAllocated, info._depth );
+    dataset->putAndInsertUint16( DCM_BitsStored, info._depth );
+    dataset->putAndInsertUint16( DCM_HighBit, info._depth - 1 );
+
+  }
   dataset->putAndInsertUint16( DCM_PixelRepresentation,
                                info._pixelRepresentation );
 
@@ -198,6 +213,16 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
                                "1\\0\\0\\0\\1\\0" );
 
   float sliceLocation;
+  std::vector< long > strides( 4 );
+  std::vector< int32_t > sizes( 4 );
+  strides[ 0 ] = 1;
+  strides[ 1 ] = info._width;
+  strides[ 2 ] = info._sliceSize;
+  strides[ 3 ] = info._volumeSize;
+  sizes[ 0 ] = info._width;
+  sizes[ 1 ] = info._height;
+  sizes[ 2 ] = 1;
+  sizes[ 3 ] = 1;
 
   for ( i = 1, t = 0; status && ( t < dimT ); t++ )
   {
@@ -233,7 +258,30 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
       dataset->putAndInsertString( DCM_SliceLocation, strLocation.c_str() );
       dataset->putAndInsertString( DCM_ImagePositionPatient, tmpStr.c_str() );
 
-      if ( info._depth > 8 )
+      if ( info._modalityLut && ( info._depth == 32 ) )
+      {
+
+        uint16_t buffer[ info._sliceSize ];
+        soma::ScaledEncodingInfo sinfo = 
+          soma::ScaledEncoding< float, uint16_t >::rescale( 
+                                                    (float*)proxy( 0, 0, z, t ),
+                                                    strides,
+                                                    sizes, 
+                                                    buffer );
+
+        oss.str( "" );
+        oss << sinfo.slope();
+        dataset->putAndInsertString( DCM_RescaleSlope, oss.str().c_str() );
+        oss.str( "" );
+        oss << sinfo.offset() - 
+               sinfo.slope() * (double)std::numeric_limits<uint16_t>::min();
+        dataset->putAndInsertString( DCM_RescaleIntercept, oss.str().c_str() );
+        dataset->putAndInsertUint16Array( DCM_PixelData,
+                                          buffer,
+                                          (unsigned long)info._sliceSize );
+
+      }
+      else if ( info._depth > 8 )
       {
 
         dataset->putAndInsertUint16Array( DCM_PixelData,
@@ -255,14 +303,20 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
                              extension;
 
       if ( fileFormat.saveFile( fileName.c_str(), 
-                                EXS_LittleEndianExplicit ).bad() )
+                                EXS_LittleEndianExplicit,
+                                EET_UndefinedLength,
+                                EGL_recalcGL,
+                                EPD_noChange,
+                                0,
+                                0,
+                                EWM_updateMeta ).bad() )
       {
 
         status = false;
 
       }
 
-      sliceLocation -= info._resolution.z;
+      sliceLocation += info._resolution.z;
 
     }
 

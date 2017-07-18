@@ -125,6 +125,12 @@ namespace soma
       dataInfo._depth = 8;
       dataInfo._spp = 1;
     }
+    else if ( dataType == "S8" )
+    {
+      dataInfo._depth = 8;
+      dataInfo._spp = 1;
+      dataInfo._pixelRepresentation = 1;
+    }
     else if ( dataType == "U16" )
     {
       dataInfo._depth = 16;
@@ -135,6 +141,12 @@ namespace soma
       dataInfo._depth = 16;
       dataInfo._spp = 1;
       dataInfo._pixelRepresentation = 1;
+    }
+    else if ( dataType == "FLOAT" )
+    {
+      dataInfo._depth = 32;
+      dataInfo._spp = 1;
+      dataInfo._modalityLut = true;
     }
     else if ( dataType == "RGB" )
     {
