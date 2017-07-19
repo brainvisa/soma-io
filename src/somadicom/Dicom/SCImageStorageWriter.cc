@@ -303,6 +303,7 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
                              studyID + "_" + seriesID + "_" + instanceUID +
                              extension;
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 360
       if ( fileFormat.saveFile( fileName.c_str(), 
                                 EXS_LittleEndianExplicit,
                                 EET_UndefinedLength,
@@ -311,6 +312,10 @@ bool dcm::SCImageStorageWriter::writeDatasets( const std::string& directoryName,
                                 0,
                                 0,
                                 EWM_updateMeta ).bad() )
+#else
+      if ( fileFormat.saveFile( fileName.c_str(), 
+                                EXS_LittleEndianExplicit ).bad() )
+#endif
       {
 
         status = false;
