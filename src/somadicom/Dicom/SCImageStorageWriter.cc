@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
+#include <limits>
 
 
 dcm::SCImageStorageWriter::SCImageStorageWriter()
