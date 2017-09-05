@@ -108,4 +108,6 @@ void dcm::MonochromeImage< T >::fill(
 
 
 template class dcm::MonochromeImage< uint8_t >;
+template class dcm::MonochromeImage< int8_t >;
 template class dcm::MonochromeImage< uint16_t >;
+template class dcm::MonochromeImage< int16_t >;

@@ -44,6 +44,11 @@
 #include <cartobase/smart/rcptr.h>               // reference counting pointer
 //--- system -----------------------------------------------------------------
 #include <memory>
+//--- debug ------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#include <cartobase/type/string_conversion.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "FORMATREADER" )
+// localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
 namespace soma
@@ -67,6 +72,7 @@ namespace soma
   {
     dsi = checkDataSourceInfo( dsi, options );
     // copy context with compatible mmap mode
+    localMsg("Copying allocator context...")
     AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
     setup( obj, dsi->header(), ac, options );
     read( obj, dsi, ac, options );
@@ -108,6 +114,7 @@ namespace soma
   carto::rc_ptr<DataSourceInfo> FormatReader<T>::checkDataSourceInfo(
       carto::rc_ptr<DataSourceInfo> dsi, carto::Object options )
   {
+    localMsg("Checking data source informations...")
     // copy options dict to avoid modifying it
     // (it would kill thread safety)
     carto::Object new_options( options->clone() );
@@ -130,6 +137,7 @@ namespace soma
                               const AllocatorContext & context, 
                               carto::Object options )
   {
+    localMsg("Creating object ...");
     return Creator<T>::create( header, context, options );
   }
 
@@ -138,9 +146,11 @@ namespace soma
                                const AllocatorContext & context, 
                                carto::Object options )
   {
+    localMsg("Setting object ...");
     Creator<T>::setup( obj, header, context, options );
   }
 
 }
 
+#undef localMsg
 #endif

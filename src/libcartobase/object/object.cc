@@ -67,7 +67,6 @@ GenericObject::~GenericObject()
 //-----------------------------------------------------------------------------
 bool GenericObject::operator == ( const GenericObject & other ) const
 {
-  cout << "GenericObject::operator ==\n";
   if( this == &other )
     return true;
   if( isScalar() )

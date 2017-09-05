@@ -668,6 +668,19 @@ bool TypedObject<T>::operator == ( const GenericObject & other ) const
 
 //-----------------------------------------------------------------------------
 template <typename T>
+ValueObject<T>::ValueObject()
+{
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+ValueObject<T>::ValueObject( const T &x )
+{
+  _value = x;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 ValueObject<T>::~ValueObject()
 {
 }
@@ -695,6 +708,13 @@ Object ValueObject<T>::clone() const
 
 //-----------------------------------------------------------------------------
 template <typename T>
+ReferenceObject<T>::ReferenceObject( T &x )
+                          : _value( x )
+{
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 ReferenceObject<T>::~ReferenceObject()
 {
 }
@@ -718,6 +738,13 @@ Object ReferenceObject<T>::clone() const
   //--------------------//
  //  PointerObject<T>  //
 //--------------------//
+
+//-----------------------------------------------------------------------------
+template <typename T>
+PointerObject<T>::PointerObject( T &x, bool owner )
+                          : _pvalue( &x ), _owner( owner )
+{
+}
 
 //-----------------------------------------------------------------------------
 template <typename T>

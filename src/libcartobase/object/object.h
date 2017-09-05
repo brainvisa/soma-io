@@ -44,6 +44,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <list>
 #include <typeinfo>
 #ifdef CARTO_DEBUG
 #include <cartobase/config/verbose.h>
@@ -554,10 +555,10 @@ protected:
 class Object : public rc_ptr<GenericObject>
 {
 public:
-  inline Object();
-  inline Object( const Object & );
-  inline Object( GenericObject* data, bool externalowner = false );
-  inline ~Object();
+  Object();
+  Object( const Object & );
+  Object( GenericObject* data, bool externalowner = false );
+  virtual ~Object();
   /// uses the reference-counting so the underlying GenericObject is shared
   inline Object & operator = ( const Object & );
 
@@ -709,7 +710,7 @@ class TypedObject<const T> : public GenericObject
 {
 private:
   // Forbid TypedObject on constant type
-  inline TypedObject() {};
+  TypedObject() {};
 };
 
 
@@ -770,8 +771,8 @@ template <typename T>
 class ValueObject : public TypedObject<T>
 {
 public:
-  inline ValueObject();
-  inline ValueObject( const T & x );
+  ValueObject();
+  ValueObject( const T & x );
   virtual ~ValueObject();
  
   virtual T &getValue();
@@ -808,7 +809,7 @@ template <typename T>
 class ReferenceObject : public TypedObject<T>
 {
 public:
-  inline ReferenceObject( T &x );
+  ReferenceObject( T &x );
   virtual ~ReferenceObject();
   virtual T &getValue();
   
@@ -829,7 +830,7 @@ template <typename T>
 class PointerObject : public TypedObject<T>
 {
 public:
-  inline PointerObject( T &x, bool owner );
+  PointerObject( T &x, bool owner );
   virtual ~PointerObject();
   virtual T &getValue();
   
@@ -958,7 +959,10 @@ DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<long long> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<unsigned long long> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<float> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<double> > )
+DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<std::string> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::set<unsigned> > )
+
+DECLARE_GENERIC_OBJECT_TYPE( std::list<std::vector<std::string> > )
 
 DECLARE_GENERIC_OBJECT_TYPE( std::set<int> )
 DECLARE_GENERIC_OBJECT_TYPE( std::set<unsigned> )
@@ -1510,50 +1514,6 @@ template<typename T> class DataTypeCode< ValueObject<T> >
 };
 
 #endif
-
-
-  //------------------//
- //  ValueObject<T>  //
-//------------------//
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline ValueObject<T>::ValueObject()
-{
-}
-
-
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline ValueObject<T>::ValueObject( const T &x )
-{
-  _value = x;
-}
-
-
-  //----------------------//
- //  ReferenceObject<T>  //
-//----------------------//
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline ReferenceObject<T>::ReferenceObject( T &x )
-                          : _value( x )
-{
-}
-
-  //--------------------//
- //  PointerObject<T>  //
-//--------------------//
-
-//-----------------------------------------------------------------------------
-template <typename T>
-inline PointerObject<T>::PointerObject( T &x, bool owner )
-                          : _pvalue( &x ), _owner( owner )
-{
-}
-
 
   //------------------------//
  //  DataTypeCode<Object>  //

@@ -29,16 +29,22 @@ set( _headers
   Dicom/DicomReaderFactory.h
   Dicom/DicomSelectContext.h
   Dicom/DicomSortContext.h
+  Dicom/DicomWriter.h
+  Dicom/DicomWriterFactory.h
   Dicom/DiffusionModule.h
+  Dicom/EnhancedCTImageStorageReader.h
   Dicom/EnhancedIndexModule.h
   Dicom/EnhancedModalityLutModule.h
   Dicom/EnhancedMRImageStorageReader.h
   Dicom/EnhancedOrientationModule.h
+  Dicom/EnhancedPixelMeasuresModule.h
+  Dicom/EnhancedReader.h
   Dicom/FileInformation.h
   Dicom/GE/GEDiffusionModule.h
   Dicom/GE/GEMRReader.h
   Dicom/GenericCRReader.h
   Dicom/GenericCTReader.h
+  Dicom/GenericEnhancedCTReader.h
   Dicom/GenericEnhancedMRReader.h
   Dicom/GenericMRReader.h
   Dicom/GenericNMReader.h
@@ -50,12 +56,14 @@ set( _headers
   Dicom/ImageModule.h
   Dicom/ImagePixel.h
   Dicom/ModalityLutModule.h
+  Dicom/MonochromeFloatImage.h
   Dicom/MonochromeImage.h
   Dicom/MRImageStorageReader.h
   Dicom/MRModule.h
   Dicom/MultiFileReader.h
   Dicom/MultiFrameContext.h
   Dicom/MultiFrameDicomImage.h
+  Dicom/MultiframeReader.h
   Dicom/MultiSliceContext.h
   Dicom/MultiSliceDicomImage.h
   Dicom/MultiSliceReader.h
@@ -78,18 +86,22 @@ set( _headers
   Dicom/RelationshipModule.h
   Dicom/RGBImage.h
   Dicom/SCImageStorageReader.h
+  Dicom/SCImageStorageWriter.h
   Dicom/Siemens/Demosaicer.h
   Dicom/Siemens/MosaicDataContext.h
   Dicom/Siemens/MosaicDicomImage.h
   Dicom/Siemens/MosaicPointerImage.h
   Dicom/Siemens/SiemensDiffusionModule.h
   Dicom/Siemens/SiemensMRReader.h
+  Dicom/SingleFileReader.h
   Dicom/USImageStorageReader.h
   Dicom/USMultiframeImageStorageReader.h
   Dicom/USReader.h
   Dicom/USRegionSpatialModule.h
   image/dicomimagereader.h
   image/dicomimagereader_d.h
+  image/dicomimagewriter.h
+  image/dicomimagewriter_d.h
   Object/BinaryHeader.h
   Object/CartoHeader.h
   Object/HeaderProxy.h
@@ -130,16 +142,22 @@ set( _sources
   Dicom/DicomReaderFactory.cc
   Dicom/DicomSelectContext.cc
   Dicom/DicomSortContext.cc
+  Dicom/DicomWriter.cc
+  Dicom/DicomWriterFactory.cc
   Dicom/DiffusionModule.cc
+  Dicom/EnhancedCTImageStorageReader.cc
   Dicom/EnhancedIndexModule.cc
   Dicom/EnhancedModalityLutModule.cc
   Dicom/EnhancedMRImageStorageReader.cc
   Dicom/EnhancedOrientationModule.cc
+  Dicom/EnhancedPixelMeasuresModule.cc
+  Dicom/EnhancedReader.cc
   Dicom/FileInformation.cc
   Dicom/GE/GEDiffusionModule.cc
   Dicom/GE/GEMRReader.cc
   Dicom/GenericCRReader.cc
   Dicom/GenericCTReader.cc
+  Dicom/GenericEnhancedCTReader.cc
   Dicom/GenericEnhancedMRReader.cc
   Dicom/GenericMRReader.cc
   Dicom/GenericNMReader.cc
@@ -151,12 +169,14 @@ set( _sources
   Dicom/ImageModule.cc
   Dicom/ImagePixel.cc
   Dicom/ModalityLutModule.cc
+  Dicom/MonochromeFloatImage.cc
   Dicom/MonochromeImage.cc
   Dicom/MRImageStorageReader.cc
   Dicom/MRModule.cc
   Dicom/MultiFileReader.cc
   Dicom/MultiFrameContext.cc
   Dicom/MultiFrameDicomImage.cc
+  Dicom/MultiframeReader.cc
   Dicom/MultiSliceContext.cc
   Dicom/MultiSliceDicomImage.cc
   Dicom/MultiSliceReader.cc
@@ -179,17 +199,20 @@ set( _sources
   Dicom/RelationshipModule.cc
   Dicom/RGBImage.cc
   Dicom/SCImageStorageReader.cc
+  Dicom/SCImageStorageWriter.cc
   Dicom/Siemens/Demosaicer.cc
   Dicom/Siemens/MosaicDataContext.cc
   Dicom/Siemens/MosaicDicomImage.cc
   Dicom/Siemens/MosaicPointerImage.cc
   Dicom/Siemens/SiemensDiffusionModule.cc
   Dicom/Siemens/SiemensMRReader.cc
+  Dicom/SingleFileReader.cc
   Dicom/USImageStorageReader.cc
   Dicom/USMultiframeImageStorageReader.cc
   Dicom/USReader.cc
   Dicom/USRegionSpatialModule.cc
   image/dicomimagereader.cc
+  image/dicomimagewriter.cc
   Object/BinaryHeader.cc
   Object/CartoHeader.cc
   Object/HeaderProxy.cc
@@ -231,8 +254,10 @@ add_definitions( -DSOMA_IO_DICOM )
 
 if ( NOT WIN32 )
   add_definitions( -DHAVE_CONFIG_H )
-else ()
-  add_definitions( -DUSE_STD_CXX_INCLUDES )
+# Not necessary anymore (probably for version >= 3.6.0)
+# it generates warning during compilation
+# else ()
+#   add_definitions( -DUSE_STD_CXX_INCLUDES )
 endif ()
 
 BRAINVISA_COPY_AND_INSTALL_HEADERS( _headers soma-io headersTarget )

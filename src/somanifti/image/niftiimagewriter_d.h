@@ -63,6 +63,7 @@
 #include <cartobase/type/voxelhsv.h>
 #include <cartobase/config/version.h>
 //--- system -----------------------------------------------------------------
+#include <cstdio>
 #include <memory>
 #include <vector>
 //--- debug ------------------------------------------------------------------
@@ -122,7 +123,8 @@ namespace
                                const T* data, int tmin, int tmax,
                                znzFile zfp, 
                                const std::vector<long> & strides,
-                               int vx, int vy, int vz, int ox, int oy, int oz )
+                               int vx, int vy, int vz, int ox, int oy, int oz,
+                               int ot )
   {
     bool scalef;
     std::vector<float> s(2);
@@ -171,7 +173,7 @@ namespace
               *d++ = (int16_t) rint( (*p0 - s[1]) / s[0] );
 
             // calculate offset on disk
-            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
               + (y + oy) * dstrides[1] + ox * dstrides[0];
             offset2 = offset;
             offset -= cur_offset;
@@ -199,7 +201,7 @@ namespace
                                const carto::VoxelRGB*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -211,7 +213,7 @@ namespace
                                const carto::VoxelRGBA*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -223,7 +225,7 @@ namespace
                                const carto::VoxelHSV*,
                                int, int, znzFile, 
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -235,7 +237,7 @@ namespace
                                const cfloat*,
                                int, int, znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -247,7 +249,7 @@ namespace
                                const cdouble*,
                                int, int, znzFile,
                                const std::vector<long> &,
-                               int, int, int, int, int, int )
+                               int, int, int, int, int, int, int )
   {
     return false;
   }
@@ -356,8 +358,8 @@ namespace
     int tmin, tmax;
     if(tt < 0)
     {
-      tmin = ot;
-      tmax = ot + vt;
+      tmin = 0;
+      tmax = vt;
     }
     else
     {
@@ -367,7 +369,7 @@ namespace
 
     if( !source ||
         !expandNiftiScaleFactor( hdr, nim, mems2m, source, tmin, tmax,
-          zfp, strides, vx, vy, vz, ox, oy, oz ) )
+          zfp, strides, vx, vy, vz, ox, oy, oz, ot ) )
     {
       int  y, z, t;
       // region line size
@@ -415,7 +417,7 @@ namespace
             // else source is null: unallocated data, will write zeros.
 
             // calculate offset on disk
-            offset = t * dstrides[3] + (z + oz) * dstrides[2]
+            offset = (t + ot) * dstrides[3] + (z + oz) * dstrides[2]
               + (y + oy) * dstrides[1] + ox * dstrides[0];
             offset2 = offset;
             offset -= cur_offset;
@@ -544,7 +546,7 @@ namespace soma
     nifti_image *nim = _nim->nim;
 
     bool ok = true;
-    carto::fdinhibitor fdi( 2 );
+    carto::fdinhibitor fdi( stderr );
     fdi.close(); // disable output on stderr
 
     if( write4d || st == 1 )
@@ -672,7 +674,7 @@ namespace soma
     const std::vector<long> & strides,
     carto::Object options )
   {
-    // wheck if it will be a sequence of 3D volumes
+    // check if it will be a sequence of 3D volumes
     bool  write4d = true;
     try
     {
@@ -803,6 +805,7 @@ namespace soma
       NII,
       NII_GZ,
       IMG,
+      IMG_GZ
     };
     format_shape shape = NII_GZ;
 
@@ -820,18 +823,25 @@ namespace soma
       {
         ext = ext = carto::FileUtil::extension( basename );
         basename = carto::FileUtil::removeExtension( basename );
-        if( ext != "nii" )
+        if(( ext != "nii" ) && (ext != "img") && (ext != "hdr"))
           ext = "";
-        else
+        if ((ext == "img") || (ext == "hdr")) {
+          ext = "img.gz";
+          shape = IMG_GZ;
+        }
+        else {
           ext = "nii.gz";
         shape = NII_GZ;
       }
-      if( ext == "nii" || ext == "nii.gz" || ext == "img" )
+      }
+      if( ext == "nii" || ext == "nii.gz" || ext == "img" || ext == "img.gz" )
       {
         niiname = basename + "." + ext;
-        if( ext == "img" )
+        if( (ext == "img") || (ext == "img.gz") )
         {
           hdrname = basename + ".hdr";
+          
+          if(ext == "img")
           shape = IMG;
         }
         else if( ext == "nii" )
@@ -896,7 +906,7 @@ namespace soma
         for( int t=0; t<dimt; ++t )
         {
           sprintf( &name[0], "%s_%04d", basename.c_str(), t );
-          if( shape == IMG )
+          if(( shape == IMG ) || (shape == IMG_GZ))
             dsl.addDataSource( "hdr",
               carto::rc_ptr<DataSource>(
                 new FileDataSource(
@@ -1209,6 +1219,8 @@ namespace soma
     if( !hdr->getProperty( "disk_data_type", type ) )
       type = carto::DataTypeCode<T>::dataType();
 
+    localMsg("disk data type read is "
+           + (type.size() > 0 ? type : "not specified"));
     if( type == "U8" )
       nim->datatype = DT_UINT8;
     else if( type == "S16" )
@@ -1374,6 +1386,7 @@ namespace soma
     nifti_mat44_to_orientation( S2M_m44, &icod, &jcod, &kcod );
 
     bool s2moriented = false, s2morientedbis;
+    bool qform_is_sform = false;
 
     for( i=0; i<nt; ++i )
     {
@@ -1419,8 +1432,8 @@ namespace soma
         bool ok = false;
         int xform_code = NiftiReferential( ref );
         if( ( ( xform_code == NIFTI_XFORM_SCANNER_ANAT )
-              /* || (xform_code == NIFTI_XFORM_ALIGNED_ANAT) */ )
-              && (nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
+              || ( nim->sform_code != NIFTI_XFORM_UNKNOWN ) )
+              && ( nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
         {
           nim->qform_code = xform_code;
           nifti_mat44_to_quatern( R, &nim->quatern_b, &nim->quatern_c,
@@ -1459,9 +1472,15 @@ namespace soma
            the qform.
         */
         if( nim->sform_code == NIFTI_XFORM_UNKNOWN
-          || nim->sform_code == nim->qform_code )
+          || ( !ok && qform_is_sform ) )
         {
-          ok = true;
+          if( ok )
+            qform_is_sform = true;
+          else
+          {
+            qform_is_sform = false;
+            ok = true;
+          }
           nim->sform_code = xform_code;
           for( int x=0; x<4; ++x )
             for( int j=0; j<4; ++j )
@@ -1677,7 +1696,7 @@ namespace soma
       catch( ... )
       {
       }
-      if( !forcedDT )
+      if( !forcedDT && source )
       {
         // double maxm = 0;
         float scale = 1, offset = 0;

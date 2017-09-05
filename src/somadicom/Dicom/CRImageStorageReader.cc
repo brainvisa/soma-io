@@ -11,7 +11,7 @@
 
 
 dcm::CRImageStorageReader::CRImageStorageReader()
-                         : dcm::MultiFileReader()
+                         : dcm::SingleFileReader()
 {
 }
 
@@ -36,6 +36,6 @@ bool dcm::CRImageStorageReader::readHeader( DcmDataset* dataset )
 
   }
 
-  return dcm::MultiFileReader::readHeader( dataset );
+  return dcm::SingleFileReader::readHeader( dataset );
 
 }

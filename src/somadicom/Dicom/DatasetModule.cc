@@ -15,7 +15,8 @@ dcm::DatasetModule::DatasetModule()
                     _sopClassUID( "" ),
                     _seriesInstanceUID( "" ),
                     _samplesPerPixel( 0 ),
-                    _bitsAllocated( 0 )
+                    _bitsAllocated( 0 ),
+                    _pixelRepresentation( 0 )
 {
 }
 
@@ -72,6 +73,13 @@ bool dcm::DatasetModule::parseItem( DcmItem* dcmItem )
 
     }
 
+    if ( dcmItem->findAndGetUint16( DCM_PixelRepresentation, tmpShort ).good() )
+    {
+
+      _pixelRepresentation = int32_t( tmpShort );
+
+    }
+
     if ( dcmItem->findAndGetOFString( DCM_SeriesInstanceUID, 
                                       tmpString ).good() )
     {
@@ -125,5 +133,13 @@ int32_t dcm::DatasetModule::getBitsAllocated() const
 {
 
   return _bitsAllocated;
+
+}
+
+
+int32_t dcm::DatasetModule::getPixelRepresentation() const
+{
+
+  return _pixelRepresentation;
 
 }

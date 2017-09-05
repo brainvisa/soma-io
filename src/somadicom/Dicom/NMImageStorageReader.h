@@ -4,8 +4,10 @@
 
 #ifdef SOMA_IO_DICOM
 #include <soma-io/config/soma_config.h>
+#include <soma-io/Dicom/SingleFileReader.h>
 #include <soma-io/Dicom/MultiSliceReader.h>
 #else
+#include <Dicom/SingleFileReader.h>
 #include <Dicom/MultiSliceReader.h>
 #endif
 
@@ -17,7 +19,8 @@ namespace dcm
 {
 
 
-class NMImageStorageReader : public MultiSliceReader
+class NMImageStorageReader : public SingleFileReader,
+                             public MultiSliceReader
 {
 
   public:
@@ -33,7 +36,7 @@ class NMImageStorageReader : public MultiSliceReader
     NMImageStorageReader();
 
     virtual bool readHeader( DcmDataset* dataset );
-    virtual bool buildIndexLut(DcmDataset*);
+    virtual bool buildIndexLut( DcmDataset* dataset );
 
 };
 

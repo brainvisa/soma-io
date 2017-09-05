@@ -48,6 +48,15 @@ TARGET_LINK_LIBRARIES(somaDSList_test           soma-io)
 TARGET_LINK_LIBRARIES(somaRGB_test              soma-io)
 TARGET_LINK_LIBRARIES(somaGetPluginFile_test    soma-io)
 
+BRAINVISA_INSTALL( TARGETS cartoRcptr_test cartoScopedptr_test
+              cartoSharedptr_test cartoWeakptr_test cartoAlgorithm_test
+              cartoConversion_test cartoDataTypeTraits_test
+              cartoMultiThread_test cartoMutex_test cartoThreadedRcptr_test
+              cartoUuid_test cartoObject_test somaCapabilities_test
+              somaDSList_test
+              DESTINATION bin
+              COMPONENT ${PROJECT_NAME}-test )
+
 # Plugins test
 BRAINVISA_ADD_EXECUTABLE(somaGisFormatCheck_test   somaGisFormatCheck_test/gischeck_test.cc HELP_GENERATE FALSE)
 TARGET_LINK_LIBRARIES(somaGisFormatCheck_test   soma-io cartobase)
@@ -66,19 +75,18 @@ endif()
 
 # -- tests --
 
-add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoRcptr_test)
-add_test(cartoRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoRcptr_test)
-add_test(cartoScopedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoScopedptr_test)
-add_test(cartoSharedptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoSharedptr_test)
-add_test(cartoWeakptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoWeakptr_test)
-add_test(cartoAlgorithm_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoAlgorithm_test)
-add_test(cartoConversion_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoConversion_test)
-add_test(cartoDataTypeTraits_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoDataTypeTraits_test)
-add_test(cartoMultiThread_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoMultiThread_test)
-add_test(cartoMutex_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoMutex_test)
-add_test(cartoThreadedRcptr_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoThreadedRcptr_test)
-add_test(cartoUuid_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoUuid_test)
-add_test(cartoObject_test "${CMAKE_BINARY_DIR}/bin/bv_env" cartoObject_test)
-add_test(somaCapabilities_test "${CMAKE_BINARY_DIR}/bin/bv_env" somaCapabilities_test)
-add_test(somaDSList_test "${CMAKE_BINARY_DIR}/bin/bv_env" somaDSList_test)
+brainvisa_add_test(cartoRcptr_test cartoRcptr_test)
+brainvisa_add_test(cartoScopedptr_test cartoScopedptr_test)
+brainvisa_add_test(cartoSharedptr_test cartoSharedptr_test)
+brainvisa_add_test(cartoWeakptr_test cartoWeakptr_test)
+brainvisa_add_test(cartoAlgorithm_test cartoAlgorithm_test)
+brainvisa_add_test(cartoConversion_test cartoConversion_test)
+brainvisa_add_test(cartoDataTypeTraits_test cartoDataTypeTraits_test)
+brainvisa_add_test(cartoMultiThread_test cartoMultiThread_test)
+brainvisa_add_test(cartoMutex_test cartoMutex_test)
+brainvisa_add_test(cartoThreadedRcptr_test cartoThreadedRcptr_test)
+brainvisa_add_test(cartoUuid_test cartoUuid_test)
+brainvisa_add_test(cartoObject_test cartoObject_test)
+brainvisa_add_test(somaCapabilities_test somaCapabilities_test)
+brainvisa_add_test(somaDSList_test somaDSList_test)
 

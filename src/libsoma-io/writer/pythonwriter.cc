@@ -385,7 +385,33 @@ bool PythonWriter::isInternal( const string & syntax, const string & semantic )
 }
 
 
-void PythonWriter::write( const GenericObject & object, int indent, 
+void PythonWriter::write( const Object & object, int indent,
+                          const string & syntax, const string & semantic,
+                          bool writeInternals )
+{
+  if( object.isNull() )
+  {
+    try
+    {
+      AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
+      if( !is_open() )
+        io_error::launchErrnoExcept();
+      return;
+    }
+    catch( exception & e )
+    {
+      if( _catchFunction )
+        _catchFunction( *this, e, object );
+      else
+        throw;
+    }
+  }
+  else
+    write( *object, indent, syntax, semantic, writeInternals );
+}
+
+
+void PythonWriter::write( const GenericObject & object, int indent,
                           const string & syntax, const string & semantic,
                           bool writeInternals )
 {
@@ -394,19 +420,13 @@ void PythonWriter::write( const GenericObject & object, int indent,
     if( !is_open() )
       throw stream_fail_error( "cannot write", name() );
 
-    // This test is wrong because a reference cannot be null in well-defined
-    // C++ code, any code passing NULL to this function is broken. The pragma
-    // is there to make the warning non-fatal when using -Werror.
-    #pragma clang diagnostic push
-    #pragma clang diagnostic warning "-Wtautological-undefined-compare"
-    if( &object == 0 || object.isNone() )	// "None" object
-    #pragma clang diagnostic pop
-      {
-        AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
-        if( !is_open() )
-          io_error::launchErrnoExcept();
-        return;
-      }
+    if( object.isNone() )	// "None" object
+    {
+      AsciiDataSourceTraits<string>::write( *dataSource(), _noneString );
+      if( !is_open() )
+        io_error::launchErrnoExcept();
+      return;
+    }
 
     string	type = object.type();
     if( type == "object" )
@@ -474,7 +494,7 @@ void PythonWriter::write( const GenericObject & object, int indent,
   catch( exception & e )
   {
     if( _catchFunction )
-      _catchFunction( *this, e, object );
+      _catchFunction( *this, e, Object::reference( object ) );
     else
       throw;
   }

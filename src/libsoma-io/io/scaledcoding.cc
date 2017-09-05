@@ -35,7 +35,7 @@
 #include <cartobase/type/limits.h>
 #include <soma-io/io/scaledcoding.h>
 #include <set>
-#include <math.h>
+#include <cmath>
 
 using namespace soma;
 using namespace carto;
@@ -51,8 +51,19 @@ bool canencode( const T * thing, float & slope,
                 const std::vector<int> & sizes,
                 bool enableoffset, double *maxerr )
 {
+  using std::isnan;
+  using std::isinf;
+
   int y, z, x, f, dx = sizes[0], dy = sizes[1],
     dz = sizes[2], dt = sizes[3];
+  if( !thing || dx == 0 || dy == 0 || dz == 0 || dt == 0 )
+  {
+    slope = 0.;
+    offset = 0.;
+    if( maxerr )
+      *maxerr = 0.;
+    return false; // because we don't know the values yet.
+  }
   long sx = strides[0], sy = strides[1], sz = strides[2], st = strides[3];
   T       val, vmin = thing[0], vmax = thing[0];
   typedef std::set<double> hset;
@@ -64,7 +75,6 @@ bool canencode( const T * thing, float & slope,
 
   if( !enableoffset )
     values.insert( 0 ); // 0 must be a valid value if no offset is allowed
-  // std::cout << "searching values\n";
   for( f=0; f<dt; ++f )
     for( z=0; z<dz; ++z )
       for( y=0; y<dy; ++y )
@@ -187,6 +197,8 @@ bool canencode( const T * thing, float & slope,
 
 namespace soma
 {
+  using std::isnan;
+  using std::isinf;
 
   template <>
   bool canEncodeAsScaledS16( const float * vol, float & slope,

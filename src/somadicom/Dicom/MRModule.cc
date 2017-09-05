@@ -15,7 +15,6 @@
 
 dcm::MRModule::MRModule()
              : dcm::DicomModule(),
-               _tr( 0.0 ),
                _flipAngle( 0.0 )
 {
 }
@@ -32,7 +31,7 @@ bool dcm::MRModule::parseItem( DcmItem* dcmItem )
     if ( dcmItem->findAndGetFloat64( DCM_RepetitionTime, tmpDouble ).good() )
     {
 
-      _tr = double( tmpDouble );
+      _tr.push_back( double( tmpDouble ) );
 
     }
 
@@ -85,6 +84,7 @@ bool dcm::MRModule::parseHeader( dcm::DicomDatasetHeader& datasetHeader )
     DcmDataset dataset;
     int32_t i, step = getStep( datasetHeader );
 
+    _tr.clear();
     _te.clear();
     _ti.clear();
 
@@ -102,8 +102,16 @@ bool dcm::MRModule::parseHeader( dcm::DicomDatasetHeader& datasetHeader )
 
     }
 
+    size_t nEqualTR = std::count( _tr.begin(), _tr.end(), _tr[ 0 ] );
     size_t nEqualTE = std::count( _te.begin(), _te.end(), _te[ 0 ] );
     size_t nEqualTI = std::count( _ti.begin(), _ti.end(), _ti[ 0 ] );
+
+    if ( nEqualTR && ( nEqualTR == _tr.size() ) )
+    {
+
+      _tr.resize( 1 );
+
+    }
 
     if ( nEqualTE && ( nEqualTE == _te.size() ) )
     {
@@ -128,7 +136,7 @@ bool dcm::MRModule::parseHeader( dcm::DicomDatasetHeader& datasetHeader )
 }
 
 
-double dcm::MRModule::getTR() const
+const std::vector< double >& dcm::MRModule::getTR() const
 {
 
   return _tr;

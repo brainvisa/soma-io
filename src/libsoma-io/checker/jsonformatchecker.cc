@@ -78,26 +78,37 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
 {
 
   // FIXME: very very slight checking...
-  static const string   sign = "{\"";
+  static const string   sign1 = "{\"";
+  static const string   sign2 = "[";
+  const string* sign = &sign1;
   DataSource *ds = dsi.list().dataSource().get();
   ds->open( DataSource::Read );
   char  c;
-  int   i, n = sign.length();
+  int   i, n = sign->length();
   string readsign;
 
   localMsg( "Reading json beginning... " + ds->url() );
-  for( i=0; i<n && ds->isOpen() &&
-        ( sign[i] == (c=static_cast<char>(ds->getch())) || c == ' ' || c == '\t'
-          || c == '\n');
-      ++i )
+  for( i=0; i<n && ds->isOpen(); ++i )
   {
+    c = static_cast<char>(ds->getch());
     readsign += c;
+    if( c != ' ' && c != '\t' && c != '\n' )
+    {
+      if( (*sign)[i] != c )
+      {
+        if( i == 0 && sign == &sign1 && sign2[i] == c )
+        {
+          sign = &sign2;
+          n = sign->length();
+        }
+        else
+          break;
+      }
+    }
   }
   if( ds->isOpen() )
   {
     // rewind
-    if( i != n )
-      ds->ungetch( c );
     for( int j=readsign.length()-1; j>=0; --j )
       ds->ungetch( readsign[j] );
   }

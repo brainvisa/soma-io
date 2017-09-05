@@ -146,7 +146,7 @@ template<typename T>
 void dictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int indent,
 		 bool writeInternals )
 {
-  // cout << "dictHelper<" << DataTypeCode<T>::name() << ">\n";
+  // std::cout << "dictHelper<" << carto::DataTypeCode<T>::name() << ">\n";
 
   soma::DataSource				& ds = *w.dataSource();
   const std::map<T, carto::Object>
@@ -216,9 +216,9 @@ void dictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int i
         }
       // const_cast: just to avoid referencing a const T
       carto::Object key = carto::Object::reference( const_cast<T &>( im->first ) );
-      w.write( *key, indent, "", "", writeInternals );
+      w.write( key, indent, "", "", writeInternals );
       soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
-      w.write( *im->second, indent, "", "", writeInternals );
+      w.write( im->second, indent, "", "", writeInternals );
     }
   ds.putch( sep );
   soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
@@ -230,6 +230,8 @@ template<>
 void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWriter & w,
 			      int indent, bool writeInternals )
 {
+  // std::cout << "dictHelper<string>\n";
+
   soma::DataSource				& ds = *w.dataSource();
   const carto::IterableInterface 
     & y = *obj.getInterface<carto::IterableInterface>();
@@ -304,7 +306,7 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
             }
           w.writeString( ds, key );
           soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
-          w.write( *im->currentValue(), indent, "", key, writeInternals );
+          w.write( im->currentValue(), indent, "", key, writeInternals );
         }
       im->next();
     }
@@ -383,9 +385,9 @@ void rcDictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int
           ds.putch( sep );
           soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
         }
-      w.write( *im->first, indent, "", "", writeInternals );
+      w.write( im->first, indent, "", "", writeInternals );
       soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
-      w.write( *im->second, indent, "", "", writeInternals );
+      w.write( im->second, indent, "", "", writeInternals );
     }
 
   ds.putch( sep );
@@ -410,7 +412,7 @@ void listHelper( const carto::GenericObject & obj, soma::PythonWriter & w,
       else
         ds.putch( ',' );
       ds.putch( ' ' );
-      w.write( *it->currentValue(), indent, "", "", writeInternals );
+      w.write( it->currentValue(), indent, "", "", writeInternals );
     }
   ds.putch( ' ' );
   ds.putch( ']' );

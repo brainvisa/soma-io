@@ -33,12 +33,31 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cartobase/stream/fdinhibitor.h>
-#ifdef _WIN32
 #include <cartobase/stream/fileutil.h>
-#endif
 #include <iostream>
+#include <cerrno>
 
 using namespace carto;
+using namespace std;
+
+fdinhibitor::fdinhibitor( int fd, bool permanent )
+: _fd( fd ), _fdsave( 0 ), _fdblocker( 0 ), _permanent( permanent )
+{}
+
+fdinhibitor::fdinhibitor( FILE *fd, bool permanent )
+:_fd( fileno(fd) ), _fdsave( 0 ), _fdblocker( 0 ), _permanent( permanent )
+{}
+  
+fdinhibitor::ResetCallback::~ResetCallback()
+{
+}
+
+
+map<string, fdinhibitor::ResetCallback *> & fdinhibitor::_callbacks()
+{
+  static map<string, ResetCallback *> _callbacks_map;
+  return _callbacks_map;
+}
 
 
 fdinhibitor::~fdinhibitor()
@@ -50,12 +69,7 @@ fdinhibitor::~fdinhibitor()
 void fdinhibitor::close(void)
 {
   _fdsave = dup(_fd);
-
-#ifdef _WIN32
-  _tmpfile = FileUtil::temporaryFile("fdinhibitor", _fdblocker);
-#else
-  _fdblocker = ::open( "/dev/null", O_APPEND );
-#endif
+  _fdblocker = ::open( CARTOBASE_STREAM_NULLDEVICE, O_APPEND | O_WRONLY);
   dup2(_fdblocker, _fd);
 }
 
@@ -67,15 +81,54 @@ void	fdinhibitor::open(void)
   dup2(_fdsave, _fd);
   ::close(_fdblocker);
   ::close(_fdsave);
-#ifdef _WIN32
-  unlink(_tmpfile.c_str());
-#endif
+  
   if( _fd == STDOUT_FILENO )
     std::cout.clear( std::ios_base::goodbit );
   else if( _fd == STDERR_FILENO )
     std::cerr.clear( std::ios_base::goodbit );
   else if( _fd == STDIN_FILENO )
     std::cin.clear( std::ios_base::goodbit );
+  
+   errno = 0;
   _fdblocker = 0;
   _fdsave = 0;
+
+  notify( _fd );
 }
+
+
+void fdinhibitor::notify( int fd )
+{
+  map<string, ResetCallback *> & callbacks = _callbacks();
+  map<string, ResetCallback *>::iterator i, e = callbacks.end();
+
+  for( i=callbacks.begin(); i!=e; ++i )
+    (*i->second)( fd );
+}
+
+
+void fdinhibitor::registerResetCallback( const std::string & name,
+                                         ResetCallback *cbk )
+{
+  unregisterResetCallback( name );
+  _callbacks()[name] = cbk;
+}
+
+
+bool fdinhibitor::hasResetCallback( const std::string & name )
+{
+  return _callbacks().find(name) != _callbacks().end();
+}
+
+
+void fdinhibitor::unregisterResetCallback( const std::string & name )
+{
+  map<string, ResetCallback *> & callbacks = _callbacks();
+  map<string, ResetCallback *>::iterator i = callbacks.find( name );
+  if( i != callbacks.end() )
+  {
+    callbacks.erase( i );
+    delete i->second;
+  }
+}
+

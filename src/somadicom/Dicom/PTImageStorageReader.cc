@@ -52,7 +52,7 @@ bool dcm::PTImageStorageReader::getHeader(
                                         dcm::DicomDatasetHeader& datasetHeader )
 {
 
-  if ( !dcm::MultiSliceReader::getHeader( header, info, datasetHeader ) )
+  if ( !dcm::MultiFileReader::getHeader( header, info, datasetHeader ) )
   {
 
     return false;

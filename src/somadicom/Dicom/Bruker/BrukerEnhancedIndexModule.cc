@@ -157,6 +157,7 @@ bool dcm::BrukerEnhancedIndexModule::parseItem( DcmItem* dcmItem )
     return true;
 
   }
+
   return false;
 
 }

@@ -32,7 +32,7 @@
  */
 
 //--- plugin -----------------------------------------------------------------
-#include <soma-io/checker/dicomformatchecker.h>             // class declaration
+#include <soma-io/checker/dicomformatchecker.h>           // class declaration
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
 #include <soma-io/Container/DataInfoCache.h>
@@ -52,8 +52,8 @@
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/stream/fdinhibitor.h>
 //--- system -----------------------------------------------------------------
-#include <stdio.h>
-#define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
+#include <cstdio>
+#define SOMAIO_BYTE_ORDER 0x41424344    //"ABCD" in ascii -> used for byteswap
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "DICOMFORMATCHECKER" )
@@ -92,18 +92,18 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     dcm::DataInfo& dataInfo = dcm::DataInfoCache::getInstance().getDataInfo();
 
     // avoid printing anything from dcmtk
-    fdinhibitor   fdi( STDERR_FILENO );
+    fdinhibitor   fdi( stderr );
     fdi.close();
 
 
     // fast check
-    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo ) )
+    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
     {
       // open file
 //       fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
-
+    
     // select files and read information relevent for memory allocation
     dcm::DicomDatasetHeader datasetHeader( dataInfo );
 
@@ -115,7 +115,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 //       fdi.open();
       throw wrong_format_error( "Error in DICOM dataset", imaname );
     }
-
+    
     // open file
     fdi.open();
 
@@ -140,11 +140,13 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     vs[ 2 ] = dataInfo._resolution.z;
     vs[ 3 ] = dataInfo._repetitionTime;
 
+    localMsg("Bits per pixel:" + carto::toString(dataInfo._bpp));
+
     switch ( dataInfo._bpp )
     {
 
       case 1:
-        type = "U8";
+        type = ( dataInfo._pixelRepresentation & 1 ) ? "S8" : "U8";
         break;
 
       case 2:
@@ -153,6 +155,10 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
       case 3:
         type = "RGB";
+        break;
+
+      case 4:
+        type = "FLOAT";
         break;
 
       default:

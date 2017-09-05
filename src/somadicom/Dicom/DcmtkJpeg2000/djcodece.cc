@@ -21,6 +21,13 @@
 
 #include <jasper/jasper.h>
 
+#if OFFIS_DCMTK_VERSION_NUMBER >= 361
+  // OFCondition has undergone an incompatible change between 3.6.0 and 3.6.1
+#  define build_OFCondition OFCondition
+#else
+#  define build_OFCondition OFConditionConst
+#endif
+
 
 DJ2KEncoderBase::DJ2KEncoderBase()
                : DcmCodec()
@@ -84,8 +91,8 @@ OFCondition DJ2KEncoderBase::encode(
   {
 
     //return EC_J2KJasperInitializationFailure;
-    return OFConditionConst( OFM_dcmjp2k, 7, OF_error, 
-                             "Jasper: initialization failed" );
+    return OFCondition( OFM_dcmjp2k, 7, OF_error,
+                        "Jasper: initialization failed" );
 
   }
 
@@ -260,9 +267,8 @@ OFCondition DJ2KEncoderBase::encode(
     {
 
       //result = EC_J2KUnsupportedImageType;
-      result = OFConditionConst(
-                                OFM_dcmjp2k, 3, OF_error, 
-                                "Codec does not support this JPEG-2000 image" );
+      result = OFCondition( OFM_dcmjp2k, 3, OF_error,
+                            "Codec does not support this JPEG-2000 image" );
 
     }
 
@@ -271,9 +277,8 @@ OFCondition DJ2KEncoderBase::encode(
     {
 
       //result = EC_J2KUnsupportedImageType;
-      result = OFConditionConst(
-                                OFM_dcmjp2k, 3, OF_error, 
-                                "Codec does not support this JPEG-2000 image" );
+      result = OFCondition( OFM_dcmjp2k, 3, OF_error,
+                            "Codec does not support this JPEG-2000 image" );
 
     }
 
@@ -283,9 +288,9 @@ OFCondition DJ2KEncoderBase::encode(
     {
 
       //result = EC_J2KUncompressedBufferTooSmall;
-      result = OFConditionConst(
-                   OFM_dcmjp2k, 1, OF_error, 
-                   "Uncompressed pixel data too short for uncompressed image" );
+      result = OFCondition(
+                  OFM_dcmjp2k, 1, OF_error,
+                  "Uncompressed pixel data too short for uncompressed image" );
 
     }
   if ( result.good() && ( samplesPerPixel > 1 ) )
@@ -384,7 +389,7 @@ OFCondition DJ2KEncoderBase::encode(
 #endif
 
   //return EC_J2KNotSupportedYet;
-  return OFConditionConst( OFM_dcmjp2k, 6, OF_error, "Not supported yet" );
+  return build_OFCondition( OFM_dcmjp2k, 6, OF_error, "Not supported yet" );
 
 }
 

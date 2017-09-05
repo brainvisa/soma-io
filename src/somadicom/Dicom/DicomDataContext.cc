@@ -20,10 +20,10 @@ dcm::DicomDataContext::DicomDataContext(
 #else
                      : dcm::LoopContext(),
 #endif
+                       _proxy( proxy ),
                        _selection( selection ),
                        _fileList( datasetHeader.getFileList() ),
-                       _lut( datasetHeader.getLut() ),
-                       _proxy( proxy )
+                       _lut( datasetHeader.getLut() )
 {
 
   _parameters = dcm::ImagePixel::Parameters( proxy );
@@ -37,8 +37,8 @@ void dcm::DicomDataContext::doIt( int32_t startIndex, int32_t count )
   dcm::DicomImage dicomImage( _proxy, _parameters );
   dcm::DataInfo& info = _proxy.getDataInfo();
   int32_t i, stopIndex = startIndex + count;
-  int32_t min = 0;
-  int32_t max = 0;
+  float min = 100000.0f;
+  float max = 0.0f;
 
   for ( i = startIndex; i < stopIndex; i++ )
   {
@@ -48,7 +48,7 @@ void dcm::DicomDataContext::doIt( int32_t startIndex, int32_t count )
     if ( dicomImage.load( _fileList[ _lut[ index ] ] ) )
     {
 
-      int32_t dMin = 0, dMax = 0;
+      float dMin = 0.0f, dMax = 0.0f;
 
       dicomImage.fillIndex( index );
       dicomImage.getMinMaxValues( dMin, dMax );

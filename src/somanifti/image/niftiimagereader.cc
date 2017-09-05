@@ -57,7 +57,7 @@ template class NiftiImageReader<float>;
 template class NiftiImageReader<double>;
 template class NiftiImageReader<VoxelRGB>;
 template class NiftiImageReader<VoxelRGBA>;
-template class NiftiImageReader<VoxelHSV>;
+//template class NiftiImageReader<VoxelHSV>;
 template class NiftiImageReader<std::complex<float> >;
 template class NiftiImageReader<std::complex<double> >;
 

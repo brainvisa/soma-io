@@ -27,7 +27,6 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
-#include <dcmtk/dcmdata/dcuid.h>
 
 
 dcm::SiemensMRReader::SiemensMRReader()

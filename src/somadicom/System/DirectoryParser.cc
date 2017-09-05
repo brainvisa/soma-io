@@ -11,6 +11,12 @@
 #include <unistd.h>
 
 
+#ifdef WIN32
+#define DICOM_PATHSEP "\\"
+#else
+#define DICOM_PATHSEP "/"
+#endif
+
 dcm::DirectoryParser::DirectoryParser( const std::string& name )
                     : _selectedFile( "" ),
                       _selectedDir( "" )
@@ -34,7 +40,7 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
       _selectedFile = name;
       _selectedDir = ".";
 
-      size_t pos = name.find_last_of( "/" );
+      size_t pos = name.find_last_of( DICOM_PATHSEP );
 
       if ( pos != std::string::npos )
       {
@@ -49,7 +55,7 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
 
       _selectedDir = ".";
 
-      size_t pos = name.find_last_of( "/" );
+      size_t pos = name.find_last_of( DICOM_PATHSEP );
 
       if ( pos != std::string::npos )
       {
@@ -89,7 +95,7 @@ std::string dcm::DirectoryParser::getFirstFile()
 
         std::ostringstream fname;
 
-        fname << _selectedDir << "/" << item->d_name;
+        fname << _selectedDir << DICOM_PATHSEP << item->d_name;
         stat( fname.str().c_str(), &file_stat );
 
         if ( S_ISREG( file_stat.st_mode ) )
@@ -101,6 +107,8 @@ std::string dcm::DirectoryParser::getFirstFile()
         }
 
       }
+
+      closedir( directory );
 
     }
 
@@ -130,7 +138,7 @@ void dcm::DirectoryParser::parse()
 
         std::ostringstream fname;
 
-        fname << _selectedDir << "/" << item->d_name;
+        fname << _selectedDir << DICOM_PATHSEP << item->d_name;
         stat( fname.str().c_str(), &file_stat );
 
         if ( S_ISREG( file_stat.st_mode ) )

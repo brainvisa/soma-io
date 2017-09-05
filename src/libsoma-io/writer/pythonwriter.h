@@ -60,7 +60,7 @@ namespace soma
                             int indent, bool writeInternals );
     typedef std::map<std::string, Helper> HelperSet;
     typedef void (*CatchFunction)( PythonWriter &, std::exception &,
-                                   const carto::GenericObject & );
+                                   const carto::Object & );
 
     PythonWriter( const std::string& filename,
                   const carto::SyntaxSet& rules = carto::SyntaxSet(),
@@ -101,7 +101,12 @@ namespace soma
                 const std::string & syntax = "", 
                 const std::string & semantic = "", 
                 bool writeInternals = false );
-    bool isInternal( const std::string & syntax, 
+    /// Writes an element according to the syntax
+    void write( const carto::Object & object, int indent,
+                const std::string & syntax = "",
+                const std::string & semantic = "",
+                bool writeInternals = false );
+    bool isInternal( const std::string & syntax,
                      const std::string & semantic );
     void setSingleLineMode( bool x ) { _singleLine = x; }
     bool singleLine() const { return _singleLine; }

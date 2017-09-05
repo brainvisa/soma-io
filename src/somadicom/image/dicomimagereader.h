@@ -73,7 +73,7 @@ namespace soma
       virtual std::string formatID() const { return "DICOM"; }
 
     protected:
-      std::vector<std::vector<int> >  _sizes;
+      std::vector<std::vector<int> > _sizes;
   };
 
 }

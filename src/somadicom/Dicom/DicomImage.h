@@ -44,14 +44,17 @@ class DicomImage
     virtual void getImagePtr();
     void fillIndex( int32_t index, int32_t inputSlice = 0 );
     void fill( int32_t z, int32_t t, int32_t inputSlice = 0 );
-    void getMinMaxValues( int32_t& min, int32_t& max );
+    void getMinMaxValues( float& min, float& max );
+    void setSlopeAndIntercept( double slope, double intercept );
 
   protected:
+
+    virtual bool getPixelData( DcmDataset* dataset );
 
     void chooseImagePixel( const std::string& photometric );
 
     DicomProxy& _proxy;
-    ImagePixel::Parameters& _parameters;
+    ImagePixel::Parameters _parameters;
     ImagePixel::OffsetParameters _offsetParameters;
     DcmFileFormat _dicomFile;
     DcmDataset* _dataset;

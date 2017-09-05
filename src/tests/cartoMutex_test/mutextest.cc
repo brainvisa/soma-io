@@ -42,7 +42,7 @@
 using namespace carto;
 using namespace std;
 
-Mutex mutex;
+Mutex mutex_g;
 
 // #ifdef _WIN32
 // void sleep( unsigned ns )
@@ -64,11 +64,11 @@ void MyThread::doRun()
 {
   cout << "doRun in thread " << _id << endl << flush;
   sleep( 1 );
-  mutex.lock();
+  mutex_g.lock();
   cout << "mutex locked for thread " << _id << endl << flush;
   sleep( 1 );
   cout << "mutex unlocked for thread " << _id << endl << flush;
-  mutex.unlock();
+  mutex_g.unlock();
 }
 
 

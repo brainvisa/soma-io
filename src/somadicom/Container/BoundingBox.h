@@ -6,6 +6,8 @@
 #include <soma-io/config/soma_config.h>
 #endif
 
+#include <iostream>
+
 
 namespace dcm
 {
@@ -67,6 +69,8 @@ class BoundingBox
 
 };
 
+template <class T>
+std::ostream& operator<<(std::ostream& os, const dcm::BoundingBox<T> & bb);
 
 }
 
