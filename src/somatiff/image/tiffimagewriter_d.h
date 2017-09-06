@@ -370,10 +370,13 @@ namespace soma {
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
     std::vector<int> dims( 4, 0 );
-    dsi.header()->getProperty( "sizeX", dims[ 0 ] );
-    dsi.header()->getProperty( "sizeY", dims[ 1 ] );
-    dsi.header()->getProperty( "sizeZ", dims[ 2 ] );
-    dsi.header()->getProperty( "sizeT", dims[ 3 ] );
+    if( !dsi.header()->getProperty( "volume_dimension", dims ) )
+    {
+      dsi.header()->getProperty( "sizeX", dims[ 0 ] );
+      dsi.header()->getProperty( "sizeY", dims[ 1 ] );
+      dsi.header()->getProperty( "sizeZ", dims[ 2 ] );
+      dsi.header()->getProperty( "sizeT", dims[ 3 ] );
+    }
     minf->setProperty( "volume_dimension", dims );
     minf->setProperty( "voxel_size",
                        dsi.header()->getProperty( "voxel_size" ) );

@@ -39,11 +39,11 @@
 //----------------------------------------------------------------------------
 
 namespace carto {
-  
+
   //==========================================================================
   //   C O N S T R U C T O R S
   //==========================================================================
-  
+
   template <typename T, unsigned int C>
   VoxelValue<T,C>::VoxelValue()
   {
@@ -51,7 +51,7 @@ namespace carto {
       std::cout << "VOXELVALUE:: constructor()" << std::endl;
     #endif
   }
-  
+
   template <typename T, unsigned int C>
   VoxelValue<T,C>::VoxelValue( const VoxelValue<T,C> & other )
   {
@@ -60,7 +60,7 @@ namespace carto {
     #endif
     *this = other;
   }
-  
+
   template <typename T, unsigned int C>
   VoxelValue<T,C>::~VoxelValue()
   {
@@ -68,13 +68,13 @@ namespace carto {
       std::cout << "VOXELVALUE:: destructor()" << std::endl;
     #endif
   }
-  
+
   //==========================================================================
   //   I N T E R N   O P E R A T O R S
   //==========================================================================
-  
+
   template <typename T, unsigned int C> inline
-  bool VoxelValue<T,C>::operator == ( const VoxelValue<T,C> &aa )
+  bool VoxelValue<T,C>::operator == ( const VoxelValue<T,C> &aa ) const
   {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == VV" << std::endl;
@@ -85,18 +85,18 @@ namespace carto {
         return false;
     return true;
   }
-  
+
   template <typename T, unsigned int C> inline
-  bool VoxelValue<T,C>::operator != ( const VoxelValue<T,C> &aa )
+  bool VoxelValue<T,C>::operator != ( const VoxelValue<T,C> &aa ) const
   {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV != VV" << std::endl;
     #endif
     return !( (*this) == aa );
   }
-  
+
   template <typename T, unsigned int C>
-  bool VoxelValue<T,C>::operator == ( const T &bb )
+  bool VoxelValue<T,C>::operator == ( const T &bb ) const
   {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV == const" << std::endl;
@@ -107,16 +107,29 @@ namespace carto {
         return false;
     return true;
   }
-  
+
   template <typename T, unsigned int C> inline
-  bool VoxelValue<T,C>::operator != ( const T &bb )
+  bool VoxelValue<T,C>::operator != ( const T &bb ) const
   {
     #ifdef CARTO_DEBUG_VOXELVALUE
       std::cout << "VOXELVALUE:: VV != const" << std::endl;
     #endif
     return !( (*this) == bb );
   }
-  
+
+  //=== CONVERSION =======================================================
+  template <typename T, unsigned int C>
+  VoxelValue<T,C>::operator bool() const
+  {
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: bool()" << std::endl;
+    #endif
+    unsigned int i;
+    for( i=0; i<C; ++i )
+      if( (*this)[ i ] != T(0) )
+        return true;
+    return false;
+  }
 }
 
 #endif

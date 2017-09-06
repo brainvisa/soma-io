@@ -100,12 +100,12 @@ int main()
   cout << "---|  TESTING VV == const  |-----------------------------------------" << endl;
   cout << "> vvdefault[0] = 0;" << endl;
   vvdefault[0] = 0;
-  cout << "vvdefault == 0 : " << ( vvdefault == 0 ) << endl;
-  ASSERT( vvdefault == 0 );
+  cout << "vvdefault == 0 : " << ( (int) vvdefault == 0 ) << endl;
+  ASSERT( ((int) vvdefault) == 0 );
   cout << "> vvdefault[1] = 2;" << endl;
   vvdefault[1] = 2;
-  cout << "vvdefault == 0 : " << ( vvdefault == 0 ) << endl;
-  ASSERT( !(vvdefault == 0) );
+  cout << "vvdefault == 0 : " << ( (int) vvdefault == 0 ) << endl;
+  ASSERT( !(((int) vvdefault) == 0) );
   
   cout << "---|  TESTING operator <<  |-----------------------------------------" << endl;
   cout << "> cout << vvdefault << endl;" << endl;
@@ -374,7 +374,7 @@ int main()
   
   cout << "---|  TESTING operator (VoxelRGB + const) |--------------------------" << endl;
   cout << ">> voxelrgb = VoxelRGB(1,2,3)+1;" << endl;
-  voxelrgb = VoxelRGB(1,2,3)+1;
+  voxelrgb = VoxelRGB(1,2,3)+(uint8_t)1;
   cout << "voxelrgb = ( " 
        << (int) voxelrgb.red() << ", "
        << (int) voxelrgb.green() << ", "
@@ -384,7 +384,7 @@ int main()
   
   cout << "---|  TESTING operator (VoxelRGB - const) |--------------------------" << endl;
   cout << ">> voxelrgb = VoxelRGB(1,2,3)-1;" << endl;
-  voxelrgb = VoxelRGB(1,2,3)-1;
+  voxelrgb = VoxelRGB(1,2,3)-(uint8_t)1;
   cout << "voxelrgb = ( " 
        << (int) voxelrgb.red() << ", "
        << (int) voxelrgb.green() << ", "

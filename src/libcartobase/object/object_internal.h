@@ -113,9 +113,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isScalar( const TypedObject<T> & )
+    static inline bool isScalar( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isScalar();
     }
 
     static inline double getScalar( const TypedObject<T> &object )
@@ -179,9 +179,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isString( const TypedObject<T> & )
+    static inline bool isString( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isString();
     }
 
     static inline std::string getString( const TypedObject<T> &object )
@@ -266,9 +266,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isArray( const TypedObject<T> & )
+    static inline bool isArray( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isArray();
     }
 
     static inline Object getArrayItem( const TypedObject<T> &object,
@@ -338,9 +338,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isDynArray( const TypedObject<T> & )
+    static inline bool isDynArray( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isDynArray();
     }
 
     static inline void reserveArray( TypedObject<T> &object,
@@ -443,9 +443,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isDictionary( const TypedObject<T> & )
+    static inline bool isDictionary( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isDictionary();
     }
 
     static inline bool getProperty( const TypedObject<T> &object, 
@@ -544,9 +544,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isIterable( const TypedObject<T> & )
+    static inline bool isIterable( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isIterable();
     }
 
     static inline Object objectIterator( const TypedObject<T> &object )
@@ -621,9 +621,9 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isIterator( const TypedObject<T> & )
+    static inline bool isIterator( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isIterator();
     }
 
     static inline bool isValid( const TypedObject<T> &object )
@@ -639,6 +639,45 @@ namespace interface_internal
     static inline void next( TypedObject<T> &object )
     {
       return object.getValue().next();
+    }
+  };
+
+
+  //---------------------------------------------------------------------------
+  // KeyIteratorInterface default implementation
+  //---------------------------------------------------------------------------
+  template <typename T, bool B>
+  class KeyIteratorImpl
+  {
+  public:
+
+    static inline bool isKeyIterator( const TypedObject<T> & )
+    {
+      return false;
+    }
+
+    static inline Object keyObject( const TypedObject<T> & )
+    {
+      throw std::runtime_error( std::string( "object of type " ) +
+                                DataTypeCode<T>::name() +
+                                " is not a key iterator" );
+      return Object();
+    }
+  };
+
+  template <typename T>
+  class KeyIteratorImpl< T, true >
+  {
+  public:
+
+    static inline bool isKeyIterator( const TypedObject<T> & object )
+    {
+      return object.getValue().isKeyIterator();
+    }
+
+    static inline Object keyObject( const TypedObject<T> &object )
+    {
+      return object.getValue().keyObject();
     }
   };
 
@@ -670,14 +709,53 @@ namespace interface_internal
   {
   public:
 
-    static inline bool isDictionaryIterator( const TypedObject<T> & )
+    static inline bool isDictionaryIterator( const TypedObject<T> & object )
     {
-      return true;
+      return object.getValue().isDictionaryIterator();
     }
 
     static inline std::string key( const TypedObject<T> &object )
     {
       return object.getValue().key();
+    }
+  };
+
+
+  //---------------------------------------------------------------------------
+  // IntKeyIteratorInterface default implementation
+  //---------------------------------------------------------------------------
+  template <typename T, bool B>
+  class IntDictionaryIteratorImpl
+  {
+  public:
+
+    static inline bool isIntKeyIterator( const TypedObject<T> & )
+    {
+      return false;
+    }
+
+    static inline long intKey( const TypedObject<T> & )
+    {
+      throw std::runtime_error( std::string( "object of type " ) +
+                                DataTypeCode<T>::name() +
+                                " is not an int dictionary iterator" );
+      return 0;
+    }
+  };
+
+  template <typename T>
+  class IntDictionaryIteratorImpl< T, true >
+  {
+  public:
+
+    static inline bool isIntKeyIterator( const TypedObject<T> & object )
+    {
+      return object.getValue().isIntKeyIterator();
+    }
+
+    static inline long intKey( const TypedObject<T> &object )
+    {
+      return object.getValue().intKey();
     }
   };
 
@@ -2366,6 +2444,107 @@ namespace interface_internal {
     object.getValue()[ index ] = value;
   }
 
+
+  // IterableInterface
+  //---------------------------------------------------------------------------
+
+  template <>
+  class MapIterator< std::map<int, Object > > :
+    public IntKeyIteratorInterface
+  {
+  public:
+    inline MapIterator() { _iterator = _end; }
+
+    bool isValid() const
+    {
+      return _iterator != _end;
+    }
+
+    Object currentValue() const
+    {
+      return _iterator->second;
+    }
+
+    void next()
+    {
+      ++_iterator;
+    }
+
+    long intKey() const
+    {
+      return _iterator->first;
+    }
+
+    inline
+    MapIterator( const std::map< int, Object >::const_iterator &begin,
+                 const std::map< int, Object >::const_iterator &end ) :
+      IteratorInterface(), IntKeyIteratorInterface(),
+     _iterator( begin ),
+     _end( end ) {}
+
+    std::map< int, Object >::const_iterator _iterator;
+    std::map< int, Object >::const_iterator _end;
+  };
+
+  template <>
+  class IterableImpl<std::map<int, Object>, false>
+  {
+  public:
+
+
+    static inline bool isIterable( const
+                                   TypedObject< std::map<int,
+                                   Object> > & )
+    {
+      return true;
+    }
+
+    static inline Object
+    objectIterator( const
+                    TypedObject<std::map<int, Object> > & object );
+
+    static inline bool equals(
+      const TypedObject< std::map<int, Object> > & o1,
+      const GenericObject & o2 )
+    {
+      const std::map<int, Object> & self = o1.getValue();
+      if( self.size() != o2.size() )
+        return false;
+      std::map<int, Object>::const_iterator it;
+      Object o2it = o2.objectIterator();
+      if( !o2it || !o2it->isValid() || !o2it->isIntKeyIterator() )
+        return false;
+      for( it=self.begin(); it!=self.end(); ++it, o2it->next() )
+      {
+        if( !o2it || !o2it->isValid() )
+          return false;
+        try
+        {
+          if( it->first != o2it->intKey() )
+            return false;
+          if( it->second != o2it->currentValue() )
+            return false;
+        }
+        catch( ... )
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
+  };
+
+
+  inline
+  Object
+  IterableImpl<std::map<int, Object>, false>::objectIterator
+  ( const TypedObject<std::map<int, Object> > & object )
+  {
+    return Object::value( MapIterator<std::map<int, Object> >
+                          ( object.getValue().begin(),
+                            object.getValue().end() ) );
+  }
 
 /*
 

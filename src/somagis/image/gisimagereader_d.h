@@ -45,6 +45,7 @@
 #include <soma-io/reader/itemreader.h>                      // read + byteswap
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -79,11 +80,14 @@ namespace soma {
     _itemr.reset( dir.reader( _binary, _byteswap ) );
     
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
-    
+    if( !dsi.header()->getProperty( "volume_dimension", _sizes[ 0 ] ) )
+    {
+      dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+      dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+      dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+      dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    }
+
     ChainDataSource::setSource( dsi.list().dataSource( "ima", 0 ), 
                                 dsi.list().dataSource( "ima", 0)->url() );
   }
@@ -200,15 +204,18 @@ namespace soma {
   }
   
   template <typename T> 
-  bool GisImageReader<T>::setpos( int x, int y, int z, int t )
+  bool GisImageReader<T>::setpos( const std::vector<int> & pos )
   {
     if( !_binary )
       return false; // cannot move in file in ascii mode
-    offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
-    offset_t  sli = lin * _sizes[ 0 ][ 1 ];
-    offset_t  vol = sli * _sizes[ 0 ][ 2 ];
-    return source()->at( ( (offset_t) sizeof(T) ) * 
-                         ( x + y * lin + z * sli + t * vol ) );
+    offset_t off = pos[0], dimoff = 1;
+    size_t i, n = pos.size();
+    for( i=0; i<n - 1; ++i )
+    {
+      dimoff *= _sizes[0][i];
+      off += dimoff * pos[ i + 1 ];
+    }
+    return source()->at( ( (offset_t) sizeof(T) ) * off );
   }
   
   //==========================================================================
@@ -218,32 +225,17 @@ namespace soma {
   void GisImageReader<T>::read( T * dest, DataSourceInfo & dsi,
                                 std::vector<int> & pos,
                                 std::vector<int> & size,
-                                std::vector<long> & /* stride */,
+                                std::vector<long> & strides,
                                 carto::Object      /* options */ )
   {
     if( _sizes.empty() )
       updateParams( dsi );
-    
+
     // dest is supposed to be allocated
-    
-    // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
-    int  st = _sizes[ 0 ][ 3 ];
-    // region size
-    int  vx = size[ 0 ];
-    int  vy = size[ 1 ];
-    int  vz = size[ 2 ];
-    int  vt = size[ 3 ];
-    // region position
-    int  ox = pos[ 0 ];
-    int  oy = pos[ 1 ];
-    int  oz = pos[ 2 ];
-    int  ot = pos[ 3 ];
-    int  y, z, t;
+
+    size_t dim, ndim = size.size();
     // region line size
-    offset_t  len = vx * sizeof( T );
+    offset_t  len = size[0] * sizeof( T );
     offset_t offset;
     long readout;
 
@@ -254,29 +246,36 @@ namespace soma {
 
     try
     {
-      for( t=0; t<vt; ++t )
-        for( z=0; z<vz; ++z )
-          for( y=0; y<vy; ++y )
-          {
-            if( !source()->isOpen() )
-              throw carto::eof_error( url() );
-            // we move in the file
-            setpos(ox,y+oy,z+oz,t+ot);
-            // we move in the buffer
-            offset = ((offset_t)t) * vz + z;
-            offset = offset * vy + y;
-            offset = offset * len;
-            char * target = ((char *)dest) + offset;
-            if( ( readout = readBlock( target, len ) ) != (long) len ) {
-              localMsg( "readBlock( failed at ( " +
-                        carto::toString( y ) + ", " +
-                        carto::toString( z ) + ", " +
-                        carto::toString( t ) + " ) : " +
-                        carto::toString( readout / sizeof(T) ) + " != " +
-                        carto::toString( (long) len / sizeof( T ) ) );
-              throw carto::eof_error( url() );
-            }
+      carto::line_NDIterator<T> it( dest, size, strides );
+      std::vector<int> dpos( ndim, 0 );
+      dpos[0] = pos[0];
+
+      for( ; !it.ended(); ++it )
+      {
+        for( dim=1; dim<ndim; ++dim )
+          dpos[dim] = it.position()[dim] + pos[dim];
+
+        // we move in the file
+        setpos( dpos );
+        // we move in the buffer
+        // FIXME: stride[0] not taken into account for now
+        char * target = (char *) &*it;
+        if( ( readout = readBlock( target, len ) ) != (long) len ) {
+#ifdef CARTO_DEBUG
+          std::cerr << "readBlock( failed at ( ";
+          for (int d=0; d < ndim; ++d){
+              if (d > 0)
+                  std::cerr << ",";
+              std::cerr << carto::toString(it.position()[d]);
           }
+          std::cerr << ") : "
+                    << carto::toString( readout / sizeof(T) ) + " != " +
+                        carto::toString( (long) len / sizeof( T ) )
+                    << std::endl;
+#endif
+          throw carto::eof_error( url() );
+        }
+      }
     }
     catch( ... )
     {

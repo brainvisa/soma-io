@@ -35,7 +35,7 @@
 #ifndef CARTOBASE_THREAD_MUTEXPRIVATEPTHREAD_H
 #define CARTOBASE_THREAD_MUTEXPRIVATEPTHREAD_H
 
-#ifndef _WIN32
+// #ifndef _WIN32
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/thread/mutex.h>
 #include <pthread.h>
@@ -55,4 +55,4 @@ namespace carto
 }
 
 #endif
-#endif
+// #endif

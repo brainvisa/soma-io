@@ -253,12 +253,36 @@ class Object;
   };
 
 
+    //-------------------------//
+   //  KeyIteratorInterface   //
+  //-------------------------//
+
+  /** Specialized IteratorInterface for key/value storage.
+      A iterated element stores both a key (Object) and a value (generic
+      Object) (see DictionaryInterface)
+  */
+  class KeyIteratorInterface : public virtual IteratorInterface
+  {
+  public:
+
+    virtual ~KeyIteratorInterface();
+
+    /** Returns false if the stored object doesn't actually implement 
+        the DictionaryIteratorInterface API (needed since all GenericObject 
+        inherit this interface whatever they actually contain)
+    */
+    virtual bool isKeyIterator() const;
+    /// Access the key of the current element
+    virtual Object keyObject() const = 0;
+  };
+
+
     //--------------------------------//
    //  DictionaryIteratorInterface   //
   //--------------------------------//
 
   /** Specialized IteratorInterface for dictionaries.
-      A dictionary element stores both a key (string) and a value (generic 
+      A dictionary element stores both a key (string) and a value (generic
       Object) (see DictionaryInterface)
   */
   class DictionaryIteratorInterface : public virtual IteratorInterface
@@ -267,13 +291,37 @@ class Object;
 
     virtual ~DictionaryIteratorInterface();
 
-    /** Returns false if the stored object doesn't actually implement 
-        the DictionaryIteratorInterface API (needed since all GenericObject 
+    /** Returns false if the stored object doesn't actually implement
+        the DictionaryIteratorInterface API (needed since all GenericObject
         inherit this interface whatever they actually contain)
     */
     virtual bool isDictionaryIterator() const;
     /// Access the key of the current dictionary element
     virtual std::string key() const = 0;
+  };
+
+
+    //----------------------------//
+   //  IntKeyIteratorInterface   //
+  //----------------------------//
+
+  /** Specialized IteratorInterface for dictionaries.
+      A dictionary element stores both a key (string) and a value (generic
+      Object) (see DictionaryInterface)
+  */
+  class IntKeyIteratorInterface : public virtual IteratorInterface
+  {
+  public:
+
+    virtual ~IntKeyIteratorInterface();
+
+    /** Returns false if the stored object doesn't actually implement
+        the DictionaryIteratorInterface API (needed since all GenericObject
+        inherit this interface whatever they actually contain)
+    */
+    virtual bool isIntKeyIterator() const;
+    /// Access the key of the current dictionary element
+    virtual long intKey() const = 0;
   };
 
 
@@ -481,7 +529,9 @@ class CARTOBASE_API GenericObject :
   public virtual DictionaryInterface,
   public virtual IterableInterface,
   public virtual IteratorInterface,
+  public virtual KeyIteratorInterface,
   public virtual DictionaryIteratorInterface,
+  public virtual IntKeyIteratorInterface,
   public virtual NoneInterface
 {
 public:
@@ -673,9 +723,17 @@ public:
   virtual Object currentValue() const;
   virtual void next();
 
+  // KeyIteratorInterface methods
+  virtual bool isKeyIterator() const;
+  virtual Object keyObject() const;
+
   // DictionaryIteratorInterface methods
   virtual bool isDictionaryIterator() const;
   virtual std::string key() const;
+
+  // IntKeyIteratorInterface methods
+  virtual bool isIntKeyIterator() const;
+  virtual long intKey() const;
 
   // NoneInterface methods
   virtual bool isNone() const;

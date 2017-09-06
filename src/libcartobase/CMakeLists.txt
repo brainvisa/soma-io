@@ -17,6 +17,7 @@ set( _headers
    config/paths.h
    config/verbose.h
    containers/block.h
+   containers/nditerator.h
    doc/cartobase_doc.h
    doc/object_doc.h
    exception/assert.h

@@ -45,7 +45,9 @@
 #include <soma-io/nifticlib/niftilib/nifti2_io.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
+#include <cartobase/type/datatypetraits.h>              // datatypetraits
 #include <cartobase/type/voxelrgb.h>
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -65,10 +67,13 @@ namespace soma
   void NiftiImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    if( !dsi.header()->getProperty( "volume_dimension", _sizes[ 0 ] ) )
+    {
+      dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+      dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+      dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+      dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    }
 
     dsi.privateIOData()->getProperty( "nifti_structure", _nim );
   }
@@ -234,7 +239,8 @@ namespace
   template <typename T> inline T _scaledValue(
     const T & value, double scale, double offset)
   {
-    return (T) ( value * scale + offset );
+    return (T) ( value * scale 
+              + (typename carto::DataTypeTraits<T>::ChannelType)offset );
   }
 
 
@@ -267,22 +273,19 @@ namespace soma
   {
     // dest is supposed to be allocated
 
-    // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
-    int  st = _sizes[ 0 ][ 3 ];
+    size_t dim, ndim = size.size();
+    if( ndim > 7 )
+      ndim = 7; // NIFTI is limited to 7 dimensions.
+
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
     int  vz = size[ 2 ];
-    int  vt = size[ 3 ];
     // region position
     int  ox = pos[ 0 ];
     int  oy = pos[ 1 ];
     int  oz = pos[ 2 ];
-    int  ot = pos[ 3 ];
-    int  y, z, t;
+
     offset_t offset;
 
     nifti_image *nim = _nim->nim;
@@ -308,13 +311,15 @@ namespace soma
 
     Point3df pdims = m2s.transform( Point3df( vx, vy, vz ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
-    Point3df posf1 = m2s.transform( Point3df( ox, oy, oz ) );
-    Point3df posf2 = m2s.transform( Point3df( ox+vx-1, oy+vy-1, oz+vz-1 ) );
-    int idims[3];
+    Point3df posf1 = m2s.transform( Point3df( pos[0], pos[1], pos[2] ) );
+    Point3df posf2 = m2s.transform( Point3df( pos[0] + vx - 1,
+                                              pos[1] + vy - 1,
+                                              pos[2] + vz - 1 ) );
+    std::vector<int> idims = size;
     idims[0] = (int) rint( fabs( pdims[0] ) );
     idims[1] = (int) rint( fabs( pdims[1] ) );
     idims[2] = (int) rint( fabs( pdims[2] ) );
-    int ipos[3];
+    std::vector<int> ipos = pos;
     ipos[0] = (int) rint( std::min( posf1[0], posf2[0] ) );
     ipos[1] = (int) rint( std::min( posf1[1], posf2[1] ) );
     ipos[2] = (int) rint( std::min( posf1[2], posf2[2] ) );
@@ -325,7 +330,7 @@ namespace soma
     inc[1] = int( rint( incf[1] ) );
     inc[2] = int( rint( incf[2] ) );
     Point3df d0f;
-    int d0[3];
+    std::vector<int> d0;
 
     int subbb0[7] = { 0, 0, 0, 0, 0, 0, 0 },
     subbb1[7] = { 0, 0, 0, 1, 1, 1, 1 };
@@ -348,15 +353,20 @@ namespace soma
     bool gzipped = nifti_is_gzfile( tmpimgname );
 
     free( tmpimgname );
+    size_t len = 1;
     if( gzipped )
     {
       // compressed: read all in one call, but fully duplicate the buffer:
       // needs twice as much memory as the volume
-      subbb0[3] = ot;
-      subbb1[3] = vt;
+      for( dim=3; dim<ndim; ++dim )
+      {
+        subbb0[dim] = pos[dim];
+        subbb1[dim] = size[dim];
+        len *= size[dim];
+      }
     }
 
-    std::vector<U> src( ((size_t)vx) * vy * vz * (gzipped? vt : 1) );
+    std::vector<U> src( ((size_t)vx) * vy * vz * len );
     T *target = 0;
     void *buf = &src[0];
     size_t ntot = ((size_t)vx) * vy * vz * sizeof(U);
@@ -367,25 +377,25 @@ namespace soma
     long minc;
     U* psrc, *pmax = &src[src.size()], *pmin = &src[0];
     bool fail = false;
-    int t2;
     // strides in dest data
-    if( stride.size() < 4 )
-      stride.resize( 4, 0 );
+    if( stride.size() < ndim )
+      stride.resize( ndim, 0 );
     if( stride[0] == 0 )
       stride[0] = 1;
-    if( stride[1] == 0 )
-      stride[1] = vx * stride[0];
-    if( stride[2] == 0 )
-      stride[2] = vy * stride[1];
-    if( stride[3] == 0 )
-      stride[3] = vz * stride[2];
+    std::vector<long> istride( ndim, 1 );
+    for( dim=1; dim<ndim; ++dim )
+    {
+      if( stride[dim] == 0 )
+        stride[dim] = size[ dim - 1 ] * stride[ dim - 1 ];
+      istride[dim] = idims[ dim - 1 ] * istride[ dim - 1 ];
+    }
     long dstinc = stride[0]; // just for faster access
 
     if( gzipped )
     {
       // compressed stream are read just once, completely
       ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
-      if( ii < 0 || (size_t) ii < ntot * vt )
+      if( ii < 0 || (size_t) ii < ntot * len )
         throw eof_error( dsi.url() );
       toff = zoff * idims[2];
     }
@@ -393,11 +403,24 @@ namespace soma
     if( s[0] != 0. && ( s[0] != 1. || s[1] != 0. ) )
     {
       hdr->setProperty( "scale_factor_applied", true );
-      for( int t=0; t<vt; ++t )
-      {
-        t2 = t + ot;
+      std::vector<int> tsize( size.begin() + 3, size.end() );
+      std::vector<int> tstrides( stride.begin() + 3, stride.end() );
+      std::vector<int> tpos( ndim - 3, 0 );
+      std::vector<int> volpos( ndim, 0 );
 
-        subbb0[3] = t2;
+      NDIterator_base it( tsize, tstrides );
+      for( ; !it.ended(); ++it )
+      {
+        toff = 0;
+        for( dim=3; dim<ndim; ++dim )
+        {
+          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim ];
+          if( gzipped )
+            toff += istride[dim] * it.position()[ dim - 3 ];
+          else
+            subbb0[dim] = volpos[dim];
+        }
+
         if( !gzipped )
         {
           ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
@@ -408,15 +431,16 @@ namespace soma
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
           {
+            d0 = volpos;
             d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
             d0[0] = int( rint( d0f[0] ) ) - ipos[0];
             d0[1] = int( rint( d0f[1] ) ) - ipos[1];
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
-            psrc = pmin + toff * t + zoff * d0[2] + yoff * d0[1] + d0[0];
+            psrc = pmin + toff + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
-            offset = t2 * stride[3] + z * stride[2] + y * stride[1];
+            offset = it.offset() + z * stride[2] + y * stride[1];
             target = dest + offset;
 
             for( int x=0; x<vx; x+=dstinc, psrc += minc )
@@ -434,11 +458,24 @@ namespace soma
     }
     else
     {
-      for( int t=0; t<vt; ++t )
-      {
-        t2 = t + ot;
+      std::vector<int> tsize( size.begin() + 3, size.end() );
+      std::vector<int> tstrides( stride.begin() + 3, stride.end() );
+      std::vector<int> tpos( ndim - 3, 0 );
+      std::vector<int> volpos( ndim, 0 );
 
-        subbb0[3] = t2;
+      NDIterator_base it( tsize, tstrides );
+      for( ; !it.ended(); ++it )
+      {
+        toff = 0;
+        for( dim=3; dim<ndim; ++dim )
+        {
+          volpos[dim] = it.position()[ dim - 3 ] + pos[ dim ];
+          if( gzipped )
+            toff += istride[dim] * it.position()[ dim - 3 ];
+          else
+            subbb0[dim] = volpos[dim];
+        }
+
         if( !gzipped )
         {
           ii = nifti_read_subregion_image( nim, subbb0, subbb1, &buf );
@@ -449,15 +486,16 @@ namespace soma
         for( int z=0; z<vz; ++z )
           for( int y=0; y<vy; ++y )
           {
+            d0 = volpos;
             d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
             d0[0] = int( rint( d0f[0] ) ) - ipos[0];
             d0[1] = int( rint( d0f[1] ) ) - ipos[1];
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];
             // increment as pointer
             minc = zoff * inc[2] + yoff * inc[1] + inc[0];
-            psrc = pmin + toff * t + zoff * d0[2] + yoff * d0[1] + d0[0];
+            psrc = pmin + toff + zoff * d0[2] + yoff * d0[1] + d0[0];
             // we move in the buffer
-            offset = t2 * stride[3] + z * stride[2] + y * stride[1];
+            offset = it.offset() + z * stride[2] + y * stride[1];
             target = dest + offset;
 
             for( int x=0; x<vx; x+=dstinc, psrc += minc )

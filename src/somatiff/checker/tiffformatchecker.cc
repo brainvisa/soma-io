@@ -192,17 +192,29 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
     photometric = PHOTOMETRIC_MINISBLACK;
             
   TIFFClose(tif);
+  std::string unitname(std::string(unit == RESUNIT_INCH ? "inch" : 
+                       (unit == RESUNIT_CENTIMETER ? "cm" : 
+                       "not specified")));
+  localMsg("Number of pixels per "
+           + unitname + " is ["
+           + carto::toString(voxelSizeX) + ", "
+           + carto::toString(voxelSizeY) + "]");
 
-  // Default value in centimeters is converted to millimeters
+  // Number of pixels per centimeters is converted to size of a pixel 
+  // in mm or inches
   voxelSizeX = 10 / voxelSizeX;
   voxelSizeY = 10 / voxelSizeY;
 
-  // Determine resolution unit
+  // If size was stored using inches, we convert it to mm 
   if (unit == RESUNIT_INCH) {
     voxelSizeX *= 2.54;
     voxelSizeY *= 2.54;
   }
   
+  localMsg("Voxel size (in mm) is ["
+           + carto::toString(voxelSizeX) + ", "
+           + carto::toString(voxelSizeY) + "]");
+    
   type = "";
   diskdatatype = "";
 

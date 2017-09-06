@@ -95,7 +95,7 @@ namespace soma
       virtual int putch( int ch );
       virtual bool ungetch( int ch );
       virtual bool allowsMemoryMapping() const;
-      virtual bool setpos( int x, int y = 0, int z = 0, int t = 0 );
+      virtual bool setpos( const std::vector<int> & pos );
 
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options ) const;

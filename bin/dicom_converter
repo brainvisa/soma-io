@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
@@ -8,9 +8,9 @@
 #
 # This software is governed by the CeCILL license version 2 under
 # French law and abiding by the rules of distribution of free software.
-# You can  use, modify and/or redistribute the software under the 
+# You can  use, modify and/or redistribute the software under the
 # terms of the CeCILL license version 2 as circulated by CEA, CNRS
-# and INRIA at the following URL "http://www.cecill.info". 
+# and INRIA at the following URL "http://www.cecill.info".
 #
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
@@ -25,8 +25,8 @@
 # therefore means  that it is reserved for developers  and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or 
-# data to be ensured and,  more generally, to use and operate it in the 
+# requirements in conditions enabling the security of their systems and/or
+# data to be ensured and,  more generally, to use and operate it in the
 # same conditions as regards security.
 #
 # The fact that you are presently reading this means that you have had
@@ -37,11 +37,13 @@ import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
 import dicom
+import sys
 import numpy as np
 import soma
 from soma.path import split_path
 from soma.path import which
-from soma import argparse, aims, dicomaggregator
+from soma import argparse, aims
+from soma.dicom import aggregator
 import subprocess
 from soma.minf.api import readMinf
 
@@ -114,10 +116,27 @@ def get_start_and_duration_times( serie ):
     return { 'start_time' : start_times, 'duration_time' : duration_times }
 
 def check_transfer_syntax_uid(dicomFile):
-    ds = dicom.read_file(dicomFile)
-    if not ds.is_big_endian:
-        return
-    check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+    if dicom.__version__ > "0.9.5":
+        try:
+            #Encrypted Content Transfer Syntax UID
+            df = dicom.filereader
+            transfer_uid = df.read_file_meta_info(dicomFile)[(0x002,0x010)].value
+            if transfer_uid == dicom.UID.ExplicitVRBigEndian:
+                is_big_endian = True
+            elif transfer_uid in [dicom.UID.DeflatedExplicitVRLittleEndian,
+                                  dicom.UID.ExplicitVRLittleEndian,
+                                  dicom.UID.ImplicitVRLittleEndian]:
+                is_big_endian = False
+        except:
+            raise ValueError("\"Encrypted Content Transfer Syntax UID\" not found")
+    else:
+        ds = dicom.read_file(dicomFile)
+        is_big_endian = ds.is_big_endian
+
+    if is_big_endian:
+        check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+    else:
+        pass
 
 def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
@@ -125,7 +144,17 @@ def check_jpeg(dicomFile):
         return
     check_call([which("dcmdjpeg"), dicomFile, dicomFile])
 
-def convert_to_nifti( serie, mergeDynSeries = True ):
+def removeCorruptTags(dataset):
+    data_tag_list = list(dataset.viewkeys())
+    for tag in data_tag_list:
+        try:
+            data_element = dataset[tag]
+        except KeyError, e:
+            print("KeyError: %s" % e)
+            print("Tag %s will be erase" % tag)
+            dataset.pop(tag)
+
+def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -136,19 +165,21 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
     # Sort 4D DICOM files by time
     for f in serie:
-        tempfile = mkstemp()[1]
+        tempfile = mkstemp(suffix='.dcm')[1]
         tempfiles.append( tempfile )
 
         shutil.copy(f, tempfile)
         os.chmod(tempfile, 0777)
-        
+
         try:
             check_transfer_syntax_uid(tempfile)
             check_jpeg(tempfile)
         except OSError:
             print "The DICOM converter needs DCMTK binaries to convert", f
-        
+
         ds = dicom.read_file(tempfile)
+        if remove_corrupt_tags:
+            removeCorruptTags(ds)
 
         if modality == "":
             try:
@@ -182,7 +213,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
             rescaleparamsbytime[ time ] = []
 
         indexesbytime[time].append(ds.ImagePositionPatient[2])
-        
+
         slope = 1
         inter = 0
         scale_factor = 1
@@ -229,7 +260,7 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
         tmpdir = mkdtemp()
         tmpdirsByTime.update({t: tmpdir })
-        check_call( [ get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
+        check_call( [ 'bv_unenv', get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
         try:
             for unneededFile in glob.glob(os.path.join(tmpdir, "*_info.txt")):
                 os.remove(unneededFile)
@@ -340,12 +371,14 @@ def convert_to_nifti( serie, mergeDynSeries = True ):
 
     add_version_to_minf(minf, get_mcverter())
 
-def convert_to_nifti_MR( serie ):
+def convert_to_nifti_MR( serie,  remove_corrupt_tags=True):
 
   uuid = None
   series_instance_uid = None
 
   ds = dicom.read_file( serie[ 0 ] )
+  if remove_corrupt_tags:
+    removeCorruptTags(ds)
 
   dcm2niiOptions = [ '-b', findSharedFile( 'dcm2nii_DV.ini' ) ]
 
@@ -353,15 +386,20 @@ def convert_to_nifti_MR( serie ):
   check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
               [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
 
+  tags = ((0x0010, 0x0010), (0x0008, 0x0021),
+          (0x0008, 0x0060), (0x0008, 0x103e),
+          (0x0008, 0x0080))
+  filename = ''
+  for tag in tags:
+      try:
+          filename += ds[tag].value + '-'
+      except:
+          pass
   try:
-    outfile = os.path.join( args.output, \
-                                make_valid_filename( \
-                                  ds.PatientsName + '-' + ds.SeriesDate + '-' + \
-                                  ds.Modality + '-' + \
-                                  ds.SeriesDescription + '-' + \
-                                  ds.InstitutionName ) )
+      outfile = os.path.join(args.output, \
+                             make_valid_filename(filename[:-1]))
   except:
-    outfile = None
+      outfile = None
 
   outfiles = []
 
@@ -369,18 +407,18 @@ def convert_to_nifti_MR( serie ):
   # NB : keep extension in case of bvec/bval (DTI images)
   for f in os.listdir(tmpdir):
 
-    extension = '.' + f.split( '.' )[ -1 ]
+    #extension = '.' + f.split( '.' )[ -1 ]
     if outfile == None:
-
       outfile = os.path.join( args.output, f )
 
-    if os.path.exists( outfile + extension ):
+    extension = os.path.splitext(f)[1]
+    outfile = os.path.splitext(outfile)[0]
 
+    if os.path.exists( outfile + extension ):
       outfile = outfile + '_1'
 
     shutil.move(os.path.join(tmpdir, f), outfile + extension )
     if extension == '.nii':
-
       outfiles.append(outfile)
 
   # disapply rescaleSlope for Philips data
@@ -437,19 +475,24 @@ def convert_to_nifti_MR( serie ):
   print >> fd, "attributes = ", header
   fd.close()
 
-def convert_to_nifti_NM( serie ):
+def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
     tmpDir = mkdtemp()
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
+    if not tempFile.endswith('.dcm'):
+      shutil.move(tempFile, tempFile+'.dcm')
+      tempFile += '.dcm'
     os.chmod(tempFile, 0777)
-    
+
     try:
         check_transfer_syntax_uid(tempFile)
         check_jpeg(tempFile)
     except OSError:
         print "The DICOM converter needs DCMTK binaries to convert", f
-    
+
     ds = dicom.read_file(tempFile)
+    if remove_corrupt_tags:
+        removeCorruptTags(ds)
     tags = ((0x0010, 0x0010), (0x0008, 0x0020),
             (0x0008, 0x0060), (0x0008, 0x103e),
             (0x0008, 0x0080))
@@ -471,7 +514,7 @@ def convert_to_nifti_NM( serie ):
 #                                  ds.Modality + '-' + \
 #                                  ds.SeriesDescription + '-' + \
 #                                  ds.InstitutionName ) + ".nii" )
-#        
+#
 #    except:
 #        outfile = None
 
@@ -495,7 +538,7 @@ def convert_to_nifti_NM( serie ):
         newattributes = {'referentials': [uuid],
                          'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
-        
+
 #        try:
 #            detectorInf = ds.DetectorInformations
 #            if len(detectorInf) == 1:
@@ -565,7 +608,7 @@ Convert input DICOM files into NIfTI files
         parser.parse_args( [ '-h' ] )
 
     # Aggregate input files
-    aggregator = dicomaggregator.DicomAggregator()
+    aggregator = aggregator.DicomAggregator()
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
 
@@ -573,6 +616,7 @@ Convert input DICOM files into NIfTI files
     for serie in aggregator._aggregate_sources.values():
 
       ds = dicom.read_file( serie[ 0 ] )
+
       try:
         modality = ds.Modality
       except:

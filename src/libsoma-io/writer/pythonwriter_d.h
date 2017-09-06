@@ -292,9 +292,11 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
   im=y.objectIterator();
   while( im->isValid() )
     {
-      key = im->key();
-      if( ( writeInternals || !w.isInternal( "", key ) ) 
-          && ( key != "__syntax__" || !hassyntax ) )
+      try
+      {
+        key = im->key();
+        if( ( writeInternals || !w.isInternal( "", key ) )
+            && ( key != "__syntax__" || !hassyntax ) )
         {
           if( first )
             first = false;
@@ -308,6 +310,22 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
           soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
           w.write( im->currentValue(), indent, "", key, writeInternals );
         }
+      }
+      catch( ... )
+      {
+        long key = im->intKey();
+        if( first )
+          first = false;
+        else
+          {
+            ds.putch( ',' );
+            ds.putch( sep );
+            soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+          }
+        soma::AsciiDataSourceTraits<long>::write( ds, key );
+        soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
+        w.write( *im->currentValue(), indent, "", "", writeInternals );
+      }
       im->next();
     }
 

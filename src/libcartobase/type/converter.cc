@@ -164,9 +164,13 @@ namespace carto
   template class DefaultedRescalerInfo<double, float>;
   template class DefaultedRescalerInfo<double, double>;
 
+  template class DefaultedRescalerInfo<float, char>; //for command AimsDynamicImageSegmentation of shfjprocessing library
+  template class DefaultedRescalerInfo<char, float>; //for command AimsDynamicImageSegmentation of shfjprocessing library
+
   // These three specializations seem to be needed in order to compile
   // the AimsFileConvert command.
   template class DefaultedRescalerInfo<char, short>;
+
 #ifdef CARTO_LONG_IS_DISTINCT
   template class DefaultedRescalerInfo<unsigned long, short>;
   template class DefaultedRescalerInfo<long, short>;

@@ -190,9 +190,6 @@ template <typename T>
 TypedObject<T>::TypedObject()
 {
   GenericObjectTypeDeclared<T>::check();
-#ifdef CARTO_DEBUG
-  _debugInstantiation = _debugInstantiation;
-#endif
 }
 
 
@@ -597,6 +594,31 @@ void TypedObject<T>::next()
 
 
 //-----------------------------------------------------------------------------
+// KeyIteratorInterface methods
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool TypedObject<T>::isKeyIterator() const
+{
+  return interface_internal::
+    KeyIteratorImpl< T, SUPERSUBCLASS(KeyIteratorInterface,T) >
+    ::isKeyIterator( *this );
+}
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+Object TypedObject<T>::keyObject() const
+{
+  return interface_internal::
+    KeyIteratorImpl< T, SUPERSUBCLASS(KeyIteratorInterface,T) >::
+    keyObject( *this );
+}
+
+
+//-----------------------------------------------------------------------------
 // DictionaryIteratorInterface methods
 //-----------------------------------------------------------------------------
 
@@ -618,6 +640,31 @@ std::string TypedObject<T>::key() const
   return interface_internal::
     DictionaryIteratorImpl< T, SUPERSUBCLASS(DictionaryIteratorInterface,T) >::
     key( *this );
+}
+
+
+//-----------------------------------------------------------------------------
+// IntKeyIteratorInterface methods
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool TypedObject<T>::isIntKeyIterator() const
+{
+  return interface_internal::
+    IntDictionaryIteratorImpl< T, SUPERSUBCLASS(IntKeyIteratorInterface,T) >
+    ::isIntKeyIterator( *this );
+}
+
+
+//-----------------------------------------------------------------------------
+template <typename T>
+long TypedObject<T>::intKey() const
+{
+  return interface_internal::
+    IntDictionaryIteratorImpl< T, SUPERSUBCLASS(IntKeyIteratorInterface,T) >::
+    intKey( *this );
 }
 
 

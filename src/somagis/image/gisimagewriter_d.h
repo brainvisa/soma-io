@@ -51,6 +51,7 @@
 #include <cartobase/object/property.h>                      // header, options
 #include <cartobase/type/types.h>                           // to write header
 #include <cartobase/stream/fileutil.h>                          // utilitaires
+#include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
 #include <memory>
 #include <vector>
@@ -86,10 +87,13 @@ namespace soma {
     _itemw.reset( diw.writer( _binary, _byteswap ) );
 
     _sizes = std::vector< std::vector<int> >( 1, std::vector<int>(4) );
-    dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
-    dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
-    dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
-    dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    if( !dsi.header()->getProperty( "volume_dimension", _sizes[ 0 ] ) )
+    {
+      dsi.header()->getProperty( "sizeX", _sizes[ 0 ][ 0 ] );
+      dsi.header()->getProperty( "sizeY", _sizes[ 0 ][ 1 ] );
+      dsi.header()->getProperty( "sizeZ", _sizes[ 0 ][ 2 ] );
+      dsi.header()->getProperty( "sizeT", _sizes[ 0 ][ 3 ] );
+    }
 
     ChainDataSource::setSource( dsi.list().dataSource( "ima" ),
                                 dsi.list().dataSource( "ima" )->url() );
@@ -202,13 +206,16 @@ namespace soma {
   }
 
   template <typename T>
-  bool GisImageWriter<T>::setpos( int x, int y, int z, int t )
+  bool GisImageWriter<T>::setpos( const std::vector<int> & pos )
   {
-    offset_t  lin = (offset_t) _sizes[ 0 ][ 0 ];
-    offset_t  sli = lin * _sizes[ 0 ][ 1 ];
-    offset_t  vol = sli * _sizes[ 0 ][ 2 ];
-    return source()->at( ( (offset_t) sizeof(T) ) *
-                         ( x + y * lin + z * sli + t * vol ) );
+    offset_t off = pos[0], dimoff = 1;
+    size_t i, n = pos.size();
+    for( i=0; i<n - 1; ++i )
+    {
+      dimoff *= _sizes[0][i];
+      off += dimoff * pos[ i + 1 ];
+    }
+    return source()->at( ( (offset_t) sizeof(T) ) * off );
   }
 
   //==========================================================================
@@ -224,27 +231,10 @@ namespace soma {
     if( _sizes.empty() )
       updateParams( dsi );
 
-    // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
-    int  st = _sizes[ 0 ][ 3 ];
+    size_t ndim = size.size();
 
-    // region size
-    int  vx = size[ 0 ];
-    int  vy = size[ 1 ];
-    int  vz = size[ 2 ];
-    int  vt = size[ 3 ];
-
-    // region position
-    int  ox = pos[ 0 ];
-    int  oy = pos[ 1 ];
-    int  oz = pos[ 2 ];
-    int  ot = pos[ 3 ];
-
-    int  y, z, t;
     // region line size
-    offset_t  len = ((offset_t)vx) * sizeof( T );
+    offset_t  len = ((offset_t) size[0]) * sizeof( T );
 
     bool mustclose = !isOpen();
 
@@ -258,30 +248,38 @@ namespace soma {
     {
       if( !source ) // unallocated data
       {
-        setpos( sx-1, sy-1, sz-1, st-1 );
+        std::vector<int> szend = _sizes[ 0 ];
+        int dim;
+        for( dim=0; dim<ndim; ++dim )
+          --szend[dim];
+        setpos( szend );
         T value = 0;
         if( writeBlock( reinterpret_cast<const char *>( &value ), sizeof(T) )
             != (long) sizeof(T) )
           throw carto::eof_error( url() );
       }
       else
-        for( t=0; t<vt; ++t )
-            for( z=0; z<vz; ++z )
-                for( y=0; y<vy; ++y )
-                {
-                    // we move in the file
-                    setpos(ox,y+oy,z+oz,t+ot);
-                    // we move in the buffer
-                    // FIXME: stride[0] not taken into account for now
-                    char * target = (char *)( source
-                                              + strides[3] * t
-                                              + strides[2] * z
-                                              + strides[1] * y );
-                    if( writeBlock( target, len ) != (long) len )
-                        throw carto::eof_error( url() );
-                }
+      {
+        std::vector<int> dpos( ndim, 0 );
+        int dim;
+        dpos[0] = pos[0];
+        const_line_NDIterator<T> it( source, size, strides );
+
+        for( ; !it.ended(); ++it )
+        {
+          for( dim=1; dim<ndim; ++dim )
+            dpos[dim] = it.position()[dim] + pos[dim];
+          // we move in the file
+          setpos( dpos );
+          // we move in the buffer
+          // FIXME: stride[0] not taken into account for now
+          const char * target = (char *) &*it;
+          if( writeBlock( target, len ) != (long) len )
+              throw carto::eof_error( url() );
+        }
+      }
     }
-    catch( ... )
+    catch( std::exception & e )
     {
       if( mustclose )
       {
@@ -324,10 +322,22 @@ namespace soma {
       dimdsi = dsil.check( dimdsi );
       dsi.header()->setProperty( "byte_swapping", dimdsi.header()->getProperty( "byte_swapping" ) );
       dsi.header()->setProperty( "ascii", dimdsi.header()->getProperty( "ascii" ) );
-      dsi.header()->setProperty( "sizeX", dimdsi.header()->getProperty( "sizeX" ) );
-      dsi.header()->setProperty( "sizeY", dimdsi.header()->getProperty( "sizeY" ) );
-      dsi.header()->setProperty( "sizeZ", dimdsi.header()->getProperty( "sizeZ" ) );
-      dsi.header()->setProperty( "sizeT", dimdsi.header()->getProperty( "sizeT" ) );
+      std::vector<int> vdim;
+      if( dimdsi.header()->getProperty( "volume_dimension", vdim ) )
+      {
+        dsi.header()->setProperty( "volume_dimension", vdim );
+        dsi.header()->setProperty( "sizeX", vdim.size() > 0 ? vdim[0] : 1 );
+        dsi.header()->setProperty( "sizeY", vdim.size() > 1 ? vdim[1] : 1 );
+        dsi.header()->setProperty( "sizeZ", vdim.size() > 2 ? vdim[2] : 1 );
+        dsi.header()->setProperty( "sizeT", vdim.size() > 3 ? vdim[3] : 1 );
+      }
+      else
+      {
+        dsi.header()->setProperty( "sizeX", dimdsi.header()->getProperty( "sizeX" ) );
+        dsi.header()->setProperty( "sizeY", dimdsi.header()->getProperty( "sizeY" ) );
+        dsi.header()->setProperty( "sizeZ", dimdsi.header()->getProperty( "sizeZ" ) );
+        dsi.header()->setProperty( "sizeT", dimdsi.header()->getProperty( "sizeT" ) );
+      }
       return dsi;
     } else {
       if( options->hasProperty( "byte_swapping" ) )
@@ -349,45 +359,41 @@ namespace soma {
       throw carto::open_error( "data source not available", url() );
     // reading volume size
     std::vector<int> dim( 4, 0 );
-    dsi.header()->getProperty( "sizeX", dim[0] );
-    dsi.header()->getProperty( "sizeY", dim[1] );
-    dsi.header()->getProperty( "sizeZ", dim[2] );
-    dsi.header()->getProperty( "sizeT", dim[3] );
-    std::vector<float> vs( 4, 1. );
+    if( !dsi.header()->getProperty( "volume_dimension", dim ) )
+    {
+      dsi.header()->getProperty( "sizeX", dim[0] );
+      dsi.header()->getProperty( "sizeY", dim[1] );
+      dsi.header()->getProperty( "sizeZ", dim[2] );
+      dsi.header()->getProperty( "sizeT", dim[3] );
+    }
+    std::vector<float> vs( dim.size(), 1. );
     // reading voxel size
     try
     {
       carto::Object vso = dsi.header()->getProperty( "voxel_size" );
       if( vso.get() )
       {
-        int nvs = vso->size();
-        if( nvs >= 1 )
-        {
-          vs[0] = vso->getArrayItem(0)->getScalar();
-          if( nvs >= 2 )
-          {
-            vs[1] = vso->getArrayItem(1)->getScalar();
-            if( nvs >= 3 )
-            {
-              vs[2] = vso->getArrayItem(2)->getScalar();
-              if( nvs >= 4 )
-                vs[3] = vso->getArrayItem(3)->getScalar();
-            }
-          }
-        }
+        int i, nvs = std::min( vso->size(), dim.size() );
+        for( i=0; i<nvs; ++i )
+          vs[i] = (float) vso->getArrayItem(i)->getScalar();
       }
     }
     catch( ... )
     {
     }
     // header :: volume dimensions
-    *ds << dim[0] << " " << dim[1] << " "
-        << dim[2] << " " << dim[3] << "\n";
+    size_t i, ndim = dim.size();
+    for( i=0; i<ndim - 1; ++i )
+      *ds << dim[i] << " ";
+    *ds << dim[ ndim - 1 ] << "\n";
     // header :: data type
     *ds << "-type " << carto::DataTypeCode<T>::dataType() << "\n";
     // header :: voxel size
     *ds << "-dx " << vs[0] << " -dy " << vs[1]
-        << " -dz " << vs[2] << " -dt " << vs[3] << "\n";
+        << " -dz " << vs[2] << " -dt " << vs[3];
+    for( i=4; i<ndim; ++i )
+      *ds << " -dx" << i << " " << vs[i];
+    *ds << "\n";
     // header :: byte ordering
     *ds << "-bo ";
     uint magicNumber = SOMAIO_BYTE_ORDER;
@@ -416,13 +422,16 @@ namespace soma {
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
     std::vector<int> dims( 4, 0 );
-    dsi.header()->getProperty( "sizeX", dims[ 0 ] );
-    dsi.header()->getProperty( "sizeY", dims[ 1 ] );
-    dsi.header()->getProperty( "sizeZ", dims[ 2 ] );
-    dsi.header()->getProperty( "sizeT", dims[ 3 ] );
-    minf->setProperty( "volume_dimension", dims );
+    if( !minf->getProperty( "volume_dimension", dims ) )
+    {
+      minf->getProperty( "sizeX", dims[ 0 ] );
+      minf->getProperty( "sizeY", dims[ 1 ] );
+      minf->getProperty( "sizeZ", dims[ 2 ] );
+      minf->getProperty( "sizeT", dims[ 3 ] );
+      minf->setProperty( "volume_dimension", dims );
+    }
     minf->setProperty( "voxel_size",
-                       dsi.header()->getProperty( "voxel_size" ) );
+                       minf->getProperty( "voxel_size" ) );
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );

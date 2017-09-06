@@ -189,10 +189,10 @@ namespace soma
 
     localMsg("DicomProxy declaration");
     dcm::DicomProxy data( (uint8_t*)source, &dataInfo );
-    
+
     localMsg("DicomProxy allocation");
     data.allocate(); // to set up accessors
-    
+
     localMsg("DicomIO writting");
     dcm::DicomIO::getInstance().write( basename, data );
     
