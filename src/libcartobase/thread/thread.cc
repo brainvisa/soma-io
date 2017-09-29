@@ -185,7 +185,11 @@ namespace
   DWORD WINAPI _bootstrap( PVOID thread )
   {
     void *x = carto::Thread::bootstrap( thread );
-    return (DWORD) x;
+    // void* is of type size_t which is variable among 64-bit systems and
+    // not always compatible with DWORD on windows 64. Moreover, bootstrap 
+    // always return 0
+    //return (DWORD) x;
+    return 0;
   }
 }
 #endif
