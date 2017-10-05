@@ -372,6 +372,15 @@ list<string> FileUtil::filenamesSplit( const string & fnames,
   return names;
 }
 
+string FileUtil::windowsFilename(const string & filename)
+{
+    // Split filename using slashes, then join using backslashes
+    set<string> seps;
+    seps.insert("/");
+    vector<string> splitted = carto::split(filename, seps);
+    return carto::join(splitted, "\\");
+}
+
 //==============================================================================
 //   U R I
 //==============================================================================

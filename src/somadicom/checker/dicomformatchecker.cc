@@ -100,7 +100,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
     if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
     {
       // open file
-//       fdi.open();
+      fdi.open();
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
     
@@ -112,7 +112,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
                                              datasetHeader ) )
     {
       // open file
-//       fdi.open();
+      fdi.open();
       throw wrong_format_error( "Error in DICOM dataset", imaname );
     }
     
@@ -214,12 +214,13 @@ DataSourceInfo DicomFormatChecker::check( DataSourceInfo dsi,
         || dsi.header()->getProperty( "format" )->getString() != "DICOM" )
       throw wrong_format_error( "Not a DICOM header", 
                                 dsi.list().dataSource()->url() );
-
+          
   //--- build datasourcelist -------------------------------------------------
   if( dolist || doread ) {
     localMsg( "Building list and header..." );
     dsi.header() = _buildDSList( dsi.list() );
   }
+  
   //--- build header ---------------------------------------------------------
   //if( doread ) {
   //  localMsg( "Reading header..." );
@@ -238,6 +239,7 @@ DataSourceInfo DicomFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekSlice( false );
     dsi.capabilities().setSeekVolume( false );
   }
+  
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );
   return dsi;
