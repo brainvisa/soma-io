@@ -111,6 +111,8 @@ namespace carto
         filenamesSplit( const std::string & filenames,
                         const std::string & separator );
 
+    /// Replaces slashes with backslashes characters
+    static std::string windowsFilename(const std::string & filename);
     //==========================================================================
     //   U R I
     //==========================================================================

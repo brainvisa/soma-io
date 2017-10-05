@@ -4,6 +4,7 @@
 #include <System/DirectoryParser.h>
 #endif
 
+#include <iostream>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,6 +14,7 @@
 
 #ifdef WIN32
 #define DICOM_PATHSEP "\\"
+#define DICOM_ALTPATHSEP "/"
 #else
 #define DICOM_PATHSEP "/"
 #endif
@@ -26,7 +28,6 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
 
   if ( !stat( name.c_str(), &file_stat ) )
   {
-
     if ( S_ISDIR( file_stat.st_mode ) )
     {
 
@@ -41,6 +42,12 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
       _selectedDir = ".";
 
       size_t pos = name.find_last_of( DICOM_PATHSEP );
+#if defined( DICOM_ALTPATHSEP )
+      size_t pos2 = name.find_last_of( DICOM_ALTPATHSEP );
+      if ((pos2 != std::string::npos) 
+          && (pos == std::string::npos || pos2 > pos))
+        pos = pos2;
+#endif
 
       if ( pos != std::string::npos )
       {
@@ -52,11 +59,15 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
     }
     else
     {
-
       _selectedDir = ".";
 
       size_t pos = name.find_last_of( DICOM_PATHSEP );
-
+#if defined( DICOM_ALTPATHSEP )
+      size_t pos2 = name.find_last_of(DICOM_ALTPATHSEP);
+      if ((pos2 != std::string::npos) 
+          && (pos == std::string::npos || pos2 > pos))
+        pos = pos2;
+#endif
       if ( pos != std::string::npos )
       {
 
@@ -69,7 +80,6 @@ dcm::DirectoryParser::DirectoryParser( const std::string& name )
     }
 
   }
-
 }
 
 
