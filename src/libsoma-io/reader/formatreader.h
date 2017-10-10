@@ -35,7 +35,9 @@
 #define SOMAIO_READER_FORMATREADER_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-//----------------------------------------------------------------------------
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>
+//--- system -----------------------------------------------------------------
 #include <string>
 //----------------------------------------------------------------------------
 
@@ -154,6 +156,8 @@ namespace soma
 
   };
 
+  extern template class FormatReader<carto::GenericObject>;
+  extern template class FormatReader<carto::Object>;
 }
 
 #endif
