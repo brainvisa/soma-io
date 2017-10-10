@@ -139,8 +139,9 @@ namespace soma
     return w.write( *obj, options, passbegin, passend );
   }
 
+  extern template class Writer<carto::GenericObject>;
+  extern template class Writer<carto::Object>;
 }
-
 
 template <class T>
 inline soma::GenericWriter &

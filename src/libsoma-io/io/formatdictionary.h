@@ -35,6 +35,8 @@
 #define SOMAIO_IO_FORMATDICTIONARY_H
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+//--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>
 //--- system -----------------------------------------------------------------
 #include <string>
 #include <map>
@@ -114,6 +116,8 @@ namespace soma
     static std::map<std::string, FormatInfo> & writeTypes();
   };
 
+  extern template class FormatDictionary<carto::GenericObject>;
+  extern template class FormatDictionary<carto::Object>;
 }
 
 #endif

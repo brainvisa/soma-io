@@ -166,6 +166,9 @@ namespace soma
     AllocatorContext               _alloccontext;
     carto::Object                  _options;
   };
+
+  extern template class Reader<carto::GenericObject>;
+  extern template class Reader<carto::Object>;
 }
 
 //============================================================================
