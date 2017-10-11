@@ -28,11 +28,13 @@ bool dcm::ModalityLutModule::parseItem( DcmItem* dcmItem )
     Float64 tmpDouble;
     double intercept = 0.0;
     double slope = 1.0;
+    int32_t found = 0;
 
     if ( dcmItem->findAndGetFloat64( DCM_RescaleIntercept, tmpDouble ).good() )
     {
 
       intercept = double( tmpDouble );
+      found++;
 
     }
 
@@ -40,13 +42,14 @@ bool dcm::ModalityLutModule::parseItem( DcmItem* dcmItem )
     {
 
       slope = double( tmpDouble );
+      found++;
 
     }
 
     _rescaleIntercept.push_back( intercept );
     _rescaleSlope.push_back( slope );
 
-    return ((intercept != 0.0) || (slope != 1.0));
+    return ( found == 2 ) ? true : false;
 
   }
 
