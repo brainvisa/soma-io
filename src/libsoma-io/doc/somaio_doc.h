@@ -109,13 +109,13 @@ namespace soma
 
   Allocation contexts holds the following information:
 
-  - a DataSource: file, buffer, or none. This data source represents both the 
+  - a DataSource: file, buffer, or none. This data source represents both the
     file to read from and the reader system needed to get and convert data 
     to the internal memory format of the system. Alternately the data source 
     can be an already allocated memory buffer, or no source at all (which 
     will result in allocating an uninitialized buffer)
   - a status: allocated or unallocated
-  - when determined, an actual LowLevelAllocator will be used. Currently 
+  - when determined, an actual LowLevelAllocator will be used. Currently
     supported methods include:
     - Memory allocation
     - Direct, read-only memory mapping

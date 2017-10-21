@@ -126,44 +126,6 @@ namespace carto
 
 
 
-/*! \page allocators Allocators system
-
-  Allocators are handled by programmers via the AllocatorContext class. 
-  This class holds information on how to allocate a (large) buffer. It is 
-  prepared before the actual allocation, and at that time only a decision 
-  will be made on how to allocate the buffer, depending on its memory size, 
-  the available memory, the binary compatibility with a file to read...
-
-  Allocation contexts holds the following information:
-
-  - a DataSource: file, buffer, or none. This data source represents both the 
-    file to read from and the reader system needed to get and convert data 
-    to the internal memory format of the system. Alternately the data source 
-    can be an already allocated memory buffer, or no source at all (which 
-    will result in allocating an uninitialized buffer)
-  - a status: allocated or unallocated
-  - when determined, an actual LowLevelAllocator will be used. Currently 
-    supported methods include:
-    - Memory allocation
-    - Direct, read-only memory mapping
-    - Read/write memory mapping with copy of the whole DataSource
-    - Direct read/write memory mapping (will modify the DataSource)
-  - an access mode (read only, read/write, or internal modification): see 
-    AllocatorStrategy::DataAccess
-
-  As the allocator context has to check dynamically the amount of free RAM 
-  and swap memory, and make a decision according to them each time it has to 
-  allocate data, one allocation is rather slow. So this allocator system 
-  should be reserved to large data blocks, and avoided to allocate many small 
-  objects.
-
-  If many small objects have to be allocated anyway, the allocation mode 
-  may be forced by directly providing a LowLevelAllocator (generally the 
-  MemoryAllocator::singleton()) to the allocator context.
-*/
-
-
-
 /*! \page genericobject Generic object API changes
 
 There has been three generations of generic objects with three different 
