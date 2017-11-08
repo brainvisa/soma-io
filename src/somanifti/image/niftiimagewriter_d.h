@@ -1483,13 +1483,17 @@ namespace soma
           s2moriented = true;
           for( int x=0; x<3 && ok; ++x )
             for( int j=0; j<3; ++j )
-              if( fabs( P.m[x][j] - R.m[x][j] ) > 1e-5 )
+            {
+              float amax = std::max( fabs( P.m[x][j] ), fabs( R.m[x][j] ) );
+              if( ( amax > 1. && fabs( P.m[x][j] - R.m[x][j] ) / amax > 1e-4 )
+                  || ( amax != 0 && fabs( P.m[x][j] - R.m[x][j] ) > 1e-4 ) )
               {
                 // cancel
                 ok = false;
                 nim->qform_code = NIFTI_XFORM_UNKNOWN;
                 break;
               }
+            }
         }
         /* The NIFTI format specs are somewhat ambiguous on the question
            whether to fill or not the sform matrix if the qform is already
