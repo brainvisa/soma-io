@@ -7,6 +7,14 @@ from soma.dicom import aggregator
 import sys, traceback
 
 def createTree( serie ):
+    """
+    This function creates directories to tidy all the DICOM elements in a serie/acquisition.
+    It creates a folder for the patient, with the name of the patient, and a 
+    subfolder for the serie/acquisition, named with the modality and the description.
+    
+    :param serie: list of all the path DICOM of a serie
+    :return: 
+    """
     def makeValidValue( value ):
         valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
         return ''.join( c for c in value.replace( ' ', '_' ) if c in valid_chars )
@@ -30,8 +38,11 @@ def createTree( serie ):
         return
 
     try:
+        # Create the patient directory
         patientDirName = os.path.join( args.output, \
                                        patientName )
+
+        # Inspect if the patient directory exist and change its name in case
         inc = 1
         if os.path.exists( patientDirName ) and \
            patientDirName not in sessionPatientDirNames:
@@ -40,7 +51,6 @@ def createTree( serie ):
                   patientDirName + "_" + str( inc ) not in sessionPatientDirNames:
                 inc += 1
 
-        # Create patient directory
         if inc > 1:
             patientDirName += "_" + str( inc )
         sessionPatientDirNames.append( patientDirName )
@@ -53,9 +63,20 @@ def createTree( serie ):
 
 
     try:
-        # Create serie directory
+        # Create serie/acquisition directory
         serieDir = os.path.join( patientDirName, \
                                  modality + "_" + seriesDescription )
+
+        # Inspect if the serie directory exist and change its name in case
+        inc2 = 1
+        if os.path.exists( serieDir ):
+            inc2 = 2
+            while os.path.exists(serieDir + "_" + str(inc2) ):
+                inc2 += 1
+
+        if inc2 > 1 :
+            serieDir += "_" + str(inc2)
+
         if args.unique:
             serieDir += "_" + seriesInstanceUid
         os.mkdir( serieDir )
