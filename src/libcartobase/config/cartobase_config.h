@@ -166,13 +166,9 @@ typedef unsigned int uint32_t;
 #define __deprecated__(msg) __deprecated__
 #endif
 
-// c++11 and auto_ptr / unique_ptr
+#if __cplusplus < 201103L
+// in non-c++11 mode, replace unique_ptr with auto_ptr
 #include <memory>
-#if __cplusplus >= 201103L
-// replace auto_ptr with unique_ptr to avoid warning
-#define auto_ptr unique_ptr
-#else
-// otherwise replace the other way
 #define unique_ptr auto_ptr
 #endif
 
