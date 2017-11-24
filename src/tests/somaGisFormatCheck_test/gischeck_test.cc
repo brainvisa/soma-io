@@ -128,7 +128,7 @@ int main( int argc, const char** argv )
     cout << "//---------------------------------------------------------" << endl;
     set<string> types = dsi.list().types();
     set<string>::iterator it = types.begin();
-    for( it; it != types.end(); ++it ) {
+    for( ; it != types.end(); ++it ) {
       int size = dsi.list().size( *it );
       int i;
       for ( i = 0; i< size; ++i ) {
