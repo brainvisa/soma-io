@@ -60,6 +60,7 @@ int main()
     ASSERT( x1 != x2 );
   }
 
+#if __cplusplus < 201103L
   std::cout << "testing scoped_ptr constructor from auto_ptr..." << std::endl;
   {
     std::auto_ptr<int> x1( new int );
@@ -70,6 +71,7 @@ int main()
       ASSERT( x2 != 0 );
     }
   }
+#endif
 
   std::cout << "testing scoped_ptr::reset()..." << std::endl;
   {

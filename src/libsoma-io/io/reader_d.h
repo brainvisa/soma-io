@@ -271,7 +271,7 @@ namespace soma
     set_S                        tried;
     std::set<FormatReader<T> *>  triedf;
     FormatReader<T>              *reader;
-    std::auto_ptr<FormatReader<T> >   readerc;
+    std::unique_ptr<FormatReader<T> >   readerc;
     set_S::iterator	             notyet = tried.end();
     typename std::set<FormatReader<T> *>::iterator	notyetf = triedf.end();
     int          excp = 0;
@@ -442,7 +442,7 @@ namespace soma
     set_S                         tried;
     std::set<FormatReader<T> *>   triedf;
     FormatReader<T>               *reader;
-    std::auto_ptr<FormatReader<T> >    readerc;
+    std::unique_ptr<FormatReader<T> >    readerc;
     set_S::iterator               notyet = tried.end();
     typename std::set<FormatReader<T> *>::iterator  notyetf = triedf.end();
     T            *obj;

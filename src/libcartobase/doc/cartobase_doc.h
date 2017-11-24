@@ -83,7 +83,7 @@ namespace carto
   - exceptions: \link carto::io_error io_error\endlink, 
     \link carto::errno_error errno_error\endlink and families.
   - reference counters and other smart pointers: 
-    \link carto::rc_ptr rc_ptr\endlink, std::auto_ptr, 
+    \link carto::rc_ptr rc_ptr\endlink,
     \link carto::weak_ptr weak_ptr\endlink, 
     \link carto::scoped_ptr scoped_ptr\endlink
   - other portable filename / file / directory utilities: 

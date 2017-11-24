@@ -85,7 +85,7 @@ class scoped_ptr
     {
     }
 
-    explicit scoped_ptr( std::auto_ptr<T> p ) : pointee( p.release() )
+    explicit scoped_ptr( std::unique_ptr<T> p ) : pointee( p.release() )
     {
     }
 

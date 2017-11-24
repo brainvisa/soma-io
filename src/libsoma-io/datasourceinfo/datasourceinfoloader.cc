@@ -83,7 +83,7 @@ namespace
 
   inline Private_Static & getstatic()
   {
-    static  auto_ptr<Private_Static>	ps( new Private_Static );
+    static  unique_ptr<Private_Static>	ps( new Private_Static );
     return  *ps;
   }
 
