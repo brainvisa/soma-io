@@ -99,7 +99,7 @@ namespace soma
 
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options ) const;
-      std::auto_ptr<ItemWriter<T> > _itemw;
+      std::unique_ptr<ItemWriter<T> > _itemw;
       std::vector<std::vector<int> >  _sizes;
       bool  _binary;
       bool  _byteswap;

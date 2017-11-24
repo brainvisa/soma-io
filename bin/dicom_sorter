@@ -42,7 +42,7 @@ def createTree( serie ):
         patientDirName = os.path.join( args.output, \
                                        patientName )
 
-        # Inspect if the patient directory exist and change its name in case
+        # Inspect
         inc = 1
         if os.path.exists( patientDirName ) and \
            patientDirName not in sessionPatientDirNames:
@@ -53,8 +53,11 @@ def createTree( serie ):
 
         if inc > 1:
             patientDirName += "_" + str( inc )
+
+        if patientDirName not in sessionPatientDirNames:
+            os.mkdir(patientDirName)
         sessionPatientDirNames.append( patientDirName )
-        os.mkdir( patientDirName )
+
     except:
         print "Exception in user code:"
         print '-'*60
@@ -125,6 +128,7 @@ Sort input DICOM files according to the following tree: <PatientsName>/<Modality
     aggregator.add_dicom_sources( args.input )
     aggregator.aggregate()
 
+    # sessionPatientDirNames avoid to creating multiple directories for a patient of a session
     sessionPatientDirNames = []
 
     # Browse aggregated DICOM series

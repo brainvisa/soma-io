@@ -134,7 +134,7 @@ class weak_ptr
     }
 
     template <typename Y>
-    explicit weak_ptr( const std::auto_ptr<Y>& r ) : pointee( r.get() )
+    explicit weak_ptr( const std::unique_ptr<Y>& r ) : pointee( r.get() )
     {
       if ( pointee )
         pointee->attachWeakPtr( *this );
@@ -155,7 +155,7 @@ class weak_ptr
     }
 
     template <typename Y>
-    weak_ptr& operator=( const std::auto_ptr<Y>& r )
+    weak_ptr& operator=( const std::unique_ptr<Y>& r )
     {
       reset( r.get() );
       return *this;
@@ -169,7 +169,7 @@ class weak_ptr
         pointee->attachWeakPtr( *this );
     }
 
-    explicit weak_ptr( const std::auto_ptr<T>& r ) : pointee( r.get() )
+    explicit weak_ptr( const std::unique_ptr<T>& r ) : pointee( r.get() )
     {
       if ( pointee )
         pointee->attachWeakPtr( *this );
@@ -181,7 +181,7 @@ class weak_ptr
       return *this;
     }
 
-    weak_ptr& operator=( const std::auto_ptr<T>& r )
+    weak_ptr& operator=( const std::unique_ptr<T>& r )
     {
       reset( r.get() );
       return *this;

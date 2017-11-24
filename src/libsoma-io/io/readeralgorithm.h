@@ -134,8 +134,8 @@ namespace soma
   ///       //	read it
   ///       Reader<T>	r( src );
   ///       // it is a good habit to hold object that must be destroyed in
-  ///       // a smart pointer (auto_ptr, rc_ptr or scoped_ptr)
-  ///       auto_ptr<T> data;
+  ///       // a smart pointer (unique_ptr, rc_ptr or scoped_ptr)
+  ///       unique_ptr<T> data;
   ///       data = r.read( hdr );
   /// 
   ///       // now use your data as you like
@@ -151,7 +151,7 @@ namespace soma
   ///     {
   ///       T		data;
   ///       Reader<T>	r( src );
-  ///       auto_ptr<T> data;
+  ///       unique_ptr<T> data;
   ///       data = r.read( hdr );
   ///
   ///       // other processing stuff

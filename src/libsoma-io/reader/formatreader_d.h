@@ -86,7 +86,7 @@ namespace soma
     dsi = checkDataSourceInfo( dsi, options );
     // copy context with compatible mmap mode
     AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
-    std::auto_ptr<T>  objp( create( dsi->header(), ac, options ) );
+    std::unique_ptr<T>  objp( create( dsi->header(), ac, options ) );
     T  *obj = objp.get();
     read( *obj, dsi, ac, options );
     objp.release();

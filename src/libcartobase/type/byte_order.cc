@@ -94,7 +94,7 @@ ByteSwapper::ByteSwapper( const string &bos )
 template <> 
 void ByteSwapper::_doSwap<2>( char *p )
 {
-  register char tmp = p[ 0 ];
+  char tmp = p[ 0 ];
   p[ 0 ] = p[ 1 ];
   p[ 1 ] = tmp;
 }
@@ -103,7 +103,7 @@ void ByteSwapper::_doSwap<2>( char *p )
 template <> 
 void ByteSwapper::_doSwap<4>( char *p )
 {
-  register char tmp = p[ 0 ];
+  char tmp = p[ 0 ];
   p[ 0 ] = p[ 3 ];
   p[ 3 ] = tmp;
   tmp = p[ 1 ];
@@ -115,7 +115,7 @@ void ByteSwapper::_doSwap<4>( char *p )
 template <> 
 void ByteSwapper::_doSwap<8>( char *p )
 {
-  register char tmp = p[ 0 ];
+  char tmp = p[ 0 ];
   p[ 0 ] = p[ 7 ];
   p[ 7 ] = tmp;
   tmp = p[ 1 ];
@@ -133,8 +133,8 @@ void ByteSwapper::_doSwap<8>( char *p )
 template <> 
 void ByteSwapper::_doSwap<16>( char *p )
 {
-  register char tmp;
-  for( register int i = 0; i < 8; ++i ) {
+  char tmp;
+  for( int i = 0; i < 8; ++i ) {
     tmp = p[ i ];
     p[ i ] = p[ 15 - i ];
     p[ 15 - i ] = tmp;
@@ -154,7 +154,7 @@ std::istream & ByteSwapper::_swappedRead<2>( std::istream &in, char *p )
 template <> 
 std::istream & ByteSwapper::_swappedRead<4>( std::istream &in, char *p )
 {
-  for( register int i = 3; i >= 0; --i ) {
+  for( int i = 3; i >= 0; --i ) {
     in.get( p[ i ] );
   }
   return in;
@@ -164,7 +164,7 @@ std::istream & ByteSwapper::_swappedRead<4>( std::istream &in, char *p )
 template <> 
 std::istream & ByteSwapper::_swappedRead<8>( std::istream &in, char *p )
 {
-  for( register int i = 7; i >= 0; --i ) {
+  for( int i = 7; i >= 0; --i ) {
     in.get( p[ i ] );
   }
   return in;
@@ -174,7 +174,7 @@ std::istream & ByteSwapper::_swappedRead<8>( std::istream &in, char *p )
 template <> 
 std::istream & ByteSwapper::_swappedRead<16>( std::istream &in, char *p )
 {
-  for( register int i = 15; i >= 0; --i ) {
+  for( int i = 15; i >= 0; --i ) {
     in.get( p[ i ] );
   }
   return in;
@@ -191,7 +191,7 @@ std::ostream & ByteSwapper::_swappedWrite<2>( std::ostream &out, char *p )
 template <> 
 std::ostream & ByteSwapper::_swappedWrite<4>( std::ostream &out, char *p )
 {
-  for( register int i = 3; i >= 0; --i ) {
+  for( int i = 3; i >= 0; --i ) {
     out.put( p[ i ] );
   }
   return out;
@@ -201,7 +201,7 @@ std::ostream & ByteSwapper::_swappedWrite<4>( std::ostream &out, char *p )
 template <> 
 std::ostream & ByteSwapper::_swappedWrite<8>( std::ostream &out, char *p )
 {
-  for( register int i = 7; i >= 0; --i ) {
+  for( int i = 7; i >= 0; --i ) {
     out.put( p[ i ] );
   }
   return out;
@@ -211,7 +211,7 @@ std::ostream & ByteSwapper::_swappedWrite<8>( std::ostream &out, char *p )
 template <> 
 std::ostream & ByteSwapper::_swappedWrite<16>( std::ostream &out, char *p )
 {
-  for( register int i = 15; i >= 0; --i ) {
+  for( int i = 15; i >= 0; --i ) {
     out.put( p[ i ] );
   }
   return out;

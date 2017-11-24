@@ -92,7 +92,7 @@ namespace soma
       virtual bool setpos( const std::vector<int> & pos );
 
     protected:
-      std::auto_ptr<ItemReader<T> > _itemr;
+      std::unique_ptr<ItemReader<T> > _itemr;
       std::vector<std::vector<int> >  _sizes;
       bool  _binary;
       bool  _byteswap;
