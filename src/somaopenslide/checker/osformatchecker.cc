@@ -118,17 +118,21 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   // resolutions sizes
   localMsg( "Reading sizes..." );
   int32_t rcount = openslide_get_level_count( osimage );
+  int64_t sx, sy;
   localMsg( " -> " + carto::toString( rcount ) + " levels." )
-  vector<vector<int64_t> > rsizes( rcount, vector<int64_t>( 4, 1 ) );
-  for( i=0; i<rcount; i++ )
-    openslide_get_level_dimensions( osimage, i, &rsizes[i][0], &rsizes[i][1] );
+  vector<vector<int> > rsizes( rcount, vector<int>( 4, 1 ) );
+  for( i=0; i<rcount; i++ ) {
+    openslide_get_level_dimensions( osimage, i, &sx, &sy );
+    rsizes[i][0] = (int)sx;
+    rsizes[i][1] = (int)sy;
+  }
 
   // tiles sizes
   localMsg( "Reading tile sizes..." );    
-  vector<vector<int64_t> > tsizes( rcount, vector<int64_t>( 4, 1 ) );
+  vector<vector<int> > tsizes( rcount, vector<int>( 4, 1 ) );
   for(i=0; i<rcount;++i) {
     try {
-      carto::stringTo<int64_t>(
+      carto::stringTo<int>(
                         std::string(
                             openslide_get_property_value(
                                 osimage, 
@@ -137,7 +141,7 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
                                 + "].tile-width")
                                 .c_str())),
                         tsizes[i][0]);
-      carto::stringTo<int64_t>(
+      carto::stringTo<int>(
                         std::string(
                             openslide_get_property_value(
                                 osimage, 
@@ -201,7 +205,7 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
   hdrdata->setProperty( "sizeT", (int)rsizes[resolution][3] );
   vector<int> dims;
   dims.reserve( rsizes[resolution].size() );
-  vector<int64_t>::const_iterator irs, ers = rsizes[resolution].end();
+  vector<int>::const_iterator irs, ers = rsizes[resolution].end();
   for( irs=rsizes[resolution].begin(); irs!=ers; ++irs )
     dims.push_back( (int) *irs );
   hdrdata->setProperty( "volume_dimension", dims );
