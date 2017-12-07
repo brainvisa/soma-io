@@ -211,6 +211,13 @@ void OptionsParser::parse()
 	  currentOption = NULL;
 	}
       }
+      // Throw an error if the argument looks like an option name (this catches
+      // misspelt option names)
+      if(!arg->empty() && (*arg)[0] == '-') {
+	throw unexpected_option( *arg );
+      }
+      // If the argument does not look like an option, pass it to the first
+      // option that does not yet have a value
       for( i = options.begin(); i != options.end(); ++i ) {
 	if ( (*i)->feed( *arg ) ) break;
       }
