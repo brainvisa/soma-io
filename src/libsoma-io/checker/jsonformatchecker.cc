@@ -78,7 +78,7 @@ DataSourceInfo JsonFormatChecker::check( DataSourceInfo dsi,
 {
 
   // FIXME: very very slight checking...
-  static const string   sign1 = "{\"";
+  static const string   sign1 = "{";
   static const string   sign2 = "[";
   const string* sign = &sign1;
   DataSource *ds = dsi.list().dataSource().get();
