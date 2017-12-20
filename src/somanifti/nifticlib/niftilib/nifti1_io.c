@@ -357,6 +357,8 @@ static char * gni_history[] =
   "1.47 18 Mar 2017, D. Riviere\n",
   "   - fixed strides in nifti_read_subregion_image() and compute_strides()\n",
   "     to support images larger than 2GB\n",
+  "1.48 20 Dec 2017 D. Riviere\n",
+  "   - disabled filtering of Nan/inf values\n",
   "----------------------------------------------------------------------\n"
 };
 static char gni_version[] = "nifti library version 1.45 (19 Jun, 2013)";
@@ -5018,7 +5020,8 @@ size_t nifti_read_buffer(znzFile fp, void* dataptr, size_t ntot,
     nifti_swap_Nbytes( ntot / nim->swapsize, nim->swapsize , dataptr ) ;
   }
 
-#ifdef isfinite
+#if 0 // read NaN as they are written on disk.
+//#ifdef isfinite
 {
   /* check input float arrays for goodness, and fix bad floats */
   int fix_count = 0 ;
