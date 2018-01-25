@@ -357,8 +357,10 @@ static char * gni_history[] =
   "1.47 18 Mar 2017, D. Riviere\n",
   "   - fixed strides in nifti_read_subregion_image() and compute_strides()\n",
   "     to support images larger than 2GB\n",
-  "1.48 20 Dec 2017 D. Riviere\n",
+  "1.48 20 Dec 2017, D. Riviere\n",
   "   - disabled filtering of Nan/inf values\n",
+  "1.49 25 Jan 2018, Y. Leprince\n",
+  "   - fix non-partial reading of images larger than 2GB\n",
   "----------------------------------------------------------------------\n"
 };
 static char gni_version[] = "nifti library version 1.45 (19 Jun, 2013)";
@@ -441,11 +443,11 @@ static int  nifti_NBL_matches_nim(const nifti_image *nim,
                                   const nifti_brick_list *NBL);
 
 /* for nifti_read_collapsed_image: */
-static int  rci_read_data(nifti_image *nim, int *pivots, int *prods, int nprods,
+static int  rci_read_data(nifti_image *nim, int *pivots, size_t *prods, int nprods,
                           const int dims[], char *data, znzFile fp, size_t base_offset);
-static long int  rci_alloc_mem(void ** data, int prods[8], int nprods, int nbyper );
+static long int rci_alloc_mem(void ** data, size_t prods[8], int nprods, int nbyper );
 static int  make_pivot_list(nifti_image * nim, const int dims[], int pivots[],
-                            int prods[], int * nprods );
+                            size_t prods[], int * nprods );
 
 /* misc */
 static int   compare_strlist   (const char * str, char ** strlist, int len);
@@ -6801,8 +6803,10 @@ long int nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
                                      void ** data )
 {
    znzFile fp;
-   int          pivots[8], prods[8], nprods; /* sizes are bounded by dims[], so 8 */
-   long int     c, bytes;
+   int          pivots[8], nprods; /* sizes are bounded by dims[], so 8 */
+   size_t       prods[8];
+   int          c;
+   long int     bytes;
    int          did_alloc; /* did we malloc the buffer *data here ? */
 
    /** - check pointers for sanity */
@@ -6829,7 +6833,7 @@ long int nifti_read_collapsed_image( nifti_image * nim, const int dims [8],
    /** - verify that dims[] makes sense for this dataset */
    for( c = 1; c <= nim->dim[0]; c++ ){
       if( dims[c] >= nim->dim[c] ){
-         fprintf(stderr,"** nifti_RCI: dims[%ld] >= nim->dim[%ld] (%d,%d)\n",
+         fprintf(stderr,"** nifti_RCI: dims[%d] >= nim->dim[%d] (%d,%d)\n",
                  c, c, dims[c], nim->dim[c]);
          return -1;
       }
@@ -7069,7 +7073,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
                 (si[0] * strides[0]);
               znzseek(fp, offset, SEEK_SET); /* seek to current row */
               read_amount = ((long) rs[0]) * nim->nbyper; /* read a row of the subregion*/
-              nread = (int)nifti_read_buffer(fp, readptr, read_amount, nim);
+              nread = nifti_read_buffer(fp, readptr, read_amount, nim);
               if(nread != read_amount)
                 {
                 if(g_opts.debug > 1)
@@ -7100,7 +7104,7 @@ long int nifti_read_subregion_image( nifti_image * nim,
 
    return 0 on success, < 0 on failure
 */
-static int rci_read_data(nifti_image * nim, int * pivots, int * prods,
+static int rci_read_data(nifti_image * nim, int * pivots, size_t * prods,
       int nprods, const int dims[], char * data, znzFile fp, size_t base_offset)
 {
    size_t sublen, offset, read_size;
@@ -7124,7 +7128,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, int * prods,
 
       /* so just seek and read (prods[0] * nbyper) bytes from the file */
       znzseek(fp, (long)base_offset, SEEK_SET);
-      bytes = (size_t)prods[0] * nim->nbyper;
+      bytes = prods[0] * nim->nbyper;
       nread = nifti_read_buffer(fp, data, bytes, nim);
       if( nread != bytes ){
          fprintf(stderr,"** rciRD: read only %u of %u bytes from '%s'\n",
@@ -7177,7 +7181,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, int * prods,
 
    return total size on success, and < 0 on failure
 */
-static long int rci_alloc_mem(void ** data, int prods[8], int nprods, int nbyper )
+static long int rci_alloc_mem(void ** data, size_t prods[8], int nprods, int nbyper )
 {
    long int size, index;
 
@@ -7216,7 +7220,7 @@ static long int rci_alloc_mem(void ** data, int prods[8], int nprods, int nbyper
    (note that we have space for that in the lists).
 */
 static int make_pivot_list(nifti_image * nim, const int dims[], int pivots[],
-                                              int prods[], int * nprods )
+                                              size_t prods[], int * nprods )
 {
    int len, index;
 
@@ -7246,7 +7250,7 @@ static int make_pivot_list(nifti_image * nim, const int dims[], int pivots[],
       fprintf(stderr,"+d pivot list created, pivots :");
       for(index = 0; index < len; index++) fprintf(stderr," %d", pivots[index]);
       fprintf(stderr,", prods :");
-      for(index = 0; index < len; index++) fprintf(stderr," %d", prods[index]);
+      for(index = 0; index < len; index++) fprintf(stderr," %zu", prods[index]);
       fputc('\n',stderr);
    }
 
