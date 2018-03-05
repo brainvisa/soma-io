@@ -209,10 +209,11 @@ namespace soma {
   bool GisImageWriter<T>::setpos( const std::vector<int> & pos )
   {
     offset_t off = pos[0], dimoff = 1;
-    size_t i, n = pos.size();
+    size_t i, n = pos.size(), m = _sizes[0].size();
     for( i=0; i<n - 1; ++i )
     {
-      dimoff *= _sizes[0][i];
+      if( i < m )
+        dimoff *= _sizes[0][i];
       off += dimoff * pos[ i + 1 ];
     }
     return source()->at( ( (offset_t) sizeof(T) ) * off );
@@ -316,7 +317,8 @@ namespace soma {
     }
     //--- set header ---------------------------------------------------------
     localMsg( "setting Header..." );
-    if( options->hasProperty( "partial_writing" ) ) {
+    if( options->hasProperty( "partial_writing" ) )
+    {
       DataSourceInfoLoader  dsil;
       DataSourceInfo dimdsi( dsi.list().dataSource( "dim" ) );
       dimdsi = dsil.check( dimdsi );
@@ -339,7 +341,9 @@ namespace soma {
         dsi.header()->setProperty( "sizeT", dimdsi.header()->getProperty( "sizeT" ) );
       }
       return dsi;
-    } else {
+    }
+    else
+    {
       if( options->hasProperty( "byte_swapping" ) )
         dsi.header()->setProperty( "byte_swapping", options->getProperty( "byte_swapping" ) );
       else
@@ -358,13 +362,30 @@ namespace soma {
     if( !open( DataSource::Write ) )
       throw carto::open_error( "data source not available", url() );
     // reading volume size
-    std::vector<int> dim( 4, 0 );
+    std::vector<int> dim( 4, 1 );
     if( !dsi.header()->getProperty( "volume_dimension", dim ) )
     {
+      dim[0] = 0;
       dsi.header()->getProperty( "sizeX", dim[0] );
       dsi.header()->getProperty( "sizeY", dim[1] );
       dsi.header()->getProperty( "sizeZ", dim[2] );
       dsi.header()->getProperty( "sizeT", dim[3] );
+    }
+    else if( dim.size() < 4 )
+    {
+      dsi.header()->setProperty( "sizeT", 1 );
+      if( dim.size() < 3 )
+      {
+        dsi.header()->setProperty( "sizeZ", 1 );
+        if( dim.size() < 2 )
+        {
+          dsi.header()->setProperty( "sizeY", 1 );
+          if( dim.size() < 1 )
+            dsi.header()->setProperty( "sizeX", 1 );
+        }
+      }
+      dim.resize( 4, 1 );
+      dsi.header()->setProperty( "volume_dimension", dim );
     }
     std::vector<float> vs( dim.size(), 1. );
     // reading voxel size
@@ -421,17 +442,17 @@ namespace soma {
     minf->setProperty( "format", std::string( "GIS" ) );
     minf->setProperty( "data_type", carto::DataTypeCode<T>::dataType() );
     minf->setProperty( "object_type", std::string( "Volume" ) );
-    std::vector<int> dims( 4, 0 );
+    std::vector<int> dims( 4, 1 );
     if( !minf->getProperty( "volume_dimension", dims ) )
     {
+      dims[0] = 0;
       minf->getProperty( "sizeX", dims[ 0 ] );
       minf->getProperty( "sizeY", dims[ 1 ] );
       minf->getProperty( "sizeZ", dims[ 2 ] );
       minf->getProperty( "sizeT", dims[ 3 ] );
       minf->setProperty( "volume_dimension", dims );
     }
-    minf->setProperty( "voxel_size",
-                       minf->getProperty( "voxel_size" ) );
+    minf->setProperty( "voxel_size", minf->getProperty( "voxel_size" ) );
 
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );

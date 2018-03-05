@@ -57,12 +57,12 @@ class DataTypeInfo
   /**
    *  \brief Number of channels for the DataType
    */
-    static inline const uint8_t samples();
+    static inline uint8_t samples();
     
   /**
    *  \brief Depth of channels for the DataType
    */
-    static inline const uint8_t depth();
+    static inline uint8_t depth();
     
   /**
    *  \brief std::string that represents the channel type for the DataType
@@ -73,13 +73,13 @@ class DataTypeInfo
 
 // Base type definitions
 template<class DataType>
-inline const uint8_t DataTypeInfo<DataType>::samples()
+inline uint8_t DataTypeInfo<DataType>::samples()
 { 
   return DataTypeTraitsType::channelcount;
 }
 
 template<class DataType>
-inline const uint8_t DataTypeInfo<DataType>::depth()
+inline uint8_t DataTypeInfo<DataType>::depth()
 { 
   return sizeof(DataType) / DataTypeTraitsType::channelcount;
 }
