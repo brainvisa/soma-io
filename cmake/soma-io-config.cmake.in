@@ -43,10 +43,18 @@ if( @PROJECT_NAME@_IS_BEING_COMPILED )
   set( SOMA_IO_LIB "soma-io")
 
 else( @PROJECT_NAME@_IS_BEING_COMPILED )
-  find_library( SOMA_CARTOBASE_LIB cartobase "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
-  find_library( SOMA_CARTOBASE_0_LIB cartobase_0 "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
-  find_library( SOMA_CARTOBASE_1_LIB cartobase_1 "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
-  find_library( SOMA_IO_LIB "soma-io" "${@PROJECT_NAME_UPPER@_BINARY_DIR}/lib" )
+  find_library( SOMA_CARTOBASE_LIB cartobase
+                "${@PROJECT_NAME_UPPER@_BINARY_DIR}"
+                PATH_SUFFIXES ${BRAINVISA_CMAKE_LIBRARY_PATH_SUFFIXES} )
+  find_library( SOMA_CARTOBASE_0_LIB cartobase_0 
+                "${@PROJECT_NAME_UPPER@_BINARY_DIR}"
+                PATH_SUFFIXES ${BRAINVISA_CMAKE_LIBRARY_PATH_SUFFIXES} )
+  find_library( SOMA_CARTOBASE_1_LIB cartobase_1 
+                "${@PROJECT_NAME_UPPER@_BINARY_DIR}"
+                PATH_SUFFIXES ${BRAINVISA_CMAKE_LIBRARY_PATH_SUFFIXES} )
+  find_library( SOMA_IO_LIB "soma-io"
+                "${@PROJECT_NAME_UPPER@_BINARY_DIR}"
+                PATH_SUFFIXES ${BRAINVISA_CMAKE_LIBRARY_PATH_SUFFIXES} )
 
 endif( @PROJECT_NAME@_IS_BEING_COMPILED )
 
