@@ -40,6 +40,22 @@ namespace carto
 {
 
   template<typename INP, typename OUTP>
+  DefaultedRescalerInfo<INP,OUTP>::DefaultedRescalerInfo()
+  {
+    // Initialize scale information
+    _defaultedvmin = carto::getcheckedmin<INP>(
+        std::numeric_limits<double>::quiet_NaN());
+    _defaultedvmax = carto::getcheckedmax<INP>(
+        std::numeric_limits<double>::quiet_NaN());
+    _defaultedomin = carto::getcheckedmin<OUTP>(
+        std::numeric_limits<double>::quiet_NaN());
+    _defaultedomax = carto::getcheckedmax<OUTP>(
+        std::numeric_limits<double>::quiet_NaN());
+
+    _scale = this->getscale();
+  }
+    
+  template<typename INP, typename OUTP>
   DefaultedRescalerInfo<INP,OUTP>::DefaultedRescalerInfo( const RescalerInfo & info )
   {
     // Initialize scale information
