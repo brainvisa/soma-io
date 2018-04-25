@@ -153,19 +153,17 @@ namespace soma {
     if( _sizes.empty() )
       updateParams( dsi );
 
-    int32_t level = 0;
+    int32_t level = -1;
     try {
       if( options.get() ) {
         level = options->getProperty( "resolution_level" )->getScalar();
-        if (level < 0) {
-          try {
-            // Try to solve negative level values
-            level += _sizes.size();
-          }
-          catch(...){}
-        }
       }
     } catch( ... ) {
+    }
+    
+    if (level < 0) {
+      // Try to solve negative level values
+      level += _sizes.size();
     }
     
     // strides in dest data

@@ -158,19 +158,17 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
     }  
   }
   
-  int32_t resolution = 0;
+  int32_t resolution = -1;
   try {
     if( options.get() ) {
       resolution = options->getProperty( "resolution_level" )->getScalar();
-      if (resolution < 0) {
-        try {
-          // Try to solve negative level values
-          resolution += rsizes.size();
-        }
-        catch(...){}
-      }
     }
   } catch( ... ) {
+  }
+  
+  if (resolution < 0) {
+    // Try to solve negative level values
+    resolution += rcount;
   }
   
   // chosen resolution's downsampling
