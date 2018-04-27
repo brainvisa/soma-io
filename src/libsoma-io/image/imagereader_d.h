@@ -90,6 +90,27 @@ namespace soma {
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        ds ? ds->url() : "" );
   }
+
+
+  template <typename T>
+  bool ImageReader<T>::open( DataSourceInfo & dsi )
+  {
+    return true;
+  }
+
+
+  template <typename T>
+  void ImageReader<T>::close( DataSourceInfo & dsi )
+  {
+  }
+
+
+  template <typename T>
+  bool ImageReader<T>::isOpen( const DataSourceInfo & dsi ) const
+  {
+    return false;
+  }
+
 }
 
 #endif

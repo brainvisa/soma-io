@@ -94,6 +94,10 @@ namespace soma
       /// Format identifier (abstract).
       /// Used to match checker and reader
       virtual std::string formatID() const = 0;
+
+      virtual bool open( DataSourceInfo & dsi );
+      virtual void close( DataSourceInfo & dsi );
+      virtual bool isOpen( const DataSourceInfo & dsi ) const;
   };
 
 }

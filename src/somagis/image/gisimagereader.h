@@ -74,6 +74,10 @@ namespace soma
       virtual ImageReader<T>* cloneReader() const;
       virtual std::string formatID() const { return "GIS"; }
 
+      virtual bool open( DataSourceInfo & dsi );
+      virtual void close( DataSourceInfo & dsi );
+      virtual bool isOpen( const DataSourceInfo & dsi ) const;
+
     protected:
       //======================================================================
       //   D A T A S O U R C E
