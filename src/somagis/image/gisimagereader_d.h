@@ -239,9 +239,9 @@ namespace soma {
     offset_t offset;
     long readout;
 
-    bool mustclose = !isOpen();
+    bool mustclose = !this->ChainDataSource::isOpen();
 
-    if( mustclose && !open( DataSource::Read ) )
+    if( mustclose && !this->ChainDataSource::open( DataSource::Read ) )
       throw carto::open_error( "data source not available", url() );
 
     try
@@ -281,7 +281,7 @@ namespace soma {
     {
       if( mustclose )
       {
-        close();
+        this->ChainDataSource::close();
         carto::rc_ptr<DataSource> hds = dsi.list().dataSource( "dim" );
         if( hds )
           hds->close();
@@ -290,7 +290,7 @@ namespace soma {
     }
     if( mustclose )
     {
-      close();
+      this->ChainDataSource::close();
       carto::rc_ptr<DataSource> hds = dsi.list().dataSource( "dim" );
       if( hds )
         hds->close();
@@ -302,6 +302,28 @@ namespace soma {
   ImageReader<T>* GisImageReader<T>::cloneReader() const
   {
     return new GisImageReader;
+  }
+
+
+  template <typename T>
+  bool GisImageReader<T>::open( DataSourceInfo & dsi )
+  {
+    updateParams( dsi );
+    return this->ChainDataSource::open( DataSource::Read );
+  }
+
+
+  template <typename T>
+  void GisImageReader<T>::close( DataSourceInfo & )
+  {
+    this->ChainDataSource::close();
+  }
+
+
+  template <typename T>
+  bool GisImageReader<T>::isOpen( const DataSourceInfo & ) const
+  {
+    return this->ChainDataSource::isOpen();
   }
 
 }
