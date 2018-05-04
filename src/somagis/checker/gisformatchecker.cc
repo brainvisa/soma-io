@@ -338,6 +338,7 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
       }
     }
   }
+  
   hdr->setProperty( "format", string( "GIS" ) );
   hdr->setProperty( "voxel_size", vs );
   // the following shape is more logical, but incompatible with AIMS.
@@ -392,29 +393,56 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     localMsg( "Building list..." );
     _buildDSList( dsi.list() );
   }
-  //--- build header ---------------------------------------------------------
+  //--- build header ---------------------------------------------------------  
   if( doread ) {
     localMsg( "Reading header..." );
-    DataSource* hds = dsi.list().dataSource( "dim" ).get();
+    DataSource* hds = dsi.list().dataSource( "dim" ).get();    
     dsi.header() = _buildHeader( hds );
-
+    
     localMsg( "Reading minf..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+   
+    // Fixes wrong dimension properties
     vector<int> dims( 4, 1 );
-    if( dsi.header()->getProperty( "volume_dimension", dims ) )
+    if( dsi.header()->getProperty( "volume_dimension", dims ) ) {
+      int32_t dsize = dims.size();
+      for(int32_t d = 0; d < dsize; ++d)
+          if (dims[d] <= 0)
+              dims[d] = 1;
+      
       if( dims.size() < 4 )
       {
         dims.resize( 4, 1 );
         dsi.header()->setProperty( "volume_dimension", dims );
       }
+    }
+    
+    int32_t size = 0;
+    if (dsi.header()->getProperty("sizeX", size))
+      if (size <= 0)
+          dsi.header()->setProperty("sizeX", 1);
+    
+    if (dsi.header()->getProperty("sizeY", size))
+      if (size <= 0)
+          dsi.header()->setProperty("sizeY", 1);
+    
+    if (dsi.header()->getProperty("sizeZ", size))
+      if (size <= 0)
+          dsi.header()->setProperty("sizeZ", 1);
+    
+    if (dsi.header()->getProperty("sizeT", size))
+      if (size <= 0)
+          dsi.header()->setProperty("sizeT", 1);
+    
     dsi.header()->setProperty( "object_type", obtype );
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );
   }
+  
   //--- write capabilities ---------------------------------------------------
   if( docapa ) {
     localMsg ("Writing capabilities..." );
