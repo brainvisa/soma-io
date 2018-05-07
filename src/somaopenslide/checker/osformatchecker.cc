@@ -171,6 +171,10 @@ Object OSFormatChecker::_buildHeader( DataSource* hds, Object options ) const
     resolution += rcount;
   }
   
+  if ((resolution < 0) || (resolution >= rcount)) {
+      resolution = rcount - 1;
+  }
+  
   // chosen resolution's downsampling
   float ds = rsizes[0][0]/rsizes[resolution][0];
   
