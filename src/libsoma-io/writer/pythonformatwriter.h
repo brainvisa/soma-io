@@ -46,6 +46,8 @@ namespace soma
   class PythonFormatWriter : public FormatWriter<carto::GenericObject>
   {
   public:
+    virtual bool filterProperties(carto::Object properties);
+    
     virtual bool write( const carto::GenericObject & obj, 
                         carto::rc_ptr<DataSourceInfo> dsi,
                         carto::Object options );
