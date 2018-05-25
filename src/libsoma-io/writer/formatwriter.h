@@ -53,6 +53,10 @@ namespace soma
   {
   public:
     virtual ~FormatWriter() {}
+    
+    /// This method filters properties for a FormatWriter.
+    virtual bool filterProperties(carto::Object properties) = 0;
+      
     virtual bool write( const T & obj, 
                         carto::rc_ptr<DataSourceInfo> dsi,
                         carto::Object options ) = 0;

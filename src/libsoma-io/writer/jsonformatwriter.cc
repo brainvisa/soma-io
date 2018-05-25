@@ -48,6 +48,12 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
+bool JsonFormatWriter::filterProperties(Object properties)
+{
+    // Nothing to filter here
+    return true;
+}
+
 bool JsonFormatWriter::write( const GenericObject & obj,
                               rc_ptr<DataSourceInfo> dsi,
                               Object options )

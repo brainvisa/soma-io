@@ -48,6 +48,12 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
+bool PythonFormatWriter::filterProperties(Object properties)
+{
+    // Nothing to filter here
+    return true;
+}
+
 bool PythonFormatWriter::write( const GenericObject & obj, 
                                 rc_ptr<DataSourceInfo> dsi, 
                                 Object options )
