@@ -166,7 +166,20 @@ typedef unsigned int uint32_t;
 #define __deprecated__(msg) __deprecated__
 #endif
 
-#if __cplusplus < 201103L
+/** \def CARTO_OVERRIDE
+    \brief The \c override keyword of C++11 (expands to nothing in C++98).
+
+    The \c override keyword of C++11 should be used when declaring an override
+    to an inherited virtual function. It helps prevent programming errors where
+    the prototype does not match the base virtual function, which results in a
+    new member function being defined. The compiler will output an error if
+    there is no corresponding virtual function in a base class.
+**/
+
+#if __cplusplus >= 201103L
+#define CARTO_OVERRIDE override
+#else
+#define CARTO_OVERRIDE
 // in non-c++11 mode, replace unique_ptr with auto_ptr
 #include <memory>
 #define unique_ptr auto_ptr
