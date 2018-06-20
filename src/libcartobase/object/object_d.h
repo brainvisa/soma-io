@@ -49,10 +49,6 @@
     bool GenericObject::value( T &dest ) const; \
   template \
     void GenericObject::setValue( T const & x ); \
-  template bool DictionaryInterface:: \
-    getProperty( const std::string &, T &  ) const; \
-  template void DictionaryInterface:: \
-    setProperty( const std::string &, T const & ); \
   template <> \
     void DictionaryInterface::setProperty( const std::string &key, \
                                            T const &value ) \
