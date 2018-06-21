@@ -78,6 +78,12 @@ struct DataTypeTraits< T > \
   const bool carto::DataTypeTraits< T >::has_bool_conversion; \
   const unsigned int carto::DataTypeTraits< T >::channelcount; \
 
+#define DATA_TYPE_TRAITS_INSTANCIATE_TEMPLATE_SPECIALIZATION( T ) \
+  template<> const bool carto::DataTypeTraits< T >::is_scalar; \
+  template<> const bool carto::DataTypeTraits< T >::is_multichannel; \
+  template<> const bool carto::DataTypeTraits< T >::has_bool_conversion; \
+  template<> const unsigned int carto::DataTypeTraits< T >::channelcount; \
+
 
 namespace carto {
 
