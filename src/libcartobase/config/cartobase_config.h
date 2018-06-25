@@ -156,13 +156,21 @@ typedef unsigned int uint32_t;
 #define CARTO_LONG_IS_DISTINCT
 #endif
 
+// Compatibility with clang feature checks for non-clang compilers.
+#ifndef __has_feature
+  #define __has_feature(x) 0
+#endif
+#ifndef __has_extension
+  #define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
+#endif
+
 // Ignore __attribute__ on non-GCC compilers
 #if !(defined(__GNUC__) || defined(__attribute__))
 #define __attribute__(a) /* nothing */
 #endif
 
 // GCC < 4.5 does not support the argument to the __deprecated__ attribute
-#if (__GNUC__-0 < 4) || (__GNUC_MINOR__-0 < 5)
+#if ((__GNUC__-0 < 4) || (__GNUC_MINOR__-0 < 5)) && !__has_extension(attribute_deprecated_with_message)
 #define __deprecated__(msg) __deprecated__
 #endif
 
