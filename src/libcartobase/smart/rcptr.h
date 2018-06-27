@@ -355,24 +355,24 @@ public:
   inline const_ref( const ref<R> &o ){
     const RefData<R> &other = o;
 #ifdef DEBUG_REF
-    std::cout << "New ref from other ref with static cast (" << other._ref
+    std::cout << "New ref from other ref with implicit cast (" << other._ref
       << ")" << std::endl;
 #endif
     if( other._pcount && *other._pcount >= 0 )
       ++(*other._pcount);
     this->_pcount = other._pcount;
-    this->_ref = static_cast<T *>( other._ref );
+    this->_ref = other._ref;
   }
 
   template <class R>
   inline const_ref( const const_ref<R> &other ){
 #ifdef DEBUG_REF
-    std::cout << "New ref from other ref with static cast (" << other._ref << ")" << std::endl;
+    std::cout << "New ref from other ref with implicit cast (" << other._ref << ")" << std::endl;
 #endif
     if( other._pcount && *other._pcount >= 0 )
       ++(*other._pcount);
     this->_pcount = other._pcount;
-    this->_ref = static_cast<T *>( other._ref );
+    this->_ref = other._ref;
   }
 
   inline ~const_ref() {  RefConstruction<T>::destroy( this ); }
