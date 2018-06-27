@@ -85,9 +85,27 @@ class scoped_ptr
     {
     }
 
-    explicit scoped_ptr( std::unique_ptr<T> p ) : pointee( p.release() )
+#if __cplusplus >= 201103L
+    // Only unique_ptr with the default deleter can be converted, because
+    // scoped_ptr does not support custom deleters (it calls the delete operator
+    // upon destruction, just like std::default_delete).
+    template< class U >
+    scoped_ptr( std::unique_ptr<U>&& r ) : pointee( r.release() )
     {
     }
+
+    #if __cplusplus < 201703L
+    template< class U >
+    scoped_ptr( std::auto_ptr<U>&& r ) : pointee( r.release() )
+    {
+    }
+    #endif
+#else
+    template< class U >
+    scoped_ptr( std::auto_ptr<U>& r ) : pointee( r.release() )
+    {
+    }
+#endif
 
     ~scoped_ptr()
     {
@@ -134,8 +152,16 @@ class scoped_ptr
 
   private:
 
-    scoped_ptr( const scoped_ptr& );
-    const scoped_ptr& operator=( const scoped_ptr& );
+    scoped_ptr( const scoped_ptr& )
+#if __cplusplus >= 201103L
+    = delete
+#endif
+      ;
+    const scoped_ptr& operator=( const scoped_ptr& )
+#if __cplusplus >= 201103L
+    = delete
+#endif
+      ;
 
     T* pointee;
 
