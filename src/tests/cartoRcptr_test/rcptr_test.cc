@@ -36,6 +36,7 @@
 #include <cartobase/smart/rcobject.h>
 #include <cartobase/exception/assert.h>
 #include <iostream>
+#include <memory>
 
 
 class Bar
@@ -125,24 +126,50 @@ int main()
 
   std::cout << "testing rc_ptr constructors (RCObject)..." << std::endl;
   {
-    carto::rc_ptr<Foo> x1 = carto::rc_ptr<Foo>( new Foo );
-    carto::rc_ptr<Foo> x2 = carto::rc_ptr<Foo>( new Foo );
-    ASSERT( x1 );
-    ASSERT( x2 );
-    ASSERT( !(x1 == 0) );
-    ASSERT( !(x2 == 0) );
-    ASSERT( x1 != x2 );
+    carto::rc_ptr<Foo> x1, x2;
+    ASSERT( !x1 );
+    ASSERT( !x2 );
+    ASSERT( x1 == 0 );
+    ASSERT( x2 == 0 );
+    ASSERT( x1 == x2 );
   }
   std::cout << "testing rc_ptr constructors..." << std::endl;
   {
-    carto::rc_ptr<Bar> x1 = carto::rc_ptr<Bar>( new Bar );
-    carto::rc_ptr<Bar> x2 = carto::rc_ptr<Bar>( new Bar );
-    ASSERT( x1 );
-    ASSERT( x2 );
-    ASSERT( !(x1 == 0) );
-    ASSERT( !(x2 == 0) );
-    ASSERT( x1 != x2 );
+    carto::rc_ptr<Bar> x1, x2;
+    ASSERT( !x1 );
+    ASSERT( !x2 );
+    ASSERT( x1 == 0 );
+    ASSERT( x2 == 0 );
+    ASSERT( x1 == x2 );
   }
+
+  std::cout << "testing rc_ptr constructors from unique_ptr (RCObject)..." << std::endl;
+  {
+    carto::rc_ptr<Foo> x = std::unique_ptr<Foo>( new Foo );
+    ASSERT( x );
+    ASSERT( !(x == 0) );
+  }
+  std::cout << "testing rc_ptr constructors from unique_ptr..." << std::endl;
+  {
+    carto::rc_ptr<Bar> x = std::unique_ptr<Bar>( new Bar );
+    ASSERT( x );
+    ASSERT( !(x == 0) );
+  }
+
+#if __cplusplus < 201703L
+  std::cout << "testing rc_ptr constructors from auto_ptr (RCObject)..." << std::endl;
+  {
+    carto::rc_ptr<Foo> x = std::auto_ptr<Foo>( new Foo );
+    ASSERT( x );
+    ASSERT( !(x == 0) );
+  }
+  std::cout << "testing rc_ptr constructors from auto_ptr..." << std::endl;
+  {
+    carto::rc_ptr<Bar> x = std::auto_ptr<Bar>( new Bar );
+    ASSERT( x );
+    ASSERT( !(x == 0) );
+  }
+#endif
 
   std::cout << "testing rc_ptr constructors (RCObject)..." << std::endl;
   {

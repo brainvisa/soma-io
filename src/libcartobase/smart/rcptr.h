@@ -38,6 +38,7 @@
 #include <cartobase/config/cartobase_config.h>
 #include <memory>
 #include <iostream>
+#include <utility>
 
 // uncomment this line to get debugging information
 // #define DEBUG_REF
@@ -305,6 +306,31 @@ public:
     RefConstruction<T>::construct( this, pObject, externalowner );
   }
 
+#if __cplusplus >= 201103L
+  // Only unique_ptr with the default deleter can be converted, because
+  // const_ref does not support custom deleters (it calls the delete operator
+  // upon destruction, just like std::default_delete).
+  template< class U >
+  const_ref( std::unique_ptr<U>&& r )
+  {
+    RefConstruction<T>::construct( this, r.release(), false );
+  }
+
+  #if __cplusplus < 201703L
+  template< class U >
+  const_ref( std::auto_ptr<U>&& r )
+  {
+    RefConstruction<T>::construct( this, r.release(), false );
+  }
+  #endif
+#else
+  template< class U >
+  const_ref( std::auto_ptr<U>& r )
+  {
+    RefConstruction<T>::construct( this, r.release(), false );
+  }
+#endif
+
   inline const_ref( const ref<T> &other ) {
 #ifdef DEBUG_REF
     std::cout << "New ref from other ref (" << other._ref << ")" << std::endl;
@@ -455,6 +481,20 @@ public:
   inline explicit ref( T *pObject ) : const_ref<T>( pObject ) {}
   inline explicit ref( T *pObject, bool externalowner ) 
     : const_ref<T>( pObject, externalowner ) {}
+
+#if __cplusplus >= 201103L
+  template< class U >
+  ref( std::unique_ptr<U>&& r )
+    : const_ref<T>( std::move(r) ) {}
+
+  #if __cplusplus < 201703L
+  template< class U >
+  ref( std::auto_ptr<U>&& r ) : const_ref<T>( std::move(r) ) {}
+  #endif
+#else
+  template< class U >
+  ref( std::auto_ptr<U>& r ) : const_ref<T>( r ) {}
+#endif
 
   inline ref( const ref<T> &other ) : const_ref<T>( other ) {}
   
@@ -619,6 +659,20 @@ public:
   inline explicit rc_ptr( T *p ) : ref<T>( p ) {}
   inline explicit rc_ptr( T *p, bool externalowner ) 
     : ref<T>( p, externalowner ) {}
+
+#if __cplusplus >= 201103L
+  template< class U >
+  rc_ptr( std::unique_ptr<U>&& r )
+    : ref<T>( std::move(r) ) {}
+
+  #if __cplusplus < 201703L
+  template< class U >
+  rc_ptr( std::auto_ptr<U>&& r ) : ref<T>( std::move(r) ) {}
+  #endif
+#else
+  template< class U >
+  rc_ptr( std::auto_ptr<U>& r ) : ref<T>( r ) {}
+#endif
 
   inline void reset( T *p = NULL )
   { *static_cast< ref<T> * >( this ) = ref<T>( p ); }
