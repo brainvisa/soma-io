@@ -325,7 +325,7 @@ public:
   #endif
 #else
   template< class U >
-  const_ref( std::auto_ptr<U>& r )
+  const_ref( std::auto_ptr<U> r )
   {
     RefConstruction<T>::construct( this, r.release(), false );
   }
@@ -493,7 +493,7 @@ public:
   #endif
 #else
   template< class U >
-  ref( std::auto_ptr<U>& r ) : const_ref<T>( r ) {}
+  ref( std::auto_ptr<U> r ) : const_ref<T>( r ) {}
 #endif
 
   inline ref( const ref<T> &other ) : const_ref<T>( other ) {}
@@ -671,7 +671,7 @@ public:
   #endif
 #else
   template< class U >
-  rc_ptr( std::auto_ptr<U>& r ) : ref<T>( r ) {}
+  rc_ptr( std::auto_ptr<U> r ) : ref<T>( r ) {}
 #endif
 
   inline void reset( T *p = NULL )

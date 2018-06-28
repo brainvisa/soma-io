@@ -102,7 +102,7 @@ class scoped_ptr
     #endif
 #else
     template< class U >
-    scoped_ptr( std::auto_ptr<U>& r ) : pointee( r.release() )
+    scoped_ptr( std::auto_ptr<U> r ) : pointee( r.release() )
     {
     }
 #endif
