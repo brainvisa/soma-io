@@ -259,15 +259,16 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
       ${_sources}
       Dicom/DcmtkJpeg2000/JasperIO.cc
     )
-  elseif ( JASPER_FOUND )
+  else ( JASPER_FOUND )
     if ( OPENJPEG_FOUND )
+      include_directories( ${OPENJPEG_INCLUDE_DIRS} )
       set ( _headers
-	${_headers}
-	Dicom/DcmtkJpeg2000/OpenJpegIO.h
+        ${_headers}
+        Dicom/DcmtkJpeg2000/OpenJpegIO.h
       )
-      set ( _sources 
-	${_sources}
-	Dicom/DcmtkJpeg2000/OpenJpegIO.cc
+      set ( _sources
+        ${_sources}
+        Dicom/DcmtkJpeg2000/OpenJpegIO.cc
       )
     endif ( OPENJPEG_FOUND )
   endif ( JASPER_FOUND )
