@@ -19,7 +19,11 @@
 #include <dcmtk/dcmdata/dcpxitem.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
+#ifdef HAS_OPENJPEG
+#include <openjpeg.h>
+#elif defined( HAS_JASPER )
 #include <jasper/jasper.h>
+#endif
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 361
   // OFCondition has undergone an incompatible change between 3.6.0 and 3.6.1
