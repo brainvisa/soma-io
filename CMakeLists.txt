@@ -43,8 +43,11 @@ endif()
 find_package( DCMTK )
 find_package( Jasper QUIET )
 find_package( OpenJpeg QUIET )
+if( OPENJPEG_FOUND AND OPENJPEG_VERSION VERSION_GREATER "2" )
+  message("Warning: OPENJPEG v2, not supportesd yet in soma-io.")
+endif()
 if( DCMTK_FOUND )
-  if (DCMTK_oflog_INCLUDE_DIR AND ( JASPER_FOUND OR OPENJPEG_FOUND ) )
+  if (DCMTK_oflog_INCLUDE_DIR AND ( JASPER_FOUND OR ( OPENJPEG_FOUND AND OPENJPEG_VERSION VERSION_LESS "2" ) ) )
     # JPEG 2000 support is only available
     # for DICOM version >= 3.6, i.e. when
     # DCMTK_oflog_INCLUDE_DIR exists.
