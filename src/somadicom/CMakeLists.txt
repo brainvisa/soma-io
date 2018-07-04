@@ -291,8 +291,14 @@ set_property( TARGET somadicom PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
 if (SOMA_DICOM_JPEG2000_SUPPORT)
     # Add JPEG 2000 support only for DICOM version >= 3.6
-    # and it JASPER dependency was found
-    set( SOMADICOM_LIBRARIES_ADDITIONAL ${JASPER_LIBRARIES} )
+    # and if JASPER or OPENJPEG dependency was found
+    if ( JASPER_FOUND )
+      set( SOMADICOM_LIBRARIES_ADDITIONAL ${JASPER_LIBRARIES} )
+    elseif( JASPER_FOUND )
+      if( OPENJPEG_FOUND )
+        set( SOMADICOM_LIBRARIES_ADDITIONAL ${OPENJPEG_LIBRARIES} )
+      endif( OPENJPEG_FOUND )
+    endif( JASPER_FOUND )
 endif()
 
 # For DICOM version < 3.6, dcmimage.so depends on PNG and TIFF libraries
