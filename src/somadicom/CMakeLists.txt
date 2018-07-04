@@ -227,7 +227,7 @@ set( _sources
 
 if (SOMA_DICOM_JPEG2000_SUPPORT)
   # Add JPEG 2000 support only for DICOM version >= 3.6
-  # and it JASPER dependency was found
+  # and if JASPER or OPENJPEG dependency was found
   set ( _headers
     ${_headers}
     Dicom/DcmtkJpeg2000/dj2kutil.h
@@ -247,7 +247,30 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
     Dicom/DcmtkJpeg2000/djcparam.cc
     Dicom/DcmtkJpeg2000/djdecode.cc
     Dicom/DcmtkJpeg2000/djencode.cc
-    Dicom/DcmtkJpeg2000/djrparam.cc )
+    Dicom/DcmtkJpeg2000/djrparam.cc
+  )
+
+  if ( JASPER_FOUND )
+    set ( _headers
+      ${_headers}
+      Dicom/DcmtkJpeg2000/JasperIO.h
+    )
+    set ( _sources 
+      ${_sources}
+      Dicom/DcmtkJpeg2000/JasperIO.cc
+    )
+  elseif ( JASPER_FOUND )
+    if ( OPENJPEG_FOUND )
+      set ( _headers
+	${_headers}
+	Dicom/DcmtkJpeg2000/OpenJpegIO.h
+      )
+      set ( _sources 
+	${_sources}
+	Dicom/DcmtkJpeg2000/OpenJpegIO.cc
+      )
+    endif ( OPENJPEG_FOUND )
+  endif ( JASPER_FOUND )
 endif()
 
 add_definitions( -DSOMA_IO_DICOM )

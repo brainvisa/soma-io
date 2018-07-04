@@ -9,7 +9,12 @@
 #endif
 
 #include <dcmtk/dcmdata/dccodec.h>
+
+#ifdef HAS_OPENJPEG
+#include <openjpeg.h>
+#elif defined( HAS_JASPER )
 #include <jasper/jas_version.h>
+#endif
 
 
 OFBool DJ2KDecoderRegistration::registered_ = OFFalse;
@@ -85,6 +90,11 @@ void DJ2KDecoderRegistration::cleanup()
 OFString DJ2KDecoderRegistration::getLibraryVersionString()
 {
 
+#ifdef HAS_OPENJPEG
+  std::string text = "OpenJpeg, Version " + std::string( opj_version() );
+  return text.c_str();
+#elif defined( HAS_JASPER )
   return "Jasper, Version" JAS_VERSION;
+#endif
 
 }

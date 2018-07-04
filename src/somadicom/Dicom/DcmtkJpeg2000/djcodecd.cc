@@ -22,7 +22,12 @@
 #include <dcmtk/dcmdata/dcswap.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
-#include <jasper/jasper.h>
+#ifdef HAS_OPENJPEG
+#include <soma-io/Dicom/DcmtkJpeg2000/OpenJpegIO.h>
+#elif defined( HAS_JASPER )
+#include <soma-io/Dicom/DcmtkJpeg2000/JasperIO.h>
+#endif
+
 
 #if OFFIS_DCMTK_VERSION_NUMBER >= 361
   // OFCondition has undergone an incompatible change between 3.6.0 and 3.6.1
@@ -50,14 +55,6 @@ OFCondition DJ2KDecoderBase::decode(
                            const DcmCodecParameter* cp,
                            const DcmStack& objStack ) const
 {
-
-  if ( jas_init() )
-  {
-    //return EC_J2KJasperInitializationFailure;
-    return build_OFCondition( OFM_dcmjp2k, 7, OF_error,
-                              "Jasper: initialization failed" );
-
-  }
 
   // retrieve pointer to dataset from parameter stack
   DcmStack localStack( objStack );
@@ -306,15 +303,6 @@ OFCondition DJ2KDecoderBase::decodeFrame(
 
   OFCondition result = EC_Normal;
 
-  if ( jas_init() )
-  {
-
-    //return EC_J2KJasperInitializationFailure;
-    return build_OFCondition( OFM_dcmjp2k, 7, OF_error,
-                              "Jasper: initialization failed" );
-
-  }
-
   const DJ2KCodecParameter *djcp = OFreinterpret_cast( 
                                                 const DJ2KCodecParameter*, cp );
 
@@ -475,7 +463,7 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
                                           Sint32 imageFrames,
                                           Uint16 /* imageColumns */,
                                           Uint16 /* imageRows */,
-                                          Uint16 imageSamplesPerPixel,
+                                          Uint16 /* imageSamplesPerPixel */,
                                           Uint16 bytesPerSample )
 {
 
@@ -564,135 +552,44 @@ OFCondition DJ2KDecoderBase::decodeFrame( DcmPixelSequence* fromPixSeq,
   if ( result.good() && j2kData )
   {
 
-    jas_stream_t* streamIn = jas_stream_memopen( (char*)j2kData, 
-                                                 compressedSize );
+#ifdef HAS_OPENJPEG
+    dcm::OpenJpegIO jpeg2000IO;
+#elif defined( HAS_JASPER )
+    dcm::JasperIO jpeg2000IO;
+#endif
 
-    if ( !streamIn )
-    {
-
-      //return EC_J2KJasperCannotOpenStream;
-      return build_OFCondition( OFM_dcmjp2k, 8, OF_error,
-                                "Jasper: cannot open stream" );
-
-    }
-
-    jas_image_t* image = jas_image_decode( streamIn, -1, 0 );
-
-    jas_stream_close( streamIn );
+    void* image = jpeg2000IO.getImage( j2kData, compressedSize );
 
     if ( !image )
     {
 
+      delete[] j2kData;
+
       //return EC_J2KJasperDecodeFailure;
       return build_OFCondition( OFM_dcmjp2k, 9, OF_error,
-                                "Jasper: decoding failed" );
+                                "JPEG-2000: decoding failed" );
 
     }
 
-    if ( ( imageSamplesPerPixel >= 3 ) && ( bytesPerSample <= 8 ) )
+    if ( !jpeg2000IO.decode( (uint8_t*)buffer, image ) )
     {
 
-      jas_cmprof_t* prof = jas_cmprof_createfromclrspc( JAS_CLRSPC_SRGB );
-
-      if ( prof )
-      {
-
-        jas_image_t* altimage = jas_image_chclrspc( image, 
-                                                    prof, 
-                                                    JAS_CMXFORM_INTENT_PER );
-
-        if ( altimage )
-        {
-
-          jas_image_destroy( image );
-          image = altimage;
-
-        }
-
-        jas_cmprof_destroy( prof );
-
-      }
-
-    }
-
-    if ( imageSamplesPerPixel == 1 )
-    {
-
-      jas_stream_t* streamOut = image->cmpts_[ 0 ]->stream_;
-
-      jas_stream_rewind( streamOut );
-
-      Uint32 streamLength = jas_stream_length( streamOut );
-      Uint8* ptr = (Uint8*)buffer;
-
-      if ( image->cmpts_[ 0 ]->cps_ == 2 )
-      {
-
-        while ( streamLength-- )
-        {
-
-          ptr[ 1 ] = jas_stream_getc( streamOut );
-          *ptr++ = jas_stream_getc( streamOut );
-          ptr++;
-          streamLength--;
-
-        }
-
-      }
-      else
-      {
-
-        while ( streamLength-- )
-        {
-
-          *ptr++ = jas_stream_getc( streamOut );
-
-        }
-
-      }
-
-      if ( bytesPerSample == 1 )
-      {
-
-          result = swapIfNecessary( gLocalByteOrder, 
-                                    EBO_LittleEndian, 
-                                    buffer,
-                                    bufSize, 
-                                    sizeof( Uint16 ) );
-
-      }
-
-    }
-    else if(imageSamplesPerPixel == 3)
-    {
-
-      Sint32 i;
-      jas_stream_t* streamOut[ 3 ];
-
-      for ( i = 0; i < imageSamplesPerPixel; i++ )
-      {
-
-        streamOut[ i ] = image->cmpts_[ i ]->stream_;
-        jas_stream_rewind( streamOut[ i ] );
-
-      }
-
-      Uint32 streamLength = jas_stream_length( streamOut[ 0 ] );
-      Uint8* ptr = (Uint8*)buffer;
-
-      while ( streamLength-- )
-      {
-
-        *ptr++ = jas_stream_getc( streamOut[ 0 ] );
-        *ptr++ = jas_stream_getc( streamOut[ 1 ] );
-        *ptr++ = jas_stream_getc( streamOut[ 2 ] );
-
-      }
-
-    } else {
-      // we only handle one or three samples per pixel
       delete[] j2kData;
-      return EC_InvalidTag;
+      //return EC_InvalidTag;
+      return build_OFCondition( OFM_dcmjp2k, 20, OF_error,
+                                "JPEG-2000: invalid tag" );
+
+    }
+
+    if ( bytesPerSample == 2 )
+    {
+
+      result = swapIfNecessary( gLocalByteOrder, 
+                                EBO_LittleEndian, 
+                                buffer,
+                                bufSize, 
+                                sizeof( Uint16 ) );
+
     }
 
     delete[] j2kData;
