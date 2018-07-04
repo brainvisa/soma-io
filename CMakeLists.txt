@@ -41,9 +41,10 @@ endif()
 
 # DICOM support library
 find_package( DCMTK )
-find_package( Jasper )
+find_package( Jasper QUIET )
+find_package( OpenJpeg QUIET )
 if( DCMTK_FOUND )
-  if (DCMTK_oflog_INCLUDE_DIR AND JASPER_FOUND)
+  if (DCMTK_oflog_INCLUDE_DIR AND ( JASPER_FOUND OR OPENJPEG_FOUND ) )
     # JPEG 2000 support is only available
     # for DICOM version >= 3.6, i.e. when
     # DCMTK_oflog_INCLUDE_DIR exists.
@@ -66,8 +67,17 @@ if( DCMTK_FOUND )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS dcmtk DEV )
 
   if(SOMA_DICOM_JPEG2000_SUPPORT)
-    BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
-    BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
+    if( JASPER_FOUND )
+      add_definitions( -DHAS_JASPER )
+      BRAINVISA_DEPENDENCY( RUN DEPENDS jasper RUN )
+      BRAINVISA_DEPENDENCY( DEV RECOMMENDS jasper DEV )
+    else( JASPER_FOUND )
+      if( OPENJPEG_FOUND )
+        add_definitions( -DHAS_OPENJPEG )
+        BRAINVISA_DEPENDENCY( RUN DEPENDS libopenjpeg RUN )
+        BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenjpeg DEV )
+      endif( OPENJPEG_FOUND )
+    endif( JASPER_FOUND )
   endif()
 
 endif()
