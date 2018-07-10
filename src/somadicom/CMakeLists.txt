@@ -251,6 +251,7 @@ if (SOMA_DICOM_JPEG2000_SUPPORT)
   )
 
   if ( JASPER_FOUND )
+    include_directories( ${JASPER_INCLUDE_DIR} )
     set ( _headers
       ${_headers}
       Dicom/DcmtkJpeg2000/JasperIO.h
