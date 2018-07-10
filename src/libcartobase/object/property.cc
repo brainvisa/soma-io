@@ -118,11 +118,15 @@ PropertySet &PropertySet::operator = ( const PropertySet &other )
                 *ib->second.builtin = true;
               ib->second.object->setValue( it->second.object ); // (may throw)
             }
-          else if ( !it->second.builtin )
-            // don't copy builtins: it should be done 
+          else if ( !it->second.builtin ) {
+            // don't copy builtins: it should be done
             // at higher level because different behaviours are possible
-            _insert( it->first,
-                     Property( it->second.object->clone(), false ) );
+            Object cloned_object;  // initialized to null (None)
+            if(!it->second.object.isNone()) {
+              cloned_object = it->second.object->clone();
+            }
+            _insert( it->first, Property( cloned_object, false ) );
+          }
         }
   }
   return *this;
