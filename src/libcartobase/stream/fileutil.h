@@ -113,6 +113,11 @@ namespace carto
 
     /// Replaces slashes with backslashes characters
     static std::string windowsFilename(const std::string & filename);
+
+    /// Replaces backslashes with slashes characters on Windows OS
+    /// on other OS, leaves filename unchanged
+    static std::string linuxFilename(const std::string & filename);
+    
     //==========================================================================
     //   U R I
     //==========================================================================

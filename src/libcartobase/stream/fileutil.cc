@@ -381,6 +381,23 @@ string FileUtil::windowsFilename(const string & filename)
     return carto::join(splitted, "\\");
 }
 
+string FileUtil::linuxFilename(const string & filename)
+{
+#ifdef WIN32
+    // Split filename using backslashes, then join using slashes
+    set<string> seps;
+    seps.insert("\\");
+    vector<string> splitted = carto::split(filename, seps);
+    return carto::join(splitted, "/");
+//     for ( size_t pos = filename.find("\\"); 
+//         pos != string::npos; pos = filename.find("\\", pos + 1) )
+//     filename.replace(pos, 1, "/");
+//     return filename;
+#else
+    return filename;
+#endif
+}
+
 //==============================================================================
 //   U R I
 //==============================================================================
