@@ -143,27 +143,27 @@ int main()
     ASSERT( x1 == x2 );
   }
 
-  std::cout << "testing rc_ptr constructors from unique_ptr (RCObject)..." << std::endl;
+#if __cplusplus >= 201103L
+  std::cout << "testing rc_ptr constructors from std::unique_ptr (RCObject)..." << std::endl;
   {
     carto::rc_ptr<Foo> x(std::unique_ptr<Foo>( new Foo ));
     ASSERT( x );
     ASSERT( !(x == 0) );
   }
-  std::cout << "testing rc_ptr constructors from unique_ptr..." << std::endl;
+  std::cout << "testing rc_ptr constructors from std::unique_ptr..." << std::endl;
   {
     carto::rc_ptr<Bar> x(std::unique_ptr<Bar>( new Bar ));
     ASSERT( x );
     ASSERT( !(x == 0) );
   }
-
-#if __cplusplus < 201703L
-  std::cout << "testing rc_ptr constructors from auto_ptr (RCObject)..." << std::endl;
+#else
+  std::cout << "testing rc_ptr constructors from std::auto_ptr (RCObject)..." << std::endl;
   {
     carto::rc_ptr<Foo> x(std::auto_ptr<Foo>( new Foo ));
     ASSERT( x );
     ASSERT( !(x == 0) );
   }
-  std::cout << "testing rc_ptr constructors from auto_ptr..." << std::endl;
+  std::cout << "testing rc_ptr constructors from std::auto_ptr..." << std::endl;
   {
     carto::rc_ptr<Bar> x(std::auto_ptr<Bar>( new Bar ));
     ASSERT( x );

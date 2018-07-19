@@ -93,13 +93,6 @@ class scoped_ptr
     scoped_ptr( std::unique_ptr<U>&& r ) : pointee( r.release() )
     {
     }
-
-    #if __cplusplus < 201703L
-    template< class U >
-    scoped_ptr( std::auto_ptr<U>&& r ) : pointee( r.release() )
-    {
-    }
-    #endif
 #else
     template< class U >
     scoped_ptr( std::auto_ptr<U> r ) : pointee( r.release() )
