@@ -315,14 +315,6 @@ public:
   {
     RefConstruction<T>::construct( this, r.release(), false );
   }
-
-  #if __cplusplus < 201703L
-  template< class U >
-  const_ref( std::auto_ptr<U>&& r )
-  {
-    RefConstruction<T>::construct( this, r.release(), false );
-  }
-  #endif
 #else
   template< class U >
   const_ref( std::auto_ptr<U> r )
@@ -484,13 +476,7 @@ public:
 
 #if __cplusplus >= 201103L
   template< class U >
-  ref( std::unique_ptr<U>&& r )
-    : const_ref<T>( std::move(r) ) {}
-
-  #if __cplusplus < 201703L
-  template< class U >
-  ref( std::auto_ptr<U>&& r ) : const_ref<T>( std::move(r) ) {}
-  #endif
+  ref( std::unique_ptr<U>&& r ) : const_ref<T>( std::move(r) ) {}
 #else
   template< class U >
   ref( std::auto_ptr<U> r ) : const_ref<T>( r ) {}
@@ -662,13 +648,7 @@ public:
 
 #if __cplusplus >= 201103L
   template< class U >
-  rc_ptr( std::unique_ptr<U>&& r )
-    : ref<T>( std::move(r) ) {}
-
-  #if __cplusplus < 201703L
-  template< class U >
-  rc_ptr( std::auto_ptr<U>&& r ) : ref<T>( std::move(r) ) {}
-  #endif
+  rc_ptr( std::unique_ptr<U>&& r ) : ref<T>( std::move(r) ) {}
 #else
   template< class U >
   rc_ptr( std::auto_ptr<U> r ) : ref<T>( r ) {}
