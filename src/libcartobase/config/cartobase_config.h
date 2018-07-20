@@ -189,6 +189,9 @@ typedef unsigned int uint32_t;
 #else
 #define CARTO_OVERRIDE
 #define static_assert(expr, msg)
+// in non-c++11 mode, replace unique_ptr with auto_ptr
+#include <memory>
+#define unique_ptr auto_ptr
 #endif
 
 #include <cartobase/config/config.h>
