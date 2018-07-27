@@ -152,7 +152,7 @@ namespace soma
       virtual ~Nifti2ImageWriter();
       virtual std::string formatName() const { return "NIFTI-2"; }
       virtual bool checkDimsCompatibility() const { return true; }
-      virtual bool canWrite4d( carto::Object hdr ) const { return true; }
+      virtual bool canWrite4d( carto::Object /* hdr */ ) const { return true; }
   };
 
 }

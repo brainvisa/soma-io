@@ -65,7 +65,6 @@ int main( int argc, const char** argv )
     vector<int> origin( 4, 0 );
     vector<int> frame( 4, 0 );
     vector<long> stride;
-    int     test = 1;
     CartoApplication  app( argc, argv, "Test for GIS format checking" );
     app.addOption( fname, "-i", "input filename to be read\n" );
     app.addOption( origin[ 0 ], "-ox", "frame origin (x comp)\n", true );

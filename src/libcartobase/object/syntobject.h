@@ -42,6 +42,8 @@
 namespace carto
 {
 
+  class PropertySet;
+
   namespace internal
   {
 
@@ -197,9 +199,21 @@ namespace carto
 
     template<typename T> inline 
     SyntaxedInterfaceType<T>::SyntaxedInterfaceType
-    ( const SyntaxedInterfaceType & x )
+    ( const SyntaxedInterfaceType< T > & x )
       : Interface(),
         T( x ),
+        SyntaxedInterface(),
+        _syntactic( x._syntactic )
+    {
+    }
+
+    template <>
+    inline
+    SyntaxedInterfaceType<PropertySet>::SyntaxedInterfaceType(
+                                const SyntaxedInterfaceType< PropertySet > & x )
+      : RCObject(),
+        Interface(),
+        PropertySet( x ),
         SyntaxedInterface(),
         _syntactic( x._syntactic )
     {
@@ -229,13 +243,27 @@ namespace carto
       _syntactic = syntactic;
     }
 
-
     extern template class SyntaxedNonInterfaceObject<Dictionary>;
     extern template class SyntaxedInterfaceType<PropertySet>;
     extern template class SyntaxedInterfaceObject<PropertySet>;
   }
 
   DECLARE_GENERIC_OBJECT_TYPE( internal::SyntaxedInterfaceType<PropertySet> )
+}
+
+namespace carto
+{
+
+  template <>
+  inline 
+  SyntaxedObject<PropertySet>::SyntaxedObject(
+                                         const SyntaxedObject<PropertySet> & x ) 
+    : RCObject(),
+      internal::SyntaxedObjectSwitch<PropertySet, 
+                         SUPERSUBCLASS(Interface, PropertySet)>::ObjectType( x )
+  {
+  }
+
 }
 
 #endif

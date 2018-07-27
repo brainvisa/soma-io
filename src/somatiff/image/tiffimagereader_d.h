@@ -191,7 +191,7 @@ namespace soma {
   
   template <typename T>
   template <typename U>
-  void TiffImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
+  void TiffImageReader<T>::readType( T * dest, DataSourceInfo & /* dsi */,
                                      std::vector<int> & pos,
                                      std::vector<int> & size,
                                      std::vector<long> & stride,
@@ -199,11 +199,6 @@ namespace soma {
   {
     // dest is supposed to be allocated
 
-    // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
-    int  st = _sizes[ 0 ][ 3 ];
     // region size
     int  vx = size[ 0 ];
     int  vy = size[ 1 ];
@@ -226,16 +221,16 @@ namespace soma {
       stride[2] = vy * stride[1];
     if( stride[3] == 0 )
       stride[3] = vz * stride[2];
-    long dstinc = stride[0]; // just for faster access
     
     // Get file names to use during region reading
     std::string filename;
     int32_t tiffsx, tiffsy; // sizes of read tiff image
     int tiled, sstart, send, srows;
-    long x, y, z, t, s, c, ystrip, bsize;
-    size_t bpos, // position in bytes buffer
-           dpos; // position in destination data
-    uint dirmin, dirmax; // tiff directories to use in files
+    long x, y, z, t, s, ystrip, bsize;
+    size_t c;
+    size_t bpos = 0, // position in bytes buffer
+           dpos = 0; // position in destination data
+    uint dirmin = 0, dirmax = 0; // tiff directories to use in files
     ushort photometric;
     byte* buffer;
     bool isrgba = (DataTypeCode<U>::dataType() == DataTypeCode<carto::VoxelRGBA>::dataType()); // Disk data type is rgba

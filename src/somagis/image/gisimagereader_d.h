@@ -173,7 +173,8 @@ namespace soma {
   }
   
   template <typename T> 
-  long GisImageReader<T>::writeBlock( const char * data, unsigned long len )
+  long GisImageReader<T>::writeBlock( const char * /* data */,
+                                      unsigned long /* len */ )
   {
     return 0;
   }
@@ -236,7 +237,6 @@ namespace soma {
     size_t dim, ndim = size.size();
     // region line size
     offset_t  len = size[0] * sizeof( T );
-    offset_t offset;
     long readout;
 
     bool mustclose = !this->ChainDataSource::isOpen();

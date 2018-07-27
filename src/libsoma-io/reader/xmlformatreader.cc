@@ -85,7 +85,7 @@ namespace
     return true;
   }
 
-  bool dummy = initxmlformat();
+  bool dummy __attribute__((unused)) = initxmlformat();
 
 }
 
@@ -94,9 +94,10 @@ namespace
 //   N E W   M E T H O D S
 //============================================================================
 
-GenericObject* XMLFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
-                                               const AllocatorContext & context, 
-                                               Object options )
+GenericObject* XMLFormatReader::createAndRead(
+                                         rc_ptr<DataSourceInfo> dsi,
+                                         const AllocatorContext & /* context */,
+                                         Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
   rc_ptr<SyntaxSet> syntax = getSyntax( options );
@@ -108,7 +109,8 @@ GenericObject* XMLFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
 
 
 void XMLFormatReader::read( GenericObject & obj, rc_ptr<DataSourceInfo> dsi, 
-                            const AllocatorContext & context, Object options )
+                            const AllocatorContext & /* context */, 
+                            Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
   localMsg( "read " + ds->url() );

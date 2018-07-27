@@ -67,7 +67,7 @@ namespace
     return true;
   }
 
-  bool dummy = initpythonformat();
+  bool dummy __attribute__((unused)) = initpythonformat();
 
 }
 
@@ -78,7 +78,7 @@ namespace
 
 GenericObject* 
 PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
-                                   const AllocatorContext & context, 
+                                   const AllocatorContext & /* context */, 
                                    Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
@@ -100,7 +100,7 @@ PythonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
 
 void PythonFormatReader::read( GenericObject & obj, 
                                rc_ptr<DataSourceInfo> dsi, 
-                               const AllocatorContext & context, 
+                               const AllocatorContext & /* context */, 
                                Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );

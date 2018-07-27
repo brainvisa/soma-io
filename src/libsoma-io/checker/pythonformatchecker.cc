@@ -69,7 +69,7 @@ namespace
     return true;
   }
 
-  bool	_dummy = initMe();
+  bool	_dummy __attribute__((unused)) = initMe();
 }
 
 
@@ -81,7 +81,7 @@ DataSourceInfo PythonFormatChecker::check( DataSourceInfo dsi,
   static const string	sign = "attributes";
   DataSource *ds = dsi.list().dataSource().get();
   ds->open( DataSource::Read );
-  char  c;
+  char  c = 0;
   int   i, n = sign.length();
 
   localMsg( "Reading minf header... " + ds->url() );

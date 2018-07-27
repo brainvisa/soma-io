@@ -89,7 +89,9 @@ void OSFormatChecker::_buildDSList( DataSourceList & dsl ) const
   
   localMsg( "ima: " + dsl.dataSource( "ima" )->url() );
   if( !dsl.empty( "minf" ) )
+  {
     localMsg( "minf: " + dsl.dataSource( "minf" )->url() );
+  }
 }
 
 //--- READING HEADER ---------------------------------------------------------

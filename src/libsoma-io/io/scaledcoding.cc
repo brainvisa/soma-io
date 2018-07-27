@@ -56,7 +56,7 @@ bool canencode( const T * thing, float & slope,
   using std::isnan;
   using std::isinf;
 
-  int y, z, x, f, dx = sizes[0], dy = sizes[1],
+  int x, dx = sizes[0], dy = sizes[1],
     dz = sizes[2], dt = sizes[3];
   if( !thing || dx == 0 || dy == 0 || dz == 0 || dt == 0 )
   {
@@ -66,7 +66,6 @@ bool canencode( const T * thing, float & slope,
       *maxerr = 0.;
     return false; // because we don't know the values yet.
   }
-  long sx = strides[0], sy = strides[1], sz = strides[2], st = strides[3];
   T       val, vmin = thing[0], vmax = thing[0];
   typedef std::set<double> hset;
   hset    values;

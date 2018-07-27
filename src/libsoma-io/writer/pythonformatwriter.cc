@@ -48,7 +48,7 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool PythonFormatWriter::filterProperties(Object properties)
+bool PythonFormatWriter::filterProperties(Object /* properties */)
 {
     // Nothing to filter here
     return true;
@@ -109,7 +109,7 @@ namespace
     return true;
   }
 
-  bool dummy = initpythonformat();
+  bool dummy __attribute__((unused)) = initpythonformat();
 
 }
 

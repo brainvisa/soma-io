@@ -67,7 +67,7 @@ namespace
     return true;
   }
 
-  bool	_dummy = initMe();
+  bool	_dummy __attribute__((unused)) = initMe();
 }
 
 
@@ -78,7 +78,7 @@ DataSourceInfo XMLFormatChecker::check( DataSourceInfo dsi,
   DataSource *ds = dsi.list().dataSource().get();
   ds->open( DataSource::Read );
   static const string	sign = "<?xml";
-  char		c;
+  char		c = 0;
   int		i, n = sign.length();
   
   localMsg( "Reading minf header... " + ds->url() );

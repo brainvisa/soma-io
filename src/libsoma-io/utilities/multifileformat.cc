@@ -78,7 +78,6 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
   string  name = FileUtil::basename( FileUtil::removeExtension( filename ) ),
           ext = FileUtil::extension( filename ),
           dirname = FileUtil::dirname( filename );
-  char  sep = FileUtil::separator();
   MultiFileFormatInfo info;
   
   info.directory = dirname;

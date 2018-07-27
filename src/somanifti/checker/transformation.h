@@ -95,6 +95,7 @@ namespace soma
     Table(unsigned nitems)
       : std::vector<T>(nitems, 0), ncols(4) {}
     Table( const Table & other )
+      : std::vector<T>()
     {
       *this = other;
     }

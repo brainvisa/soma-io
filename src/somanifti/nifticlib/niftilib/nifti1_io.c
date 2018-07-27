@@ -3309,7 +3309,8 @@ static int fileext_n_compare(const char * test_ext,
 /* return 1 if there are uppercase but no lowercase */
 static int is_uppercase(const char * str)
 {
-   int c, hasupper = 0;
+   int hasupper = 0;
+   size_t c;
 
    if( !str || !*str ) return 0;
 
@@ -3324,7 +3325,8 @@ static int is_uppercase(const char * str)
 /* return 1 if there are both uppercase and lowercase characters */
 static int is_mixedcase(const char * str)
 {
-   int c, hasupper = 0, haslower = 0;
+   int hasupper = 0, haslower = 0;
+   size_t c;
 
    if( !str || !*str ) return 0;
 
@@ -3341,7 +3343,7 @@ static int is_mixedcase(const char * str)
 /* convert any lowercase chars to uppercase */
 static int make_uppercase(char * str)
 {
-   int c;
+   size_t c;
 
    if( !str || !*str ) return 0;
 
@@ -3354,7 +3356,7 @@ static int make_uppercase(char * str)
 /* convert any uppercase chars to lowercase */
 static int make_lowercase(char * str)
 {
-   int c;
+   size_t c;
 
    if( !str || !*str ) return 0;
 
@@ -6421,14 +6423,14 @@ int nifti_short_order(void)   /* determine this CPU's byte order */
 nifti_image *nifti_image_from_ascii( const char *str, int * bytes_read )
 {
    char lhs[1024] , rhs[1024] ;
-   int ii , spos, nn , slen ;
+   int ii , spos, nn ;
    nifti_image *nim ;              /* will be output */
 
    if( str == NULL || *str == '\0' ) return NULL ;  /* bad input!? */
 
    /* scan for opening string */
 
-   spos = 0 ; slen = (int)strlen(str) ;
+   spos = 0 ;
    ii = sscanf( str+spos , "%1023s%n" , lhs , &nn ) ; spos += nn ;
    if( ii == 0 || strcmp(lhs,"<nifti_image") != 0 ) return NULL ;
 
@@ -7151,7 +7153,7 @@ static int rci_read_data(nifti_image * nim, int * pivots, size_t * prods,
    read_size *= nim->nbyper;  /* and multiply by bytes per voxel */
 
    /* now repeatedly compute offsets, and recursively read */
-   for( c = 0; c < prods[0]; c++ ){
+   for( c = 0; c < (int)prods[0]; c++ ){
       /* offset is (c * sub-block size (including pivot dim))   */
       /*         + (dims[] index into pivot sub-block)          */
       /* the unneeded multiplication is to make this more clear */

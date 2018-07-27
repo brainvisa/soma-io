@@ -143,6 +143,9 @@ endif()
 
 add_definitions(${SOMA-IO_DEFINITIONS})
 
+set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -Wall" )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
+
 ## Include directories
 set( SOMA-IO_INCLUDE_DIRS 
      ${Sigc++2_INCLUDE_DIRS} 

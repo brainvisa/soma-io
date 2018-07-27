@@ -48,7 +48,7 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool JsonFormatWriter::filterProperties(Object properties)
+bool JsonFormatWriter::filterProperties(Object /* properties */)
 {
     // Nothing to filter here
     return true;
@@ -65,7 +65,6 @@ bool JsonFormatWriter::write( const GenericObject & obj,
   SyntaxSet                     synt;
   PythonWriter::HelperSet       hs;
   bool                          writeinternals = false;
-  bool                          writevariable = true;
   if( !options.isNone() )
     {
       options->getProperty( "syntaxset", synt );
@@ -99,7 +98,7 @@ namespace
     return true;
   }
 
-  bool dummy = initjsonformat();
+  bool dummy __attribute__((unused)) = initjsonformat();
 
 }
 

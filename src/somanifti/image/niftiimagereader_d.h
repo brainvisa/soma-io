@@ -245,14 +245,14 @@ namespace
 
 
   template <> inline cfloat _scaledValue(
-    const cfloat & value, double scale, double offset)
+    const cfloat & value, double /* scale */, double /* offset */)
   {
     return value;
   }
 
 
   template <> inline cdouble _scaledValue(
-    const cdouble & value, double scale, double offset)
+    const cdouble & value, double /* scale */, double /* offset */)
   {
     return value;
   }

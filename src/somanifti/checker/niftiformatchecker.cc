@@ -335,7 +335,7 @@ void NiftiFormatChecker::_buildDSList( DataSourceList & dsl ) const
  ****************************************************************************/
 Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
 {
-  FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
+  //FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
   string          fname = hds->url();
 
   nifti_image *nim = NULL;
@@ -930,7 +930,7 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
 
   unsigned i, n = bvals.size();
   vector<vector<float> > bvecs2( n );
-  for( unsigned i=0; i<n; ++i )
+  for( i=0; i<n; ++i )
   {
     Point3df vdir1( bvecs[i], bvecs[i+n], bvecs[i+n*2] );
     Point3df vdir2 = s2m.transform( vdir1 )

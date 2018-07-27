@@ -66,7 +66,7 @@ namespace
     return true;
   }
 
-  bool dummy = initjsonformat();
+  bool dummy __attribute__((unused)) = initjsonformat();
 
 }
 
@@ -77,7 +77,7 @@ namespace
 
 GenericObject*
 JsonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
-                                 const AllocatorContext & context,
+                                 const AllocatorContext & /* context */,
                                  Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );
@@ -99,7 +99,7 @@ JsonFormatReader::createAndRead( rc_ptr<DataSourceInfo> dsi,
 
 void JsonFormatReader::read( GenericObject & obj,
                              rc_ptr<DataSourceInfo> dsi,
-                             const AllocatorContext & context,
+                             const AllocatorContext & /* context */,
                              Object options )
 {
   rc_ptr<DataSource> ds = dsi->list().dataSource( "minf", 0 );

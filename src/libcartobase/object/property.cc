@@ -50,7 +50,7 @@ bool PropertySet::_mandatoryProperty( true );
 
 //-----------------------------------------------------------------------------
 PropertySet::PropertySet()
-            : Observable()
+            : RCObject(), Observable(), DictionaryInterface()
 {
 }
 
@@ -65,6 +65,7 @@ PropertySet::~PropertySet()
 PropertySet::PropertySet( const PropertySet &other ) :
   RCObject( other ), Interface(), SizeInterface(), IterableInterface(), 
   Observable(), DictionaryInterface()
+  
 {
   operator =( other );
 }

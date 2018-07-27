@@ -268,7 +268,7 @@ namespace
 
 
   template <typename T>
-  void writeWithoutScaleFactor( const carto::Object & hdr,
+  void writeWithoutScaleFactor( const carto::Object & /* hdr */,
                                 nifti_image *nim,
                                 const soma::AffineTransformation3d & m,
                                 const T* data,
@@ -450,7 +450,6 @@ namespace
       tr_pos.resize( ndim );
     }
 
-    int tmin, tmax;
     if( tt >= 0 )
     {
       for( dim=4; dim<ndim; ++dim )
@@ -696,7 +695,7 @@ namespace soma
   DataSourceInfo NiftiImageWriter<T>::writeHeader(
     DataSourceInfo & dsi,
     const T * source,
-    const std::vector<int> & pos,
+    const std::vector<int> & /* pos */,
     const std::vector<int> & size,
     const std::vector<long> & strides,
     carto::Object options )

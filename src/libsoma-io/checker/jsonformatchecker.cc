@@ -68,7 +68,7 @@ namespace
     return true;
   }
 
-  bool  _dummy = initMe();
+  bool  _dummy __attribute__((unused)) = initMe();
 }
 
 

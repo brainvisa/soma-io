@@ -154,7 +154,7 @@ void TiffFormatChecker::_buildDSList( DataSourceList & dsl, const MultiFileForma
  ****************************************************************************/
 Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatInfo & mfi ) const
 {
-  FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
+  //FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
   Object          hdr = Object::value( PropertySet() );  // header
   string          filename = hds->url();
   ushort          typesize, mbps, spp, unit, sampleformat, photometric;

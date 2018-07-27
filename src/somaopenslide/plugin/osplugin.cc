@@ -53,7 +53,7 @@ namespace soma {
       new OSPlugin;
       return true;
     }
-    bool osinit = initos();
+    bool osinit __attribute__((unused)) = initos();
   }
 }
 
