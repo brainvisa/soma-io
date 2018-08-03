@@ -263,7 +263,7 @@ namespace soma {
         if( ( readout = readBlock( target, len ) ) != (long) len ) {
 #ifdef CARTO_DEBUG
           std::cerr << "readBlock( failed at ( ";
-          for (int d=0; d < ndim; ++d){
+          for (size_t d=0; d < ndim; ++d){
               if (d > 0)
                   std::cerr << ",";
               std::cerr << carto::toString(it.position()[d]);
