@@ -67,9 +67,13 @@ namespace soma
       typedef const T* const_iterator;
 
       AllocatedVector( size_type n, const AllocatorContext & ac );
+      /// The copy constructor uses a "standard" AllocatorContext using memory
+      /// allocation.
       AllocatedVector( const AllocatedVector & other );
+      /// This copy constructor variant allows to specify a custom
+      /// AllocatorContext
       AllocatedVector( const AllocatedVector & other,
-                      const AllocatorContext & ac );
+                       const AllocatorContext & ac );
       /// This constructor builds a vector on an already allocated buffer.
       /// The vector is not owner of the underlying data.
       AllocatedVector( size_type n, T* buffer );
@@ -82,6 +86,8 @@ namespace soma
       const_iterator end() const;
       T & operator [] ( size_type i );
       const T & operator [] ( size_type i ) const;
+      /// The copy operator uses a "standard" AllocatorContext using memory
+      /// allocation.
       AllocatedVector & operator = ( const AllocatedVector & );
 
       const AllocatorContext & allocatorContext() const;
@@ -109,13 +115,12 @@ namespace soma
 
   template<typename T> inline
   AllocatedVector<T>::AllocatedVector( const AllocatedVector & other )
-    : _allocatorContext( other.allocatorContext() ), _size( other.size() ),
+    : _allocatorContext(), _size( other.size() ),
       _items( _allocatorContext.allocate( _items, _size ) )
   {
     if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
-        && other._allocatorContext.allocatorType()
-        != AllocatorStrategy::Unallocated )
+        && _allocatorContext.isAllocated()
+        && other._allocatorContext.isAllocated() )
       {
         iterator i, e = end();
         const_iterator j = other.begin();
@@ -131,9 +136,8 @@ namespace soma
       _items( _allocatorContext.allocate( _items, _size ) )
   {
     if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
-        && other._allocatorContext.allocatorType()
-        != AllocatorStrategy::Unallocated )
+        && _allocatorContext.isAllocated()
+        && other._allocatorContext.isAllocated() )
       {
         iterator i, e = end();
         const_iterator j = other.begin();
@@ -196,11 +200,10 @@ namespace soma
   {
     if( &other == this )
       return *this;
-    allocate( other.size(), other.allocatorContext() );
+    allocate( other.size(), AllocatorContext() );
     if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
-        && _allocatorContext.allocatorType() != AllocatorStrategy::Unallocated
-        && other._allocatorContext.allocatorType()
-        != AllocatorStrategy::Unallocated )
+        && _allocatorContext.isAllocated()
+        && other._allocatorContext.isAllocated() )
       {
         iterator i, e = end();
         const_iterator j = other.begin();
