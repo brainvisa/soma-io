@@ -177,7 +177,7 @@ namespace soma
     free();
     _size = n;
     _allocatorContext = ac;
-    _allocatorContext.allocate( _items, n );
+    _items = _allocatorContext.allocate( _items, n );
   }
 
   template<typename T> inline
