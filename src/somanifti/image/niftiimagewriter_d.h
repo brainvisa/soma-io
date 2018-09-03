@@ -1393,13 +1393,14 @@ namespace soma
 
     nim->qform_code = NIFTI_XFORM_UNKNOWN;
     nim->sform_code = NIFTI_XFORM_UNKNOWN;
-    unsigned nt = transformations->size();
+    size_t nt = transformations->size();
     std::vector<AffineTransformation3d> mv( nt );
+    std::vector<int> nifti_referentials( nt );
     if( nt > 0 )
       mv[0] = AffineTransformation3d( transformations->getArrayItem(0) );
     unsigned j;
     bool skip;
-    carto::Object transformations2 = carto::Object::value( 
+    carto::Object transformations2 = carto::Object::value(
       std::vector<std::vector<float> >() );
     std::vector<std::vector<float> > & t2
         = transformations2->value<std::vector<std::vector<float> > >();
@@ -1408,25 +1409,31 @@ namespace soma
     std::vector<std::string> & r2
       = referentials2->value<std::vector<std::string> >();
 
-    // s2m orientation codes
-    std::vector<float> mvec = s2m.toVector();
-    mat44 S2M_m44;
-    unsigned i;
-    for( i=0; i<4; ++i )
-      for( int j=0; j<4; ++j )
-        S2M_m44.m[i][j] = mvec[j+4*i];
+    // Calculate the orientation codes that correspond to the storage_to_memory
+    // header attribute
     int icod, jcod, kcod;
-    nifti_mat44_to_orientation( S2M_m44, &icod, &jcod, &kcod );
-
-    bool s2moriented = false, s2morientedbis;
-    bool qform_is_sform = false;
-
-    for( i=0; i<nt; ++i )
     {
+      // The Nifti convention (RAS+) is the opposite of soma-io (LIP+).
+      AffineTransformation3d mi;
+      mi.matrix(0, 0) = mi.matrix(1, 1) = mi.matrix(2, 2) = -1;
+      std::vector<float> mvec = (s2m * mi).toVector();
+      mat44 S2M_m44;
+      for( int i=0; i<4; ++i )
+        for( int j=0; j<4; ++j )
+          S2M_m44.m[i][j] = mvec[j+4*i];
+      nifti_mat44_to_orientation( S2M_m44, &icod, &jcod, &kcod );
+    }
+
+    const bool debug_transforms = false;
+    bool sform_is_a_copy_of_qform = false;
+    for( size_t i=0; i<nt; ++i )
+    {
+      // Skip duplicate transformations
       mv[i] = AffineTransformation3d( transformations->getArrayItem(i) );
+      nifti_referentials[i] = NiftiReferential( referentials->getArrayItem(i)->getString() );
       skip = false;
       for( j=0; j<i; ++j )
-        if( mv[j] == mv[i] )
+        if( mv[j] == mv[i] && nifti_referentials[j] == nifti_referentials[i] )
         {
           skip = true;
           break;
@@ -1441,32 +1448,13 @@ namespace soma
         std::vector<float> m = (mot * voxsz * s2m).toVector();
         mat44 R;
 
-        s2morientedbis = false;
-        if( !s2moriented )
-        {
-          // check if it can also store s2m
-          AffineTransformation3d mi;
-          mi.matrix( 0, 0 ) = -1;
-          mi.matrix( 1, 1 ) = -1;
-          mi.matrix( 2, 2 ) = -1;
-          std::vector<float> m = (mot * voxsz * s2m * mi).toVector();
-          for( int x=0; x<4; ++x )
-            for( int j=0; j<4; ++j )
-              R.m[x][j] = m[j+4*x];
-          int icod2, jcod2, kcod2;
-          nifti_mat44_to_orientation( R, &icod2, &jcod2, &kcod2 );
-          s2morientedbis = ( icod == icod2 && jcod == jcod2 && kcod == kcod2 );
-        }
-
         for( int x=0; x<4; ++x )
           for( int j=0; j<4; ++j )
             R.m[x][j] = m[j+4*x];
 
-        bool ok = false;
+        bool stored_as_qform = false;
         int xform_code = NiftiReferential( ref );
-        if( ( ( xform_code == NIFTI_XFORM_SCANNER_ANAT )
-              || ( nim->sform_code != NIFTI_XFORM_UNKNOWN ) )
-              && ( nim->qform_code == NIFTI_XFORM_UNKNOWN ) && s2morientedbis )
+        if( nim->qform_code == NIFTI_XFORM_UNKNOWN )
         {
           nim->qform_code = xform_code;
           nifti_mat44_to_quatern( R, &nim->quatern_b, &nim->quatern_c,
@@ -1479,9 +1467,8 @@ namespace soma
                                             nim->qoffset_y, nim->qoffset_z,
                                             tvs[0], tvs[1], tvs[2], nim->qfac
                                           );
-          ok = true;
-          s2moriented = true;
-          for( int x=0; x<3 && ok; ++x )
+          stored_as_qform = true;
+          for( int x=0; x<3 && stored_as_qform; ++x )
             for( int j=0; j<3; ++j )
             {
               float amax = std::max( fabs( P.m[x][j] ), fabs( R.m[x][j] ) );
@@ -1489,55 +1476,149 @@ namespace soma
                   || ( amax != 0 && fabs( P.m[x][j] - R.m[x][j] ) > 1e-4 ) )
               {
                 // cancel
-                ok = false;
+                stored_as_qform = false;
                 nim->qform_code = NIFTI_XFORM_UNKNOWN;
                 break;
               }
             }
+          if( stored_as_qform ) {
+            if(debug_transforms) {
+              std::clog << "somanifti: storing transform "
+                        << i + 1 << " / " << nt << " as qform." << std::endl;
+            }
+          }
         }
+
         /* The NIFTI format specs are somewhat ambiguous on the question
            whether to fill or not the sform matrix if the qform is already
            filled with the same transform. Many software packages actually do
            so (typically duplicating the scanner transform in both qform and
            sform) so that there is always a sform. AIMS/Soma-IO did not do so
-           before version 4.5 because we chose not du duplicate information,
+           before version 4.5 because we chose not to duplicate information,
            but it appears that some software might use sform unconditionally
            and disregard qform, so it may be safer to duplicate the scanner
            matrix.
-           Thus we now fill sform if it has not been yet, and overwrite it if
-           we have a different transform information than the one currently in
-           the qform.
         */
-        if( nim->sform_code == NIFTI_XFORM_UNKNOWN
-          || ( !ok && qform_is_sform ) )
-        {
-          if( ok )
-            qform_is_sform = true;
-          else
-          {
-            qform_is_sform = false;
-            ok = true;
+        if( nim->sform_code == NIFTI_XFORM_UNKNOWN || sform_is_a_copy_of_qform ) {
+          sform_is_a_copy_of_qform = stored_as_qform;
+
+          if(debug_transforms) {
+            std::clog << "somanifti: storing transform "
+                      << i + 1 << " / " << nt << " as sform." << std::endl;
           }
           nim->sform_code = xform_code;
           for( int x=0; x<4; ++x )
             for( int j=0; j<4; ++j )
               nim->sto_xyz.m[x][j] = m[j+x*4];
-        }
-        if( !ok )
-        {
-          std::cout << "Could not save transformation." << std::endl;
+        } else {
+          std::clog << "somanifti warning: could not save transformation "
+                    << i + 1 << " / " << nt << "." << std::endl;
         }
       }
     }
 
-    if( !s2moriented && nim->qform_code == NIFTI_XFORM_UNKNOWN )
+    /* soma-io has a fixed in-memory layout with respect to anatomical axes
+       (LIP+), but Nifti does not have a fixed on-disk data orientation.
+       Therefore, the somanifti reader uses the qform and sform to determine
+       the correct axis flips/swaps when loading data from disk. Here we
+       determine (in the s2moriented variable) if the transformations written
+       so far in the Nifti file will allow a correct round-trip when it is read
+       with somanifti.
+     */
+    bool nifti_strong_orientation = true;
+    try
     {
+      if( !options.isNull() )
+      {
+        carto::Object aso = options->getProperty( "nifti_strong_orientation" );
+        if( !aso.isNull() )
+          nifti_strong_orientation = static_cast<bool>( aso->getScalar() );
+      }
+    }
+    catch( ... )
+    {
+    }
+
+    bool s2moriented;
+    {
+      int idir = 0, jdir = 0, kdir = 0;
+
+      // nim->qto_xyz is needed for the following test, we fill it like in
+      // nifti_convert_nhdr2nim (see nifti1_io.c)
+      if( nim->qform_code != NIFTI_XFORM_UNKNOWN ) {
+        nim->qto_xyz = nifti_quatern_to_mat44(nim->quatern_b, nim->quatern_c, nim->quatern_d,
+                                              nim->qoffset_x, nim->qoffset_y, nim->qoffset_z,
+                                              nim->dx, nim->dy, nim->dz, nim->qfac );
+      }
+
+      // Here we apply the same rules as the somanifti reader (see
+      // niftiformatchecker.cc). These first rules are non-ambiguous: these 3
+      // referentials can be trusted to be in RAS+ orientation.
+      if ( nim->qform_code == NIFTI_XFORM_SCANNER_ANAT
+           || nim->qform_code == NIFTI_XFORM_MNI_152
+           || nim->qform_code == NIFTI_XFORM_TALAIRACH ) {
+        nifti_mat44_to_orientation( nim->qto_xyz, &idir, &jdir, &kdir );
+      } else if ( nim->sform_code == NIFTI_XFORM_SCANNER_ANAT
+                  || nim->sform_code == NIFTI_XFORM_MNI_152
+                  || nim->sform_code == NIFTI_XFORM_TALAIRACH ) {
+        nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
+      }
+
+      // Applying the fallback rules allows better control over the stored
+      // transformations, but is inherently ambiguous, because the orientation
+      // of the ALIGNED_ANAT referential is not well defined by the Nifti
+      // standard, nor is the orientation of a Nifti file without any
+      // transformation.
+      if( !nifti_strong_orientation ) {
+        if ( nim->qform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+          nifti_mat44_to_orientation( nim->qto_xyz, &idir, &jdir, &kdir );
+        } else if ( nim->sform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+          nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
+        } else {
+          idir = NIFTI_L2R;
+          jdir = NIFTI_P2A;
+          kdir = NIFTI_I2S;
+        }
+      }
+
+      s2moriented = ( icod == idir && jcod == jdir && kcod == kdir );
+    }
+
+    /* If the transformations written so far do not allow the somanifti writer
+       to preserve the in-memory orientation (see s2moriented above), then we
+       must set a new dummy qform, unless the user explicitly requests the
+       writer to allow the orientation change (TODO add option to the writer).
+     */
+    bool allow_orientation_change = false;
+    try
+    {
+      if( !options.isNull() )
+      {
+        carto::Object aso = options->getProperty( "allow_orientation_change" );
+        if( !aso.isNull() )
+          allow_orientation_change = static_cast<bool>( aso->getScalar() );
+      }
+    }
+    catch( ... )
+    {
+    }
+
+    if( !s2moriented && !allow_orientation_change )
+    {
+      if( nim->qform_code != NIFTI_XFORM_UNKNOWN ) {
+        std::clog << "somanifti warning: overriding the existing qform to fix data orientation."
+                  << std::endl;
+      } else if(debug_transforms) {
+        std::clog << "somanifti: storing a dummy scanner-based qform to fix data orientation."
+                  << std::endl;
+      }
+
       AffineTransformation3d NIs2m_aims;
       NIs2m_aims.matrix( 0, 0 ) = -1; // invert all axes
       NIs2m_aims.matrix( 1, 1 ) = -1;
       NIs2m_aims.matrix( 2, 2 ) = -1;
       AffineTransformation3d NIs2m = s2m * NIs2m_aims;
-      mvec = NIs2m.toVector();
+      std::vector<float> mvec = NIs2m.toVector();
       mat44 P;
       for( int x=0; x<4; ++x )
         for( int j=0; j<4; ++j )
@@ -1656,12 +1737,12 @@ namespace soma
     std::vector<int> extcode;
     if( hdr->getProperty( "extcode", extcode ) )
     {
-      unsigned next = extcode.size();
+      size_t next = extcode.size();
       std::vector<std::vector<char> > extdata( next );
       hdr->getProperty( "extdata", extdata );
       if( extdata.size() < next )
         next = extdata.size();
-      for( i=0; i<next; ++i )
+      for( size_t i=0; i<next; ++i )
       {
         nifti_add_extension( nim, &extdata[i][0], extdata[i].size(),
                              extcode[i] );
