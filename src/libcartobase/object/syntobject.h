@@ -259,8 +259,21 @@ namespace carto
   SyntaxedObject<PropertySet>::SyntaxedObject(
                                          const SyntaxedObject<PropertySet> & x ) 
     : RCObject(),
-      internal::SyntaxedObjectSwitch<PropertySet, 
-                         SUPERSUBCLASS(Interface, PropertySet)>::ObjectType( x )
+      Interface(),
+      StringInterface(),
+      ScalarInterface(),
+      SizeInterface(),
+      IterableInterface(),
+      ArrayInterface(),
+      DynArrayInterface(),
+      DictionaryInterface(),
+      IteratorInterface(),
+      KeyIteratorInterface(),
+      DictionaryIteratorInterface(),
+      IntKeyIteratorInterface(),
+      NoneInterface(),
+      internal::SyntaxedObjectSwitch<PropertySet,
+                        SUPERSUBCLASS(Interface, PropertySet)>::ObjectType( x )
   {
   }
 
