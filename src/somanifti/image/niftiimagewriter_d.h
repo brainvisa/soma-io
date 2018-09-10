@@ -1400,14 +1400,6 @@ namespace soma
       mv[0] = AffineTransformation3d( transformations->getArrayItem(0) );
     unsigned j;
     bool skip;
-    carto::Object transformations2 = carto::Object::value(
-      std::vector<std::vector<float> >() );
-    std::vector<std::vector<float> > & t2
-        = transformations2->value<std::vector<std::vector<float> > >();
-    carto::Object referentials2 = carto::Object::value(
-      std::vector<std::string>() );
-    std::vector<std::string> & r2
-      = referentials2->value<std::vector<std::string> >();
 
     // Calculate the orientation codes that correspond to the storage_to_memory
     // header attribute
@@ -1442,8 +1434,6 @@ namespace soma
       {
         AffineTransformation3d mot( mv[i] );
         std::string ref = referentials->getArrayItem(i)->getString();
-        r2.push_back( ref );
-        t2.push_back( mot.toVector() );
 
         std::vector<float> m = (mot * voxsz * s2m).toVector();
         mat44 R;
@@ -1636,15 +1626,8 @@ namespace soma
       NIs2m_aims.matrix(0, 3) = dims[0] * vs[0] / 2;
       NIs2m_aims.matrix(1, 3) = ( dims[1] - 2 ) * vs[1] / 2;
       NIs2m_aims.matrix(2, 3) = ( dims[2] - 2 ) * vs[2] / 2;
-      t2.insert( t2.begin(), NIs2m_aims.toVector() );
-      r2.insert( r2.begin(), NiftiReferential( NIFTI_XFORM_SCANNER_ANAT ) );
     }
 
-    if( !t2.empty() )
-    {
-      hdr->setProperty( "referentials", referentials2 );
-      hdr->setProperty( "transformations", transformations2 );
-    }
     hdr->setProperty( "storage_to_memory", s2m.toVector() );
 
     /********************************************/
