@@ -1510,7 +1510,7 @@ namespace soma
           for( int x=0; x<4; ++x )
             for( int j=0; j<4; ++j )
               nim->sto_xyz.m[x][j] = m[j+x*4];
-        } else {
+        } else if( !stored_as_qform ) {
           std::clog << "somanifti warning: could not save transformation "
                     << i + 1 << " / " << nt << "." << std::endl;
         }
