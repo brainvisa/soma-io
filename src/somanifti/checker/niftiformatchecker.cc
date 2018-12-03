@@ -513,19 +513,35 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
 
   int idir, jdir, kdir;
   vector< float > storage_to_memory( 16 );
-  if ( nim->qform_code > NIFTI_XFORM_UNKNOWN )
-    nifti_mat44_to_orientation( nim->qto_xyz , &idir,&jdir,&kdir ) ;
-  else if ( nim->sform_code > NIFTI_XFORM_UNKNOWN )
-  {
-    nifti_mat44_to_orientation( nim->sto_xyz , &idir,&jdir,&kdir ) ;
-  }
-  else
-  {
+  // These first 3 referentials (SCANNER_ANAT, MNI_152, and TALAIRACH) can be
+  // trusted to be in RAS+ orientation.
+  if ( nim->qform_code == NIFTI_XFORM_SCANNER_ANAT
+       || nim->qform_code == NIFTI_XFORM_MNI_152
+       || nim->qform_code == NIFTI_XFORM_TALAIRACH ) {
+    nifti_mat44_to_orientation( nim->qto_xyz, &idir, &jdir, &kdir );
+  } else if ( nim->sform_code == NIFTI_XFORM_SCANNER_ANAT
+       || nim->sform_code == NIFTI_XFORM_MNI_152
+       || nim->sform_code == NIFTI_XFORM_TALAIRACH ) {
+    nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
+  } else if ( nim->qform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+    nifti_mat44_to_orientation( nim->qto_xyz, &idir, &jdir, &kdir );
+    clog << "somanifti warning: cannot determine the orientation of the Nifti "
+      "file reliably, assuming that 'aligned coordinates' are in RAS+ "
+      "orientation." << endl;
+  } else if ( nim->sform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+    nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
+    clog << "somanifti warning: cannot determine the orientation of the Nifti "
+      "file reliably, assuming that 'aligned coordinates' are in RAS+ "
+      "orientation." << endl;
+  } else {
     // default is left-to-right, anterior-to-posterior and inferior-to-superior
+    clog << "somanifti warning: cannot determine the orientation of the Nifti "
+      "file reliably, assuming that the on-disk data order is RAS+." << endl;
     idir = NIFTI_L2R;
     jdir = NIFTI_P2A;
     kdir = NIFTI_I2S;
   }
+
   storage_to_memory[15] = 1;
   if( idir == NIFTI_R2L || idir == NIFTI_L2R )
   {
