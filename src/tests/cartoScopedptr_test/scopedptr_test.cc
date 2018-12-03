@@ -60,18 +60,11 @@ int main()
     ASSERT( x1 != x2 );
   }
 
-#if __cplusplus < 201103L
-  std::cout << "testing scoped_ptr constructor from auto_ptr..." << std::endl;
+  std::cout << "testing scoped_ptr constructor from std::unique_ptr..." << std::endl;
   {
-    std::auto_ptr<int> x1( new int );
-    ASSERT( x1.get() != 0 );
-    {
-      carto::scoped_ptr<int> x2( x1 );
-      ASSERT( x1.get() == 0 );
-      ASSERT( x2 != 0 );
-    }
+    carto::scoped_ptr<int> x( std::unique_ptr<int>( new int ) );
+    ASSERT( x != 0 );
   }
-#endif
 
   std::cout << "testing scoped_ptr::reset()..." << std::endl;
   {
