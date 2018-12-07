@@ -1529,30 +1529,36 @@ namespace soma
     /****************/
 
     /* Scaling parameter: slope, intercept */
-    float scl_slope = 0.0;
-    if( hdr->getProperty( "scale_factor", scl_slope ) )
-      nim->scl_slope = scl_slope;
-    else
+    try {
+      Object o = hdr->getProperty( "scl_slope" );
+      if( !o.isNull() )
+        nim->scl_slope = o->getScalar();
+    } catch(...) {
       nim->scl_slope = 0.0;
-
-    float scl_inter = 0.0;
-    if( hdr->getProperty( "scale_offset", scl_inter ) )
-      nim->scl_inter = scl_inter;
-    else
+    }
+    try {
+      Object o = hdr->getProperty( "scl_inter" );
+      if( !o.isNull() )
+        nim->scl_inter = o->getScalar();
+    } catch(...) {
       nim->scl_inter = 0.0;
+    }
 
     /* Calibration parameter: min, max */
-    float cal_min = 0.0;
-    if( hdr->getProperty( "cal_min", cal_min ) )
-      nim->cal_min = cal_min;
-    else
+    try{
+      Object o = hdr->getProperty( "cal_min" );
+      if( !o.isNull() )
+        nim->cal_min = o->getScalar();
+    } catch(...) {
       nim->cal_min = 0.0;
-
-    float cal_max = 0.0;
-    if( hdr->getProperty( "cal_max", cal_max ) )
-      nim->cal_max = cal_max;
-    else
+    }
+    try {
+      Object o = hdr->getProperty( "cal_max" );
+      if( !o.isNull() )
+        nim->cal_max = o->getScalar();
+    } catch(...) {
       nim->cal_max = 0.0;
+    }
 
     /*************************************************/
     /* MRI-SPECIFIC SPATIAL AND TEMPORAL INFORMATION */
@@ -1594,11 +1600,13 @@ namespace soma
     else
       nim->slice_end = 0;
 
-    float slice_duration = 0.0;
-    if( hdr->getProperty( "slice_duration", slice_duration ) )
-      nim->slice_duration = slice_duration;
-    else
+    try {
+      Object o = hdr->getProperty( "slice_duration" );
+      if( !o.isNull() )
+        nim->slice_duration = o->getScalar();
+    } catch(...) {
       nim->slice_duration = 0.0; /* TODO */ // should be tr?
+    }
 
     /**********************************************/
     /* 3D IMAGE ORIENTATION AND LOCATION IN SPACE */
@@ -1737,11 +1745,13 @@ namespace soma
     /* UNITS OF SPATIAL AND TEMPORAL DIMENSIONS */
     /********************************************/
 
-    float toffset = 0.0;
-    if( hdr->getProperty( "toffset", toffset ) )
-      nim->toffset = toffset;
-    else
+    try {
+      Object o = hdr->getProperty( "toffset" );
+      if( !o.isNull() )
+        nim->toffset = o->getScalar();
+    } catch(...) {
       nim->toffset = 0.0;
+    }
 
     int xyz_units = 0;
     if( hdr->getProperty( "xyz_units", xyz_units ) )
@@ -1765,23 +1775,27 @@ namespace soma
     else
       nim->intent_code = NIFTI_INTENT_NONE;
 
-    float intent_p1 = 0.0;
-    if( hdr->getProperty( "intent_p1", intent_p1 ) )
-      nim->intent_p1 = intent_p1;
-    else
+    try {
+      Object o = hdr->getProperty( "intent_p1" );
+      if( !o.isNull() )
+        nim->intent_p1 = o->getScalar();
+    } catch(...) {
       nim->intent_p1 = 0.0;
-
-    float intent_p2 = 0.0;
-    if( hdr->getProperty( "intent_p2", intent_p2 ) )
-      nim->intent_p2 = intent_p2;
-    else
+    }
+    try {
+      Object o = hdr->getProperty( "intent_p2" );
+      if( !o.isNull() )
+        nim->intent_p2 = o->getScalar();
+    } catch(...) {
       nim->intent_p2 = 0.0;
-
-    float intent_p3 = 0.0;
-    if( hdr->getProperty( "intent_p3", intent_p3 ) )
-      nim->intent_p3 = intent_p3;
-    else
+    }
+    try {
+      Object o = hdr->getProperty( "intent_p3" );
+      if( !o.isNull() )
+        nim->intent_p3 = o->getScalar();
+    } catch(...) {
       nim->intent_p3 = 0.0;
+    }
 
     std::string intent_name;
     if( hdr->getProperty( "intent_name", intent_name ) )
