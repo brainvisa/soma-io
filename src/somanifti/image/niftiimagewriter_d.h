@@ -1529,35 +1529,35 @@ namespace soma
     /****************/
 
     /* Scaling parameter: slope, intercept */
+    nim->scl_slope = 0.0;
     try {
-      Object o = hdr->getProperty( "scl_slope" );
+      Object o = hdr->getProperty( "scale_factor" );
       if( !o.isNull() )
         nim->scl_slope = o->getScalar();
     } catch(...) {
-      nim->scl_slope = 0.0;
     }
+    nim->scl_inter = 0.0;
     try {
-      Object o = hdr->getProperty( "scl_inter" );
+      Object o = hdr->getProperty( "scale_offset" );
       if( !o.isNull() )
         nim->scl_inter = o->getScalar();
     } catch(...) {
-      nim->scl_inter = 0.0;
     }
 
     /* Calibration parameter: min, max */
+    nim->cal_min = 0.0;
     try{
       Object o = hdr->getProperty( "cal_min" );
       if( !o.isNull() )
         nim->cal_min = o->getScalar();
     } catch(...) {
-      nim->cal_min = 0.0;
     }
+    nim->cal_max = 0.0;
     try {
       Object o = hdr->getProperty( "cal_max" );
       if( !o.isNull() )
         nim->cal_max = o->getScalar();
     } catch(...) {
-      nim->cal_max = 0.0;
     }
 
     /*************************************************/
@@ -1600,12 +1600,12 @@ namespace soma
     else
       nim->slice_end = 0;
 
+    nim->slice_duration = 0.0; /* TODO */ // should be tr?
     try {
       Object o = hdr->getProperty( "slice_duration" );
       if( !o.isNull() )
         nim->slice_duration = o->getScalar();
     } catch(...) {
-      nim->slice_duration = 0.0; /* TODO */ // should be tr?
     }
 
     /**********************************************/
@@ -1745,12 +1745,12 @@ namespace soma
     /* UNITS OF SPATIAL AND TEMPORAL DIMENSIONS */
     /********************************************/
 
+    nim->toffset = 0.0;
     try {
       Object o = hdr->getProperty( "toffset" );
       if( !o.isNull() )
         nim->toffset = o->getScalar();
     } catch(...) {
-      nim->toffset = 0.0;
     }
 
     int xyz_units = 0;
@@ -1775,26 +1775,26 @@ namespace soma
     else
       nim->intent_code = NIFTI_INTENT_NONE;
 
+    nim->intent_p1 = 0.0;
     try {
       Object o = hdr->getProperty( "intent_p1" );
       if( !o.isNull() )
         nim->intent_p1 = o->getScalar();
     } catch(...) {
-      nim->intent_p1 = 0.0;
     }
+    nim->intent_p2 = 0.0;
     try {
       Object o = hdr->getProperty( "intent_p2" );
       if( !o.isNull() )
         nim->intent_p2 = o->getScalar();
     } catch(...) {
-      nim->intent_p2 = 0.0;
     }
+    nim->intent_p3 = 0.0;
     try {
       Object o = hdr->getProperty( "intent_p3" );
       if( !o.isNull() )
         nim->intent_p3 = o->getScalar();
     } catch(...) {
-      nim->intent_p3 = 0.0;
     }
 
     std::string intent_name;
