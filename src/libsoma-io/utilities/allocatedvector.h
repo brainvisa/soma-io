@@ -89,6 +89,10 @@ namespace soma
       /// The copy operator uses a "standard" AllocatorContext using memory
       /// allocation.
       AllocatedVector & operator = ( const AllocatedVector & );
+      /** contrarily to operator = (), this copy function may use a different
+          allocator, which may be the copied vector allocator.
+      */
+      void copy( const AllocatedVector &, const AllocatorContext & );
 
       const AllocatorContext & allocatorContext() const;
 
@@ -198,9 +202,17 @@ namespace soma
   AllocatedVector<T> &
   AllocatedVector<T>::operator = ( const AllocatedVector & other )
   {
+    copy( other, AllocatorContext() );
+    return *this;
+  }
+
+  template<typename T> inline
+  void AllocatedVector<T>::copy( const AllocatedVector & other,
+                                 const AllocatorContext & ac )
+  {
     if( &other == this )
-      return *this;
-    allocate( other.size(), AllocatorContext() );
+      return;
+    allocate( other.size(), ac );
     if( _allocatorContext.allocatorType() != AllocatorStrategy::ReadOnlyMap
         && _allocatorContext.isAllocated()
         && other._allocatorContext.isAllocated() )
@@ -210,8 +222,8 @@ namespace soma
         for( i = begin(); i != e; ++i, ++j )
           *i = *j;
       }
-    return *this;
   }
+
 
   template<typename T> inline
   typename AllocatedVector<T>::iterator AllocatedVector<T>::begin()
