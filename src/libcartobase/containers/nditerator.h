@@ -41,6 +41,11 @@
 namespace carto
 {
 
+  /** Base class for N-dimensional array iterators.
+
+      See NDIterator, const_NDIterator, line_NDIterator, and
+      const_line_NDIterator.
+  */
   class NDIterator_base
   {
   public:
@@ -88,6 +93,28 @@ namespace carto
   };
 
 
+  /** N-dimensional array iterator
+
+      Iterates over every element of a N-D array, using strides. The iterator
+      is used more or less like a pointer:
+
+      \code
+      float *data; // fill it...
+      std::vector<int> dimensions;
+      std::vector<int> strdes;
+      // fill dimensions and strides...
+      float sum = 0.;
+      NDIterator<float> it( data, dimensions, strides );
+      for( ; !it.ended(); ++it )
+        sum += *it;
+      \endcode
+
+      Note that the NDIterator is somewhat sub-optimal since it has to test,
+      at each increment, the bounds of each dimension. In many cases it is
+      possible to lowerage the overhead by implementing an ad-hoc loop for the
+      smallest dimension, and using a line_NDIterator on higher dimensions.
+
+  */
   template <typename T> class NDIterator : public NDIterator_base
   {
   public:
@@ -107,6 +134,7 @@ namespace carto
   };
 
 
+  /// const variant of the NDIterator
   template <typename T> class const_NDIterator : public NDIterator_base
   {
   public:
@@ -126,6 +154,32 @@ namespace carto
   };
 
 
+  /** N-dimensional array line iterator
+
+      Iterates over every "line" of a N-D array, using strides. The "lines"
+      are arrays over the smallest dimension of the array. Thus the iterator
+      iterates over all dimensions but the smallest one. This allows to
+      optimize code iterating directly on the smallest dimension, which is
+      much more efficient than the regular NDIterator: for a very simple item
+      operation using a line_NDIterator instead of a NDIterator can be about
+      20 times faster.
+
+      \code
+      float *data; // fill it...
+      std::vector<int> dimensions;
+      std::vector<int> strdes;
+      // fill dimensions and strides...
+      float sum = 0.;
+      line_NDIterator<float> it( data, dimensions, strides );
+      float *p, *pp;
+      for( ; !it.ended(); ++it )
+      {
+        p = &*it;
+        for( pp=p + dimensions[0]; p!=pp; ++p )
+          sum += *p;
+      }
+      \endcode
+  */
   template <typename T> class line_NDIterator : public line_NDIterator_base
   {
   public:
@@ -145,6 +199,7 @@ namespace carto
   };
 
 
+  /// const variant of the line_NDIterator
   template <typename T> class const_line_NDIterator
     : public line_NDIterator_base
   {
