@@ -41,7 +41,7 @@
 #include <soma-io/datasource/filedatasource.h>  // because we use file sources
 #include <soma-io/nifticlib/niftilib/nifti2_io.h>
 #include <soma-io/checker/niftistructwrapper.h>
-#include <soma-io/checker/transformation.h>
+#include <soma-io/transformation/affinetransformation3d_base.h>
 #include <soma-io/nifticlib/niftiapihelpers_p.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
 //--- cartobase --------------------------------------------------------------
@@ -617,7 +617,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
 
   hdr->setProperty( "storage_to_memory", storage_to_memory );
 
-  AffineTransformation3d s2m( storage_to_memory );
+  AffineTransformation3dBase s2m( storage_to_memory );
 
   Point3df pdim = s2m.transform( Point3df( dims[0], dims[1], dims[2] ) )
       - s2m.transform( Point3df( 0, 0, 0 ) );
@@ -639,10 +639,10 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   hdr->setProperty( "voxel_size", vs );
   hdr->setProperty( "tr", tr );
 
-  AffineTransformation3d vsM;
-  vsM.matrix[0] = vs[0]; // voxel size in memory orientation
-  vsM.matrix(1,1) = vs[1];
-  vsM.matrix(2,2) = vs[2];
+  AffineTransformation3dBase vsM;
+  vsM.matrix()[0] = vs[0]; // voxel size in memory orientation
+  vsM.matrix()(1,1) = vs[1];
+  vsM.matrix()(2,2) = vs[2];
 
   /* !!! As I understand, both qform and sform are transforming voxels to mm
      (Denis 2008/08/21) */
@@ -651,26 +651,26 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   if( nim->qform_code > NIFTI_XFORM_UNKNOWN )
   {
     referentials.push_back( NiftiReferential( nim->qform_code ) );
-    AffineTransformation3d qto_xyz;
-    qto_xyz.matrix(0,3) = nim->qto_xyz.m[0][3];
-    qto_xyz.matrix(1,3) = nim->qto_xyz.m[1][3];
-    qto_xyz.matrix(2,3) = nim->qto_xyz.m[2][3];
+    AffineTransformation3dBase qto_xyz;
+    qto_xyz.matrix()(0,3) = nim->qto_xyz.m[0][3];
+    qto_xyz.matrix()(1,3) = nim->qto_xyz.m[1][3];
+    qto_xyz.matrix()(2,3) = nim->qto_xyz.m[2][3];
     for (int i=0;i<3;++i)
       for (int j=0;j<3;++j)
-        qto_xyz.matrix(i,j) = nim->qto_xyz.m[i][j];
+        qto_xyz.matrix()(i,j) = nim->qto_xyz.m[i][j];
     qto_xyz = qto_xyz * ( vsM * s2m ).inverse();
     transformations.push_back( qto_xyz.toVector() );
   }
   if( nim->sform_code > NIFTI_XFORM_UNKNOWN )
   {
     referentials.push_back( NiftiReferential( nim->sform_code ) );
-    AffineTransformation3d sto_xyz;
-    sto_xyz.matrix[12] = nim->sto_xyz.m[0][3];
-    sto_xyz.matrix[13] = nim->sto_xyz.m[1][3];
-    sto_xyz.matrix[14] = nim->sto_xyz.m[2][3];
+    AffineTransformation3dBase sto_xyz;
+    sto_xyz.matrix()[12] = nim->sto_xyz.m[0][3];
+    sto_xyz.matrix()[13] = nim->sto_xyz.m[1][3];
+    sto_xyz.matrix()[14] = nim->sto_xyz.m[2][3];
     for (int i=0;i<3;++i)
       for (int j=0;j<3;++j)
-        sto_xyz.matrix[j*4+i] = nim->sto_xyz.m[i][j];
+        sto_xyz.matrix()[j*4+i] = nim->sto_xyz.m[i][j];
     sto_xyz = sto_xyz  * ( vsM * s2m ).inverse();
     transformations.push_back( sto_xyz.toVector() );
   }
@@ -942,7 +942,7 @@ void NiftiFormatChecker::_readDiffusionVectors( DataSource* bvecfile,
      needs to undergo storage_to_memory transform. */
   std::vector< float > storage_to_memory;
   header->getProperty( "storage_to_memory", storage_to_memory );
-  AffineTransformation3d s2m( storage_to_memory );
+  AffineTransformation3dBase s2m( storage_to_memory );
 
   unsigned i, n = bvals.size();
   vector<vector<float> > bvecs2( n );

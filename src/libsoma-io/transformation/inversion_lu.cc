@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include "transformation.h"
+#include <soma-io/transformation/affinetransformation3d_base.h>
 
 using namespace soma;
 using namespace carto;
@@ -41,15 +41,15 @@ namespace soma
 {
 
 float
-decompositionLU( Table<float> &a,
-                 Table<int32_t> &indx)
+decompositionLU( AffineTransformation3dBase::Table<float> &a,
+                 AffineTransformation3dBase::Table<int32_t> &indx)
 {
   int   i,imax=0,j,k,n;
   float big,dum,sum,temp,TINY=1.0e-20,d;
 
   n = a.dimX();
 
-  Table<float> vv(1,n);
+  AffineTransformation3dBase::Table<float> vv(1,n);
 
   d = 1.0;
 
@@ -97,9 +97,9 @@ decompositionLU( Table<float> &a,
 }
 
 
-void backSubstitutionLU( Table<float> &a,
-                         Table<int32_t> &indx,
-                         Table<float> &b)
+void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
+                         AffineTransformation3dBase::Table<int32_t> &indx,
+                         AffineTransformation3dBase::Table<float> &b)
 {
   int   i,ii=-1,ip,j,n;
   float sum;
@@ -124,23 +124,23 @@ void backSubstitutionLU( Table<float> &a,
 }
 
 
-Table<float>
-inversionLU( const Table<float> &matrix )
+AffineTransformation3dBase::Table<float>
+inversionLU( const AffineTransformation3dBase::Table<float> &matrix )
 {
   int                 n,i,j;
   //float d;
 
   n = matrix.dimX();
 
-  Table<float> inverse(n,n);
-  Table<float> stockage(n,n);
+  AffineTransformation3dBase::Table<float> inverse(n,n);
+  AffineTransformation3dBase::Table<float> stockage(n,n);
 
   for (j=n;j--;)
     for (i=n;i--;)  stockage(i,j) = matrix(i,j);
 
-  Table<float> column(1,n);
+  AffineTransformation3dBase::Table<float> column(1,n);
 
-  Table<int32_t>  indx(1,n);
+  AffineTransformation3dBase::Table<int32_t>  indx(1,n);
 
   /*d =*/ decompositionLU(stockage,indx);
 
