@@ -89,6 +89,13 @@ if( ZLIB_FOUND )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS zlib DEV )
 endif()
 
+# MINC support
+find_package( MINC )
+if( MINC_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libminc RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libminc DEV )
+endif()
+
 # Python is required for the DICOM conversion script
 # It should be made optional
 find_package( python REQUIRED )
@@ -180,6 +187,10 @@ if( DCMTK_FOUND )
 endif()
 add_subdirectory( src/tests )
 find_package( Sphinx )
+if( MINC_FOUND )
+  add_subdirectory( src/somaminc )
+endif()
+
 
 BRAINVISA_GENERATE_SPHINX_DOC( "sphinx"
   "share/doc/soma-io-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}" )
