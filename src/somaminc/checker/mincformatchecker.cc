@@ -56,6 +56,7 @@
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 //----------------------------------------------------------------------------
 //MINC I/O support
@@ -346,8 +347,8 @@ int MincFormatChecker::readMincHistory( Object hdr, const string & fname,
 
   // Add a new line to history specifying the date and AIMS conversion
   time_t tod;
-  tod=time(NULL);
-  char *char_time=ctime(&tod);
+  tod = time(NULL);
+  char *char_time = ctime(&tod);
 
   char_time[strlen(char_time)-1]='\0';
 
