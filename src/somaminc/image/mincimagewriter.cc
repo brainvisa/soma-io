@@ -35,6 +35,7 @@
 #include <soma-io/image/mincimagewriter_d.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
+#include <time.h>
 //----------------------------------------------------------------------------
 
 using namespace carto;
