@@ -60,6 +60,18 @@ extern "C"
 #undef Y
 #undef OMPI_SKIP_MPICXX
 
+#ifndef VIO_FLOOR
+// most recent type changes - is there a version anywhere ?
+#define VIO_OK OK
+typedef unsigned int aims_misize_t;
+#else
+typedef misize_t aims_misize_t;
+#endif
+#ifndef VIO_MAX_DIMENSIONS
+// happens in some versions of minc...
+#define VIO_MAX_DIMENSIONS MAX_DIMENSIONS
+#endif
+
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/image/mincimagereader.h>                // class declaration
 #include <soma-io/checker/mincformatchecker.h>          // to access the mutex
