@@ -451,22 +451,28 @@ namespace soma
     std::string  excm;
 
     //// Pass 1 : prioroty to format hint ////////////////////////////////////
-    if( passbegin <= 1 && passend >= 1 && !format.empty() )	{
+    if( passbegin <= 1 && passend >= 1 && !format.empty() )
+    {
       reader = FormatDictionary<T>::readFormat( format );
-      if( reader ) {
-        try {
+      if( reader )
+      {
+        try
+        {
           localMsg( "1. try reader " + format );
           readerc.reset( reader->clone() );
           obj = readerc->createAndRead( _datasourceinfo,
-                                       _alloccontext, _options );
-          if( obj ) {
+                                        _alloccontext, _options );
+          if( obj )
+          {
             localMsg( "1. " + format + " OK" );
             return obj;
           }
-	      } catch( std::exception & e ) {
+        }
+        catch( std::exception & e )
+        {
           localMsg( "1. " + format + " failed" );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
-	      }
+        }
         tried.insert( format );
         triedf.insert( reader );
       }
@@ -483,20 +489,27 @@ namespace soma
     if( passbegin <= 2 && passend >= 2 )
     {
       iext = extensions.equal_range( ext );
-      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+      {
+        if( tried.find( (*ie).second ) == notyet )
+        {
           reader = FormatDictionary<T>::readFormat( (*ie).second );
-          if( reader && triedf.find( reader ) == notyetf ) {
-            try {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
+            try
+            {
               localMsg( "2. try reader " + ie->second );
               readerc.reset( reader->clone() );
               obj = readerc->createAndRead( _datasourceinfo,
-                                          _alloccontext, _options );
-              if( obj ) {
+                                            _alloccontext, _options );
+              if( obj )
+              {
                 localMsg( "2. " + ie->second + " OK" );
                 return obj;
               }
-            } catch( std::exception & e ) {
+            }
+            catch( std::exception & e )
+            {
               localMsg( "2. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }

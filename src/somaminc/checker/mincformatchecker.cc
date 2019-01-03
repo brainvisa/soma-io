@@ -563,9 +563,9 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
        s2m later, when we are using "direct" order in dims and vs.
      */
     vector<float> minc_vs;
-    minc_vs.push_back( checkbounds( volume->separations[2] ) );
-    minc_vs.push_back( checkbounds( volume->separations[1] ) );
     minc_vs.push_back( checkbounds( volume->separations[0] ) );
+    minc_vs.push_back( checkbounds( volume->separations[1] ) );
+    minc_vs.push_back( checkbounds( volume->separations[2] ) );
     minc_vs.push_back( checkbounds( volume->separations[3] ) );
     hdr->setProperty( "MINC_voxel_size", minc_vs );
 
@@ -813,7 +813,9 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
   //--- test header format ---------------------------------------------------
   if( !doread )
     if( !dsi.header()->hasProperty( "format" ) 
-        || dsi.header()->getProperty( "format" )->getString() != "MINC" )
+        || ( dsi.header()->getProperty( "format" )->getString() != "MINC"
+             && dsi.header()->getProperty( "format" )->getString()
+                != "FREESURFER-MINC" ) )
       throw wrong_format_error( "Not a MINC header",
                                 dsi.list().dataSource()->url() );
 
@@ -829,14 +831,18 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "mnc" ).get();
     dsi.header() = _buildHeader( hds );
+    std::string format = dsi.header()->getProperty( "format" )->getString();
     
     localMsg( "Reading minf..." );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+    // set back format
+    dsi.header()->setProperty( "format", format );
 
     // Fixes wrong dimension properties
     vector<int> dims( 4, 1 );
-    if( dsi.header()->getProperty( "volume_dimension", dims ) ) {
+    if( dsi.header()->getProperty( "volume_dimension", dims ) )
+    {
       int32_t dsize = dims.size();
       for(int32_t d = 0; d < dsize; ++d)
           if (dims[d] <= 0)

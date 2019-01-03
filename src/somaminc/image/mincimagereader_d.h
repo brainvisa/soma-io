@@ -146,8 +146,6 @@ namespace soma
                                  std::vector<long> & strides,
                                  carto::Object options )
   {
-    // std::cout << "MincImageReader<T>::read\n";
-
     if( _sizes.empty() )
       updateParams( dsi );
 
@@ -213,24 +211,42 @@ namespace soma
     {
       MincFormatChecker::mincMutex().lock();
 
-      int res = input_volume( fileName, 0, &dim_names[0],
-                              MI_ORIGINAL_TYPE, TRUE,
-                              0.0, 0.0, TRUE, &volume,
-                              (minc_input_options *) NULL );
-      MincFormatChecker::mincMutex().unlock();
+      minc_input_options minc_opt;
+      set_default_minc_input_options( &minc_opt );
+      // preserve values (doesn't seem to work for inf...)
+      set_minc_input_promote_invalid_to_min_flag( &minc_opt, FALSE );
+
+//       int res = input_volume( fileName, 0, &dim_names[0],
+//                               MI_ORIGINAL_TYPE, TRUE,
+//                               0.0, 0.0, TRUE, &volume,
+//                               &minc_opt );
+      volume_input_struct input_info;
+      int res = start_volume_input( fileName, 2, &dim_names[0],
+                                    MI_ORIGINAL_TYPE, TRUE,
+                                    0.0, 0.0, TRUE, &volume,
+                                    &minc_opt, &input_info );
       if( res != VIO_OK )
       {
-        std::cout << "input_volume failed.\n";
+        MincFormatChecker::mincMutex().unlock();
         throw carto::corrupt_stream_error( "could not read MINC file",
                                             dsi.url() );
       }
 
+      delete_volume_input( &input_info );
+
+//       Minc_file minc_file = get_volume_input_minc_file( &input_info );
+//       int minc_id = get_minc_file_id( minc_file );
+
+      MincFormatChecker::mincMutex().unlock();
+
 
       //Handle positive/negative voxel size.
       //Variables dirX, dirY and dirZ are defined as 1 if voxel size is positive and as -1 if voxel size is negative.
-      int dirX = (int)(volume->separations[0]/fabs(volume->separations[0]));
-      int dirY = (int)(volume->separations[1]/fabs(volume->separations[1]));
-      int dirZ = (int)(volume->separations[2]/fabs(volume->separations[2]));
+      std::vector<float> mvs;
+      hdr->getProperty( "MINC_voxel_size", mvs );
+      int dirX = (int)(mvs[0]/fabs(mvs[0]));
+      int dirY = (int)(mvs[1]/fabs(mvs[1]));
+      int dirZ = (int)(mvs[2]/fabs(mvs[2]));
 
       //Variables X_pos, Y_pos and Z_pos are defined as 1 if voxel size is positive and 0 if voxel size is negative.
       //This is further used during the actual reading.
@@ -249,6 +265,8 @@ namespace soma
         Z_pos = 0;
 
       //std::cout << "X:"<< dirX<<","<<X_pos<<"Y:"<< dirY<<","<<Y_pos<<"Z:"<< dirZ<<","<<Z_pos<<"\n";
+//       std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
+//       std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl;
 
       std::vector<int> tsize( size.begin() + 3, size.end() );
       std::vector<int> tstrides( strides.begin() + 3, strides.end() );
@@ -270,78 +288,104 @@ namespace soma
       catch( ... )
       {
       }
-
-      //Use the read mode "real" (i.e. read real values using the function "get_volume_real_value"
-      if( read_mode=="real" )
-      {
-        // std::cout << "minc read\n";
-        //If the output type is integer, "round" the values to the nearest integer (mostly necessary for label volumes)
-        if ( (dtc.dataType()=="U8") || (dtc.dataType()=="S8")
-              || (dtc.dataType()=="U16") || (dtc.dataType()=="S16")
-              || (dtc.dataType()=="U32") || (dtc.dataType()=="S32") )
-        {
-          NDIterator_base it( tsize, tstrides );
-          for( ; !it.ended(); ++it )
-            for( int z=0; z<size[2]; ++z )
-              for( int y=0; y<size[1]; ++y )
-              {
-                offset = it.offset() + z * strides[2] + y * strides[1];
-                target = dest + offset;
-                for( int x=0; x<size[0]; ++x )
-                {
-                  *target++ = (T)rint(get_volume_real_value(
-                    volume,
-                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
-                    pos[3] + it.position()[0], 0 ));
-                }
-              }
-        }
-        else
-        {
-          NDIterator_base it( tsize, tstrides );
-          for( ; !it.ended(); ++it )
-            for( int z=0; z<size[2]; ++z )
-              for( int y=0; y<size[1]; ++y )
-              {
-                offset = it.offset() + z * strides[2] + y * strides[1];
-                target = dest + offset;
-                for( int x=0; x<size[0]; ++x )
-                {
-                  *target++ = (T)get_volume_real_value(
-                    volume,
-                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
-                    pos[3] + it.position()[0], 0 );
-                }
-              }
-        }
-
-      }
-      //Use the read mode "voxel" (i.e. read voxel values using the function "get_volume_voxel_value"
+      int mode = 0; // 0: float, 1: int, 2: voxel
+      if( read_mode != "real" )
+        mode = 2;
       else
       {
-        std::cout << "minc voxel mode\n";
-        NDIterator_base it( tsize, tstrides );
-        for( ; !it.ended(); ++it )
-          for( int z=0; z<size[2]; ++z )
-            for( int y=0; y<size[1]; ++y )
+        if( (dtc.dataType()=="U8") || (dtc.dataType()=="S8")
+            || (dtc.dataType()=="U16") || (dtc.dataType()=="S16")
+            || (dtc.dataType()=="U32") || (dtc.dataType()=="S32") )
+          mode = 1;
+      }
+
+      // std::cout << "minc read\n";
+
+      Minc_file mf = initialize_minc_input( fileName, volume, &minc_opt );
+      VIO_Real fdone = 0;
+
+      // skip volumes under min
+      int nskip = 0;
+      std::vector<int> skipsize( 1, 1 );
+      for( int i=0; i<pos.size(); ++i )
+      {
+        if( i != 0 )
+          skipsize.push_back( _sizes[0][i-1] );
+        skipsize[i] *= _sizes[0][i];
+        if( i >= 3 )
+          nskip += skipsize[i] * pos[i];
+      }
+      for( int i=0; i<nskip; ++i )
+        advance_input_volume( mf );
+
+      NDIterator_base it( tsize, tstrides );
+      for( ; !it.ended(); ++it )
+      {
+        int skip_z = std::min(
+          (Z_pos) * _sizes[0][2] - dirZ * pos[2] - (Z_pos),
+          (Z_pos) * _sizes[0][2] - dirZ * ( size[2] + pos[2] ) - (Z_pos) );
+//         std::cout << "skip slices: " << skip_z << std::endl;
+        for( int z=0; z<skip_z; ++z )
+          advance_input_volume( mf );
+
+        for( int z=0; z<size[2]; ++z )
+        {
+          int minc_z = (Z_pos) * size[2] - dirZ * z - (Z_pos);
+          // read the next slice
+          while( input_more_minc_file( mf, &fdone ) )
+          {
+//             std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
+          }
+
+          for( int y=0; y<size[1]; ++y )
+          {
+            offset = it.offset() + minc_z * strides[2] + y * strides[1];
+            target = dest + offset;
+            switch( mode )
             {
-              offset = it.offset() + z * strides[2] + y * strides[1];
-              target = dest + offset;
+              // 0, 1: Use the read mode "real" (i.e. read real values using the function "get_volume_real_value"
+            case 0:
+              // float mode
+              for( int x=0; x<size[0]; ++x )
+              {
+                *target++ = (T)get_volume_real_value(
+                  volume,
+                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+                  0, 0, 0 );
+              }
+              break;
+            case 1:
+              // If the output type is integer, "round" the values to the nearest integer (mostly necessary for label volumes)
+              for( int x=0; x<size[0]; ++x )
+              {
+                *target++ = (T)rint( get_volume_real_value(
+                  volume,
+                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+//                     (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
+//                     pos[3] + it.position()[0], 0 ));
+                  0, 0, 0 ) );
+              }
+              break;
+            default:
+              // Use the read mode "voxel" (i.e. read voxel values using the function "get_volume_voxel_value"
               for( int x=0; x<size[0]; ++x )
               {
                 *target++ = (T)get_volume_voxel_value(
                   volume,
-                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
-                    pos[3] + it.position()[0], 0 );
+                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+                  0, 0, 0 );
               }
             }
+          }
+
+          advance_input_volume( mf );
+        }
       }
+      close_minc_input( mf );
+
       delete_volume(volume);
       delete_string(fileName);
       delete_string(dim_names[0]);
