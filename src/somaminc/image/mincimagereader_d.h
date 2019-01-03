@@ -364,6 +364,8 @@ namespace soma
   }
 
 
+#ifdef MINC_MGH_SUPPORT
+
   // ----- Freesurfer support ------
 
     template <typename T>
@@ -384,6 +386,8 @@ namespace soma
   }
 
 }
+
+#endif // MINC_MGH_SUPPORT
 
 #undef localMsg
 #endif
