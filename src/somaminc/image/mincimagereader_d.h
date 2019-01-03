@@ -221,7 +221,7 @@ namespace soma
 //                               0.0, 0.0, TRUE, &volume,
 //                               &minc_opt );
       volume_input_struct input_info;
-      int res = start_volume_input( fileName, 2, &dim_names[0],
+      int res = start_volume_input( fileName, 1, &dim_names[0],
                                     MI_ORIGINAL_TYPE, TRUE,
                                     0.0, 0.0, TRUE, &volume,
                                     &minc_opt, &input_info );
@@ -268,8 +268,8 @@ namespace soma
 //       std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
 //       std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl;
 
-      std::vector<int> tsize( size.begin() + 3, size.end() );
-      std::vector<int> tstrides( strides.begin() + 3, strides.end() );
+      std::vector<int> tsize; //( size.begin() + 3, size.end() );
+      std::vector<int> tstrides; //( strides.begin() + 3, strides.end() );
       offset_t offset;
       T *target;
 
@@ -304,17 +304,63 @@ namespace soma
       Minc_file mf = initialize_minc_input( fileName, volume, &minc_opt );
       VIO_Real fdone = 0;
 
+      std::cout << "spatial_axes: " << mf->spatial_axes[0] << ", " << mf->spatial_axes[1] << ", " << mf->spatial_axes[2] << std::endl;
+
+      std::cout << "n vols: " << get_n_input_volumes( mf ) << std::endl;
+
+      std::cout << "dim_names: " << mf->dim_names[0] << ", " << mf->dim_names[1] << ", " << mf->dim_names[2] << std::endl;
+      std::cout << "to_file_index: " << mf->to_file_index[0] << ", " << mf->to_file_index[1] << ", " << mf->to_file_index[2] << std::endl;
+      std::cout << "to_volume_index: " << mf->to_volume_index[0] << ", " << mf->to_volume_index[1] << ", " << mf->to_volume_index[2] << ", " << mf->to_volume_index[3] << std::endl;
+      std::cout << "indices: " << mf->indices[0] << ", " << mf->indices[1] << ", " << mf->indices[2] << ", " << mf->indices[3] << std::endl;
+      std::cout << "sizes_in_file: " << mf->sizes_in_file[0] << ", " << mf->sizes_in_file[1] << ", " << mf->sizes_in_file[2] << std::endl;
+
+      int d = 0;
+      std::vector<int> index;
+      for( int i=mf->n_file_dimensions-1; i>=0; --i )
+      {
+        if( std::string(mf->dim_names[i]) == MIxspace )
+          d = 0;
+        else if( std::string(mf->dim_names[i]) == MIyspace )
+          d = 1;
+        else if( std::string(mf->dim_names[i]) == MIzspace )
+          d = 2;
+        else if( std::string(mf->dim_names[i]) == MItime )
+          d = 3;
+        else if( i < mf->n_file_dimensions-1 )
+          ++d;
+        index.push_back( d );
+        std::cout << "index: " << i << ", " << index[index.size()-1] << std::endl;
+      }
+      for( int i=index.size(); i<_sizes[0].size(); ++i )
+        index.push_back(i);
+
+      for( int i=3; i<index.size(); ++i )
+      {
+        if( index[i] < size.size() )
+        {
+          tsize.push_back( size[index[i]] );
+          tstrides.push_back( strides[index[i]] );
+        }
+        else
+        {
+          tsize.push_back( 1 );
+          tstrides.push_back( 1 );
+        }
+        std::cout << "tsize: " << tsize[i-3] << ", str: " << tstrides[i-3] << std::endl;
+      }
+
       // skip volumes under min
       int nskip = 0;
-      std::vector<int> skipsize( 1, 1 );
+      std::vector<int> skipsize( 2, 1 );
       for( int i=0; i<pos.size(); ++i )
       {
-        if( i != 0 )
-          skipsize.push_back( _sizes[0][i-1] );
-        skipsize[i] *= _sizes[0][i];
+        if( i >= 2 )
+          skipsize.push_back( _sizes[0][index[i-1]] );
+        skipsize[i] *= _sizes[0][index[i]];
         if( i >= 3 )
-          nskip += skipsize[i] * pos[i];
+          nskip += skipsize[index[i]] * pos[index[i]];
       }
+      std::cout << "skip rows before vol: " << nskip << std::endl;
       for( int i=0; i<nskip; ++i )
         advance_input_volume( mf );
 
@@ -322,67 +368,84 @@ namespace soma
       for( ; !it.ended(); ++it )
       {
         int skip_z = std::min(
-          (Z_pos) * _sizes[0][2] - dirZ * pos[2] - (Z_pos),
-          (Z_pos) * _sizes[0][2] - dirZ * ( size[2] + pos[2] ) - (Z_pos) );
-//         std::cout << "skip slices: " << skip_z << std::endl;
+          (Z_pos) * _sizes[0][index[2]] - dirZ * pos[index[2]],
+          (Z_pos) * _sizes[0][index[2]] - dirZ * ( size[index[2]] + pos[index[2]] ) );
+        std::cout << "skip slices: " << skip_z << std::endl;
+        skip_z *= _sizes[0][index[1]];
+        std::cout << "rows: " << skip_z << std::endl;
         for( int z=0; z<skip_z; ++z )
           advance_input_volume( mf );
 
-        for( int z=0; z<size[2]; ++z )
+        for( int z=0; z<size[index[2]]; ++z )
         {
-          int minc_z = (Z_pos) * size[2] - dirZ * z - (Z_pos);
-          // read the next slice
-          while( input_more_minc_file( mf, &fdone ) )
-          {
-//             std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
-          }
+          int minc_z = (Z_pos) * size[index[2]] - dirZ * z - Z_pos;
+          int skip_y = std::min(
+            (Y_pos) * _sizes[0][index[1]] - dirY * pos[index[1]],
+            (Y_pos) * _sizes[0][index[1]] - dirY * ( size[index[1]] + pos[index[1]] ) );
+          std::cout << "skip rows: " << skip_y << std::endl;
+          for( int y=0; y<skip_y; ++y )
+            advance_input_volume( mf );
 
-          for( int y=0; y<size[1]; ++y )
+          for( int y=0; y<size[index[1]]; ++y )
           {
-            offset = it.offset() + minc_z * strides[2] + y * strides[1];
+            // read the next row
+            while( input_more_minc_file( mf, &fdone ) )
+            {
+//               std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
+            }
+            advance_input_volume( mf );
+
+            int minc_y = (Y_pos) * size[index[1]] - dirY * y - Y_pos;
+            offset = it.offset() + minc_z * strides[index[2]] + minc_y * strides[index[1]];
             target = dest + offset;
+
             switch( mode )
             {
               // 0, 1: Use the read mode "real" (i.e. read real values using the function "get_volume_real_value"
             case 0:
               // float mode
-              for( int x=0; x<size[0]; ++x )
+              for( int x=0; x<size[index[0]]; ++x )
               {
-                *target++ = (T)get_volume_real_value(
+                target[strides[index[0]] * x] = (T)get_volume_real_value(
                   volume,
-                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-                  0, 0, 0 );
+                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+                  0, 0, 0, 0 );
               }
               break;
             case 1:
               // If the output type is integer, "round" the values to the nearest integer (mostly necessary for label volumes)
               for( int x=0; x<size[0]; ++x )
               {
-                *target++ = (T)rint( get_volume_real_value(
+                target[strides[index[0]] * x] = (T)rint( get_volume_real_value(
                   volume,
-                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-//                     (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
-//                     pos[3] + it.position()[0], 0 ));
-                  0, 0, 0 ) );
+                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+//                   (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+//                   (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
+//                   pos[3] + it.position()[0], 0 ));
+                  0, 0, 0, 0 ) );
               }
               break;
             default:
               // Use the read mode "voxel" (i.e. read voxel values using the function "get_volume_voxel_value"
-              for( int x=0; x<size[0]; ++x )
+              for( int x=0; x<size[index[0]]; ++x )
               {
-                *target++ = (T)get_volume_voxel_value(
+                target[strides[index[0]] * x] = (T)get_volume_voxel_value(
                   volume,
-                  (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
-                  (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
-                  0, 0, 0 );
+                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+                  0, 0, 0, 0 );
               }
             }
           }
 
-          advance_input_volume( mf );
+          std::cout << "EOS, skip: " << _sizes[0][index[1]] - skip_y - size[index[1]] << std::endl;
+          for( int y=skip_y + size[index[1]]; y<_sizes[0][index[1]]; ++y )
+            advance_input_volume( mf );
+
         }
+        std::cout << "EOV, skip: " << _sizes[0][index[1]] * (_sizes[0][index[2]] - skip_z/_sizes[0][index[1]] - size[index[2]]) << std::endl;
+        for( int z=skip_z/_sizes[0][index[1]] + size[index[2]]; z<_sizes[0][index[2]]; ++z )
+          for( int y=0; y<_sizes[0][index[1]]; ++y )
+            advance_input_volume( mf );
       }
       close_minc_input( mf );
 
