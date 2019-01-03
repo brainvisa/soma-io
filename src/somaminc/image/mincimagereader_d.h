@@ -385,9 +385,9 @@ namespace soma
     return new FreeSurferMincImageReader;
   }
 
-}
-
 #endif // MINC_MGH_SUPPORT
+
+}
 
 #undef localMsg
 #endif
