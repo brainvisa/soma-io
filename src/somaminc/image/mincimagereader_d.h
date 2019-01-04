@@ -263,13 +263,23 @@ namespace soma
         Z_pos = 1;
       else
         Z_pos = 0;
+      // store them in an array because all dimensions will be indexed
+      std::vector<int> vdir( _sizes[0].size(), -1 );
+      std::vector<int> vpos( _sizes[0].size(), 0 );
+      vdir[0] = dirX;
+      vdir[1] = dirY;
+      vdir[2] = dirZ;
+      vpos[0] = X_pos;
+      vpos[1] = Y_pos;
+      vpos[2] = Z_pos;
 
-      //std::cout << "X:"<< dirX<<","<<X_pos<<"Y:"<< dirY<<","<<Y_pos<<"Z:"<< dirZ<<","<<Z_pos<<"\n";
+//       std::cout << "vdir: " << vdir[0] << ", " << vdir[1] << ", " << vdir[2] << ", " << vdir[3] << std::endl;
+//       std::cout << "vpos: " << vpos[0] << ", " << vpos[1] << ", " << vpos[2] << ", " << vpos[3] << std::endl;
 //       std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
 //       std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl;
 
-      std::vector<int> tsize; //( size.begin() + 3, size.end() );
-      std::vector<int> tstrides; //( strides.begin() + 3, strides.end() );
+      std::vector<int> tsize;
+      std::vector<int> tstrides;
       offset_t offset;
       T *target;
 
@@ -314,7 +324,11 @@ namespace soma
       std::cout << "indices: " << mf->indices[0] << ", " << mf->indices[1] << ", " << mf->indices[2] << ", " << mf->indices[3] << std::endl;
       std::cout << "sizes_in_file: " << mf->sizes_in_file[0] << ", " << mf->sizes_in_file[1] << ", " << mf->sizes_in_file[2] << std::endl;
 
-      int d = 0;
+      // get dimensions order to iterate over volumes in the correct order
+      // index is the array of dimensions indices. All dims will be indexed
+      // this way because only the minc lib decides in which order they
+      // are iterated.
+      int d = 0, vd = -1;
       std::vector<int> index;
       for( int i=mf->n_file_dimensions-1; i>=0; --i )
       {
@@ -329,24 +343,37 @@ namespace soma
         else if( i < mf->n_file_dimensions-1 )
           ++d;
         index.push_back( d );
-        std::cout << "index: " << i << ", " << index[index.size()-1] << std::endl;
+        // index actually used in the volume should be the first
+        if( mf->to_volume_index[i] >= 0 && vd < 0 )
+          vd = index.size() - 1;
+      }
+      if( vd > 0 )
+      {
+        // move volume index to 1st position
+        d = index[vd];
+        index.erase( index.begin() + vd );
+        index.insert( index.begin(), d );
       }
       for( int i=index.size(); i<_sizes[0].size(); ++i )
         index.push_back(i);
+      std::cout << "dimensions indices: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << std::endl;
+
+      long toffset = 0;
 
       for( int i=3; i<index.size(); ++i )
       {
         if( index[i] < size.size() )
         {
           tsize.push_back( size[index[i]] );
-          tstrides.push_back( strides[index[i]] );
+          tstrides.push_back( strides[index[i]] * -vdir[index[i]] );
+          if( vdir[index[i]] > 0 )
+            toffset -= ( size[index[i]] - 1 ) * tstrides[i-3];
         }
         else
         {
           tsize.push_back( 1 );
           tstrides.push_back( 1 );
         }
-        std::cout << "tsize: " << tsize[i-3] << ", str: " << tstrides[i-3] << std::endl;
       }
 
       // skip volumes under min
@@ -360,7 +387,7 @@ namespace soma
         if( i >= 3 )
           nskip += skipsize[index[i]] * pos[index[i]];
       }
-      std::cout << "skip rows before vol: " << nskip << std::endl;
+      // std::cout << "skip rows before vol: " << nskip << std::endl;
       for( int i=0; i<nskip; ++i )
         advance_input_volume( mf );
 
@@ -368,21 +395,25 @@ namespace soma
       for( ; !it.ended(); ++it )
       {
         int skip_z = std::min(
-          (Z_pos) * _sizes[0][index[2]] - dirZ * pos[index[2]],
-          (Z_pos) * _sizes[0][index[2]] - dirZ * ( size[index[2]] + pos[index[2]] ) );
-        std::cout << "skip slices: " << skip_z << std::endl;
+          vpos[index[2]] * _sizes[0][index[2]]
+            - vdir[index[2]] * pos[index[2]],
+          vpos[index[2]] * _sizes[0][index[2]]
+            - vdir[index[2]] * ( size[index[2]] + pos[index[2]] ) );
+        // std::cout << "skip slices: " << skip_z << std::endl;
         skip_z *= _sizes[0][index[1]];
-        std::cout << "rows: " << skip_z << std::endl;
         for( int z=0; z<skip_z; ++z )
           advance_input_volume( mf );
 
         for( int z=0; z<size[index[2]]; ++z )
         {
-          int minc_z = (Z_pos) * size[index[2]] - dirZ * z - Z_pos;
+          int minc_z = vpos[index[2]] * size[index[2]]
+            - vdir[index[2]] * z - vpos[index[2]];
           int skip_y = std::min(
-            (Y_pos) * _sizes[0][index[1]] - dirY * pos[index[1]],
-            (Y_pos) * _sizes[0][index[1]] - dirY * ( size[index[1]] + pos[index[1]] ) );
-          std::cout << "skip rows: " << skip_y << std::endl;
+            vpos[index[1]] * _sizes[0][index[1]]
+              - vdir[index[1]] * pos[index[1]],
+            vpos[index[1]] * _sizes[0][index[1]]
+              - vdir[index[1]] * ( size[index[1]] + pos[index[1]] ) );
+          // std::cout << "skip rows: " << skip_y << std::endl;
           for( int y=0; y<skip_y; ++y )
             advance_input_volume( mf );
 
@@ -391,12 +422,14 @@ namespace soma
             // read the next row
             while( input_more_minc_file( mf, &fdone ) )
             {
-//               std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
+              // std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
             }
             advance_input_volume( mf );
 
-            int minc_y = (Y_pos) * size[index[1]] - dirY * y - Y_pos;
-            offset = it.offset() + minc_z * strides[index[2]] + minc_y * strides[index[1]];
+            int minc_y = vpos[index[1]] * size[index[1]]
+              - vdir[index[1]] * y - vpos[index[1]];
+            offset = it.offset() + toffset + minc_z * strides[index[2]]
+              + minc_y * strides[index[1]];
             target = dest + offset;
 
             switch( mode )
@@ -408,7 +441,8 @@ namespace soma
               {
                 target[strides[index[0]] * x] = (T)get_volume_real_value(
                   volume,
-                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+                  vpos[index[0]] * _sizes[0][index[0]]
+                    - vdir[index[0]] * ( x + pos[index[0]] ) - vpos[index[0]],
                   0, 0, 0, 0 );
               }
               break;
@@ -418,7 +452,8 @@ namespace soma
               {
                 target[strides[index[0]] * x] = (T)rint( get_volume_real_value(
                   volume,
-                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+                  vpos[index[0]] * _sizes[0][index[0]]
+                    - vdir[index[0]] * ( x + pos[index[0]] ) - vpos[index[0]],
 //                   (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
 //                   (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
 //                   pos[3] + it.position()[0], 0 ));
@@ -431,19 +466,21 @@ namespace soma
               {
                 target[strides[index[0]] * x] = (T)get_volume_voxel_value(
                   volume,
-                  (X_pos) * _sizes[0][index[0]] - dirX * ( x + pos[index[0]] ) - (X_pos),
+                  vpos[index[0]] * _sizes[0][index[0]]
+                    - vdir[index[0]] * ( x + pos[index[0]] ) - vpos[index[0]],
                   0, 0, 0, 0 );
               }
             }
           }
 
-          std::cout << "EOS, skip: " << _sizes[0][index[1]] - skip_y - size[index[1]] << std::endl;
+          // std::cout << "EOS, skip: " << _sizes[0][index[1]] - skip_y - size[index[1]] << std::endl;
           for( int y=skip_y + size[index[1]]; y<_sizes[0][index[1]]; ++y )
             advance_input_volume( mf );
 
         }
-        std::cout << "EOV, skip: " << _sizes[0][index[1]] * (_sizes[0][index[2]] - skip_z/_sizes[0][index[1]] - size[index[2]]) << std::endl;
-        for( int z=skip_z/_sizes[0][index[1]] + size[index[2]]; z<_sizes[0][index[2]]; ++z )
+        // std::cout << "EOV, skip: " << _sizes[0][index[1]] * (_sizes[0][index[2]] - skip_z/_sizes[0][index[1]] - size[index[2]]) << std::endl;
+        for( int z=skip_z/_sizes[0][index[1]] + size[index[2]];
+             z<_sizes[0][index[2]]; ++z )
           for( int y=0; y<_sizes[0][index[1]]; ++y )
             advance_input_volume( mf );
       }
