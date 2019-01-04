@@ -221,15 +221,74 @@ namespace soma
 //                               0.0, 0.0, TRUE, &volume,
 //                               &minc_opt );
       volume_input_struct input_info;
+      input_info.minc_file = 0; // force init to 0 so that we can test it after
       int res = start_volume_input( fileName, 1, &dim_names[0],
                                     MI_ORIGINAL_TYPE, TRUE,
                                     0.0, 0.0, TRUE, &volume,
                                     &minc_opt, &input_info );
+      MincFormatChecker::mincMutex().unlock();
+
       if( res != VIO_OK )
       {
-        MincFormatChecker::mincMutex().unlock();
+        std::cout << "start_volume_input failed.\n";
         throw carto::corrupt_stream_error( "could not read MINC file",
                                             dsi.url() );
+      }
+
+      Minc_file minc_file = get_volume_input_minc_file( &input_info );
+      if( minc_file == 0 )
+      {
+        // Not Minc format: maybe Freesurfer. We cannot read by vol
+        delete_string(fileName);
+        delete_string(dim_names[0]);
+        delete_string(dim_names[1]);
+        delete_string(dim_names[2]);
+        delete_string(dim_names[3]);
+
+        readMinc1Whole( dest, dsi, pos, size, strides, options );
+        return;
+      }
+
+      // test if the last dim is the X one
+      // if the last dim has size 1, then minclib segfaults later in
+      // input_more_minc_file, plus it's inefficient, so we stick with x
+      int nlastdim = minc_file->n_file_dimensions - 1;
+      std::string lastdim  = std::string( minc_file->dim_names[ nlastdim ] );
+      if( nlastdim > 0 && lastdim != MIxspace
+          && minc_file->sizes_in_file[ nlastdim ] != 1 )
+      {
+        --nlastdim;
+        lastdim = std::string( minc_file->dim_names[ nlastdim ] );
+      }
+
+      if( lastdim != MIxspace && minc_file->sizes_in_file[ nlastdim ] != 1 )
+      {
+        // no: ask this dim in our volume
+        delete_volume_input( &input_info );
+        delete_volume( volume );
+        VIO_STR s = dim_names[0];
+        int i = 3;
+        if( lastdim == MIyspace )
+          i = 1;
+        else if( lastdim == MIzspace )
+          i = 2;
+        else if( lastdim == MItime )
+          i = 3;
+        dim_names[0] = dim_names[i];
+        dim_names[i] = s;
+
+        // re-open with different axis
+        MincFormatChecker::mincMutex().lock();
+        res = start_volume_input( fileName, 1, &dim_names[0],
+                                    MI_ORIGINAL_TYPE, TRUE,
+                                    0.0, 0.0, TRUE, &volume,
+                                    &minc_opt, &input_info );
+        MincFormatChecker::mincMutex().unlock();
+        if( res != VIO_OK )
+        {
+          throw carto::corrupt_stream_error( "could not read MINC file",
+                                             dsi.url() );
+        }
       }
 
       delete_volume_input( &input_info );
@@ -237,7 +296,6 @@ namespace soma
 //       Minc_file minc_file = get_volume_input_minc_file( &input_info );
 //       int minc_id = get_minc_file_id( minc_file );
 
-      MincFormatChecker::mincMutex().unlock();
 
 
       //Handle positive/negative voxel size.
@@ -273,10 +331,10 @@ namespace soma
       vpos[1] = Y_pos;
       vpos[2] = Z_pos;
 
-//       std::cout << "vdir: " << vdir[0] << ", " << vdir[1] << ", " << vdir[2] << ", " << vdir[3] << std::endl;
-//       std::cout << "vpos: " << vpos[0] << ", " << vpos[1] << ", " << vpos[2] << ", " << vpos[3] << std::endl;
-//       std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
-//       std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl;
+      /* std::cout << "vdir: " << vdir[0] << ", " << vdir[1] << ", " << vdir[2] << ", " << vdir[3] << std::endl;
+      std::cout << "vpos: " << vpos[0] << ", " << vpos[1] << ", " << vpos[2] << ", " << vpos[3] << std::endl; */
+      /* std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
+      std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl; */
 
       std::vector<int> tsize;
       std::vector<int> tstrides;
@@ -311,18 +369,24 @@ namespace soma
 
       // std::cout << "minc read\n";
 
+      MincFormatChecker::mincMutex().lock();
       Minc_file mf = initialize_minc_input( fileName, volume, &minc_opt );
+      MincFormatChecker::mincMutex().unlock();
+
       VIO_Real fdone = 0;
 
-      std::cout << "spatial_axes: " << mf->spatial_axes[0] << ", " << mf->spatial_axes[1] << ", " << mf->spatial_axes[2] << std::endl;
+      /*
+      std::cout << "ndims: " << mf->n_file_dimensions << std::endl;
+      std::cout << "spatial_axes: " << mf->spatial_axes[0] << ", " << mf->spatial_axes[1] << ", " << mf->spatial_axes[2] << ", " << mf->spatial_axes[3] << std::endl;
 
       std::cout << "n vols: " << get_n_input_volumes( mf ) << std::endl;
 
-      std::cout << "dim_names: " << mf->dim_names[0] << ", " << mf->dim_names[1] << ", " << mf->dim_names[2] << std::endl;
-      std::cout << "to_file_index: " << mf->to_file_index[0] << ", " << mf->to_file_index[1] << ", " << mf->to_file_index[2] << std::endl;
+      std::cout << "dim_names: " << mf->dim_names[0] << ", " << mf->dim_names[1] << ", " << mf->dim_names[2] << ", " << mf->dim_names[3] << std::endl;
+      std::cout << "to_file_index: " << mf->to_file_index[0] << ", " << mf->to_file_index[1] << ", " << mf->to_file_index[2] << ", " << mf->to_file_index[3] << std::endl;
       std::cout << "to_volume_index: " << mf->to_volume_index[0] << ", " << mf->to_volume_index[1] << ", " << mf->to_volume_index[2] << ", " << mf->to_volume_index[3] << std::endl;
       std::cout << "indices: " << mf->indices[0] << ", " << mf->indices[1] << ", " << mf->indices[2] << ", " << mf->indices[3] << std::endl;
-      std::cout << "sizes_in_file: " << mf->sizes_in_file[0] << ", " << mf->sizes_in_file[1] << ", " << mf->sizes_in_file[2] << std::endl;
+      std::cout << "sizes_in_file: " << mf->sizes_in_file[0] << ", " << mf->sizes_in_file[1] << ", " << mf->sizes_in_file[2] << ", " << mf->sizes_in_file[3] << std::endl;
+      */
 
       // get dimensions order to iterate over volumes in the correct order
       // index is the array of dimensions indices. All dims will be indexed
@@ -356,7 +420,7 @@ namespace soma
       }
       for( int i=index.size(); i<_sizes[0].size(); ++i )
         index.push_back(i);
-      std::cout << "dimensions indices: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << std::endl;
+      // std::cout << "dimensions indices: " << index[0] << ", " << index[1] << ", " << index[2] << ", " << index[3] << std::endl;
 
       long toffset = 0;
 
@@ -385,7 +449,14 @@ namespace soma
           skipsize.push_back( _sizes[0][index[i-1]] );
         skipsize[i] *= _sizes[0][index[i]];
         if( i >= 3 )
-          nskip += skipsize[index[i]] * pos[index[i]];
+        {
+          int skip = std::min(
+            vpos[index[i]] * _sizes[0][index[i]]
+              - vdir[index[i]] * pos[index[i]],
+            vpos[index[i]] * _sizes[0][index[i]]
+              - vdir[index[i]] * ( size[index[i]] + pos[index[i]] ) );
+          nskip += skipsize[index[i]] * skip;
+        }
       }
       // std::cout << "skip rows before vol: " << nskip << std::endl;
       for( int i=0; i<nskip; ++i )
@@ -403,6 +474,10 @@ namespace soma
         skip_z *= _sizes[0][index[1]];
         for( int z=0; z<skip_z; ++z )
           advance_input_volume( mf );
+
+        /* std::cout << "z: 0-" << size[index[2]] << std::endl;
+        std::cout << "y: 0-" << size[index[1]] << std::endl;
+        std::cout << "x: 0-" << size[index[0]] << std::endl; */
 
         for( int z=0; z<size[index[2]]; ++z )
         {
@@ -422,7 +497,7 @@ namespace soma
             // read the next row
             while( input_more_minc_file( mf, &fdone ) )
             {
-              // std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
+              std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
             }
             advance_input_volume( mf );
 
@@ -486,6 +561,192 @@ namespace soma
       }
       close_minc_input( mf );
 
+      delete_volume(volume);
+      delete_string(fileName);
+      delete_string(dim_names[0]);
+      delete_string(dim_names[1]);
+      delete_string(dim_names[2]);
+      delete_string(dim_names[3]);
+    }
+    catch( ... )
+    {
+      delete_volume(volume);
+      delete_string(fileName);
+      delete_string(dim_names[0]);
+      delete_string(dim_names[1]);
+      delete_string(dim_names[2]);
+      delete_string(dim_names[3]);
+
+      throw;
+    }
+
+  }
+
+
+  template <typename T>
+  void MincImageReader<T>::readMinc1Whole( T * dest, DataSourceInfo & dsi,
+                                           std::vector<int> & pos,
+                                           std::vector<int> & size,
+                                           std::vector<long> & strides,
+                                           carto::Object options )
+  {
+    /* This is the former read function. It reads the whole volume whatever
+       view is to be considered in it. It is thus very inefficient in
+       partial read cases, but the partial read functions do not work with
+       non-minc formats which are supported by the full read here (Freesurfer,
+       Nifti). So in such cases we fallback to this older method.
+    */
+    carto::Object hdr = dsi.header();
+
+    VIO_Volume volume;
+    VIO_STR fileName
+      = create_string( const_cast<char*>(carto::FileUtil::linuxFilename(
+        dsi.url() ).c_str() ) );
+
+    std::vector<VIO_STR> dim_names( VIO_MAX_DIMENSIONS );
+
+    dim_names[0] = create_string( const_cast<char*>( MIxspace ) );
+    dim_names[1] = create_string( const_cast<char*>( MIyspace ) );
+    dim_names[2] = create_string( const_cast<char*>( MIzspace ) );
+    dim_names[3] = create_string( const_cast<char*>( MItime ) );
+    for( unsigned i=4; i<VIO_MAX_DIMENSIONS; ++i )
+      dim_names[i] = 0;
+
+    set_print_error_function( MincFormatChecker::my_empty_print_error );
+
+    try
+    {
+      MincFormatChecker::mincMutex().lock();
+
+      int res = input_volume( fileName, 0, &dim_names[0],
+                              MI_ORIGINAL_TYPE, TRUE,
+                              0.0, 0.0, TRUE, &volume,
+                              (minc_input_options *) NULL );
+      MincFormatChecker::mincMutex().unlock();
+      if( res != VIO_OK )
+      {
+        std::cout << "input_volume failed.\n";
+        throw carto::corrupt_stream_error( "could not read MINC file",
+                                            dsi.url() );
+      }
+
+
+      //Handle positive/negative voxel size.
+      //Variables dirX, dirY and dirZ are defined as 1 if voxel size is positive and as -1 if voxel size is negative.
+      int dirX = (int)(volume->separations[0]/fabs(volume->separations[0]));
+      int dirY = (int)(volume->separations[1]/fabs(volume->separations[1]));
+      int dirZ = (int)(volume->separations[2]/fabs(volume->separations[2]));
+
+      //Variables X_pos, Y_pos and Z_pos are defined as 1 if voxel size is positive and 0 if voxel size is negative.
+      //This is further used during the actual reading.
+      int X_pos, Y_pos, Z_pos;
+      if( dirX > 0 )
+        X_pos = 1;
+      else
+        X_pos = 0;
+      if( dirY > 0 )
+        Y_pos = 1;
+      else
+        Y_pos = 0;
+      if( dirZ > 0 )
+        Z_pos = 1;
+      else
+        Z_pos = 0;
+
+      //std::cout << "X:"<< dirX<<","<<X_pos<<"Y:"<< dirY<<","<<Y_pos<<"Z:"<< dirZ<<","<<Z_pos<<"\n";
+
+      std::vector<int> tsize( size.begin() + 3, size.end() );
+      std::vector<int> tstrides( strides.begin() + 3, strides.end() );
+      offset_t offset;
+      T *target;
+
+      //std::cout << "reading\n";
+
+      carto::DataTypeCode<T>  dtc;
+      //std::cout << "Output type: " << dtc.dataType() << "\n";
+
+      //Read the volume according to the output data type (T, which can be U8, S8, S16, FLOAT...) and to the read mode which can be "real" or "voxel"
+      //In every case, when the voxel size is negative the values are read "as usual" and when the voxel size is positive, values are read using a "mirror symmetry". (this is quite odd, I don't know why it is not the other way round.
+      std::string read_mode = "real";
+      try
+      {
+        read_mode = options->getProperty( "read_mode" )->getString();
+      }
+      catch( ... )
+      {
+      }
+
+      //Use the read mode "real" (i.e. read real values using the function "get_volume_real_value"
+      if( read_mode=="real" )
+      {
+        // std::cout << "minc read\n";
+        //If the output type is integer, "round" the values to the nearest integer (mostly necessary for label volumes)
+        if ( (dtc.dataType()=="U8") || (dtc.dataType()=="S8")
+              || (dtc.dataType()=="U16") || (dtc.dataType()=="S16")
+              || (dtc.dataType()=="U32") || (dtc.dataType()=="S32") )
+        {
+          NDIterator_base it( tsize, tstrides );
+          for( ; !it.ended(); ++it )
+            for( int z=0; z<size[2]; ++z )
+              for( int y=0; y<size[1]; ++y )
+              {
+                offset = it.offset() + z * strides[2] + y * strides[1];
+                target = dest + offset;
+                for( int x=0; x<size[0]; ++x )
+                {
+                  *target++ = (T)rint(get_volume_real_value(
+                    volume,
+                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
+                    pos[3] + it.position()[0], 0 ));
+                }
+              }
+        }
+        else
+        {
+          NDIterator_base it( tsize, tstrides );
+          for( ; !it.ended(); ++it )
+            for( int z=0; z<size[2]; ++z )
+              for( int y=0; y<size[1]; ++y )
+              {
+                offset = it.offset() + z * strides[2] + y * strides[1];
+                target = dest + offset;
+                for( int x=0; x<size[0]; ++x )
+                {
+                  *target++ = (T)get_volume_real_value(
+                    volume,
+                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
+                    pos[3] + it.position()[0], 0 );
+                }
+              }
+        }
+
+      }
+      //Use the read mode "voxel" (i.e. read voxel values using the function "get_volume_voxel_value"
+      else
+      {
+        std::cout << "minc voxel mode\n";
+        NDIterator_base it( tsize, tstrides );
+        for( ; !it.ended(); ++it )
+          for( int z=0; z<size[2]; ++z )
+            for( int y=0; y<size[1]; ++y )
+            {
+              offset = it.offset() + z * strides[2] + y * strides[1];
+              target = dest + offset;
+              for( int x=0; x<size[0]; ++x )
+              {
+                *target++ = (T)get_volume_voxel_value(
+                  volume,
+                    (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
+                    (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
+                    (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
+                    pos[3] + it.position()[0], 0 );
+              }
+            }
+      }
       delete_volume(volume);
       delete_string(fileName);
       delete_string(dim_names[0]);
