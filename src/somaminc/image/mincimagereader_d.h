@@ -495,11 +495,13 @@ namespace soma
           for( int y=0; y<size[index[1]]; ++y )
           {
             // read the next row
+            MincFormatChecker::mincMutex().lock();
             while( input_more_minc_file( mf, &fdone ) )
             {
-              std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
+              // std::cout << "\r" << z << " / " << size[2] << ": " << fdone << "  " << std::flush;
             }
             advance_input_volume( mf );
+            MincFormatChecker::mincMutex().unlock();
 
             int minc_y = vpos[index[1]] * size[index[1]]
               - vdir[index[1]] * y - vpos[index[1]];
