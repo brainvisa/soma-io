@@ -1,5 +1,5 @@
 // only needed on Mac bundle
-#include <soma-io/plugin/gisplugin.h>
+#include <soma-io/plugin/mincplugin.h>
 
 using namespace soma;
 
