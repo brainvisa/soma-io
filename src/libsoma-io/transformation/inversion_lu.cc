@@ -49,7 +49,7 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
 
   n = a.dimX();
 
-  AffineTransformation3dBase::Table<float> vv(1,n);
+  std::vector<float> vv(n);
 
   d = 1.0;
 
@@ -57,7 +57,7 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
   { big = 0.0;
     for (j=0;j<n;j++)
       if ((temp = fabs(a(i,j))) > big)  big = temp;
-    vv(i) = 1.0 / big;
+    vv[i] = 1.0 / big;
   }
   for (j=0;j<n;j++)
   { for (i=0;i<j;i++)
@@ -71,7 +71,7 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
     { sum = a(i,j);
       for (k=0;k<j;k++)  sum -= a(i,k) * a(k,j);
       a(i,j) = sum;
-      if ((dum = vv(i) * fabs(sum)) >= big)
+      if ((dum = vv[i] * fabs(sum)) >= big)
       { big  = dum;
         imax = i;
       }
@@ -84,7 +84,7 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
         a(j,k)    = dum;
       }
       d = -d;
-      vv(imax) = vv(j);
+      vv[imax] = vv[j];
     }
     indx(j) = imax;
     if (a(j,j) == 0.0)  a(j,j) = TINY;
