@@ -652,12 +652,9 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   {
     referentials.push_back( NiftiReferential( nim->qform_code ) );
     AffineTransformation3dBase qto_xyz;
-    qto_xyz.matrix()(0,3) = nim->qto_xyz.m[0][3];
-    qto_xyz.matrix()(1,3) = nim->qto_xyz.m[1][3];
-    qto_xyz.matrix()(2,3) = nim->qto_xyz.m[2][3];
-    for (int i=0;i<3;++i)
-      for (int j=0;j<3;++j)
-        qto_xyz.matrix()(i,j) = nim->qto_xyz.m[i][j];
+    for (int i=0;i<4;++i)
+      for (int j=0;j<4;++j)
+        qto_xyz.matrix()(i, j) = nim->qto_xyz.m[i][j];
     qto_xyz = qto_xyz * ( vsM * s2m ).inverse();
     transformations.push_back( qto_xyz.toVector() );
   }
@@ -665,12 +662,9 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
   {
     referentials.push_back( NiftiReferential( nim->sform_code ) );
     AffineTransformation3dBase sto_xyz;
-    sto_xyz.matrix()[12] = nim->sto_xyz.m[0][3];
-    sto_xyz.matrix()[13] = nim->sto_xyz.m[1][3];
-    sto_xyz.matrix()[14] = nim->sto_xyz.m[2][3];
-    for (int i=0;i<3;++i)
-      for (int j=0;j<3;++j)
-        sto_xyz.matrix()[j*4+i] = nim->sto_xyz.m[i][j];
+    for (int i=0;i<4;++i)
+      for (int j=0;j<4;++j)
+        sto_xyz.matrix()(i, j) = nim->sto_xyz.m[i][j];
     sto_xyz = sto_xyz  * ( vsM * s2m ).inverse();
     transformations.push_back( sto_xyz.toVector() );
   }

@@ -462,7 +462,7 @@ see NOTE, line 38. */
 AffineTransformation3dBase & AffineTransformation3dBase::operator *= (
   const AffineTransformation3dBase & m )
 {
-  Point3df	r2 = transform( m._matrix[3], m._matrix[7], m._matrix[11] );
+  Point3df	r2 = transform( m._matrix[12], m._matrix[13], m._matrix[14] );
   _matrix[12] = r2[0];
   _matrix[13] = r2[1];
   _matrix[14] = r2[2];
@@ -521,44 +521,23 @@ namespace soma
   {
     AffineTransformation3dBase AffineTransformation3dOut;
 
-    AffineTransformation3dBase::Table< float > mat1(4,4), mat2(4,4), mat3(4,4);
+    const AffineTransformation3dBase::Table< float >
+      & mat1 = AffineTransformation3d1.matrix(),
+      & mat2 = AffineTransformation3d2.matrix();
+    AffineTransformation3dBase::Table< float >
+      & mat3 = AffineTransformation3dOut.matrix();
+    // init mat3 to null, not to ID
+    mat3( 0, 0 ) = 0.f;
+    mat3( 1, 1 ) = 0.f;
+    mat3( 2, 2 ) = 0.f;
+    mat3( 3, 3 ) = 0.f;
 
     int i, j, k;
 
-    for(i=0;i<3;++i)
-      for(j=0;j<3;++j)
-      {
-        mat1(j,i) = AffineTransformation3d1.matrix()(i,j);
-        mat2(j,i) = AffineTransformation3d2.matrix()(i,j);
-      }
-
-    for(i=0;i<3;++i)
-    {
-      mat1(3,i) = AffineTransformation3d1.matrix()(i, 3);
-      mat2(3,i) = AffineTransformation3d2.matrix()(i, 3);
-      mat1(i,3) = mat2(i,3) = 0;
-    }
-
-    mat1(3,3) = mat2(3,3) = 1.0;
-    mat3 = 0;
-
-    for( j=0; j<3; ++j )
-      for( i=0; i<3; ++i )
+    for( j=0; j<4; ++j )
+      for( i=0; i<4; ++i )
         for(k=0;k<4;++k)
-          mat3(i,j) += mat2(i,k)*mat1(k,j);
-
-
-    for(i=0;i<3;++i)
-    {
-      AffineTransformation3dOut.matrix()(i, 3) = mat3(3,i);
-    }
-
-    for(i=0;i<3;++i)
-      for(j=0;j<3;++j)
-      {
-        AffineTransformation3dOut.matrix()(j,i) = mat3(i,j);
-      }
-    // cout << "Compose  : " << AffineTransformation3dOut << endl << endl;
+          mat3(i,j) += mat1(i,k) * mat2(k,j);
 
     return AffineTransformation3dOut;
   }
