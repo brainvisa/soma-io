@@ -117,9 +117,9 @@ void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
     b[i] = sum;
   }
   for (i=n;i--;)
-  { sum = b(i);
-    for (j=i+1;j<n;j++)  sum -= a(i,j) * b(j);
-    b(i) = sum / a(i,i);
+  { sum = b[i];
+    for (j=i+1;j<n;j++)  sum -= a(i,j) * b[j];
+    b[i] = sum / a(i,i);
   }
 }
 
