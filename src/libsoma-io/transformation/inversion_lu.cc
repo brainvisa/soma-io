@@ -145,10 +145,10 @@ inversionLU( const AffineTransformation3dBase::Table<float> &matrix )
   /*d =*/ decompositionLU(stockage,indx);
 
   for (j=0;j<n;j++)
-  { for (i=0;i<n;i++)  column(i) = 0.0;
-    column(j) = 1.0;
+  { for (i=0;i<n;i++)  column[i] = 0.0;
+    column[j] = 1.0;
     backSubstitutionLU(stockage,indx,column);
-    for (i=0;i<n;i++)  inverse(i,j) = column(i);
+    for (i=0;i<n;i++)  inverse(i,j) = column[i];
   }
   return inverse;
 }
