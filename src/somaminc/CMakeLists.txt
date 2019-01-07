@@ -13,7 +13,7 @@ set( _sources checker/mincformatchecker.cc
 )
 
 add_definitions( ${LIBMINC_DEFINITIONS} )
-include_directories( "${LIBMINC_INCLUDE_DIRS}" )
+include_directories( ${LIBMINC_INCLUDE_DIRS} )
 if( MINC2_FOUND )
   set( SOMA_HAS_MINC2 "1" )
 endif()
