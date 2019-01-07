@@ -86,7 +86,7 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
       d = -d;
       vv[imax] = vv[j];
     }
-    indx(j) = imax;
+    indx[j] = imax;
     if (a(j,j) == 0.0)  a(j,j) = TINY;
     if (j != n)
     { dum = 1.0 / a(j,j);
@@ -107,14 +107,14 @@ void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
   n = a.dimX();
 
   for (i=0;i<n;i++)
-  { ip = indx(i);
-    sum = b(ip);
-    b(ip) = b(i);
+  { ip = indx[i];
+    sum = b[ip];
+    b[ip] = b[i];
     if (ii != -1)
-      for (j=ii;j<=i-1;j++)  sum -= a(i,j) * b(j);
+      for (j=ii;j<=i-1;j++)  sum -= a(i,j) * b[j];
     else if (sum!=0)
       ii = i;
-    b(i) = sum;
+    b[i] = sum;
   }
   for (i=n;i--;)
   { sum = b(i);
