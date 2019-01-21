@@ -721,7 +721,7 @@ GenericObject* PythonReader::read( GenericObject* object,
     if( c != '\'' && c != '"' )
     {
       d->datasource->ungetch( c );
-      d->datasource->ungetch( c );
+      d->datasource->ungetch( 'u' );
       throw runtime_error( name() + ": Unrecognized syntax, line "
           + lineString() );
     }
@@ -774,6 +774,7 @@ GenericObject* PythonReader::read( GenericObject* object,
               {
                 type = "double"; // try nan
                 d->datasource->ungetch( c );
+                d->datasource->ungetch( 'n' );
                 break;
               }
             d->datasource->ungetch( c );
@@ -797,6 +798,7 @@ GenericObject* PythonReader::read( GenericObject* object,
               {
                 type = "double"; // try NaN
                 d->datasource->ungetch( c );
+                d->datasource->ungetch( 'N' );
                 break;
               }
             d->datasource->ungetch( c );

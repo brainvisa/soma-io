@@ -491,6 +491,9 @@ namespace soma
             break;
           if( inf )
             {
+              if( c != "nf"[inf-1] && c != "NF"[inf-1] )
+                return false;
+              ++ inf;
               if( inf >= 3 )
                 {
                   if( sign )
@@ -499,12 +502,12 @@ namespace soma
                     item = std::numeric_limits<T>::infinity();
                   return true;
                 }
-              if( c != "nf"[inf-1] && c != "NF"[inf-1] )
-                return false;
-              ++ inf;
             }
           else if( nan )
             {
+              if( c != "an"[nan-1] && c != "AN"[nan-1] )
+                return false;
+              ++nan;
               if( nan >= 3 )
                 {
                   if( sign )
@@ -513,9 +516,6 @@ namespace soma
                     item = std::numeric_limits<T>::quiet_NaN();
                   return true;
                 }
-              if( c != "an"[nan-1] && c != "AN"[nan-1] )
-                return false;
-              ++nan;
             }
           else if( c < '0' || c > '9' )
           {
