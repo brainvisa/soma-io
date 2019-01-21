@@ -765,6 +765,7 @@ GenericObject* PythonReader::read( GenericObject* object,
         const string    none = "null";
         unsigned    count = 0;
         while( is_open() && !eof()
+               && count < none.length()
                && ( c = d->datasource->getch() ) == none[count] )
           ++count;
         if( count != none.length() )
@@ -786,7 +787,8 @@ GenericObject* PythonReader::read( GenericObject* object,
       {
         const string    none = "None";
         unsigned    count = 0;
-        while( is_open() && !eof() 
+        while( is_open() && !eof()
+               && count < none.length()
                && ( c = d->datasource->getch() ) == none[count] )
           ++count;
         if( count != none.length() )
