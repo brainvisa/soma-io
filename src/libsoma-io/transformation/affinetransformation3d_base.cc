@@ -257,7 +257,7 @@ AffineTransformation3dBase& AffineTransformation3dBase::operator = ( const Objec
 
 
 //-----------------------------------------------------------------------------
-bool AffineTransformation3dBase::operator == ( const AffineTransformation3dBase & other )
+bool AffineTransformation3dBase::operator == ( const AffineTransformation3dBase & other ) const
 {
   static float eps = 1e-5;
   return fabs( _matrix[0] - other._matrix[0] ) < eps

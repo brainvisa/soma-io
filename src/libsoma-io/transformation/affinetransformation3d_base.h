@@ -147,7 +147,7 @@ namespace soma
     virtual AffineTransformation3dBase &operator = ( const std::vector<float> & mat );
     virtual AffineTransformation3dBase &operator = ( const carto::Object mat );
 
-    virtual bool operator == ( const AffineTransformation3dBase & );
+    virtual bool operator == ( const AffineTransformation3dBase & ) const;
 
     AffineTransformation3dBase & operator *= (
       const AffineTransformation3dBase & trans );
