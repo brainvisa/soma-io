@@ -44,7 +44,7 @@ namespace carto
       and weak (Observer) pointers.
   \see weak_shared_ptr, rc_ptr, weak_ptr
   */
-  class SharedObject : public WeakObject, public RCObject
+  class SharedObject : public virtual WeakObject, public virtual RCObject
   {
   public:
     SharedObject();
