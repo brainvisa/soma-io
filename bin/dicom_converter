@@ -42,7 +42,8 @@ import numpy as np
 import soma
 from soma.path import split_path
 from soma.path import which
-from soma import argparse, aims
+from soma import aims
+import argparse
 from soma.dicom import aggregator
 import subprocess
 from soma.minf.api import readMinf

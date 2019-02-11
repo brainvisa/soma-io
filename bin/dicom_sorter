@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, shutil, string
 import dicom
-from soma import argparse
+import argparse
 from soma.dicom import aggregator
 import sys, traceback
 

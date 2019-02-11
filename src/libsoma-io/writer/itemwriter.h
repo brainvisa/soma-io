@@ -43,8 +43,8 @@
 namespace soma
 {
 
-  ///	Low-level "small item" writer, used by higher-level file readers. 
-	/// \sa ItemReader
+  ///	Low-level "small item" writer, used by higher-level file writers. 
+	/// \sa ItemWriter
   template<typename T>
   class ItemWriter
   {
