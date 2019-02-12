@@ -139,16 +139,16 @@ public:
 
   inline RCObject & operator = ( const RCObject & ) { return *this; }
 
+#ifdef CARTO_DEBUG
   inline virtual ~RCObject()
   {
-#ifdef CARTO_DEBUG
     long refCounter = _refCounter;
     if( refCounter > 0 )
       std::cerr << "RCObject destructor called while " << refCounter 
                 << " references are still alive on object " << this 
                 << std::endl;
-#endif
   }
+#endif
 };
 
 
