@@ -89,10 +89,10 @@ namespace carto
         : ValueObject<SyntaxedInterfaceType<T> >()
       { this->getValue().setSyntax( s ); }
       virtual bool hasSyntax() const { return true; }
-      std::string getSyntax() const
+      virtual std::string getSyntax() const
       { return const_cast<SyntaxedInterfaceObject *>( this )->
           getValue().getSyntax(); }
-      void setSyntax( const std::string & s ) 
+      virtual void setSyntax( const std::string & s ) 
       { this->getValue().setSyntax( s ); }
     };
 
