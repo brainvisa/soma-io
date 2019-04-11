@@ -117,6 +117,13 @@ AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
 {
 }
 
+AllocatorContext::AllocatorContext( AllocatorStrategy::DataAccess mode,
+                                    float usefactor )
+  : _alloc( 0 ), _datasource( DataSource::none() ), _dsi(), _access( mode ),
+    _diskcompat( true ), _usefact( usefactor ), _allocated( false ),
+    _forced( false )
+{
+}
 
 AllocatorContext::AllocatorContext( const LowLevelAllocator* alloc )
   : _alloc( alloc ), _datasource(), _dsi(),

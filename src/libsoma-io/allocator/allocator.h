@@ -278,6 +278,8 @@ namespace soma
                       offset_t offset = 0, 
                       bool isDiskformatOK = false, 
                       float usefactor = 1 );
+    /// Constructor without pre-existing DataSource
+    AllocatorContext( DataAccess mode, float usefactor );
     /// Constructor from a LLA
     AllocatorContext( const LowLevelAllocator* alloc );
     /// Constructor by copy
