@@ -53,7 +53,10 @@ namespace soma
   /// be registered.\n
   /// It uses at lower level specific readers of each object type (Volume,
   /// Meshes, Buckets, Textures) and even lower, specific reader of each
-  /// format (GIS, SPM)
+  /// format (GIS, SPM).
+  ///
+  /// See \ref soma_io general explanations on how to use Reader and
+  /// Writer classes.
   ///
   /// \par Adding new readers
   ///

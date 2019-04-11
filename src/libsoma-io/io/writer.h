@@ -95,6 +95,9 @@ namespace soma
   /// and share the same FormatDictionary with them to store all
   /// known file formats.
   ///
+  /// See \ref soma_io general explanations on how to use Reader and
+  /// Writer classes.
+  ///
   /// \see FormatDictionary Reader
   template<class T> class Writer : public GenericWriter
   {
