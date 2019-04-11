@@ -133,6 +133,8 @@ namespace soma
   If many small objects have to be allocated anyway, the allocation mode 
   may be forced by directly providing a LowLevelAllocator (generally the 
   MemoryAllocator::singleton()) to the allocator context.
+
+  Allocation context may be also used in the IO system (\ref reader_writer) to request (or try to) specific allocation modes, such as memory mapping.
 */
 
 }

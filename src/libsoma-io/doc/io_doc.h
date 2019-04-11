@@ -86,6 +86,18 @@ general (understood by the central Reader/Writer classes), but some may
 be specific to specialized formats. Such options may deal with ascii/binary 
 saving modes, or with partial (sub-volume) reading/writing.
 
+Additionally the IO system may make use of the allocators system (\ref allocators) to request some specific allocation modes, such as memory mapping. To do so, a Reader or a Writer instance may be provided with an AllocatorContext instance. Typically, to tell a Reader to use read-only memory mapping (if possible), it can use:
+
+\code
+  Reader<Volume<int16_t> > reader( filename );
+  reader.setAllocatorContext(
+    AllocatorContext( AllocatorStrategy::ReadOnly, 0. ) );
+\endcode
+
+Note that using a hard-coded low-level allocator to request memory mapping for IO allocator contexts will not work, and be ignored, since the IO system has to check for disk format compatibility before chosing the exact allocator type. This is why we are only using hints: in the above example we just say that we will use the data read-only (we will not modify it in memory, thus not forbidding read-only memory mapping), and will use a light portion of the data (0% actually), meaning that it is "worth" using memory-mapping to avoid allocating a huge block of memory and actually reading the whole data, when we don't need it all. This specific setting will thus strongly encourage the IO system to use memory mapping, if possible.
+
+Note also that memory mapping is not always possible: it is only available if data is stored on disk in a binary, non-compressed format, which also matches the memory layout (block/array layout, endianness etc.). This compatibility is checked by individual IO formats readers, which may not be implemented for every possible data type and every format. When unavailable, the allocator will be redirected to a different mode (memory allocation, or mapping with copy mode).
+
 \todo Querying which options may apply to a given DataSource (ie: is partial 
 reading implemented or not?)
 \todo List of standard options, options checking...
