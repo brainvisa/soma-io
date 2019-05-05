@@ -141,13 +141,20 @@ public:
 
   inline virtual ~RCObject()
   {
-#ifdef CARTO_DEBUG
+    // set counter to 0 in case of forced deletion
     long refCounter = _refCounter;
+#ifdef CARTO_DEBUG
     if( refCounter > 0 )
       std::cerr << "RCObject destructor called while " << refCounter 
                 << " references are still alive on object " << this 
                 << std::endl;
 #endif
+    if( refCounter > 0 )
+      for( long i=0; i<refCounter; ++i )
+        --_refCounter;
+    else
+      for( long i=0; i<-refCounter; ++i )
+        ++_refCounter;
   }
 };
 
