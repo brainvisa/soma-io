@@ -118,6 +118,7 @@ def get_start_and_duration_times( serie ):
 
 def check_transfer_syntax_uid(dicomFile):
     if dicom.__version__ > "0.9.5":
+        is_endian = True
         try:
             #Encrypted Content Transfer Syntax UID
             df = dicom.filereader
@@ -128,16 +129,22 @@ def check_transfer_syntax_uid(dicomFile):
                                   dicom.UID.ExplicitVRLittleEndian,
                                   dicom.UID.ImplicitVRLittleEndian]:
                 is_big_endian = False
+            else:
+                is_endian = False
         except:
             raise ValueError("\"Encrypted Content Transfer Syntax UID\" not found")
     else:
+        is_endian = True
         ds = dicom.read_file(dicomFile)
         is_big_endian = ds.is_big_endian
 
-    if is_big_endian:
-        check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+    if is_endian:
+        if is_big_endian:
+            check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+        else:
+            pass
     else:
-        pass
+        check_jpeg(dicomFile)
 
 def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
@@ -174,7 +181,7 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
 
         try:
             check_transfer_syntax_uid(tempfile)
-            check_jpeg(tempfile)
+            # check_jpeg(tempfile)
         except OSError:
             print "The DICOM converter needs DCMTK binaries to convert", f
 
@@ -487,7 +494,7 @@ def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
 
     try:
         check_transfer_syntax_uid(tempFile)
-        check_jpeg(tempFile)
+        # check_jpeg(tempFile)
     except OSError:
         print "The DICOM converter needs DCMTK binaries to convert", f
 
