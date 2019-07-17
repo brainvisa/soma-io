@@ -57,7 +57,7 @@
 template <> \
 struct GenericObjectTypeDeclared< T > \
 { \
-    static inline void check() {}; \
+    static inline void check() {} \
 }; \
 template <> \
 void DictionaryInterface::setProperty( const std::string &key, \
