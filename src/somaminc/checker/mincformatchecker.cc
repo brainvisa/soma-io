@@ -492,10 +492,23 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
     //Read voxel size
     //In MINC, voxel size can be positive or negative. Here we take the absolute value of the voxel size and the case of negative increment steps (negative voxel sizes) is treated when the volume is read (in MincReader).
     vs[3] = fabs(volume->separations[3]);
-    //std::cout << "dx="<< volume->separations[2] << ", dy="<< volume->separations[1] << ", dz="<< volume->separations[0]<<"\n";
-    vs[2] = fabs(volume->separations[2]);
-    vs[1] = fabs(volume->separations[1]);
-    vs[0] = fabs(volume->separations[0]);
+    bool is_buggy_mgh = false;
+    if( fname.substr( fname.length() - 4, 4 ) == ".mgz"
+        || fname.substr( fname.length() - 4, 4 ) == ".mgh" )
+    {
+      // freesurfer mgz / mgh files seem to be in a different order
+      // (is this a bug in minc io or in our interpretation ?)
+      is_buggy_mgh = true;
+      vs[2] = fabs(volume->separations[0]);
+      vs[1] = fabs(volume->separations[1]);
+      vs[0] = fabs(volume->separations[2]);
+    }
+    else
+    {
+      vs[2] = fabs(volume->separations[2]);
+      vs[1] = fabs(volume->separations[1]);
+      vs[0] = fabs(volume->separations[0]);
+    }
 
     if(n_dimensions==5)
     {
@@ -616,29 +629,42 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       hdr->setProperty ( "MINC_general_transform:inverse_flag",  inv_flag );
 
       vector<float> transfo( 16 );
-      if(gt->inverse_flag==FALSE)
+      if( gt->inverse_flag==FALSE )
       {
-        for(int i=0;i<4;i++)
+        for( int i=0;i<4;i++ )
         {
-          for(int j=0;j<4;j++)
+          for( int j=0; j<4; j++ )
           {
-            // transfo1.push_back( Transform_elem(*(gt->linear_transform),j,i) );
-            transfo[i*4+j] = Transform_elem(*(gt->linear_transform),i,j);
+            transfo[i*4+j] = Transform_elem( *(gt->linear_transform), i, j );
           }
         }
       }
       else
       {
-        for(int i=0;i<4;i++)
+        for( int i=0; i<4; i++ )
         {
-          for(int j=0;j<4;j++)
+          for( int j=0; j<4; j++ )
           {
             transfo[i*4+j]
-                = Transform_elem(*(gt->inverse_linear_transform),i,j);
+                = Transform_elem( *(gt->inverse_linear_transform), i, j );
           }
         }
       }
       AffineTransformation3dBase tr( transfo );
+      if( is_buggy_mgh )
+      {
+        // FIXME this seems not sufficient, fixed the 3x3 matrix but
+        // translation is still wrong.
+        // flip x and z axes
+        cout << "Warning: transformations in a freesurfer .mgh / .mgz are "
+          "probably wrong.\n";
+        AffineTransformation3dBase flip;
+        flip.matrix()(0, 0) = 0.;
+        flip.matrix()(0, 2) = 1.;
+        flip.matrix()(2, 0) = 1.;
+        flip.matrix()(2, 2) = 0.;
+        tr = flip * tr * flip;
+      }
       tr *= s2m.inverse();
       AffineTransformation3dBase vsmi;
       vsmi.matrix()(0,0) = 1./vs[0];
