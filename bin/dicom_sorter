@@ -28,7 +28,11 @@ def createTree( serie ):
         ds = dicom.read_file( first )
         patientName = makeValidValue( ds.PatientsName )
         modality = makeValidValue( ds.Modality )
-        seriesDescription = makeValidValue( ds.SeriesDescription )
+        try:
+            seriesDescription = makeValidValue( ds.SeriesDescription )
+        except AttributeError:
+            print("Datasets does not have \"SeriesDescription\"")
+            seriesDescription = ''
         seriesInstanceUid = makeValidValue( ds.SeriesInstanceUID )
     except:
         print "Exception in user code:"
