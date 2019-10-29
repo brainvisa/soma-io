@@ -45,6 +45,7 @@
 #include <soma-io/datasource/streamdatasource.h>      // used by writeHeader()
 #include <soma-io/datasource/datasource.h>
 #include <soma-io/datasource/chaindatasource.h>                    // heritage
+#include <soma-io/utilities/minfutil.h>               // used by writeHeader()
 #include <soma-io/writer/itemwriter.h>                     // write + byteswap
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
@@ -382,6 +383,16 @@ namespace soma {
     minf->setProperty( "voxel_size",
                        dsi.header()->getProperty( "voxel_size" ) );
 
+
+    // Filter minf to remove irrelevant properties
+    // and update some property (uuid) from existing minf
+    soma::MinfUtil::filter(minf, options);
+    soma::MinfUtil::updateFromSource(
+        dsi.list().dataSource( "minf" ).get(),
+        minf,
+        options
+    );
+    
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
 //     //--- partial-io case ----------------------------------------------------

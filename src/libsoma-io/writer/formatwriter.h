@@ -36,12 +36,9 @@
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
 //--- cartobase --------------------------------------------------------------
+#include <cartobase/object/object.h>
 #include <cartobase/smart/rcptr.h>
 //----------------------------------------------------------------------------
-
-namespace carto {
-  class Object;
-}
 
 namespace soma
 {
@@ -55,7 +52,8 @@ namespace soma
     virtual ~FormatWriter() {}
     
     /// This method filters properties for a FormatWriter.
-    virtual bool filterProperties(carto::Object properties) = 0;
+    virtual bool filterProperties(carto::Object properties,
+                                  carto::Object options = carto::none()) = 0;
       
     virtual bool write( const T & obj, 
                         carto::rc_ptr<DataSourceInfo> dsi,

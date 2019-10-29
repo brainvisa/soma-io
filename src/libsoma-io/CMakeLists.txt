@@ -63,6 +63,7 @@ set( _headers
   utilities/allocatedvector.h
   utilities/asciidatasourcetraits.h
   utilities/creator.h
+  utilities/minfutil.h
   utilities/headertranslator.h
   utilities/multifileformat.h
   utilities/minfXML2.h
@@ -119,6 +120,7 @@ set( _somaio_sources
   transformation/inversion_lu.cc
   transformation/transformation.cc
   utilities/asciidatasourcetraits.cc
+  utilities/minfutil.cc
   utilities/minfXML2.cc
   utilities/multifileformat.cc
   vector/vector2d.cc

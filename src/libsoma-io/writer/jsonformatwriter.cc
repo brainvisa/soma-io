@@ -48,7 +48,8 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool JsonFormatWriter::filterProperties(Object /* properties */)
+bool JsonFormatWriter::filterProperties(Object /* properties */,
+                                        Object /* options */)
 {
     // Nothing to filter here
     return true;

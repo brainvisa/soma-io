@@ -52,6 +52,7 @@
 #include <soma-io/transformation/affinetransformation3d_base.h>
 #include <soma-io/io/scaledcoding.h>
 #include <soma-io/utilities/asciidatasourcetraits.h>
+#include <soma-io/utilities/minfutil.h>               // used by writeHeader()
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                        // header, options
 #include <cartobase/object/property.h>                      // header, options
@@ -1041,6 +1042,15 @@ namespace soma
     minf->setProperty( "voxel_size",
                        minf->getProperty( "voxel_size" ) );
 
+    // Filter minf to remove irrelevant properties
+    // and update some property (uuid) from existing minf
+    soma::MinfUtil::filter(minf, options);
+    soma::MinfUtil::updateFromSource(
+        dsi.list().dataSource( "minf" ).get(),
+        minf,
+        options
+    );
+    
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
 //     //--- partial-io case ----------------------------------------------------

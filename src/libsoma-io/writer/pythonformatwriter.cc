@@ -48,7 +48,8 @@ using namespace soma;
 using namespace carto;
 using namespace std;
 
-bool PythonFormatWriter::filterProperties(Object /* properties */)
+bool PythonFormatWriter::filterProperties(Object /* properties */,
+                                          Object /* options */)
 {
     // Nothing to filter here
     return true;
