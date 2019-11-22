@@ -452,7 +452,6 @@ namespace
       tr_pos.resize( ndim );
     }
 
-    int tmin, tmax;
     if( tt >= 0 )
     {
       for( dim=4; dim<ndim; ++dim )

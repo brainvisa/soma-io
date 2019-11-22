@@ -675,6 +675,9 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     transformations.push_back( sto_xyz.toVector() );
   }
 
+  // TODO if qform and sform encode the same transformation up to numerical
+  // precision, add the transformation only once?
+
   hdr->setProperty( "referentials", referentials );
   hdr->setProperty( "transformations", transformations );
 
