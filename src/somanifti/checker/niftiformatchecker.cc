@@ -144,12 +144,14 @@ namespace soma
     else if( ref 
         == "Coordinates aligned to another file or to anatomical truth" )
       return NIFTI_XFORM_ALIGNED_ANAT;
-    else if( ref == StandardReferentials::acPcReferential() )
-      return NIFTI_XFORM_TALAIRACH;
     else if( ref == StandardReferentials::mniTemplateReferential() )
       return NIFTI_XFORM_MNI_152;
     else
       return NIFTI_XFORM_UNKNOWN;
+    // In the case of StandardReferentials::acPcReferential() we do NOT want to
+    // return NIFTI_XFORM_TALAIRACH, because these referential have inverse
+    // orientation (the former is using LPI+, the AIMS convention, while the
+    // latter is using RAS+, the convention from the 1988 Talairach atlas).
   }
 }
 
