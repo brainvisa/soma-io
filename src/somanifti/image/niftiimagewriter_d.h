@@ -602,8 +602,15 @@ void store_transformations_as_qform_and_sform(
           for( int j=0; j<4; ++j )
             nim->sto_xyz.m[x][j] = m[j+x*4];
       } else if( !stored_as_qform ) {
-        std::clog << "somanifti warning: could not save transformation "
-                  << i + 1 << " / " << nt << "." << std::endl;
+        // This warning, even though it could be useful even for people who do
+        // not want to debug the transformations, often confuses people because
+        // it pops up in red in the middle of BrainVISA processes. We could
+        // make it optional, but there is not really a good way of passing the
+        // option (Writer options, carto::verbose, header field?).
+        if(debug_transforms) {
+          std::clog << "somanifti warning: could not save transformation "
+                    << i + 1 << " / " << nt << "." << std::endl;
+        }
       }
     }
   }
