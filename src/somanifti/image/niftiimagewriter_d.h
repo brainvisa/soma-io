@@ -555,6 +555,13 @@ void store_transformations_as_qform_and_sform(
       AffineTransformation3d mot( mv[i] );
       std::string ref = referentials->getArrayItem(i)->getString();
 
+      int xform_code = NiftiReferential( ref );
+      if( xform_code == NIFTI_XFORM_UNKNOWN ) {
+        // There is no NIfTI code for this referential, ignore this
+        // transformation.
+        continue;
+      }
+
       std::vector<float> m = (mot * voxsz * s2m).toVector();
       mat44 R;
 
@@ -563,20 +570,21 @@ void store_transformations_as_qform_and_sform(
           R.m[x][j] = m[j+4*x];
 
       bool stored_as_qform = false;
-      int xform_code = NiftiReferential( ref );
 
-      QformParams qform_params;
-      qform_params.from_mat44(R);
-      // check if the matrix can actually be stored as a quaternion
-      bool can_be_stored_as_qform = qform_params.matches_mat44(R, tvs);
-      if( can_be_stored_as_qform && nim->qform_code == NIFTI_XFORM_UNKNOWN )
-      {
-        stored_as_qform = true;
-        qform_params.store_to_nifti_image(nim);
-        nim->qform_code = xform_code;
-        if(debug_transforms) {
-          std::clog << "somanifti: storing transform "
-                    << i + 1 << " / " << nt << " as qform." << std::endl;
+      if( nim->qform_code == NIFTI_XFORM_UNKNOWN ) {
+        QformParams qform_params;
+        qform_params.from_mat44(R);
+        // check if the matrix can actually be stored as a quaternion
+        bool can_be_stored_as_qform = qform_params.matches_mat44(R, tvs);
+        if( can_be_stored_as_qform )
+        {
+          stored_as_qform = true;
+          qform_params.store_to_nifti_image(nim);
+          nim->qform_code = xform_code;
+          if(debug_transforms) {
+            std::clog << "somanifti: storing transform "
+                      << i + 1 << " / " << nt << " as qform." << std::endl;
+          }
         }
       }
 
