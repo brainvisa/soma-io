@@ -146,6 +146,8 @@ namespace soma
       return NIFTI_XFORM_ALIGNED_ANAT;
     else if( ref == StandardReferentials::mniTemplateReferential() )
       return NIFTI_XFORM_MNI_152;
+    else if( ref == StandardReferentials::talairachReferential() )
+      return NIFTI_XFORM_TALAIRACH;
     else
       return NIFTI_XFORM_UNKNOWN;
     // In the case of StandardReferentials::acPcReferential() we do NOT want to
