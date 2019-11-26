@@ -1711,8 +1711,7 @@ namespace soma
                                              debug_transforms);
     bool s2moriented = nifti_is_s2m_oriented(s2m, nim,
                                              nifti_strong_orientation);
-    if( !s2moriented && ( nim->qform_code == NIFTI_XFORM_UNKNOWN
-                          || !allow_orientation_change ) )
+    if( !s2moriented && !allow_orientation_change )
     {
       // FIXME It would be better to search the list of transformations for a
       // transformation that has the correct orientation and put it first, only
@@ -1734,16 +1733,19 @@ namespace soma
 
       t2.insert( t2.begin(), NIs2m_aims.toVector() );
       r2.insert( r2.begin(), NiftiReferential( NIFTI_XFORM_SCANNER_ANAT ) );
+
+      store_transformations_as_qform_and_sform(referentials2,
+                                               transformations2,
+                                               nim, voxsz, s2m, tvs,
+                                               debug_transforms);
+      s2moriented = nifti_is_s2m_oriented(s2m, nim,
+                                          nifti_strong_orientation);
     }
 
-    store_transformations_as_qform_and_sform(referentials2,
-                                             transformations2,
-                                             nim, voxsz, s2m, tvs,
-                                             debug_transforms);
-    if(!nifti_is_s2m_oriented(s2m, nim, nifti_strong_orientation)) {
-      std::clog << "somanifti warning: the orientation of the saved Nifti "
-                   "file (storage_to_memory) will be different when it is "
-                   "loaded back." << std::endl;
+    if(!s2moriented) {
+      std::clog << "somanifti warning: the data of the saved Nifti file "
+                   "will be loaded in a different in-memory order "
+                   "when opened by somanifti." << std::endl;
       if(!allow_orientation_change) {
         // this should never happen
         throw std::logic_error("somanifti failed to preserve s2m orientation");
