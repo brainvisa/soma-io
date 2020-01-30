@@ -144,12 +144,16 @@ namespace soma
     else if( ref 
         == "Coordinates aligned to another file or to anatomical truth" )
       return NIFTI_XFORM_ALIGNED_ANAT;
-    else if( ref == StandardReferentials::acPcReferential() )
-      return NIFTI_XFORM_TALAIRACH;
     else if( ref == StandardReferentials::mniTemplateReferential() )
       return NIFTI_XFORM_MNI_152;
+    else if( ref == StandardReferentials::talairachReferential() )
+      return NIFTI_XFORM_TALAIRACH;
     else
       return NIFTI_XFORM_UNKNOWN;
+    // In the case of StandardReferentials::acPcReferential() we do NOT want to
+    // return NIFTI_XFORM_TALAIRACH, because these referential have inverse
+    // orientation (the former is using LPI+, the AIMS convention, while the
+    // latter is using RAS+, the convention from the 1988 Talairach atlas).
   }
 }
 
@@ -668,6 +672,9 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     sto_xyz = sto_xyz  * ( vsM * s2m ).inverse();
     transformations.push_back( sto_xyz.toVector() );
   }
+
+  // TODO if qform and sform encode the same transformation up to numerical
+  // precision, add the transformation only once?
 
   hdr->setProperty( "referentials", referentials );
   hdr->setProperty( "transformations", transformations );

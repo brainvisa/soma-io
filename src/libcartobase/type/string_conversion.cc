@@ -633,4 +633,83 @@ bool isFloat( const string & s )
   return( *end == 0 );
 }
 
+
+string quotedString( const string & s, char *quote, bool with_quotes )
+{
+  char q2[] = " ";
+  if( !quote )
+  {
+    quote = q2;
+    quote[0] = '\0';
+  }
+  char & quoteChar = quote[0];
+  string x = s;
+  unsigned	i, n = x.length();
+  for( i=0; i!=n; ++i )
+    if( x[i] < 32 ) // or negative (>= 0x80)
+    {
+      unsigned char x1 = static_cast<unsigned char>( x[i] ) >> 4;
+      if( x1 >= 10 )
+        x1 = 'a' + x1 -10;
+      else
+        x1 = '0' + x1;
+      char x2 = x[i] & 0xf;
+      if( x2 >= 10 )
+        x2 = 'a' + x2 -10;
+      else
+        x2 = '0' + x2;
+      string rep = "\\x";
+      rep += x1;
+      rep += x2;
+      x.replace( i, 1, rep );
+      i += 3;
+      n += 3;
+    }
+    else
+      switch( x[i] )
+      {
+      case '\'':
+        if( quoteChar == '\0' )
+          quoteChar = '"';
+        if( quoteChar == '\'' )
+        {
+          x.insert( i, "\\" );
+          ++n;
+          ++i;
+        }
+        break;
+      case '"':
+        if( quoteChar == '\0' )
+          quoteChar = '\'';
+        if( quoteChar == '"' )
+        {
+          x.insert( i, "\\" );
+          ++n;
+          ++i;
+        }
+        break;
+      case '\\':
+        x.insert( i, "\\" );
+        ++n;
+        ++i;
+        break;
+      case '\n':
+        x.replace( i, 1, "\\n" );
+        ++n;
+        ++i;
+        break;
+      default:
+        break;
+      }
+  if( quoteChar == '\0' )
+    quoteChar = '"';
+  if( with_quotes )
+  {
+    char q[] = " ";
+    q[0] = quoteChar;
+    x = string( q ) + x + string( q );
+  }
+  return x;
+}
+
 }

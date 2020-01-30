@@ -558,6 +558,13 @@ void store_transformations_as_qform_and_sform(
       AffineTransformation3dBase mot( mv[i] );
       std::string ref = referentials->getArrayItem(i)->getString();
 
+      int xform_code = NiftiReferential( ref );
+      if( xform_code == NIFTI_XFORM_UNKNOWN ) {
+        // There is no NIfTI code for this referential, ignore this
+        // transformation.
+        continue;
+      }
+
       std::vector<float> m = (mot * voxsz * s2m).toVector();
       mat44 R;
 
@@ -566,20 +573,21 @@ void store_transformations_as_qform_and_sform(
           R.m[x][j] = m[j+4*x];
 
       bool stored_as_qform = false;
-      int xform_code = NiftiReferential( ref );
 
-      QformParams qform_params;
-      qform_params.from_mat44(R);
-      // check if the matrix can actually be stored as a quaternion
-      bool can_be_stored_as_qform = qform_params.matches_mat44(R, tvs);
-      if( can_be_stored_as_qform && nim->qform_code == NIFTI_XFORM_UNKNOWN )
-      {
-        stored_as_qform = true;
-        qform_params.store_to_nifti_image(nim);
-        nim->qform_code = xform_code;
-        if(debug_transforms) {
-          std::clog << "somanifti: storing transform "
-                    << i + 1 << " / " << nt << " as qform." << std::endl;
+      if( nim->qform_code == NIFTI_XFORM_UNKNOWN ) {
+        QformParams qform_params;
+        qform_params.from_mat44(R);
+        // check if the matrix can actually be stored as a quaternion
+        bool can_be_stored_as_qform = qform_params.matches_mat44(R, tvs);
+        if( can_be_stored_as_qform )
+        {
+          stored_as_qform = true;
+          qform_params.store_to_nifti_image(nim);
+          nim->qform_code = xform_code;
+          if(debug_transforms) {
+            std::clog << "somanifti: storing transform "
+                      << i + 1 << " / " << nt << " as qform." << std::endl;
+          }
         }
       }
 
@@ -605,8 +613,15 @@ void store_transformations_as_qform_and_sform(
           for( int j=0; j<4; ++j )
             nim->sto_xyz.m[x][j] = m[j+x*4];
       } else if( !stored_as_qform ) {
-        std::clog << "somanifti warning: could not save transformation "
-                  << i + 1 << " / " << nt << "." << std::endl;
+        // This warning, even though it could be useful even for people who do
+        // not want to debug the transformations, often confuses people because
+        // it pops up in red in the middle of BrainVISA processes. We could
+        // make it optional, but there is not really a good way of passing the
+        // option (Writer options, carto::verbose, header field?).
+        if(debug_transforms) {
+          std::clog << "somanifti warning: could not save transformation "
+                    << i + 1 << " / " << nt << "." << std::endl;
+        }
       }
     }
   }
@@ -1714,8 +1729,7 @@ namespace soma
                                              debug_transforms);
     bool s2moriented = nifti_is_s2m_oriented(s2m, nim,
                                              nifti_strong_orientation);
-    if( !s2moriented && ( nim->qform_code == NIFTI_XFORM_UNKNOWN
-                          || !allow_orientation_change ) )
+    if( !s2moriented && !allow_orientation_change )
     {
       // FIXME It would be better to search the list of transformations for a
       // transformation that has the correct orientation and put it first, only
@@ -1737,16 +1751,19 @@ namespace soma
 
       t2.insert( t2.begin(), NIs2m_aims.toVector() );
       r2.insert( r2.begin(), NiftiReferential( NIFTI_XFORM_SCANNER_ANAT ) );
+
+      store_transformations_as_qform_and_sform(referentials2,
+                                               transformations2,
+                                               nim, voxsz, s2m, tvs,
+                                               debug_transforms);
+      s2moriented = nifti_is_s2m_oriented(s2m, nim,
+                                          nifti_strong_orientation);
     }
 
-    store_transformations_as_qform_and_sform(referentials2,
-                                             transformations2,
-                                             nim, voxsz, s2m, tvs,
-                                             debug_transforms);
-    if(!nifti_is_s2m_oriented(s2m, nim, nifti_strong_orientation)) {
-      std::clog << "somanifti warning: the orientation of the saved Nifti "
-                   "file (storage_to_memory) will be different when it is "
-                   "loaded back." << std::endl;
+    if(!s2moriented) {
+      std::clog << "somanifti warning: the data of the saved Nifti file "
+                   "will be loaded in a different in-memory order "
+                   "when opened by somanifti." << std::endl;
       if(!allow_orientation_change) {
         // this should never happen
         throw std::logic_error("somanifti failed to preserve s2m orientation");
