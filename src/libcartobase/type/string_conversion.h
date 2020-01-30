@@ -284,6 +284,9 @@ void stringTo< float >( const std::string& value, float& result );
 template <>
 void stringTo< bool >( const std::string& value, bool& result );
 
+std::string quotedString( const std::string & s, char *quote = 0,
+                          bool with_quotes = true );
+
 
 } // namespace carto
 
