@@ -110,6 +110,14 @@ namespace carto
     { return get() == x.get(); }
     bool operator == ( const weak_ptr<T> & x ) const
     { return get() == x.get(); }
+    bool operator != ( const T* x ) const
+    { return get() != x; }
+    bool operator != ( const weak_shared_ptr<T> & x ) const
+    { return weak_ptr<T>::operator != (x); }
+    bool operator != ( const rc_ptr<T> & x ) const
+    { return get() != x.get(); }
+    bool operator != ( const weak_ptr<T> & x ) const
+    { return get() != x.get(); }
     bool operator < ( const weak_shared_ptr<T> & x ) const
     { return weak_ptr<T>::operator < (x); }
     bool operator < ( const rc_ptr<T> & x ) const
@@ -169,6 +177,16 @@ namespace carto
     { return this->weak_ptr<T>::get() == x.get(); }
     bool operator == ( const weak_shared_ptr<T> & x ) const
     { return this->weak_ptr<T>::get() == x.get(); }
+    bool operator != ( const shared_ptr<T> & x ) const
+    { return weak_ptr<T>::operator != (x); }
+    bool operator != ( const T* x ) const
+    { return this->weak_ptr<T>::get() != x; }
+    bool operator != ( const rc_ptr<T> & x ) const
+    { return this->weak_ptr<T>::get() != x.get(); }
+    bool operator != ( const weak_ptr<T> & x ) const
+    { return this->weak_ptr<T>::get() != x.get(); }
+    bool operator != ( const weak_shared_ptr<T> & x ) const
+    { return this->weak_ptr<T>::get() != x.get(); }
     bool operator < ( const shared_ptr<T> & x ) const
     { return weak_ptr<T>::operator < (x); }
     bool operator < ( const rc_ptr<T> & x ) const
