@@ -284,6 +284,19 @@ void stringTo< float >( const std::string& value, float& result );
 template <>
 void stringTo< bool >( const std::string& value, bool& result );
 
+/**
+   Quote a string in python style: escape quotes (single and double), depending
+   on a quote character. Non-ascii chars are represented as "\x00".
+
+   If \param quote is not specified the quote delimiter is determined
+   automatically (" if no other double quote is found in the string, or ' otherwise).
+
+   If \param with_quotes is true (the default) the resulting string will
+   include leading and ending quotes.
+ */
+std::string quotedString( const std::string & s, char *quote = 0,
+                          bool with_quotes = true );
+
 
 } // namespace carto
 
