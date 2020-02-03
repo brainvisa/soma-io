@@ -246,6 +246,14 @@ class weak_ptr
     { return pointee == x.get(); }
     bool operator == ( const shared_ptr<T> & x ) const
     { return pointee == x.get(); }
+    bool operator != ( const weak_ptr<T> & x ) const
+    { return pointee != x.get(); }
+    bool operator != ( const weak_shared_ptr<T> & x ) const
+    { return pointee != x.get(); }
+    bool operator != ( const rc_ptr<T> & x ) const
+    { return pointee != x.get(); }
+    bool operator != ( const shared_ptr<T> & x ) const
+    { return pointee != x.get(); }
     bool operator < ( const weak_ptr<T> & x ) const
     { return pointee < x.get(); }
     bool operator < ( const weak_shared_ptr<T> & x ) const
