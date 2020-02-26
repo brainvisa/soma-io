@@ -6,7 +6,7 @@ import collections
 from .docscrape import NumpyDocString, FunctionDoc, ClassDoc
 import six
 
-sixu = lambda s: six.text_type(s, 'unicode_escape')
+sixu = six.u
 
 
 class SphinxDocString(NumpyDocString):

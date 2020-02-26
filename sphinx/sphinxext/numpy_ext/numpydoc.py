@@ -29,7 +29,7 @@ if sphinx.__version__ < '1.0.1':
 from .docscrape_sphinx import get_doc_object, SphinxDocString
 from sphinx.util.compat import Directive
 
-sixu = lambda s: six.text_type(s, 'unicode_escape')
+sixu = six.u
 
 
 def mangle_docstrings(app, what, name, obj, options, lines,
