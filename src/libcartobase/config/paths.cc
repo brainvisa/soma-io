@@ -39,6 +39,7 @@
 #include <iterator>
 #include <algorithm>
 #include <cstdlib>
+#include <vector>
 #ifdef USE_SHARE_CONFIG
 #include <brainvisa-share/config.h>
 #endif
@@ -116,31 +117,33 @@ const string & Paths::tempDir()
   static string	_memmap;
 
   if( _memmap.empty() )
+  {
+    vector<string> searchpaths(4);
+    searchpaths[0] = "AIMS_MM_PATH";
+    searchpaths[1] = "TMPDIR";
+    searchpaths[2] = "TEMP";
+    searchpaths[3] = "TMP";
+    const char* mm_path = getenv( "AIMS_MM_PATH" );
+
+    for( unsigned i=0; i<searchpaths.size(); ++i )
     {
-      const char* mm_path = getenv( "AIMS_MM_PATH" );
-      if ( mm_path )
+      mm_path = getenv( searchpaths[i].c_str() );
+      if( mm_path )
+      {
         _memmap = mm_path;
-      else
-        {
-          mm_path = getenv( "TEMP" );
-          if( ! mm_path )
-            {
-              mm_path = getenv( "TMP" );
-              if( !mm_path )
-                {
-#ifdef _WIN32
-                  _memmap = "C:\\windows\\temp";
-#else
-                  _memmap = "/tmp";
-#endif
-                }
-              else
-                _memmap = mm_path;
-            }
-          else
-            _memmap = mm_path;
-        }
+        break;
+      }
     }
+
+    if( !mm_path )
+    {
+#ifdef _WIN32
+      _memmap = "C:\\windows\\temp";
+#else
+      _memmap = "/tmp";
+#endif
+    }
+  }
 
   return _memmap;
 }
