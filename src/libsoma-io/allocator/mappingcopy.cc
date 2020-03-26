@@ -73,7 +73,6 @@ MappingCopyAllocator::~MappingCopyAllocator()
   _allocptr() = 0;
 }
 
-
 char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 {
   cout << "Memory mapping with copy mode used - please be patient...\n";
@@ -111,26 +110,29 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
       // pointed to by fname.c_str() is forbidden by the C++ standard
       int	fildest = mkstemp( const_cast<char *>( fileName.c_str() ) );
       if ( fildest != -1 )
-	{
+        {
           // unlink file to ensure it will be deleted after usage
           unlink( fileName.c_str() );
-	  if ( fchmod( fildest, S_IRUSR | S_IWUSR | S_IWGRP | S_IWOTH ) != -1 )
-	    {
-	      if ( ftruncate( fildest, n * sz ) != -1 )
-		{
-		  buffer = static_cast<char *>(
-			     mmap( 0, n * sz,
-				   PROT_READ | PROT_WRITE, MAP_SHARED,
-				   fildest, 0 ) );
-		  if( buffer != MAP_FAILED )
+          if( fchmod( fildest, S_IRUSR | S_IWUSR | S_IWGRP | S_IWOTH ) != -1 )
+            {
+              // ftruncate() apparently returns success even if the disk is
+              // full and cannot actually contain the file.
+              // So we are now using posix_fallocate().
+              if( posix_fallocate( fildest, 0, n * sz ) == 0 )
+                {
+                  buffer = static_cast<char *>(
+                              mmap( 0, n * sz,
+                                    PROT_READ | PROT_WRITE, MAP_SHARED,
+                                    fildest, 0 ) );
+                  if( buffer != MAP_FAILED )
                     {
-		      _mapname[ buffer ] = fileName;
-		      _mapDesc[ buffer ] = fildest;
+                      _mapname[ buffer ] = fileName;
+                      _mapDesc[ buffer ] = fildest;
 #ifdef _ALLOCATOR_VERBOSE_
-		      cout << singleton() << endl;
+                      cout << singleton() << endl;
 #endif
-		      return buffer;
-		    }
+                      return buffer;
+                    }
                   int err = errno;
                   ostringstream	ss;
                   ss << "memory mapping failed for "
@@ -139,20 +141,20 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
                   if( err == ENOMEM )
                     cerr << "Not enough memory left (or addressable)" << endl;
                   return 0;
-		}
-	    }
-	  close( fildest );
-	  /* Ici on ne peut faire un throw car il est trapp� comme une erreur 
-             de format. */
-	  cerr << "truncate failed on  " << fileName << " !" << endl;
-	  return 0; // this error is not managed by caller... !!
-	}
-      else 
-	{
-	  /* Ici on ne peut faire un throw car il est trapp� comme une erreur 
-             de format. */
-	  cerr << "unable to open " << fileName << " !" << endl;    
-	}
+                }
+            }
+          close( fildest );
+          /* Here we cannot throw an exception since it will be trapped as a
+             format error. */
+          cerr << "mmap file allocate failed on  " << fileName << " !" << endl;
+          return 0; // this error is not managed by caller... !!
+        }
+      else
+        {
+          /* Here we cannot throw an exception since it will be trapped as a
+             format error. */
+          cerr << "unable to open " << fileName << " !" << endl;
+        }
     }
 
   return 0;
