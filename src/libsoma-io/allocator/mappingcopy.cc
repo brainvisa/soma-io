@@ -43,13 +43,21 @@
 #include <iostream>
 #include <stdlib.h>
 #include <errno.h>
+
+#if defined(_XOPEN_SOURCE) && defined(_POSIX_C_SOURCE) \
+  && (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
+  #define USE_POSIX_FALLOCATE
+#endif
+
 #ifndef _WIN32
+  // Why this undef ? This is probably breaking things
   #undef _XOPEN_SOURCE
   #include <sys/mman.h>                                                 // sys
   #include <unistd.h>
 #endif
 #include <sys/types.h>                                                  // sys
 #include <sys/stat.h>                                                   // sys
+// redefines _XOPEN_SOURCE but loses its former value
 #define _XOPEN_SOURCE
 #include <fcntl.h>
 #include <stdio.h>
@@ -117,8 +125,13 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
             {
               // ftruncate() apparently returns success even if the disk is
               // full and cannot actually contain the file.
-              // So we are now using posix_fallocate().
+              // So we are now using posix_fallocate() when possible.
+#ifdef USE_POSIX_FALLOCATE
               if( posix_fallocate( fildest, 0, n * sz ) == 0 )
+#else
+              // but posix_fallocate is not available on all systems
+              if ( ftruncate( fildest, n * sz ) != -1 )
+#endif
                 {
                   buffer = static_cast<char *>(
                               mmap( 0, n * sz,

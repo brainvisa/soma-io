@@ -230,7 +230,7 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
             inter = ds.RescaleIntercept
             if modality == 'PT' and \
                ds.Units == 'CNTS' and \
-               ds.Manufacturer == 'Philips Medical Systems':
+               ds.get('Manufacturer') == 'Philips Medical Systems':
                 if args.suv:
                     scale_factor = ds[ 0x7053,0x1000 ].value
                 else:
@@ -430,7 +430,7 @@ def convert_to_nifti_MR( serie,  remove_corrupt_tags=True):
       outfiles.append(outfile)
 
   # disapply rescaleSlope for Philips data
-  if ds.Manufacturer == 'Philips Medical Systems':
+  if ds.get('Manufacturer') == 'Philips Medical Systems':
 
     rescaleSlope = 1.
     rescaleIntercept = 0
