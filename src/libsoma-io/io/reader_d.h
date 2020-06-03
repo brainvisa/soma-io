@@ -261,27 +261,42 @@ namespace soma
     }
     _alloccontext.setDataSourceInfo( _datasourceinfo );
 
-    std::string	format;
+    std::string format;
     if( !_options->getProperty( "format", format )
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
-    localMsg( "format: " + format + " for file: " + uri );
+
+    localMsg( "using format " + format + " for file: " + uri );
 
     //// Reading data ////////////////////////////////////////////////////////
-    set_S                        tried;
-    std::set<FormatReader<T> *>  triedf;
-    FormatReader<T>              *reader;
-    std::unique_ptr<FormatReader<T> >   readerc;
-    set_S::iterator	             notyet = tried.end();
-    typename std::set<FormatReader<T> *>::iterator	notyetf = triedf.end();
-    int          excp = 0;
-    int          exct = -1;
-    std::string  excm;
+    set_S                                          tried;
+    std::set<FormatReader<T> *>                    triedf;
+    FormatReader<T> *                              reader;
+    std::unique_ptr<FormatReader<T> >              readerc;
+    set_S::iterator                                notyet = tried.end();
+    typename std::set<FormatReader<T> *>::iterator notyetf = triedf.end();
+    int                                            excp = 0;
+    int                                            exct = -1;
+    std::string                                    excm;
+    
+    localMsg( "trying to find readers using pass range: [" + carto::toString(passbegin) 
+            + "-"  + carto::toString(passend) + "]" );
 
+#ifdef CARTO_DEBUG
+    std::set<std::string> read_formats = FormatDictionary<T>::readFormats();
+    std::set<std::string>::const_iterator fit, fie = read_formats.end();
+    
+    localMsg( "registered formats for <" + carto::DataTypeCode<T>::name() + ">:");
+    for(fit = read_formats.begin(); fit!=fie; ++fit)
+        localMsg("  - " + *fit);
+#endif
+    
     //// Pass1 : priority to format hint /////////////////////////////////////
     if( passbegin <= 1 && passend >=1 && !format.empty() )
     {
+      localMsg( "1. try to find reader of " + format + " for file: " + uri );
       reader = FormatDictionary<T>::readFormat( format );
+      localMsg( "1. reader found " + carto::toString(reader) );
       if( reader )
       {
         try {
@@ -301,19 +316,22 @@ namespace soma
       }
     }
 
-    std::string	ext = carto::FileUtil::extension( filename );
-    const multi_S	& extensions = FormatDictionary<T>::readExtensions();
-    pair_cit_S	             iext;
+    std::string              ext = carto::FileUtil::extension( filename );
+    const multi_S &          extensions = FormatDictionary<T>::readExtensions();
+    pair_cit_S               iext;
     multi_S::const_iterator  ie, ee;
 
     //// Pass 2 : try every matching format until one works //////////////////
     if( passbegin <= 2 && passend >=2 )
     {
+      localMsg( "2. try to find reader using extension " + ext + " for file: " + uri );
       iext = extensions.equal_range( ext );
       for( ie=iext.first, ee = iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet )
+        if( tried.find( ie->second ) == notyet )
         {
+          localMsg( "2. try to find reader of " + ie->second + " for file: " + uri );
           reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "2. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf ) {
             try {
               localMsg( "2. try reader " + ie->second );
@@ -337,10 +355,13 @@ namespace soma
     //// Pass 3 : not found or none works: try readers with no extension /////
     if( passbegin <= 3 && passend >= 3 && !ext.empty())
     {
+      localMsg( "3. try to find reader using no extension for file: " + uri );
       iext = extensions.equal_range( "" );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
+        if( tried.find( ie->second ) == notyet ) {
+          localMsg( "3. try to find reader of " + ie->second + " for file: " + uri );
           reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "3. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf )
           {
             try {
@@ -365,11 +386,14 @@ namespace soma
     //// Pass 4 : still not found ? well, try EVERY format this time... //////
     if( passbegin <= 4 && passend >= 4 )
     {
+      localMsg( "4. try every reader for file: " + uri );
       iext.first = extensions.begin();
       iext.second = extensions.end();
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
+        if( tried.find( ie->second ) == notyet ) {
+          localMsg( "4. try to find reader of " + ie->second + " for file: " + uri );
           reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "4. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf )
           {
             try {
@@ -436,24 +460,38 @@ namespace soma
         && !_datasourceinfo->header()->getProperty( "format", format ) )
       _datasourceinfo->header()->getProperty( "file_type", format );
 
-    localMsg( "format: " + format + " for file: " + uri );
+    localMsg( "using format " + format + " for file: " + uri );
 
     //// Reading data ////////////////////////////////////////////////////////
-    set_S                         tried;
-    std::set<FormatReader<T> *>   triedf;
-    FormatReader<T>               *reader;
-    std::unique_ptr<FormatReader<T> >    readerc;
-    set_S::iterator               notyet = tried.end();
-    typename std::set<FormatReader<T> *>::iterator  notyetf = triedf.end();
-    T            *obj;
-    int          excp = 0;
-    int          exct = -1;
-    std::string  excm;
+    set_S                                          tried;
+    std::set<FormatReader<T> *>                    triedf;
+    FormatReader<T> *                              reader;
+    std::unique_ptr<FormatReader<T> >              readerc;
+    set_S::iterator                                notyet = tried.end();
+    typename std::set<FormatReader<T> *>::iterator notyetf = triedf.end();
+    T *                                            obj;
+    int                                            excp = 0;
+    int                                            exct = -1;
+    std::string                                    excm;
+    
+    localMsg( "trying to find readers using pass range: [" + carto::toString(passbegin) 
+            + "-"  + carto::toString(passend) + "]" );
 
+#ifdef CARTO_DEBUG
+    std::set<std::string> read_formats = FormatDictionary<T>::readFormats();
+    std::set<std::string>::const_iterator fit, fie = read_formats.end();
+    
+    localMsg( "registered formats for <" + carto::DataTypeCode<T>::name() + ">:");
+    for(fit = read_formats.begin(); fit!=fie; ++fit)
+        localMsg("  - " + *fit);
+#endif
+    
     //// Pass 1 : prioroty to format hint ////////////////////////////////////
     if( passbegin <= 1 && passend >= 1 && !format.empty() )
     {
+      localMsg( "1. try to find reader of " + format + " for file: " + uri );
       reader = FormatDictionary<T>::readFormat( format );
+      localMsg( "1. reader found " + carto::toString(reader) );
       if( reader )
       {
         try
@@ -488,12 +526,15 @@ namespace soma
     //// Pass 2 : try every matching format until one works //////////////////
     if( passbegin <= 2 && passend >= 2 )
     {
+      localMsg( "2. try to find reader using extension " + ext + " for file: " + uri );
       iext = extensions.equal_range( ext );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
       {
-        if( tried.find( (*ie).second ) == notyet )
+        if( tried.find( ie->second ) == notyet )
         {
-          reader = FormatDictionary<T>::readFormat( (*ie).second );
+          localMsg( "2. try to find reader of " + ie->second + " for file: " + uri );
+          reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "2. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf )
           {
             try
@@ -523,10 +564,13 @@ namespace soma
     //// Pass 3 : not found or none works: try readers with no extension /////
     if( passbegin <= 3 && passend >= 3 && !ext.empty() )
     {
+      localMsg( "3. try to find reader using no extension for file: " + uri );
       iext = extensions.equal_range( "" );
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
-          reader = FormatDictionary<T>::readFormat( (*ie).second );
+        if( tried.find( ie->second ) == notyet ) {
+          localMsg( "3. try to find reader of " + ie->second + " for file: " + uri );
+          reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "3. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf )
           {
             try {
@@ -552,11 +596,14 @@ namespace soma
     //// Pass 4 : still not found ? well, try EVERY format this time... //////
     if( passbegin <= 4 && passend >= 4 )
     {
+      localMsg( "4. try every reader for file: " + uri );
       iext.first = extensions.begin();
       iext.second = extensions.end();
       for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( (*ie).second ) == notyet ) {
+        if( tried.find( ie->second ) == notyet ) {
+          localMsg( "4. try to find reader of " + ie->second + " for file: " + uri );
           reader = FormatDictionary<T>::readFormat( ie->second );
+          localMsg( "4. reader found " + carto::toString(reader) );
           if( reader && triedf.find( reader ) == notyetf )
           {
             try {

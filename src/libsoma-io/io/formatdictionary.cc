@@ -47,12 +47,6 @@ using namespace std;
 void IOObjectTypesDictionary::registerReadType( const string & datatype, 
                                                 FormatInfo info )
 {
-  /*cout << "registerReadType: " << objtype << ", " << datatype << " : ";
-  set<string>	ss = info();
-  set<string>::iterator	is, es = ss.end();
-  for( is=ss.begin(); is!=es; ++is )
-    cout << *is << " ";
-    cout << endl;*/
   readTypes()[ datatype ] = info;
 }
 
@@ -98,3 +92,4 @@ bool IOObjectTypesDictionary::hasWriteType( const string & datatype )
     i = t.find( datatype );
   return( i != t.end() );
 }
+

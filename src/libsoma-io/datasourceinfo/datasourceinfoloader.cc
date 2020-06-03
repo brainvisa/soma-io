@@ -294,8 +294,11 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
 
   // If dsi already complete : returns it ////////////////////////////////////
   std::string format;
-  if( options.get() )                                           // try options
+  if( options.get() ) {                                           // try options
     options->getProperty( "format", format );
+    localMsg( "options format: " + format );
+  }
+  
   if( !dsi.header().isNone()
       && dsi.capabilities().isInit() 
       && dsi.list().typecount() > 1
@@ -338,7 +341,7 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
         exts.push_front( ext + "." + *exts.begin() );
       else
         exts.push_front( ext );
-      localMsg( "ext : " + ext );
+      localMsg( "ext: " + ext );
       cut_url = cut_url.substr( 0, cut_url.length() - 1 - ext.length() );
     }
   }
@@ -372,10 +375,16 @@ DataSourceInfo DataSourceInfoLoader::check( DataSourceInfo dsi,
    **************************************************************************/
 
   //// Pass 0 : priority to format hint //////////////////////////////////////
-  if( format.empty() && dsi.header() )                           // try header
+  if( format.empty() && dsi.header() ) {                           // try header
     dsi.header()->getProperty( "format", format );
-  if( format.empty() && dsi.header() )                  // try deprecated name
+    localMsg( "header format property: " + format );
+  }
+  
+  if( format.empty() && dsi.header() ) {                           // try deprecated name
     dsi.header()->getProperty( "file_type", format );
+    localMsg( "header file_type property: " + format );
+  }
+  
   localMsg( "format: " + format );
 
   if( passbegin <= 0 && passend >= 0 && !format.empty() )

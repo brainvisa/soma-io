@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #  This software and supporting documentation are distributed by
 #      Institut Federatif de Recherche 49
@@ -32,7 +32,13 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL license version 2 and that you accept its terms.
 
-import os, shutil, hashlib, string, glob
+from __future__ import absolute_import
+from __future__ import print_function
+import os
+import shutil
+import hashlib
+import string
+import glob
 import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
@@ -47,82 +53,90 @@ import argparse
 from soma.dicom import aggregator
 import subprocess
 from soma.minf.api import readMinf
+import six
+from six.moves import range
+
 
 def get_mcverter():
-    mcverter_exist_dic = { 'mcverter' : False, 'mcverter_x64' : False }
+    mcverter_exist_dic = {'mcverter': False, 'mcverter_x64': False}
 
-    for dir in os.environ.get( "PATH", "" ).split( os.pathsep ):
+    for dir in os.environ.get("PATH", "").split(os.pathsep):
         for mcverter in mcverter_exist_dic.keys():
-            if not mcverter_exist_dic[ mcverter ] and \
-               os.path.exists( os.path.join( dir, mcverter ) ):
-                mcverter_exist_dic[ mcverter ] = True
+            if not mcverter_exist_dic[mcverter] and \
+               os.path.exists(os.path.join(dir, mcverter)):
+                mcverter_exist_dic[mcverter] = True
 
     processortype = platform.architecture()[0]
     if processortype == '64bit' and \
-        mcverter_exist_dic[ 'mcverter_x64' ]:
+            mcverter_exist_dic['mcverter_x64']:
         return 'mcverter_x64'
-    elif mcverter_exist_dic[ 'mcverter' ]:
+    elif mcverter_exist_dic['mcverter']:
         return 'mcverter'
 
     return ''
 
-def make_valid_filename( filename ):
+
+def make_valid_filename(filename):
     valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
-    return ''.join( c for c in filename.replace( ' ', '_' ) if c in valid_chars )
+    return ''.join(c for c in filename.replace(' ', '_') if c in valid_chars)
 
-def findSharedFile( filename ):
 
-    for dir in sorted( glob.glob( os.path.join( *(
-                split_path( soma.__file__ )[:-3] + [ 'share', 'soma-*' ]) ) ) ):
-        if os.path.exists( dir ):
-            filepath = os.path.join( dir, filename )
-            if os.path.exists( filepath ):
+def findSharedFile(filename):
+
+    for dir in sorted(glob.glob(os.path.join(*(
+            split_path(soma.__file__)[:-3] + ['share', 'soma-*'])))):
+        if os.path.exists(dir):
+            filepath = os.path.join(dir, filename)
+            if os.path.exists(filepath):
                 return filepath
 
-def get_start_and_duration_times( serie ):
+
+def get_start_and_duration_times(serie):
     stdt = {}
     for f in serie:
-        ds = dicom.read_file( f )
+        ds = dicom.read_file(f)
         try:
             if ds.Modality != 'PT':
                 return None
 
             acq_time = ds.AcquisitionTime
-            if not stdt.has_key( acq_time ):
-                stdt.update( { acq_time : ds.ActualFrameDuration } )
+            if acq_time not in stdt and ds.ActualFrameDuration:
+                stdt.update({acq_time: ds.ActualFrameDuration})
         except:
             pass
 
-    if len( stdt ) == 0:
+    if len(stdt) == 0:
         return None
 
-    def conv_acqtime_to_msec( acq_time ):
-        if len( acq_time ) < 6:
+    def conv_acqtime_to_msec(acq_time):
+        if len(acq_time) < 6:
             return None
-        msec = int( acq_time[:2] ) * 3600 + \
-               int( acq_time[2:4] )*60 + \
-               int( acq_time[4:6] )
+        msec = int(acq_time[:2]) * 3600 + \
+            int(acq_time[2:4])*60 + \
+            int(acq_time[4:6])
         msec *= 1000
-        if len( acq_time ) > 6:
-            msec += int( acq_time[7:] ) / 1000
+        if len(acq_time) > 6:
+            msec += int(acq_time[7:]) / 1000
         return msec
 
-    first_time = conv_acqtime_to_msec( min(stdt) )
+    first_time = conv_acqtime_to_msec(min(stdt))
     start_times = []
     duration_times = []
-    for s, d in sorted( stdt.iteritems() ):
-        start_times.append( conv_acqtime_to_msec( s ) - first_time )
-        duration_times.append( int( d ) )
+    for s, d in sorted(six.iteritems(stdt)):
+        start_times.append(conv_acqtime_to_msec(s) - first_time)
+        duration_times.append(int(d))
 
-    return { 'start_time' : start_times, 'duration_time' : duration_times }
+    return {'start_time': start_times, 'duration_time': duration_times}
+
 
 def check_transfer_syntax_uid(dicomFile):
     if dicom.__version__ > "0.9.5":
         is_endian = True
         try:
-            #Encrypted Content Transfer Syntax UID
+            # Encrypted Content Transfer Syntax UID
             df = dicom.filereader
-            transfer_uid = df.read_file_meta_info(dicomFile)[(0x002,0x010)].value
+            transfer_uid = df.read_file_meta_info(
+                dicomFile)[(0x002, 0x010)].value
             if transfer_uid == dicom.UID.ExplicitVRBigEndian:
                 is_big_endian = True
             elif transfer_uid in [dicom.UID.DeflatedExplicitVRLittleEndian,
@@ -132,7 +146,8 @@ def check_transfer_syntax_uid(dicomFile):
             else:
                 is_endian = False
         except:
-            raise ValueError("\"Encrypted Content Transfer Syntax UID\" not found")
+            raise ValueError(
+                "\"Encrypted Content Transfer Syntax UID\" not found")
     else:
         is_endian = True
         ds = dicom.read_file(dicomFile)
@@ -146,23 +161,26 @@ def check_transfer_syntax_uid(dicomFile):
     else:
         check_jpeg(dicomFile)
 
+
 def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
     if not "JPEG" in ds.file_meta.TransferSyntaxUID.name:
         return
     check_call([which("dcmdjpeg"), dicomFile, dicomFile])
 
+
 def removeCorruptTags(dataset):
-    data_tag_list = list(dataset.viewkeys())
+    data_tag_list = list(six.viewkeys(dataset))
     for tag in data_tag_list:
         try:
             data_element = dataset[tag]
-        except KeyError, e:
+        except KeyError as e:
             print("KeyError: %s" % e)
             print("Tag %s will be erase" % tag)
             dataset.pop(tag)
 
-def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
+
+def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -174,16 +192,16 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
     # Sort 4D DICOM files by time
     for f in serie:
         tempfile = mkstemp(suffix='.dcm')[1]
-        tempfiles.append( tempfile )
+        tempfiles.append(tempfile)
 
         shutil.copy(f, tempfile)
-        os.chmod(tempfile, 0777)
+        os.chmod(tempfile, 0o777)
 
         try:
             check_transfer_syntax_uid(tempfile)
             # check_jpeg(tempfile)
         except OSError:
-            print "The DICOM converter needs DCMTK binaries to convert", f
+            print("The DICOM converter needs DCMTK binaries to convert", f)
 
         ds = dicom.read_file(tempfile)
         if remove_corrupt_tags:
@@ -202,23 +220,27 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
                 pass
 
         if uuid == None and "FrameofReferenceUID" in ds:
-            uuid = hashlib.md5( ds.FrameofReferenceUID ).hexdigest()
+            uuid = hashlib.md5(ds.FrameofReferenceUID.encode('utf-8')).hexdigest()
 
         time = -1
 
         # Check if the current file must be sorted by time
-        if "FrameReferenceTime" in ds:
+        if "FrameReferenceTime" in ds or "AcquisitionTime" in ds:
             try:
-                number_of_time_slices = ds[ 0x0054,0x0101 ].value
+                number_of_time_slices = ds[0x0054, 0x0101].value
                 if number_of_time_slices > 1 and \
-                   ds[ 0x0054,0x0081 ].value != len( serie ):
+                   ds[0x0054, 0x0081].value != len(serie):
                     time = ds.FrameReferenceTime
             except:
-                time = -1
-        if not filesbytime.has_key( time ):
-            filesbytime[ time ] = []
-            indexesbytime[ time ] = []
-            rescaleparamsbytime[ time ] = []
+                time = ds.get("FrameReferenceTime")
+                if not time:
+                    time = ds.get("AcquisitionTime")
+                if not time:
+                    time = -1
+        if time not in filesbytime:
+            filesbytime[time] = []
+            indexesbytime[time] = []
+            rescaleparamsbytime[time] = []
 
         indexesbytime[time].append(ds.ImagePositionPatient[2])
 
@@ -232,43 +254,45 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
                ds.Units == 'CNTS' and \
                ds.get('Manufacturer') == 'Philips Medical Systems':
                 if args.suv:
-                    scale_factor = ds[ 0x7053,0x1000 ].value
+                    scale_factor = ds[0x7053, 0x1000].value
                 else:
-                    scale_factor = ds[ 0x7053,0x1009 ].value
+                    scale_factor = ds[0x7053, 0x1009].value
         except:
             pass
 
-        rescaleparamsbytime[ time ].append( { 'RescaleSlope' : float( slope ), \
-                                              'RescaleIntercept' : float( inter ), \
-                                              'ScaleFactor' : float( scale_factor ) } )
+        rescaleparamsbytime[time].append({'RescaleSlope': float(slope),
+                                          'RescaleIntercept': float(inter),
+                                          'ScaleFactor': float(scale_factor)})
 
         # Reset rescale parameters to be sure there will be
         # no rescale done by the NIfTI converter
         try:
             ds.RescaleSlope = 1
             ds.RescaleIntercept = 0
-            ds[ 0x7053,0x1000 ].value = "1"
-            ds[ 0x7053,0x1009 ].value = "1"
+            ds[0x7053, 0x1000].value = "1"
+            ds[0x7053, 0x1009].value = "1"
         except:
             pass
 
-        ds.save_as( tempfile )
+        ds.save_as(tempfile)
 
-        filesbytime[ time ].append( tempfile )
+        filesbytime[time].append(tempfile)
 
     tmpdirsByTime = {}
-    mcverter_options = [ '-f', 'nifti', '--nii' ]
+    mcverter_options = ['-f', 'nifti', '--nii']
 
     # Convert each file group
-    for t in sorted( filesbytime.keys() ):
+    for t in sorted(filesbytime.keys()):
         # Reorder files by image index
-        sorted_indexes = np.argsort( indexesbytime[t])[::-1]
-        filesbytime[ t ] = list(np.take( filesbytime[ t ], sorted_indexes ))
-        rescaleparamsbytime[ t ] = list(np.take( rescaleparamsbytime[ t ], sorted_indexes ))
+        sorted_indexes = np.argsort(indexesbytime[t])[::-1]
+        filesbytime[t] = list(np.take(filesbytime[t], sorted_indexes))
+        rescaleparamsbytime[t] = list(
+            np.take(rescaleparamsbytime[t], sorted_indexes))
 
         tmpdir = mkdtemp()
-        tmpdirsByTime.update({t: tmpdir })
-        check_call( [ 'bv_unenv', get_mcverter(), '-o', tmpdir ] + mcverter_options + filesbytime[ t ] )
+        tmpdirsByTime.update({t: tmpdir})
+        check_call(['bv_unenv', get_mcverter(), '-o', tmpdir] +
+                   mcverter_options + filesbytime[t])
         try:
             for unneededFile in glob.glob(os.path.join(tmpdir, "*_info.txt")):
                 os.remove(unneededFile)
@@ -276,38 +300,39 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
             pass
 
     try:
-        outfile = os.path.join( args.output, \
-                                     make_valid_filename( \
-                                        ds.PatientsName + '-' + ds.SeriesDate + '-' + \
-                                        modality + '-' + \
-                                        ds.SeriesDescription + '-' + \
-                                        ds.InstitutionName + '.nii' ) )
+        outfile = os.path.join(args.output,
+                               make_valid_filename(
+                                   ds.PatientsName + '-' + ds.SeriesDate + '-' +
+                                   modality + '-' +
+                                   ds.SeriesDescription + '-' +
+                                   ds.InstitutionName + '.nii'))
     except:
         outfile = None
 
     # Merge the 4D series (if necessary) and move the convert files to the output directory
-    outfilesByTime={}
-    if len( filesbytime ) > 1:
+    outfilesByTime = {}
+    if len(filesbytime) > 1:
         convfilesByTime = {}
         for t, d in tmpdirsByTime.items():
-            convfilesByTime.update({t: os.path.join( d, os.listdir( d )[0] ) })
+            convfilesByTime.update({t: os.path.join(d, os.listdir(d)[0])})
 
         if outfile == None:
-          outfile = os.path.join(args.output, os.path.basename(convfilesByTime[sorted(convfilesByTime.keys())[0]]))
+            outfile = os.path.join(args.output, os.path.basename(
+                convfilesByTime[sorted(convfilesByTime.keys())[0]]))
 
         if(mergeDynSeries):
-          check_call( [ 'AimsTCat',
-                      '-o',  outfile,
-                      '-i' ] + convfilesByTime.values() )
-          outfilesByTime.update({-1:[outfile]})
+            check_call(['AimsTCat',
+                        '-o',  outfile,
+                        '-i'] + list(convfilesByTime.values()))
+            outfilesByTime.update({-1: [outfile]})
         else:
-          tIdx = 0
-          for t in sorted(convfilesByTime.keys()):
-            f = convfilesByTime[t]
-            outf = outfile+'_t'+str(tIdx)+'.nii'
-            outfilesByTime.update({t:[outf]})
-            shutil.move(f, outf )
-            tIdx = tIdx+1
+            tIdx = 0
+            for t in sorted(convfilesByTime.keys()):
+                f = convfilesByTime[t]
+                outf = outfile+'_t'+str(tIdx)+'.nii'
+                outfilesByTime.update({t: [outf]})
+                shutil.move(f, outf)
+                tIdx = tIdx+1
 
     else:
         if outfile is not None:
@@ -318,185 +343,192 @@ def convert_to_nifti( serie, mergeDynSeries = True, remove_corrupt_tags=True ):
         outfiles = []
         for f in os.listdir(tmpdir):
             if outfile == None:
-                outfile = os.path.join( args.output, f )
-            shutil.move(os.path.join(tmpdir, f), outfile )
+                outfile = os.path.join(args.output, f)
+            shutil.move(os.path.join(tmpdir, f), outfile)
             outfiles.append(outfile)
-        outfilesByTime.update({-1 : outfiles})
+        outfilesByTime.update({-1: outfiles})
 
     # Clean temporary directories and files
     for d in tmpdirsByTime.values():
-        shutil.rmtree( d )
+        shutil.rmtree(d)
     for f in tempfiles:
-        os.remove( f )
+        os.remove(f)
 
     if uuid != None:
-        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])
+        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16],
+                         uuid[16:20], uuid[20:32]])
 
     # Apply pixel value rescale parameters
     for fileTime, outfiles in outfilesByTime.items():
-      for outfile in outfiles:
-        aims_file = aims.read( outfile )
-        aims_conv = aims.Converter( intype=aims_file, outtype='Volume_FLOAT' )
-        aims_float_file = aims_conv( aims_file )
-        data_arr = np.array( aims_float_file, copy=False )
+        for outfile in outfiles:
+            aims_file = aims.read(outfile)
+            aims_conv = aims.Converter(
+                intype=aims_file, outtype='Volume_FLOAT')
+            aims_float_file = aims_conv(aims_file)
+            data_arr = np.array(aims_float_file, copy=False)
 
-        if(mergeDynSeries):
-          timecpt = 0
-          for t in sorted( filesbytime.keys() ):
-              for i in range( len( rescaleparamsbytime[t] ) ):
-                  data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
-                  data_arr[:,:,i,timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
-                  data_arr[:,:,i,timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
-              timecpt += 1
-        else:
-          for i in range( len( rescaleparamsbytime[fileTime] ) ):
-            data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
-            data_arr[:,:,i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
-            data_arr[:,:,i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
+            if(mergeDynSeries):
+                timecpt = 0
+                for t in sorted(filesbytime.keys()):
+                    for i in range(len(rescaleparamsbytime[t])):
+                        data_arr[:, :, i,
+                                 timecpt] *= rescaleparamsbytime[t][i]['RescaleSlope']
+                        data_arr[:, :, i,
+                                 timecpt] += rescaleparamsbytime[t][i]['RescaleIntercept']
+                        data_arr[:, :, i,
+                                 timecpt] *= rescaleparamsbytime[t][i]['ScaleFactor']
+                    timecpt += 1
+            else:
+                for i in range(len(rescaleparamsbytime[fileTime])):
+                    data_arr[:, :, i] *= rescaleparamsbytime[fileTime][i]['RescaleSlope']
+                    data_arr[:, :, i] += rescaleparamsbytime[fileTime][i]['RescaleIntercept']
+                    data_arr[:, :, i] *= rescaleparamsbytime[fileTime][i]['ScaleFactor']
 
-        aims.write( aims_float_file, outfile )
+            aims.write(aims_float_file, outfile)
 
-        # Add "referentials" to the minf file
-        minf = os.path.join( outfile + '.minf' )
-        header = aims.read(outfile).header()
-        fd = open( minf, 'w' )
-        if uuid != None:
-            newattributes = { 'referentials': [ uuid ], \
-                              'modality': modality, \
-                              'series_instance_uid': series_instance_uid }
-        else:
-            newattributes = { 'modality': modality, \
-                              'series_instance_uid': series_instance_uid }
+            # Add "referentials" to the minf file
+            minf = os.path.join(outfile + '.minf')
+            header = aims.read(outfile).header()
+            fd = open(minf, 'w')
+            if uuid != None:
+                newattributes = {'referentials': [uuid],
+                                 'modality': modality,
+                                 'series_instance_uid': series_instance_uid}
+            else:
+                newattributes = {'modality': modality,
+                                 'series_instance_uid': series_instance_uid}
 
-        if modality == 'PT':
-            stdt = get_start_and_duration_times( serie )
-            if stdt != None:
-                newattributes.update( stdt )
+            if modality == 'PT':
+                stdt = get_start_and_duration_times(serie)
+                if stdt != None:
+                    newattributes.update(stdt)
 
-        header.update( newattributes )
-        print >> fd, "attributes = ", header
-        fd.close()
+            header.update(newattributes)
+            print("attributes = ", header, file=fd)
+            fd.close()
 
     add_version_to_minf(minf, get_mcverter())
 
-def convert_to_nifti_MR( serie,  remove_corrupt_tags=True):
 
-  uuid = None
-  series_instance_uid = None
+def convert_to_nifti_MR(serie,  remove_corrupt_tags=True):
 
-  ds = dicom.read_file( serie[ 0 ] )
-  if remove_corrupt_tags:
-    removeCorruptTags(ds)
+    uuid = None
+    series_instance_uid = None
 
-  dcm2niiOptions = [ '-b', findSharedFile( 'dcm2nii_DV.ini' ) ]
+    ds = dicom.read_file(serie[0])
+    if remove_corrupt_tags:
+        removeCorruptTags(ds)
 
-  tmpdir = mkdtemp()
-  check_call( [ 'dcm2nii' ] + dcm2niiOptions + \
-              [ '-o', tmpdir, os.path.dirname( serie[ 0 ] ) ] )
+    dcm2niiOptions = ['-b', findSharedFile('dcm2nii_DV.ini')]
 
-  tags = ((0x0010, 0x0010), (0x0008, 0x0021),
-          (0x0008, 0x0060), (0x0008, 0x103e),
-          (0x0008, 0x0080))
-  filename = ''
-  for tag in tags:
-      try:
-          filename += ds[tag].value + '-'
-      except:
-          pass
-  try:
-      outfile = os.path.join(args.output, \
-                             make_valid_filename(filename[:-1]))
-  except:
-      outfile = None
+    tmpdir = mkdtemp()
+    check_call(['dcm2nii'] + dcm2niiOptions +
+               ['-o', tmpdir, os.path.dirname(serie[0])])
 
-  outfiles = []
-
-  # rename and copy nifti files
-  # NB : keep extension in case of bvec/bval (DTI images)
-  for f in os.listdir(tmpdir):
-
-    #extension = '.' + f.split( '.' )[ -1 ]
-    if outfile == None:
-      outfile = os.path.join( args.output, f )
-
-    extension = os.path.splitext(f)[1]
-    outfile = os.path.splitext(outfile)[0]
-
-    if os.path.exists( outfile + extension ):
-      outfile = outfile + '_1'
-
-    shutil.move(os.path.join(tmpdir, f), outfile + extension )
-    if extension == '.nii':
-      outfiles.append(outfile)
-
-  # disapply rescaleSlope for Philips data
-  if ds.get('Manufacturer') == 'Philips Medical Systems':
-
-    rescaleSlope = 1.
-    rescaleIntercept = 0
+    tags = ((0x0010, 0x0010), (0x0008, 0x0021),
+            (0x0008, 0x0060), (0x0008, 0x103e),
+            (0x0008, 0x0080))
+    filename = ''
+    for tag in tags:
+        try:
+            filename += ds[tag].value + '-'
+        except:
+            pass
     try:
-      rescaleSlope = ds.RescaleSlope
-      rescaleIntercept = ds.RescaleIntercept
+        outfile = os.path.join(args.output,
+                               make_valid_filename(filename[:-1]))
     except:
-      try:
-        rescaleSlope = \
-                ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1053].value
-        rescaleIntercept = \
-                ds[0x5200,0x9230][ 0 ][0x0028,0x9145][ 0 ][0x0028,0x1052].value
-      except:
-        pass
+        outfile = None
 
-    for outfile in outfiles:
+    outfiles = []
 
-      niftiFileImage = aims.read( outfile )
-      niftiFileArray = np.array( niftiFileImage, copy=False )
-      niftiFileArray = ( niftiFileArray - rescaleIntercept ) / rescaleSlope
-      niftiFileArray = np.round( niftiFileArray )
-      niftiFileArray = np.int16( niftiFileArray )
-      niftiFileArray = np.array( niftiFileArray, order='F' )
-      newNiftiFileImage = aims.Volume( niftiFileArray )
-      initialVoxelSize = niftiFileImage.header()[ 'voxel_size' ]
-      newNiftiFileImage.header()[ 'voxel_size' ] = initialVoxelSize
-      aims.write( newNiftiFileImage, outfile )
+    # rename and copy nifti files
+    # NB : keep extension in case of bvec/bval (DTI images)
+    for f in os.listdir(tmpdir):
 
-  shutil.rmtree( tmpdir )
+        #extension = '.' + f.split( '.' )[ -1 ]
+        if outfile == None:
+            outfile = os.path.join(args.output, f)
 
-  # add seriesInstanceUID and referentials to .minf
-  if series_instance_uid == None:
-    try:
-      series_instance_uid = ds.SeriesInstanceUID
-    except:
-      pass
+        extension = os.path.splitext(f)[1]
+        outfile = os.path.splitext(outfile)[0]
 
-  if uuid == None and "FrameofReferenceUID" in ds:
-    uuid = hashlib.md5( ds.FrameofReferenceUID ).hexdigest()
+        if os.path.exists(outfile + extension):
+            outfile = outfile + '_1'
 
-  minf = os.path.join( outfile + '.nii.minf' )
-  header = aims.read(outfile).header()
-  fd = open( minf, 'w' )
-  if uuid != None:
+        shutil.move(os.path.join(tmpdir, f), outfile + extension)
+        if extension == '.nii':
+            outfiles.append(outfile)
 
-      newattributes = { 'referentials': [ uuid ], \
-                        'series_instance_uid': series_instance_uid }
+    # disapply rescaleSlope for Philips data
+    if ds.get('Manufacturer') == 'Philips Medical Systems':
 
-  header.update( newattributes )
-  print >> fd, "attributes = ", header
-  fd.close()
+        rescaleSlope = 1.
+        rescaleIntercept = 0
+        try:
+            rescaleSlope = ds.RescaleSlope
+            rescaleIntercept = ds.RescaleIntercept
+        except:
+            try:
+                rescaleSlope = \
+                    ds[0x5200, 0x9230][0][0x0028, 0x9145][0][0x0028, 0x1053].value
+                rescaleIntercept = \
+                    ds[0x5200, 0x9230][0][0x0028, 0x9145][0][0x0028, 0x1052].value
+            except:
+                pass
 
-def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
+        for outfile in outfiles:
+
+            niftiFileImage = aims.read(outfile)
+            niftiFileArray = np.array(niftiFileImage, copy=False)
+            niftiFileArray = (niftiFileArray - rescaleIntercept) / rescaleSlope
+            niftiFileArray = np.round(niftiFileArray)
+            niftiFileArray = np.int16(niftiFileArray)
+            niftiFileArray = np.array(niftiFileArray, order='F')
+            newNiftiFileImage = aims.Volume(niftiFileArray)
+            initialVoxelSize = niftiFileImage.header()['voxel_size']
+            newNiftiFileImage.header()['voxel_size'] = initialVoxelSize
+            aims.write(newNiftiFileImage, outfile)
+
+    shutil.rmtree(tmpdir)
+
+    # add seriesInstanceUID and referentials to .minf
+    if series_instance_uid == None:
+        try:
+            series_instance_uid = ds.SeriesInstanceUID
+        except:
+            pass
+
+    if uuid == None and "FrameofReferenceUID" in ds:
+        uuid = hashlib.md5(ds.FrameofReferenceUID.encode('utf-8')).hexdigest()
+
+    minf = os.path.join(outfile + '.nii.minf')
+    header = aims.read(outfile).header()
+    fd = open(minf, 'w')
+    if uuid != None:
+
+        newattributes = {'referentials': [uuid],
+                         'series_instance_uid': series_instance_uid}
+
+    header.update(newattributes)
+    print("attributes = ", header, file=fd)
+    fd.close()
+
+
+def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
     tmpDir = mkdtemp()
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
     if not tempFile.endswith('.dcm'):
-      shutil.move(tempFile, tempFile+'.dcm')
-      tempFile += '.dcm'
-    os.chmod(tempFile, 0777)
+        shutil.move(tempFile, tempFile+'.dcm')
+        tempFile += '.dcm'
+    os.chmod(tempFile, 0o777)
 
     try:
         check_transfer_syntax_uid(tempFile)
         # check_jpeg(tempFile)
     except OSError:
-        print "The DICOM converter needs DCMTK binaries to convert", f
+        print("The DICOM converter needs DCMTK binaries to convert", f)
 
     ds = dicom.read_file(tempFile)
     if remove_corrupt_tags:
@@ -511,8 +543,8 @@ def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
         except:
             pass
     try:
-        outfile = os.path.join( args.output, \
-                                make_valid_filename(filename[:-1] + '.nii'))
+        outfile = os.path.join(args.output,
+                               make_valid_filename(filename[:-1] + '.nii'))
     except:
         outfile = None
 #    try:
@@ -526,7 +558,7 @@ def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
 #    except:
 #        outfile = None
 
-    check_call( [ 'AimsFileConvert', '-i', tempFile, '-o', outfile ] )
+    check_call(['AimsFileConvert', '-i', tempFile, '-o', outfile])
     rescale_image_according_to_minf(outfile)
 #    try:
 #        if ds[0x0008,0x0070].value == "SIEMENS NM" and \
@@ -537,8 +569,9 @@ def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
 
     uuid = None
     if "FrameofReferenceUID" in ds:
-        uuid = hashlib.md5(ds.FrameofReferenceUID).hexdigest()
-        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16], uuid[16:20], uuid[20:32]])
+        uuid = hashlib.md5(ds.FrameofReferenceUID.encode('utf-8')).hexdigest()
+        uuid = '-'.join([uuid[0:8], uuid[8:12], uuid[12:16],
+                         uuid[16:20], uuid[20:32]])
     header = aims.read(outfile).header()
     minf = os.path.join(outfile + '.minf')
     fd = open(minf, 'w')
@@ -562,14 +595,15 @@ def convert_to_nifti_NM( serie, remove_corrupt_tags=True ):
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
     header.update(newattributes)
-    print >> fd, "attributes = ", header
+    print("attributes = ", header, file=fd)
     fd.close()
 
     add_version_to_minf(minf, "AimsFileConvert")
 
+
 def rescale_image_according_to_minf(niftiFile):
     img = aims.read(niftiFile)
-    if img.header().has_key('rescale_applied') and img.header()['rescale_applied'] == 1:
+    if 'rescale_applied' in img.header() and img.header()['rescale_applied'] == 1:
         return
     try:
         slope = img.header()['rescale_slope'][0]
@@ -583,60 +617,66 @@ def rescale_image_according_to_minf(niftiFile):
     img.header()['rescale_applied'] = 1
     aims.write(floatImg, niftiFile)
 
+
 def add_version_to_minf(minf, converter):
     cmd = [converter, '--version']
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     version, errors = p.communicate()
     newAttr = {'converter':
-                     {'name': converter,
-                      'version': version}
-                     }
+               {'name': converter,
+                'version': version}
+               }
     oMinf = readMinf(minf)[0]
     oMinf.update(newAttr)
     fd = open(minf, 'w')
-    print >> fd, "attributes = ", oMinf
+    print("attributes = ", oMinf, file=fd)
     fd.close()
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser( description =
-'''
-Convert input DICOM files into NIfTI files
-''' )
 
-    parser.add_argument( '-i', '--input',  nargs='+', help='input DICOM files/directories')
-    parser.add_argument( '-o', '--output', help='output directory' )
-    parser.add_argument( '-s', '--split4DSeries', help='do NOT merge the 4D series', action="store_false", dest="merge4DSeries")
-    parser.add_argument( '-m', '--merge4DSeries', help='Merge the 4D series [default]', action="store_true", dest="merge4DSeries", default = True)
-    parser.add_argument( '--suv', help='Apply SUV factor (for now, only for Philips manufacturer)', action="store_true", dest="suv", default = False)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='''
+Convert input DICOM files into NIfTI files
+''')
+
+    parser.add_argument('-i', '--input',  nargs='+',
+                        help='input DICOM files/directories')
+    parser.add_argument('-o', '--output', help='output directory')
+    parser.add_argument('-s', '--split4DSeries', help='do NOT merge the 4D series',
+                        action="store_false", dest="merge4DSeries")
+    parser.add_argument('-m', '--merge4DSeries',
+                        help='Merge the 4D series [default]', action="store_true", dest="merge4DSeries", default=True)
+    parser.add_argument('--suv', help='Apply SUV factor (for now, only for Philips manufacturer)',
+                        action="store_true", dest="suv", default=False)
 
     args = parser.parse_args()
 
     if args.input is None or \
        args.output is None:
-        parser.parse_args( [ '-h' ] )
+        parser.parse_args(['-h'])
 
     # Aggregate input files
     aggregator = aggregator.DicomAggregator()
-    aggregator.add_dicom_sources( args.input )
+    aggregator.add_dicom_sources(args.input)
     aggregator.aggregate()
 
     # Browse aggregated DICOM series
     for serie in aggregator._aggregate_sources.values():
 
-      ds = dicom.read_file( serie[ 0 ] )
+        ds = dicom.read_file(serie[0])
 
-      try:
-        modality = ds.Modality
-      except:
-        modality = ""
+        try:
+            modality = ds.Modality
+        except:
+            modality = ""
 
-      # Choose method according to modality
-      if modality == 'MR':
-          convert_to_nifti_MR( serie )
-      elif modality == "NM" and len( serie ) == 1:
-          convert_to_nifti_NM( serie )
-      else:
-          if not get_mcverter():
-              print 'mcverter was not found on your system. It is mandatory to convert your DICOM files.'
-              exit(0)
-          convert_to_nifti( serie, args.merge4DSeries )
+        # Choose method according to modality
+        if modality == 'MR':
+            convert_to_nifti_MR(serie)
+        elif modality == "NM" and len(serie) == 1:
+            convert_to_nifti_NM(serie)
+        else:
+            if not get_mcverter():
+                print(
+                    'mcverter was not found on your system. It is mandatory to convert your DICOM files.')
+                exit(0)
+            convert_to_nifti(serie, args.merge4DSeries)

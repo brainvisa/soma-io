@@ -858,12 +858,13 @@ DataSourceInfo NiftiFormatChecker::check( DataSourceInfo dsi,
     {
     }
 
-    localMsg( "Reading minf..." );
+    localMsg( "Reading MINF..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+    localMsg( "MINF read" );
     vector<int> dims( 4, 1 );
     if( dsi.header()->getProperty( "volume_dimension", dims ) )
       if( dims.size() < 4 )
