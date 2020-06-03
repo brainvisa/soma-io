@@ -45,6 +45,10 @@
 #include <map>
 #include <set>
 #include <vector>
+//--- debug ------------------------------------------------------------------
+#include <cartobase/config/verbose.h>
+#define localMsg( message ) cartoCondMsg( 4, message, "FORMATDICTIONARY" )
+// localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
 namespace soma
@@ -104,13 +108,16 @@ namespace soma
     static bool initialized = false;
     if( !initialized )
       {
-	initialized = true;
-	carto::DataTypeCode<T>	dtc;
-	IOObjectTypesDictionary::registerReadType( dtc.name(), 
+//         localMsg("initializing soma format dictionaries ...");
+//         localMsg("read formats dictionary [" + carto::toString(&(_readformats())) + "] ...")
+//         localMsg("write formats dictionary [" + carto::toString(&(_writeformats())) + "] ...")
+        initialized = true;
+        carto::DataTypeCode<T>	dtc;
+        IOObjectTypesDictionary::registerReadType( dtc.name(), 
                                                    &readFormats );
-	IOObjectTypesDictionary::registerWriteType( dtc.name(), 
+        IOObjectTypesDictionary::registerWriteType( dtc.name(), 
                                                     &writeFormats );
-	registerBaseFormats();
+        registerBaseFormats();
       }
   }
 
@@ -192,6 +199,7 @@ namespace soma
   template <typename T> 
   std::set<std::string> FormatDictionary<T>::readFormats()
   {
+//     localMsg("Retrieving soma read formats from format dictionary [" + carto::toString(&(_readformats())) + "] ...")
     std::set<std::string>	f;
     typename std::map<std::string, FormatReader<T>*>::const_iterator 
       i, e = _readformats().end();
@@ -204,6 +212,7 @@ namespace soma
   template <typename T> 
   std::set<std::string> FormatDictionary<T>::writeFormats()
   {
+//     localMsg("Retrieving soma write formats from format dictionary [" + carto::toString(&(_writeformats())) + "] ...")
     std::set<std::string>	f;
     typename std::map<std::string, FormatWriter<T>*>::const_iterator 
       i, e = _writeformats().end();
@@ -214,5 +223,6 @@ namespace soma
 
 }
 
+#undef localMsg
 
 #endif

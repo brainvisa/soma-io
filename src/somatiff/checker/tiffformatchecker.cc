@@ -116,6 +116,8 @@ void TiffFormatChecker::_buildDSList( DataSourceList & dsl, const MultiFileForma
   defaultname = tiffname = minfname = FileUtil::uriFilename( pds->url() );
   tiffname = _getTiffFileName( defaultname );
   ext = carto::stringLower(FileUtil::extension(tiffname));
+  localMsg("tiffname: " + tiffname);
+  localMsg("extension found: " + ext);
   
   if( defaultname.empty() ) {
     // we suppose ds is a dim file and a imafile
@@ -125,6 +127,7 @@ void TiffFormatChecker::_buildDSList( DataSourceList & dsl, const MultiFileForma
     // Find filenames from the MultiFileFormatInfo
     const vector<string> & filenames = MultiFileFormat::filenames(mfi);
     
+    localMsg("found " + carto::toString(filenames.size()) + " filenames.");
     if (filenames.size() > 0) {
       vector<string>::const_iterator it, ie = filenames.end();
       uint32_t i;
@@ -403,12 +406,13 @@ DataSourceInfo TiffFormatChecker::check( DataSourceInfo dsi,
     dsi.privateIOData()->getProperty( "tiff_info", mfi );
     dsi.header() = _buildHeader( hds, mfi );
     
-    localMsg( "Reading minf..." );
+    localMsg( "Reading MINF..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+    localMsg( "MINF read" );
     dsi.header()->setProperty( "object_type", obtype );
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );

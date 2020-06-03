@@ -399,13 +399,13 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     DataSource* hds = dsi.list().dataSource( "dim" ).get();    
     dsi.header() = _buildHeader( hds );
     
-    localMsg( "Reading minf..." );
+    localMsg( "Reading MINF..." );
     string obtype = dsi.header()->getProperty( "object_type" )->getString();
     string dtype;
     dsi.header()->getProperty( "data_type", dtype );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
-   
+    localMsg( "MINF read" );
     // Fixes wrong dimension properties
     vector<int> dims( 4, 1 );
     if( dsi.header()->getProperty( "volume_dimension", dims ) ) {

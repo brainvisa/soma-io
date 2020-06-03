@@ -99,6 +99,7 @@ namespace soma {
   TiffImageReader<T>::TiffImageReader() :
     ImageReader<T>()
   {
+      //localMsg("building tiff image reader for " + carto::DataTypeCode<T>::name());
   }
   
   template <typename T>
@@ -116,7 +117,7 @@ namespace soma {
                                 std::vector<long> & stride,
                                 carto::Object      options )
   {
-    localMsg( "Reading using TIFF reader ..." );
+    //localMsg( "Reading using TIFF reader ..." );
     if( _sizes.empty() )
       updateParams( dsi );
 
@@ -152,7 +153,6 @@ namespace soma {
                                                std::vector<long> & stride,
                                                carto::Object      options )
   {
-    localMsg( "Reading using TIFF reader ..." );
     if( _sizes.empty() )
       updateParams( dsi );
 
@@ -175,7 +175,6 @@ namespace soma {
                                 std::vector<long> & stride,
                                 carto::Object      options )
   {
-    localMsg( "Reading using TIFF reader ..." );
     if( _sizes.empty() )
       updateParams( dsi );
 
@@ -241,6 +240,7 @@ namespace soma {
     bool isrgba = (DataTypeCode<U>::dataType() == DataTypeCode<carto::VoxelRGBA>::dataType()); // Disk data type is rgba
 
     // Get files and tiff directories to use for reading
+    localMsg("Try to read tiff file using format: " + _mfi.type); 
     switch (_mfi.type) {
       case MultiFileFormatInfo::Single :
       case MultiFileFormatInfo::Time :
@@ -266,11 +266,14 @@ namespace soma {
                                               _mfi.slicemin + oz + z,
                                               _mfi.timemin + ot + t );
         
+        localMsg("Try to read slice " + carto::toString(z) + " for time " + carto::toString(t)
+                 + " from file: " + filename); 
         // Open the tiff file to read
         TIFF* tif = TIFFOpen(filename.c_str(), "r");
-        
-        if (tif) {
+        if (tif) {            
+          localMsg("File opened successfully"); 
           tiled = TIFFIsTiled(tif);
+          localMsg("File contain tiles: " + carto::toString(tiled)); 
           if (tiled) {
             throw carto::invalid_format_error( "TIFF image reader does not support tiled image : " 
                                                "can't read" );

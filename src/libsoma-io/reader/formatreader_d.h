@@ -83,11 +83,14 @@ namespace soma
                                      const AllocatorContext & context,
                                      carto::Object options )
   {
+    localMsg("Checking data source info...")
     dsi = checkDataSourceInfo( dsi, options );
     // copy context with compatible mmap mode
     AllocatorContext ac( context.accessMode(), dsi, context.useFactor() );
+    localMsg("Allocating memory...")
     std::unique_ptr<T>  objp( create( dsi->header(), ac, options ) );
     T  *obj = objp.get();
+    localMsg("Reading data...")
     read( *obj, dsi, ac, options );
     objp.release();
     return obj;
