@@ -225,7 +225,7 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
         time = -1
 
         # Check if the current file must be sorted by time
-        if "FrameReferenceTime" in ds or "AcquisitionTime" in ds:
+        if "FrameReferenceTime" in ds:  # or "AcquisitionTime" in ds:
             try:
                 number_of_time_slices = ds[0x0054, 0x0101].value
                 if number_of_time_slices > 1 and \
@@ -233,8 +233,8 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
                     time = ds.FrameReferenceTime
             except:
                 time = ds.get("FrameReferenceTime")
-                if not time:
-                    time = ds.get("AcquisitionTime")
+                # if not time:
+                #     time = ds.get("AcquisitionTime")
                 if not time:
                     time = -1
         if time not in filesbytime:
