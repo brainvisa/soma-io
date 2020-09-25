@@ -598,7 +598,7 @@ def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
     print("attributes = ", header, file=fd)
     fd.close()
 
-    add_version_to_minf(minf, "AimsFileConvert")
+    add_version_to_minf(minf, "AimsFileConvert", header)
 
 
 def rescale_image_according_to_minf(niftiFile):
@@ -618,7 +618,7 @@ def rescale_image_according_to_minf(niftiFile):
     aims.write(floatImg, niftiFile)
 
 
-def add_version_to_minf(minf, converter):
+def add_version_to_minf(minf, converter, oMinf=None):
     cmd = [converter, '--version']
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     version, errors = p.communicate()
@@ -626,7 +626,8 @@ def add_version_to_minf(minf, converter):
                {'name': converter,
                 'version': version}
                }
-    oMinf = readMinf(minf)[0]
+    if oMinf is None:
+        oMinf = readMinf(minf)[0]
     oMinf.update(newAttr)
     fd = open(minf, 'w')
     print("attributes = ", oMinf, file=fd)
