@@ -595,7 +595,8 @@ def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
     header.update(newattributes)
-    print("attributes = ", header, file=fd)
+    # print("attributes = ", header, file=fd)
+    fd.write("attributes = " + str(header))
     fd.close()
 
     add_version_to_minf(minf, "AimsFileConvert", header)
