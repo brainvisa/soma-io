@@ -42,7 +42,6 @@ import glob
 import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
-import dicom
 import sys
 import numpy as np
 import soma
@@ -56,6 +55,12 @@ from soma.minf.api import readMinf
 import six
 from six.moves import range
 
+try:
+    import pydicom as dicom
+    import pydicom.uid as dicom_UID
+except ImportError as e:
+    import dicom
+    import dicom.UID as dicom_UID
 
 def get_mcverter():
     mcverter_exist_dic = {'mcverter': False, 'mcverter_x64': False}
@@ -137,11 +142,11 @@ def check_transfer_syntax_uid(dicomFile):
             df = dicom.filereader
             transfer_uid = df.read_file_meta_info(
                 dicomFile)[(0x002, 0x010)].value
-            if transfer_uid == dicom.UID.ExplicitVRBigEndian:
+            if transfer_uid == dicom_UID.ExplicitVRBigEndian:
                 is_big_endian = True
-            elif transfer_uid in [dicom.UID.DeflatedExplicitVRLittleEndian,
-                                  dicom.UID.ExplicitVRLittleEndian,
-                                  dicom.UID.ImplicitVRLittleEndian]:
+            elif transfer_uid in [dicom_UID.DeflatedExplicitVRLittleEndian,
+                                  dicom_UID.ExplicitVRLittleEndian,
+                                  dicom_UID.ImplicitVRLittleEndian]:
                 is_big_endian = False
             else:
                 is_endian = False
@@ -595,7 +600,8 @@ def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
     header.update(newattributes)
-    print("attributes = ", header, file=fd)
+    # print("attributes = ", header, file=fd)
+    fd.write("attributes = " + str(header))
     fd.close()
 
     add_version_to_minf(minf, "AimsFileConvert", header)
@@ -662,7 +668,7 @@ Convert input DICOM files into NIfTI files
 
     # Browse aggregated DICOM series
     for serie in aggregator._aggregate_sources.values():
-
+        
         ds = dicom.read_file(serie[0])
 
         try:

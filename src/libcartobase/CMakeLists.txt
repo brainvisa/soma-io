@@ -68,6 +68,7 @@ set( _headers
    stream/fistreambuf.h
    stream/fostreambuf.h
    stream/sstream.h
+   stream/stringutil.h
    stream/uncomment.h
    thread/cpu.h
    thread/exclusiveContext.h
@@ -200,7 +201,8 @@ set( _cartobase_0_sources
   stream/fileutil.cc 
   stream/fistreambuf.cc 
   stream/fostreambuf.cc 
-  stream/uncomment.cc 
+  stream/stringutil.cc
+  stream/uncomment.cc
   thread/cpu.cc 
   thread/exclusiveContext.cc 
   thread/loopContext.cc 

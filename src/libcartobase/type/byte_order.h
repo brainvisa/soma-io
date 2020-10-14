@@ -43,13 +43,13 @@ namespace carto {
 
 // Actual machine byte order
 int byteOrder();
- 
+
 // String representing the system byte order :
 //    "ABCD" for big endian
 //    "DCBA" for little endian
 //    "CDAB" for pdpEndian
 const char * byteOrderString();
- 
+
 
 // Convert a string representing byte order
 // to the corresponding constant
@@ -63,10 +63,11 @@ public:
 
   // Build a converter from any byte order to
   // actual machine byte order
-  ByteSwapper( int bo );
+  ByteSwapper( int bo = byteOrder() );
   ByteSwapper( const std::string &bos );
 
   inline bool isSwapped() const { return _swap; }
+  inline bool setSwapped( bool s ) { _swap = s; }
 
   inline void reorder( short &p ) const;
   inline void reorder( unsigned short &p ) const;

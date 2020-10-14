@@ -1127,6 +1127,71 @@ namespace interface_internal
   };
 
 
+    //------------//
+   //  long long //
+  //------------//
+
+  //---------------------------------------------------------------------------
+  template <>
+  class ScalarImpl< long long, false >
+  {
+  public:
+    static inline bool isScalar( const TypedObject<long long> & )
+    {
+      return true;
+    }
+
+    static inline double getScalar( const TypedObject<long long> &to )
+    {
+      return to.getValue();
+    }
+
+    static inline void setScalar( TypedObject<long long> &to, double value )
+    {
+      to.getValue() = static_cast<long long>( value );
+    }
+
+    static inline bool equals( const TypedObject<long long> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
+  };
+
+
+    //---------------------//
+   //  unsigned long long //
+  //---------------------//
+
+  //---------------------------------------------------------------------------
+  template <>
+  class ScalarImpl< unsigned long long, false >
+  {
+  public:
+    static inline bool isScalar( const TypedObject<unsigned long long> & )
+    {
+      return true;
+    }
+
+    static inline double getScalar( const TypedObject<unsigned long long> &to )
+    {
+      return to.getValue();
+    }
+
+    static inline void setScalar( TypedObject<unsigned long long> &to,
+                                  double value )
+    {
+      to.getValue() = static_cast<unsigned long long>( value );
+    }
+
+    static inline bool equals( const TypedObject<unsigned long long> & o1,
+                               const GenericObject & o2 )
+    {
+      return o2.isScalar() && o1.getValue() == o2.getScalar();
+    }
+  };
+
+
     //---------//
    //  float  //
   //---------//
