@@ -33,6 +33,7 @@
 
 #include <cstdlib>
 #include <cartobase/stream/fileutil.h>
+#include <cartobase/stream/stringutil.h>
 #include <cartobase/object/object.h>
 #include <cartobase/object/property.h>
 #include <cartobase/exception/assert.h>
@@ -182,4 +183,33 @@ int main( int argc, const char **argv )
   }
   ASSERT( options->getProperty( "option1" )->getScalar() == (float)1.2 );
   verbMsg( "" );
+
+  //--- test #7: strings -----------------------------------------------------
+  string text = "This is an example string; we will cut it, "
+    "into several parts. Yes.";
+  verbMsg( "test StringUtil" );
+  vector<string> stext = StringUtil::split( text, " " );
+  ASSERT( stext.size() == 13 );
+  ASSERT( stext[0] == "This" && stext[12] == "Yes." );
+  vector<string> patterns;
+  patterns.push_back( "; " );
+  patterns.push_back( ". " );
+  patterns.push_back( " " );
+  patterns.push_back( "." );
+  stext = StringUtil::split( text, patterns );
+  ASSERT( stext.size() == 15 );
+  ASSERT( stext[0] == "This" );
+  ASSERT( stext[4] == "string" );
+  ASSERT( stext[11] == "parts" );
+  ASSERT( stext[12] == "" );
+  ASSERT( stext[13] == "Yes" );
+  ASSERT( stext[14] == "" );
+  ASSERT( StringUtil::join( stext, ". " ) == "This. is. an. example. string. we. will. cut. it,. into. several. parts. . Yes. " );
+  stext = StringUtil::split( text, patterns, 10 );
+  ASSERT( stext.size() == 11 );
+  ASSERT( stext[9] == "into" );
+  ASSERT( stext[10] == "several parts. Yes." );
+  text = "   .   toto bubulle.   babar...  ";
+  ASSERT( StringUtil::strip( text, " ." ) == "toto bubulle.   babar" );
+  ASSERT( StringUtil::strip( text ) == ".   toto bubulle.   babar..." );
 }
