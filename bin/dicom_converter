@@ -351,7 +351,8 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
                 outfile = os.path.join(args.output, f)
             shutil.move(os.path.join(tmpdir, f), outfile)
             outfiles.append(outfile)
-        outfilesByTime.update({-1: outfiles})
+        t = list(filesbytime.keys())[0]
+        outfilesByTime.update({t: outfiles})
 
     # Clean temporary directories and files
     for d in tmpdirsByTime.values():
@@ -412,7 +413,7 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
             print("attributes = ", header, file=fd)
             fd.close()
 
-    add_version_to_minf(minf, get_mcverter())
+    add_version_to_minf(minf, get_mcverter(), header)
 
 
 def convert_to_nifti_MR(serie,  remove_corrupt_tags=True):
@@ -636,7 +637,8 @@ def add_version_to_minf(minf, converter, oMinf=None):
         oMinf = readMinf(minf)[0]
     oMinf.update(newAttr)
     fd = open(minf, 'w')
-    print("attributes = ", oMinf, file=fd)
+    # print("attributes = ", oMinf, file=fd)
+    fd.write("attributes = " + str(oMinf))
     fd.close()
 
 
