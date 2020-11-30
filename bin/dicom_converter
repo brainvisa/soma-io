@@ -516,7 +516,7 @@ def convert_to_nifti_MR(serie,  remove_corrupt_tags=True):
         newattributes = {'referentials': [uuid],
                          'series_instance_uid': series_instance_uid}
 
-    header.update(newattributes)
+        header.update(newattributes)
     print("attributes = ", header, file=fd)
     fd.close()
 
