@@ -163,7 +163,6 @@ namespace
                                     soma::PythonReader & r )
   {
     // cout << "list\n";
-    bool        end = false;
     std::string  id, type;
     soma::DataSource  & ds = *r.dataSource();
 
@@ -209,7 +208,6 @@ namespace
               }
             if( c == mark )
               {
-                end = true;
                 break;  // end
               }
             ds.ungetch( c );
@@ -244,7 +242,6 @@ carto::GenericObject* PythonReader::genericSequenceHelper( carto::GenericObject*
                                                     const std::string &,
                                                     PythonReader & r )
 {
-  bool        end = false;
   std::string  id, type;
   DataSource  & ds = *r.dataSource();
 
@@ -292,7 +289,6 @@ carto::GenericObject* PythonReader::genericSequenceHelper( carto::GenericObject*
             }
           if( c == mark )
             {
-              end = true;
               break;  // end
             }
           ds.ungetch( c );

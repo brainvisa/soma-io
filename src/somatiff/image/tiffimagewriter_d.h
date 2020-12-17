@@ -158,7 +158,8 @@ namespace soma {
   }
 
   template <typename T>
-  long TiffImageWriter<T>::readBlock( char * data, unsigned long maxlen )
+  long TiffImageWriter<T>::readBlock( char * /* data */,
+                                      unsigned long /* maxlen */ )
   {
     return 0;
   }
@@ -226,10 +227,10 @@ namespace soma {
       updateParams( dsi );
 
     // total volume size
-    int  sx = _sizes[ 0 ][ 0 ];
-    int  sy = _sizes[ 0 ][ 1 ];
-    int  sz = _sizes[ 0 ][ 2 ];
-    int  st = _sizes[ 0 ][ 3 ];
+    //int  sx = _sizes[ 0 ][ 0 ];
+    //int  sy = _sizes[ 0 ][ 1 ];
+    //int  sz = _sizes[ 0 ][ 2 ];
+    //int  st = _sizes[ 0 ][ 3 ];
 
     // region size
     int  vx = size[ 0 ];
@@ -278,10 +279,10 @@ namespace soma {
   template <typename T>
   DataSourceInfo TiffImageWriter<T>::writeHeader(
     DataSourceInfo & dsi,
-    const T * source,
-    const std::vector<int> & pos,
-    const std::vector<int> & size,
-    const std::vector<long> & strides,
+    const T * /* source */,
+    const std::vector<int> & /* pos */,
+    const std::vector<int> & /* size */,
+    const std::vector<long> & /* strides */,
     carto::Object options )
   {
     //--- build datasourcelist -----------------------------------------------

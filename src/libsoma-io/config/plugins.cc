@@ -61,6 +61,6 @@ namespace
       return false;
   }
 
-  bool dummy = addSomaPlugins();
+  bool dummy __attribute__((unused)) = addSomaPlugins();
 
 }

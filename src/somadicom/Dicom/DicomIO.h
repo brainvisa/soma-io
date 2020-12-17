@@ -76,13 +76,13 @@ class DicomIO : public Singleton< DicomIO >
 
 
 #define RegisterDicomReaderFunction( IMPLEMENTATION )                          \
-static bool init_##IMPLEMENTATION =                                            \
+static bool init_##IMPLEMENTATION __attribute__((unused)) =                    \
                                    dcm::DicomIO::getInstance().registerReader( \
                                    &dcm::IMPLEMENTATION::getInstance() )
 
 
 #define RegisterDicomWriterFunction( IMPLEMENTATION )                          \
-static bool init_##IMPLEMENTATION =                                            \
+static bool init_##IMPLEMENTATION  __attribute__((unused)) =                   \
                                    dcm::DicomIO::getInstance().registerWriter( \
                                    &dcm::IMPLEMENTATION::getInstance() )
 

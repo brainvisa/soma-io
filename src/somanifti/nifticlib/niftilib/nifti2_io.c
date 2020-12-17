@@ -30,6 +30,8 @@ static int nifti2_read_extensions( nifti_image *nim, znzFile fp, int remain );
 
 void  swap_nifti2_header ( struct nifti_2_header *h , int is_nifti )
 {
+  (void)( is_nifti ); // to suppress compilation warning
+
    nifti_swap_4bytes(1, &h->sizeof_hdr);
 
    nifti_swap_4bytes(8, h->dim);
@@ -68,7 +70,6 @@ void  swap_nifti2_header ( struct nifti_2_header *h , int is_nifti )
    nifti_swap_8bytes(4, h->srow_y);
    nifti_swap_8bytes(4, h->srow_z);
 
-   return ;
 }
 
 

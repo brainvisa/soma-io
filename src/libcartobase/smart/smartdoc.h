@@ -187,17 +187,19 @@ int main()
 \warning When a class \c T is derived from \c RCObject, the constructors and destructors of \c ref<T> and \c const_ref<T> are redefined. This is done statically (at compile time). The \e Ref mecanism does not use any virtual function member.
  */
 
+} // namespace carto
+
 
 /*!
-  \class weak_ptr
-  \brief Observer pointer, observing a WeakObject
+  \class carto::weak_ptr <cartobase/smart/weakptr.h>
+  \brief Observer pointer, observing a shfj::WeakObject
 
   When the observed object is destroyed, the weak pointer points to null
 */
 
 
 /*!
-  \class WeakObject
+  \class carto::WeakObject weakobject.h "cartobase/smart/weakobject.h"
   \brief Base class for weakly referenced objects
 
   WeakObject implements a specialized observer/subject pattern where weak_ptr
@@ -210,12 +212,10 @@ int main()
 
 
 /*!
-  \class scoped_ptr
+  \class carto::scoped_ptr <cartobase/smart/scopedptr.h>
   \brief Holds a temporary object pointer in a scope.
 
   Even less capable than std::auto_ptr. For allocating on the heap
   something that must be destructed when exiting the current scope.
   Just like a variable allocated on the stack...
 */
-
-} // namespace carto

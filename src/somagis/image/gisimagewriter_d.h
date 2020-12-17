@@ -162,7 +162,8 @@ namespace soma {
   }
 
   template <typename T>
-  long GisImageWriter<T>::readBlock( char * data, unsigned long maxlen )
+  long GisImageWriter<T>::readBlock( char * /* data */,
+                                     unsigned long /* maxlen */ )
   {
     return 0;
   }
@@ -251,7 +252,7 @@ namespace soma {
       if( !source ) // unallocated data
       {
         std::vector<int> szend = _sizes[ 0 ];
-        int dim;
+        size_t dim;
         for( dim=0; dim<ndim; ++dim )
           --szend[dim];
         setpos( szend );
@@ -263,7 +264,7 @@ namespace soma {
       else
       {
         std::vector<int> dpos( ndim, 0 );
-        int dim;
+        size_t dim;
         dpos[0] = pos[0];
         const_line_NDIterator<T> it( source, size, strides );
 

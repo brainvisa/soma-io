@@ -31,7 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
-#include "transformation.h"
+#include <soma-io/transformation/affinetransformation3d_base.h>
 
 using namespace soma;
 using namespace carto;
@@ -41,15 +41,15 @@ namespace soma
 {
 
 float
-decompositionLU( Table<float> &a,
-                 Table<int32_t> &indx)
+decompositionLU( AffineTransformation3dBase::Table<float> &a,
+                 AffineTransformation3dBase::Table<int32_t> &indx)
 {
   int   i,imax=0,j,k,n;
   float big,dum,sum,temp,TINY=1.0e-20,d;
 
   n = a.dimX();
 
-  Table<float> vv(1,n);
+  std::vector<float> vv(n);
 
   d = 1.0;
 
@@ -57,7 +57,7 @@ decompositionLU( Table<float> &a,
   { big = 0.0;
     for (j=0;j<n;j++)
       if ((temp = fabs(a(i,j))) > big)  big = temp;
-    vv(i) = 1.0 / big;
+    vv[i] = 1.0 / big;
   }
   for (j=0;j<n;j++)
   { for (i=0;i<j;i++)
@@ -71,7 +71,7 @@ decompositionLU( Table<float> &a,
     { sum = a(i,j);
       for (k=0;k<j;k++)  sum -= a(i,k) * a(k,j);
       a(i,j) = sum;
-      if ((dum = vv(i) * fabs(sum)) >= big)
+      if ((dum = vv[i] * fabs(sum)) >= big)
       { big  = dum;
         imax = i;
       }
@@ -84,9 +84,9 @@ decompositionLU( Table<float> &a,
         a(j,k)    = dum;
       }
       d = -d;
-      vv(imax) = vv(j);
+      vv[imax] = vv[j];
     }
-    indx(j) = imax;
+    indx[j] = imax;
     if (a(j,j) == 0.0)  a(j,j) = TINY;
     if (j != n)
     { dum = 1.0 / a(j,j);
@@ -97,9 +97,9 @@ decompositionLU( Table<float> &a,
 }
 
 
-void backSubstitutionLU( Table<float> &a,
-                         Table<int32_t> &indx,
-                         Table<float> &b)
+void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
+                         AffineTransformation3dBase::Table<int32_t> &indx,
+                         AffineTransformation3dBase::Table<float> &b)
 {
   int   i,ii=-1,ip,j,n;
   float sum;
@@ -107,48 +107,48 @@ void backSubstitutionLU( Table<float> &a,
   n = a.dimX();
 
   for (i=0;i<n;i++)
-  { ip = indx(i);
-    sum = b(ip);
-    b(ip) = b(i);
+  { ip = indx[i];
+    sum = b[ip];
+    b[ip] = b[i];
     if (ii != -1)
-      for (j=ii;j<=i-1;j++)  sum -= a(i,j) * b(j);
+      for (j=ii;j<=i-1;j++)  sum -= a(i,j) * b[j];
     else if (sum!=0)
       ii = i;
-    b(i) = sum;
+    b[i] = sum;
   }
   for (i=n;i--;)
-  { sum = b(i);
-    for (j=i+1;j<n;j++)  sum -= a(i,j) * b(j);
-    b(i) = sum / a(i,i);
+  { sum = b[i];
+    for (j=i+1;j<n;j++)  sum -= a(i,j) * b[j];
+    b[i] = sum / a(i,i);
   }
 }
 
 
-Table<float>
-inversionLU( const Table<float> &matrix )
+AffineTransformation3dBase::Table<float>
+inversionLU( const AffineTransformation3dBase::Table<float> &matrix )
 {
   int                 n,i,j;
   //float d;
 
   n = matrix.dimX();
 
-  Table<float> inverse(n,n);
-  Table<float> stockage(n,n);
+  AffineTransformation3dBase::Table<float> inverse(n,n);
+  AffineTransformation3dBase::Table<float> stockage(n,n);
 
   for (j=n;j--;)
     for (i=n;i--;)  stockage(i,j) = matrix(i,j);
 
-  Table<float> column(1,n);
+  AffineTransformation3dBase::Table<float> column(1,n);
 
-  Table<int32_t>  indx(1,n);
+  AffineTransformation3dBase::Table<int32_t>  indx(1,n);
 
   /*d =*/ decompositionLU(stockage,indx);
 
   for (j=0;j<n;j++)
-  { for (i=0;i<n;i++)  column(i) = 0.0;
-    column(j) = 1.0;
+  { for (i=0;i<n;i++)  column[i] = 0.0;
+    column[j] = 1.0;
     backSubstitutionLU(stockage,indx,column);
-    for (i=0;i<n;i++)  inverse(i,j) = column(i);
+    for (i=0;i<n;i++)  inverse(i,j) = column[i];
   }
   return inverse;
 }

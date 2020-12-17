@@ -58,6 +58,8 @@ set( _headers
   reader/pythonreader.h
   reader/pythonreader_d.h
   reader/xmlformatreader.h
+  transformation/affinetransformation3d_base.h
+  transformation/transformation.h
   utilities/allocatedvector.h
   utilities/asciidatasourcetraits.h
   utilities/creator.h
@@ -65,6 +67,7 @@ set( _headers
   utilities/headertranslator.h
   utilities/multifileformat.h
   utilities/minfXML2.h
+  vector/vector.h
   writer/awriter.h
   writer/formatwriter.h
   writer/itemwriter.h
@@ -113,10 +116,16 @@ set( _somaio_sources
   reader/pythonformatreader.cc
   reader/pythonreader.cc
   reader/xmlformatreader.cc
+  transformation/affinetransformation3d_base.cc
+  transformation/inversion_lu.cc
+  transformation/transformation.cc
   utilities/asciidatasourcetraits.cc
   utilities/minfutil.cc
   utilities/minfXML2.cc
   utilities/multifileformat.cc
+  vector/vector2d.cc
+  vector/vector3d.cc
+  vector/vector4d.cc
   writer/awriter.cc
   writer/jsonformatwriter.cc
   writer/pythonformatwriter.cc

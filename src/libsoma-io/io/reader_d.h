@@ -487,24 +487,30 @@ namespace soma
 #endif
     
     //// Pass 1 : prioroty to format hint ////////////////////////////////////
-    if( passbegin <= 1 && passend >= 1 && !format.empty() )	{
+    if( passbegin <= 1 && passend >= 1 && !format.empty() )
+    {
       localMsg( "1. try to find reader of " + format + " for file: " + uri );
       reader = FormatDictionary<T>::readFormat( format );
       localMsg( "1. reader found " + carto::toString(reader) );
-      if( reader ) {
-        try {
+      if( reader )
+      {
+        try
+        {
           localMsg( "1. try reader " + format );
           readerc.reset( reader->clone() );
           obj = readerc->createAndRead( _datasourceinfo,
-                                       _alloccontext, _options );
-          if( obj ) {
+                                        _alloccontext, _options );
+          if( obj )
+          {
             localMsg( "1. " + format + " OK" );
             return obj;
           }
-	      } catch( std::exception & e ) {
+        }
+        catch( std::exception & e )
+        {
           localMsg( "1. " + format + " failed" );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
-	      }
+        }
         tried.insert( format );
         triedf.insert( reader );
       }
@@ -522,22 +528,29 @@ namespace soma
     {
       localMsg( "2. try to find reader using extension " + ext + " for file: " + uri );
       iext = extensions.equal_range( ext );
-      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie ) {
-        if( tried.find( ie->second ) == notyet ) {
+      for( ie=iext.first, ee=iext.second; ie!=ee; ++ie )
+      {
+        if( tried.find( ie->second ) == notyet )
+        {
           localMsg( "2. try to find reader of " + ie->second + " for file: " + uri );
           reader = FormatDictionary<T>::readFormat( ie->second );
           localMsg( "2. reader found " + carto::toString(reader) );
-          if( reader && triedf.find( reader ) == notyetf ) {
-            try {
+          if( reader && triedf.find( reader ) == notyetf )
+          {
+            try
+            {
               localMsg( "2. try reader " + ie->second );
               readerc.reset( reader->clone() );
               obj = readerc->createAndRead( _datasourceinfo,
-                                          _alloccontext, _options );
-              if( obj ) {
+                                            _alloccontext, _options );
+              if( obj )
+              {
                 localMsg( "2. " + ie->second + " OK" );
                 return obj;
               }
-            } catch( std::exception & e ) {
+            }
+            catch( std::exception & e )
+            {
               localMsg( "2. " + ie->second + " failed" );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }

@@ -1,7 +1,7 @@
 set( _headers
   checker/niftiformatchecker.h
   checker/niftistructwrapper.h
-  checker/transformation.h
+#   checker/transformation.h
   image/niftiimagereader.h
   image/niftiimagereader_d.h
   image/niftiimagewriter.h
@@ -18,8 +18,8 @@ set( _headers
 
 set( _sources
   checker/niftiformatchecker.cc
-  checker/transformation.cc
-  checker/inversion_lu.cc
+#   checker/transformation.cc
+#   checker/inversion_lu.cc
   image/niftiimagereader.cc
   image/niftiimagewriter.cc
   nifticlib/niftiapihelpers_p.cc

@@ -139,16 +139,23 @@ public:
 
   inline RCObject & operator = ( const RCObject & ) { return *this; }
 
-#ifdef CARTO_DEBUG
   inline virtual ~RCObject()
   {
+    // set counter to 0 in case of forced deletion
     long refCounter = _refCounter;
+#ifdef CARTO_DEBUG
     if( refCounter > 0 )
       std::cerr << "RCObject destructor called while " << refCounter 
                 << " references are still alive on object " << this 
                 << std::endl;
-  }
 #endif
+    if( refCounter > 0 )
+      for( long i=0; i<refCounter; ++i )
+        --_refCounter;
+    else
+      for( long i=0; i<-refCounter; ++i )
+        ++_refCounter;
+  }
 };
 
 
@@ -347,24 +354,24 @@ public:
   inline const_ref( const ref<R> &o ){
     const RefData<R> &other = o;
 #ifdef DEBUG_REF
-    std::cout << "New ref from other ref with static cast (" << other._ref
+    std::cout << "New ref from other ref with implicit cast (" << other._ref
       << ")" << std::endl;
 #endif
     if( other._pcount && *other._pcount >= 0 )
       ++(*other._pcount);
     this->_pcount = other._pcount;
-    this->_ref = static_cast<T *>( other._ref );
+    this->_ref = other._ref;
   }
 
   template <class R>
   inline const_ref( const const_ref<R> &other ){
 #ifdef DEBUG_REF
-    std::cout << "New ref from other ref with static cast (" << other._ref << ")" << std::endl;
+    std::cout << "New ref from other ref with implicit cast (" << other._ref << ")" << std::endl;
 #endif
     if( other._pcount && *other._pcount >= 0 )
       ++(*other._pcount);
     this->_pcount = other._pcount;
-    this->_ref = static_cast<T *>( other._ref );
+    this->_ref = other._ref;
   }
 
   inline ~const_ref() {  RefConstruction<T>::destroy( this ); }

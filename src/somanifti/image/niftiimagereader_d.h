@@ -41,7 +41,7 @@
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
 #include <soma-io/datasource/filedatasource.h>          // used by clone()
 #include <soma-io/datasource/datasource.h>
-#include <soma-io/checker/transformation.h>
+#include <soma-io/transformation/affinetransformation3d_base.h>
 #include <soma-io/nifticlib/niftilib/nifti2_io.h>
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
@@ -245,14 +245,14 @@ namespace
 
 
   template <> inline cfloat _scaledValue(
-    const cfloat & value, double scale, double offset)
+    const cfloat & value, double /* scale */, double /* offset */)
   {
     return value;
   }
 
 
   template <> inline cdouble _scaledValue(
-    const cdouble & value, double scale, double offset)
+    const cdouble & value, double /* scale */, double /* offset */)
   {
     return value;
   }
@@ -298,8 +298,8 @@ namespace soma
     std::vector< float > storage_to_memory;
     hdr->getProperty( "storage_to_memory", storage_to_memory );
 
-    AffineTransformation3d s2m( storage_to_memory );
-    AffineTransformation3d m2s = s2m.inverse();
+    AffineTransformation3dBase s2m( storage_to_memory );
+    AffineTransformation3dBase m2s = s2m.inverse();
 
     std::vector<float> s(2);
     s[0] = 1.;

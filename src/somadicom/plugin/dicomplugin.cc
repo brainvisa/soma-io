@@ -53,7 +53,7 @@ namespace soma {
       new DicomPlugin;
       return true;
     }
-    bool dicominit = initDicom();
+    bool dicominit __attribute__((unused)) = initDicom();
   }
 }
 

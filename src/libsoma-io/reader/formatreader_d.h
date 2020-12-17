@@ -102,10 +102,10 @@ namespace soma
    * This implem is only used for FormatReader<GenericObject>
    **************************************************************************/
   template<typename T>
-  void FormatReader<T>::read( T & obj, 
-                              carto::rc_ptr<DataSourceInfo> dsi, 
+  void FormatReader<T>::read( T & /* obj */, 
+                              carto::rc_ptr<DataSourceInfo> /* dsi */, 
                               const AllocatorContext & context, 
-                              carto::Object options )
+                              carto::Object /* options */ )
   {
     throw carto::invalid_format_error( "format reader not implemented yet...", 
                                        context.dataSource() ? 

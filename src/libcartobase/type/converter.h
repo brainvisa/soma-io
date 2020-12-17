@@ -37,6 +37,7 @@
 #include <cartobase/config/cartobase_config.h>
 #include <cartobase/type/types.h>
 #include <cartobase/type/limits.h>
+#include <cartobase/type/string_conversion.h>
 
 namespace carto
 {
@@ -116,6 +117,7 @@ namespace carto
   class DefaultedRescalerInfo
   {
   public:
+    DefaultedRescalerInfo();
     DefaultedRescalerInfo( const RescalerInfo & info );
 
     double getScale() const
@@ -145,7 +147,7 @@ namespace carto
     void convert( const INP &in, OUTP & out ) const;
 
   private:
-    RescalerInfo _info;
+    DefaultedRescalerInfo<INP, OUTP> _defaulted_info;
   };
 
 
@@ -243,7 +245,6 @@ namespace carto
   protected:
     bool _rescale;
     RescalerInfo _info;
-
   };
 
 
@@ -265,13 +266,14 @@ namespace carto
   // implementation
   template<typename INP, typename OUTP>
   inline
-  Rescaler<INP,OUTP>::Rescaler() : _info()
+  Rescaler<INP,OUTP>::Rescaler() : _defaulted_info()
   {
   }
 
   template<typename INP, typename OUTP>
   inline
-  Rescaler<INP,OUTP>::Rescaler(const RescalerInfo & info) : _info(info)
+  Rescaler<INP,OUTP>::Rescaler(const RescalerInfo & info) :
+      _defaulted_info(info)
   {
   }
 
@@ -281,8 +283,7 @@ namespace carto
   {
     // TODO: this extremely sub-optimal...
     // (but hopefullty extremely rarely used)
-    DefaultedRescalerInfo<INP, OUTP> dri( _info );
-    out = dri.getScaledValue( in );
+    out = _defaulted_info.getScaledValue(in);
   }
 
 
@@ -432,7 +433,7 @@ void RawConverter< INP , OUTP >::convert( const INP &in, OUTP & out ) const \
     OUTP result;
     RawConverter<double, OUTP> doubleconverter;
     double scaledvalue;
-
+    
     scaledvalue = ( value - this->_defaultedvmin ) * _scale
       + this->_defaultedomin;
 
@@ -444,6 +445,13 @@ void RawConverter< INP , OUTP >::convert( const INP &in, OUTP & out ) const \
       doubleconverter.convert( scaledvalue, result );
     }
 
+//     if (value != 0)
+//         std::cout << "Scale value " << carto::toString(value) 
+//                   << "(" << carto::DataTypeCode<INP>::name() << ")"
+//                   << " to " << carto::toString(result) 
+//                   << "(" << carto::DataTypeCode<OUTP>::name() << ")"
+//                   << "scale is " << carto::toString(_scale) << ")"
+//                   << std::endl;
     return result;
   }
 

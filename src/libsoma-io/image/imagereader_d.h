@@ -50,7 +50,7 @@ namespace soma {
   //   U T I L I T I E S
   //==========================================================================
   template <typename T> 
-  void ImageReader<T>::updateParams( DataSourceInfo & dsi )
+  void ImageReader<T>::updateParams( DataSourceInfo & /* dsi */ )
   {
   }
   
@@ -80,7 +80,8 @@ namespace soma {
    * (like GisImageReader)
    */
   template <typename T>
-  void ImageReader<T>::read( T * dest, DataSourceInfo & dsi,
+  void ImageReader<T>::read( T * /* dest */,
+                             DataSourceInfo & dsi,
                              std::vector<int> &  /* pos */,
                              std::vector<int> &  /*size */,
                              std::vector<long> & /* stride */,
@@ -93,20 +94,20 @@ namespace soma {
 
 
   template <typename T>
-  bool ImageReader<T>::open( DataSourceInfo & dsi )
+  bool ImageReader<T>::open( DataSourceInfo & /* dsi */ )
   {
     return true;
   }
 
 
   template <typename T>
-  void ImageReader<T>::close( DataSourceInfo & dsi )
+  void ImageReader<T>::close( DataSourceInfo & /* dsi */ )
   {
   }
 
 
   template <typename T>
-  bool ImageReader<T>::isOpen( const DataSourceInfo & dsi ) const
+  bool ImageReader<T>::isOpen( const DataSourceInfo & /* dsi */ ) const
   {
     return false;
   }

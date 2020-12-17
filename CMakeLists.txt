@@ -89,6 +89,13 @@ if( ZLIB_FOUND )
   BRAINVISA_DEPENDENCY( DEV RECOMMENDS zlib DEV )
 endif()
 
+# MINC support
+find_package( MINC )
+if( MINC_FOUND )
+  BRAINVISA_DEPENDENCY( RUN DEPENDS libminc RUN )
+  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libminc DEV )
+endif()
+
 # Python is required for the DICOM conversion script
 # It should be made optional
 find_package( python REQUIRED )
@@ -143,6 +150,9 @@ endif()
 
 add_definitions(${SOMA-IO_DEFINITIONS})
 
+#set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -Wall" )
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall" )
+
 ## Include directories
 set( SOMA-IO_INCLUDE_DIRS 
      ${Sigc++2_INCLUDE_DIRS} 
@@ -177,6 +187,10 @@ if( DCMTK_FOUND )
 endif()
 add_subdirectory( src/tests )
 find_package( Sphinx )
+if( MINC_FOUND )
+  add_subdirectory( src/somaminc )
+endif()
+
 
 BRAINVISA_GENERATE_SPHINX_DOC( "sphinx"
   "share/doc/soma-io-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}" )

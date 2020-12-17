@@ -173,7 +173,8 @@ namespace soma {
   }
   
   template <typename T> 
-  long GisImageReader<T>::writeBlock( const char * data, unsigned long len )
+  long GisImageReader<T>::writeBlock( const char * /* data */,
+                                      unsigned long /* len */ )
   {
     return 0;
   }
@@ -236,7 +237,6 @@ namespace soma {
     size_t dim, ndim = size.size();
     // region line size
     offset_t  len = size[0] * sizeof( T );
-    offset_t offset;
     long readout;
 
     bool mustclose = !this->ChainDataSource::isOpen();
@@ -263,7 +263,7 @@ namespace soma {
         if( ( readout = readBlock( target, len ) ) != (long) len ) {
 #ifdef CARTO_DEBUG
           std::cerr << "readBlock( failed at ( ";
-          for (int d=0; d < ndim; ++d){
+          for (size_t d=0; d < ndim; ++d){
               if (d > 0)
                   std::cerr << ",";
               std::cerr << carto::toString(it.position()[d]);

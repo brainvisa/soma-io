@@ -73,7 +73,7 @@ namespace carto
       
  */
 class PropertySet : virtual public RCObject, public Observable, 
-    public DictionaryInterface
+                    public DictionaryInterface
 {
 public:
   /** This signal type informs the slots about the sender (this), the 

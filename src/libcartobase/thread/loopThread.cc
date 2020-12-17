@@ -97,8 +97,6 @@ carto::LoopThread::~LoopThread()
 void carto::LoopThread::doRun()
 {
 
-  int startIndex = 0;
-  int countIndex = 0;
   bool single = _parent->endThreadsWhenDone();
 
   do

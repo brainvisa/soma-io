@@ -443,13 +443,13 @@ OFCondition DJ2KEncoderBase::determineDecompressedColorModel(
 
 
 OFCondition DJ2KEncoderBase::losslessRawEncode(
-                                        const Uint16 *pixelData,
-                                        const Uint32 length,
-                                        DcmItem *dataset,
-                                        const DJ2KRepresentationParameter *djrp,
-                                        DcmPixelSequence * & pixSeq,
-                                        const DJ2KCodecParameter *djcp,
-                                        double& compressionRatio ) const
+                                 const Uint16 * /* pixelData */,
+                                 const Uint32 /* length */,
+                                 DcmItem * /* dataset */,
+                                 const DJ2KRepresentationParameter * /* djrp */,
+                                 DcmPixelSequence * & /* pixSeq */,
+                                 const DJ2KCodecParameter * /* djcp */,
+                                 double& /* compressionRatio */ ) const
 {
 
   OFCondition result;
@@ -459,8 +459,9 @@ OFCondition DJ2KEncoderBase::losslessRawEncode(
 }
 
 
-OFCondition DJ2KEncoderBase::updateLossyCompressionRatio( DcmItem *dataset, 
-                                                          double ratio ) const
+OFCondition DJ2KEncoderBase::updateLossyCompressionRatio(
+                                                      DcmItem * /* dataset */, 
+                                                      double /* ratio */ ) const
 {
 
   OFCondition result;
@@ -471,9 +472,9 @@ OFCondition DJ2KEncoderBase::updateLossyCompressionRatio( DcmItem *dataset,
 
 
 OFCondition DJ2KEncoderBase::updateDerivationDescription(
-                                        DcmItem *dataset,
-                                        const DJ2KRepresentationParameter *djrp,
-                                        double ratio ) const
+                                 DcmItem * /* dataset */,
+                                 const DJ2KRepresentationParameter * /* djrp */,
+                                 double /* ratio */ ) const
 {
 
   OFCondition result;
@@ -483,17 +484,18 @@ OFCondition DJ2KEncoderBase::updateDerivationDescription(
 }
 
 
-OFCondition DJ2KEncoderBase::compressRawFrame( const Uint8 *framePointer,
-                                      Uint16 bitsAllocated,
-                                      Uint16 columns,
-                                      Uint16 rows,
-                                      Uint16 samplesPerPixel,
-                                      Uint16 planarConfiguration,
-                                      const OFString& photometricInterpretation,
-                                      DcmPixelSequence *pixelSequence,
-                                      DcmOffsetList &offsetList,
-                                      unsigned long &compressedSize,
-                                      const DJ2KCodecParameter *djcp ) const
+OFCondition DJ2KEncoderBase::compressRawFrame(
+                                const Uint8 * /* framePointer */,
+                                Uint16 /* bitsAllocated */,
+                                Uint16 /* columns */,
+                                Uint16 /* rows */,
+                                Uint16 /* samplesPerPixel */,
+                                Uint16 /* planarConfiguration */,
+                                const OFString& /* photometricInterpretation */,
+                                DcmPixelSequence * /* pixelSequence */,
+                                DcmOffsetList & /* offsetList */,
+                                unsigned long & /* compressedSize */,
+                                const DJ2KCodecParameter * /* djcp */ ) const
 {
 
   OFCondition result;

@@ -99,8 +99,8 @@ namespace interface_internal
                                 DataTypeCode<T>::name() );
     }
 
-    static inline bool equals( const TypedObject<T> & o1,
-                               const GenericObject & o2 )
+    static inline bool equals( const TypedObject<T> & /* o1 */,
+                               const GenericObject & /* o2 */ )
     {
       throw std::runtime_error( std::string( "Cannot convert scalar to "
                                              "object of type " ) +
@@ -165,8 +165,8 @@ namespace interface_internal
                                 DataTypeCode<T>::name() );
     }
 
-    static inline bool equals( const TypedObject<T> & o1,
-                               const GenericObject & o2 )
+    static inline bool equals( const TypedObject<T> & /* o1 */,
+                               const GenericObject & /* o2 */ )
     {
        throw std::runtime_error( std::string( "Cannot convert string to "
                                              "object of type " ) +
@@ -428,8 +428,8 @@ namespace interface_internal
                                 "Dictionary" );
     }
 
-    static inline bool equals( const TypedObject<T> & o1,
-                               const GenericObject & o2 )
+    static inline bool equals( const TypedObject<T> & /* o1 */,
+                               const GenericObject & /* o2 */ )
     {
       throw std::runtime_error( std::string( "object of type " ) +
                                 DataTypeCode<T>::name() + " is not a "
@@ -530,8 +530,8 @@ namespace interface_internal
       return Object();
     }
 
-    static inline bool equals( const TypedObject<T> & o1,
-                               const GenericObject & o2 )
+    static inline bool equals( const TypedObject<T> & /* o1 */,
+                               const GenericObject & /* o2 */ )
     {
       throw std::runtime_error( std::string( "object of type " ) +
                                 DataTypeCode<T>::name() +

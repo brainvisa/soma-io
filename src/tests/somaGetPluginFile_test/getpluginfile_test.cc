@@ -38,7 +38,7 @@
 using namespace carto;
 using namespace std;
 
-int main( int argc, const char** argv )
+int main()
 {
   string pfile = Paths::findResourceFile( "plugins/cartodata.plugins", "aims" );
   cout << "Plugin File: " << pfile << endl;

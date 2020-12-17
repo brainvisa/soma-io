@@ -1,3 +1,8 @@
+if( NOT OPENSLIDE_HEX_VERSION )
+  string( REPLACE "." "0" tmpHexVersion "${OPENSLIDE_VERSION}" )
+  set( OPENSLIDE_HEX_VERSION "0x${tmpHexVersion}")
+endif()
+
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/osversion.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h" @ONLY )
 BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h"
                    DESTINATION "include/soma-io/config"

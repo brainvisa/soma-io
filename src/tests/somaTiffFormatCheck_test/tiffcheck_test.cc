@@ -66,7 +66,7 @@ int main( int argc, const char** argv )
     // Test that tiff plugin is loaded
     const std::set<Plugin*> & plugins = PluginManager::singleton().plugins();
     std::set<Plugin*>::iterator itp, ite = plugins.end();
-    Plugin* tiffplugin;
+    Plugin* tiffplugin = 0;
     bool tiffpluginfound = false;
     for( itp = plugins.begin(); itp != ite; ++itp ) {
       if ((*itp)->name() == "TIFF SOMA-IO") {
@@ -77,6 +77,7 @@ int main( int argc, const char** argv )
       }
     }
     ASSERT(tiffpluginfound);
+    tiffplugin = tiffplugin; // stupid code to avoid a complation warning
     
     // Get tiff FormatChecker
     FormatChecker * fc = DataSourceInfoLoader::formatInfo( "TIFF" );
