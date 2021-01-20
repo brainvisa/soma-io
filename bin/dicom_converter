@@ -46,7 +46,7 @@ import sys
 import numpy as np
 import soma
 from soma.path import split_path
-from soma.path import which
+from soma.path import find_in_path
 from soma import aims
 import argparse
 from soma.dicom import aggregator
@@ -117,7 +117,7 @@ def get_start_and_duration_times(serie):
         if len(acq_time) < 6:
             return None
         msec = int(acq_time[:2]) * 3600 + \
-            int(acq_time[2:4])*60 + \
+            int(acq_time[2:4]) * 60 + \
             int(acq_time[4:6])
         msec *= 1000
         if len(acq_time) > 6:
@@ -160,7 +160,7 @@ def check_transfer_syntax_uid(dicomFile):
 
     if is_endian:
         if is_big_endian:
-            check_call([which("dcmconv"), "+te", dicomFile, dicomFile])
+            check_call([find_in_path("dcmconv"), "+te", dicomFile, dicomFile])
         else:
             pass
     else:
@@ -171,7 +171,7 @@ def check_jpeg(dicomFile):
     ds = dicom.read_file(dicomFile)
     if not "JPEG" in ds.file_meta.TransferSyntaxUID.name:
         return
-    check_call([which("dcmdjpeg"), dicomFile, dicomFile])
+    check_call([find_in_path("dcmdjpeg"), dicomFile, dicomFile])
 
 
 def removeCorruptTags(dataset):
@@ -416,7 +416,7 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
     add_version_to_minf(minf, get_mcverter(), header)
 
 
-def convert_to_nifti_MR(serie,  remove_corrupt_tags=True):
+def convert_to_nifti_MR(serie, remove_corrupt_tags=True):
 
     uuid = None
     series_instance_uid = None
@@ -553,25 +553,25 @@ def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
                                make_valid_filename(filename[:-1] + '.nii'))
     except:
         outfile = None
-#    try:
-#        outfile = os.path.join( args.output, \
-#                                make_valid_filename( \
-#                                  ds.PatientsName + '-' + ds.StudyDate + '-' + \
-#                                  ds.Modality + '-' + \
-#                                  ds.SeriesDescription + '-' + \
-#                                  ds.InstitutionName ) + ".nii" )
-#
-#    except:
-#        outfile = None
+    # try:
+    #     outfile = os.path.join( args.output, \
+    #                             make_valid_filename( \
+    #                               ds.PatientsName + '-' + ds.StudyDate + '-' + \
+    #                               ds.Modality + '-' + \
+    #                               ds.SeriesDescription + '-' + \
+    #                               ds.InstitutionName ) + ".nii" )
+ 
+    # except:
+    #     outfile = None
 
     check_call(['AimsFileConvert', '-i', tempFile, '-o', outfile])
     rescale_image_according_to_minf(outfile)
-#    try:
-#        if ds[0x0008,0x0070].value == "SIEMENS NM" and \
-#           ds[0x0008,0x1090].value == "Encore2":
-#            check_call( [ 'AimsFlip', '-i', outfile, '-o', outfile, '-m', 'ZZ' ] )
-#    except:
-#        pass
+    # try:
+    #     if ds[0x0008,0x0070].value == "SIEMENS NM" and \
+    #        ds[0x0008,0x1090].value == "Encore2":
+    #         check_call( [ 'AimsFlip', '-i', outfile, '-o', outfile, '-m', 'ZZ' ] )
+    # except:
+    #     pass
 
     uuid = None
     if "FrameofReferenceUID" in ds:
@@ -586,17 +586,17 @@ def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
                          'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
 
-#        try:
-#            detectorInf = ds.DetectorInformations
-#            if len(detectorInf) == 1:
-#                imagePosition = detectorInf[0].ImagePositionPatient
-#                transformation = header['transformations'][0]
-#                transformation[3] = -imagePosition[0]
-#                transformation[7] = -imagePosition[1]
-#                transformation[11] = ds.SpacingBetweenSlices*ds.NumberofSlices + imagePosition[2]
-#                newattributes.update({'transformations': [transformations]})
-#        except:
-#            pass
+        # try:
+        #     detectorInf = ds.DetectorInformations
+        #     if len(detectorInf) == 1:
+        #         imagePosition = detectorInf[0].ImagePositionPatient
+        #         transformation = header['transformations'][0]
+        #         transformation[3] = -imagePosition[0]
+        #         transformation[7] = -imagePosition[1]
+        #         transformation[11] = ds.SpacingBetweenSlices*ds.NumberofSlices + imagePosition[2]
+        #         newattributes.update({'transformations': [transformations]})
+        # except:
+        #     pass
     else:
         newattributes = {'modality': ds.Modality,
                          'series_instance_uid': ds.SeriesInstanceUID}
