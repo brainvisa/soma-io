@@ -19,7 +19,7 @@ if( MINC2_FOUND )
 endif()
 
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/somaminc_config.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/somaminc_config.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/sona-io/config/somaminc_config.h"
+BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somaminc_config.h"
                    DESTINATION "include/soma-io/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
