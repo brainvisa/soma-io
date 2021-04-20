@@ -36,6 +36,7 @@
 
 #include <cartobase/config/cartobase_config.h>
 #include <vector>
+#include <iostream>
 
 
 namespace carto
@@ -82,14 +83,28 @@ namespace carto
   public:
     line_NDIterator_base( const std::vector<int> & dims );
     line_NDIterator_base( const std::vector<int> & dims,
-                          const std::vector<int> & strides );
+                          const std::vector<int> & strides,
+                          bool optimize_direction = false );
     line_NDIterator_base( const std::vector<int> & dims,
-                          const std::vector<size_t> & strides );
+                          const std::vector<size_t> & strides,
+                          bool optimize_direction = false );
     line_NDIterator_base( const std::vector<int> & dims,
-                          const std::vector<long> & strides );
+                          const std::vector<long> & strides,
+                          bool optimize_direction = false );
     // virtual ~line_NDIterator_base() {}
 
     NDIterator_base & operator ++();
+
+    int line_size() const;
+    int line_direction() const;
+    bool is_contiguous() const;
+
+  protected:
+    void set_optimized_direction( bool optimize_direction = false );
+
+    int _line_directon;
+    long _line_stride;
+    bool _contiguous;
   };
 
 
@@ -175,7 +190,7 @@ namespace carto
       for( ; !it.ended(); ++it )
       {
         p = &*it;
-        for( pp=p + dimensions[0]; p!=pp; ++p )
+        for( pp=p + it.line_length(); p!=pp; it.inc_line_ptr( p ) )
           sum += *p;
       }
       \endcode
@@ -184,15 +199,29 @@ namespace carto
   {
   public:
     line_NDIterator( T* buffer, const std::vector<int> & dims );
+    /** the optional "optimize_direction" parameter allows the iterator to
+        find a contiguous direction (with a stride == 1) and use it as the line
+        dimension. This way a line pointer can be incremented instead of adding
+        strides. In many cases it does not change much in performance.
+    */
     line_NDIterator( T* buffer, const std::vector<int> & dims,
-                     const std::vector<int> & strides );
+                     const std::vector<int> & strides,
+                     bool optimize_direction = false );
     line_NDIterator( T* buffer, const std::vector<int> & dims,
-                     const std::vector<size_t> & strides );
+                     const std::vector<size_t> & strides,
+                     bool optimize_direction = false );
     line_NDIterator( T* buffer, const std::vector<int> & dims,
-                     const std::vector<long> & strides );
+                     const std::vector<long> & strides,
+                     bool optimize_direction = false );
     // virtual ~line_NDIterator() {}
 
     T & operator * () const;
+    /// increment a "line" pointer (advancing through the line)
+    void inc_line_ptr( T* & p ) const;
+    /// increment a "line" pointer (advancing through the line)
+    void inc_line_ptr( const T* & p ) const;
+    /// line_size * line stride: end of line
+    long line_length() const;
 
   protected:
     T* _buffer;
@@ -205,15 +234,27 @@ namespace carto
   {
   public:
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims );
+    /** the optional "optimize_direction" parameter allows the iterator to
+        find a contiguous direction (with a stride == 1) and use it as the line
+        dimension. This way a line pointer can be incremented instead of adding
+        strides. In many cases it does not change much in performance.
+    */
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
-                           const std::vector<int> & strides );
+                           const std::vector<int> & strides,
+                           bool optimize_direction = false );
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
-                           const std::vector<size_t> & strides );
+                           const std::vector<size_t> & strides,
+                           bool optimize_direction = false );
     const_line_NDIterator( const T* buffer, const std::vector<int> & dims,
-                           const std::vector<long> & strides );
+                           const std::vector<long> & strides,
+                           bool optimize_direction = false );
     // virtual ~const_line_NDIterator() {}
 
     const T & operator * () const;
+    /// increment a "line" pointer (advancing through the line)
+    void inc_line_ptr( const T* & p ) const;
+    /// line_size * line stride: end of line
+    long line_length() const;
 
   protected:
     const T* _buffer;
@@ -329,7 +370,8 @@ namespace carto
 
   inline line_NDIterator_base::line_NDIterator_base(
     const std::vector<int> & dims )
-    : NDIterator_base( dims )
+    : NDIterator_base( dims ), _line_directon( 0 ), _line_stride( 1 ),
+      _contiguous( true )
   {
     if( dims.size() < 2 )
       _ended = true;
@@ -337,29 +379,81 @@ namespace carto
 
 
   inline line_NDIterator_base::line_NDIterator_base(
-    const std::vector<int> & dims, const std::vector<int> & strides )
-    : NDIterator_base( dims, strides )
+    const std::vector<int> & dims, const std::vector<int> & strides,
+    bool optimize_direction )
+    : NDIterator_base( dims, strides ), _line_directon( 0 ), _line_stride( 1 ),
+      _contiguous( true )
   {
     if( dims.size() < 2 )
       _ended = true;
+    set_optimized_direction( optimize_direction );
   }
 
 
   inline line_NDIterator_base::line_NDIterator_base(
-    const std::vector<int> & dims, const std::vector<size_t> & strides )
-    : NDIterator_base( dims, strides )
+    const std::vector<int> & dims, const std::vector<size_t> & strides,
+    bool optimize_direction )
+    : NDIterator_base( dims, strides ), _line_directon( 0 ), _line_stride( 1 ),
+      _contiguous( true )
   {
     if( dims.size() < 2 )
       _ended = true;
+    set_optimized_direction( optimize_direction );
   }
 
 
   inline line_NDIterator_base::line_NDIterator_base(
-    const std::vector<int> & dims, const std::vector<long> & strides )
-    : NDIterator_base( dims, strides )
+    const std::vector<int> & dims, const std::vector<long> & strides,
+    bool optimize_direction )
+    : NDIterator_base( dims, strides ), _line_directon( 0 ), _line_stride( 1 ),
+      _contiguous( true )
   {
     if( dims.size() < 2 )
       _ended = true;
+    set_optimized_direction( optimize_direction );
+  }
+
+
+  inline void line_NDIterator_base::set_optimized_direction(
+    bool optimize_direction )
+  {
+    if( !_strides.empty() )
+    {
+      _line_stride = _strides[_line_directon];
+      if( optimize_direction )
+      {
+        size_t dim, ndim = _strides.size();
+        for( dim=0; dim<ndim; ++dim )
+          if( _strides[dim] == 1 )
+          {
+            // elements are contiguous along this direction
+            _line_directon = dim;
+            _line_stride = 1;
+            break;
+          }
+      }
+    }
+    else
+      _line_stride = 1;
+    _contiguous = ( _strides.empty() || _strides[_line_directon] == 1 );
+  }
+
+
+  inline bool line_NDIterator_base::is_contiguous() const
+  {
+    return _contiguous;
+  }
+
+
+  inline int line_NDIterator_base::line_direction() const
+  {
+    return _line_directon;
+  }
+
+
+  inline int line_NDIterator_base::line_size() const
+  {
+    return _dims[_line_directon];
   }
 
 
@@ -367,24 +461,24 @@ namespace carto
   {
     size_t dim, ndim = _dims.size();
     bool nextrow = true, stride = !_strides.empty();
-    for( dim=1; nextrow && dim<ndim; ++dim )
+    for( dim=0; nextrow && dim<ndim; ++dim )
     {
-      if( nextrow )
+      if( dim == _line_directon )
+        continue;
+      ++_position[dim];
+      if( stride )
+        _offset += _strides[dim];
+      if( _position[dim] == _dims[dim] )
       {
-        ++_position[dim];
+        if( dim == ndim - 1
+            || ( dim == ndim - 2 && _line_directon == ndim - 1 ) )
+          _ended = true;
+        _position[dim] = 0;
         if( stride )
-          _offset += _strides[dim];
-        if( _position[dim] == _dims[dim] )
-        {
-          if( dim == ndim - 1 )
-            _ended = true;
-          _position[dim] = 0;
-          if( stride )
-            _offset -= _strides[dim] * _dims[dim];
-        }
-        else
-          nextrow = false;
+          _offset -= _strides[dim] * _dims[dim];
       }
+      else
+        nextrow = false;
     }
     return *this;
   }
@@ -463,25 +557,34 @@ namespace carto
 
 
   template <typename T> inline
-  line_NDIterator<T>::line_NDIterator( T* buffer, const std::vector<int> & dims,
-                                       const std::vector<int> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  line_NDIterator<T>::line_NDIterator( T* buffer,
+                                       const std::vector<int> & dims,
+                                       const std::vector<int> & strides,
+                                       bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
 
   template <typename T> inline
-  line_NDIterator<T>::line_NDIterator( T* buffer, const std::vector<int> & dims,
-                                       const std::vector<size_t> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  line_NDIterator<T>::line_NDIterator( T* buffer,
+                                       const std::vector<int> & dims,
+                                       const std::vector<size_t> & strides,
+                                       bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
 
   template <typename T> inline
-  line_NDIterator<T>::line_NDIterator( T* buffer, const std::vector<int> & dims,
-                                       const std::vector<long> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+  line_NDIterator<T>::line_NDIterator( T* buffer,
+                                       const std::vector<int> & dims,
+                                       const std::vector<long> & strides,
+                                       bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
@@ -489,6 +592,36 @@ namespace carto
   template <typename T> inline T & line_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
+  }
+
+
+  template <typename T> inline
+  void line_NDIterator<T>::inc_line_ptr( T* & p ) const
+  {
+    if( _contiguous )
+      ++p;
+    else
+      p += _line_stride;
+  }
+
+
+  template <typename T> inline
+  void line_NDIterator<T>::inc_line_ptr( const T* & p ) const
+  {
+    if( _contiguous )
+      ++p;
+    else
+      p += _line_stride;
+  }
+
+
+  template <typename T> inline
+  long line_NDIterator<T>::line_length() const
+  {
+    if( is_contiguous() )
+      return line_size();
+    else
+      return line_size() * _strides[_line_directon];
   }
 
   // --
@@ -504,8 +637,9 @@ namespace carto
   template <typename T> inline
   const_line_NDIterator<T>::const_line_NDIterator(
     const T* buffer, const std::vector<int> & dims,
-    const std::vector<int> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+    const std::vector<int> & strides, bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
@@ -513,8 +647,9 @@ namespace carto
   template <typename T> inline
   const_line_NDIterator<T>::const_line_NDIterator(
     const T* buffer, const std::vector<int> & dims,
-    const std::vector<size_t> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+    const std::vector<size_t> & strides, bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
@@ -522,8 +657,9 @@ namespace carto
   template <typename T> inline
   const_line_NDIterator<T>::const_line_NDIterator(
     const T* buffer, const std::vector<int> & dims,
-    const std::vector<long> & strides )
-    : line_NDIterator_base( dims, strides ), _buffer( buffer )
+    const std::vector<long> & strides, bool optimize_direction )
+    : line_NDIterator_base( dims, strides, optimize_direction ),
+      _buffer( buffer )
   {
   }
 
@@ -532,6 +668,26 @@ namespace carto
   const_line_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
+  }
+
+
+  template <typename T> inline
+  void const_line_NDIterator<T>::inc_line_ptr( const T* & p ) const
+  {
+    if( _contiguous )
+      ++p;
+    else
+      p += _line_stride;
+  }
+
+
+  template <typename T> inline
+  long const_line_NDIterator<T>::line_length() const
+  {
+    if( is_contiguous() )
+      return line_size();
+    else
+      return line_size() * _strides[_line_directon];
   }
 
 }
