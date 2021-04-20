@@ -463,7 +463,7 @@ namespace carto
     bool nextrow = true, stride = !_strides.empty();
     for( dim=0; nextrow && dim<ndim; ++dim )
     {
-      if( dim == _line_directon )
+      if( dim == (unsigned) _line_directon )
         continue;
       ++_position[dim];
       if( stride )
@@ -471,7 +471,7 @@ namespace carto
       if( _position[dim] == _dims[dim] )
       {
         if( dim == ndim - 1
-            || ( dim == ndim - 2 && _line_directon == ndim - 1 ) )
+            || ( dim == ndim - 2 && (unsigned) _line_directon == ndim - 1 ) )
           _ended = true;
         _position[dim] = 0;
         if( stride )
