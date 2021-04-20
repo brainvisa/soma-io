@@ -540,6 +540,24 @@ namespace carto
   }
 
 
+  template <typename T> inline
+  const_NDIterator<T>::const_NDIterator(
+    const T* buffer, const std::vector<int> & dims,
+    const std::vector<long> & strides )
+    : NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
+  template <typename T> inline
+  const_NDIterator<T>::const_NDIterator(
+    const T* buffer, const std::vector<int> & dims,
+    const std::vector<size_t> & strides )
+    : NDIterator_base( dims, strides ), _buffer( buffer )
+  {
+  }
+
+
   template <typename T> const inline T &
   const_NDIterator<T>::operator * () const
   {
