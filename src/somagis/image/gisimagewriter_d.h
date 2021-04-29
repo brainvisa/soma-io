@@ -251,10 +251,12 @@ namespace soma {
     {
       if( !source ) // unallocated data
       {
+        localMsg("writing unallocated data...");
         std::vector<int> szend = _sizes[ 0 ];
         size_t dim;
         for( dim=0; dim<ndim; ++dim )
           --szend[dim];
+
         setpos( szend );
         T value = 0;
         if( writeBlock( reinterpret_cast<const char *>( &value ), sizeof(T) )
@@ -263,6 +265,7 @@ namespace soma {
       }
       else
       {
+        localMsg( "writing allocated data..." );
         std::vector<int> dpos( ndim, 0 );
         size_t dim;
         dpos[0] = pos[0];
