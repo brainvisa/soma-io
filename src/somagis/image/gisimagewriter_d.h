@@ -172,13 +172,40 @@ namespace soma {
   template <typename T>
   long GisImageWriter<T>::writeBlock( const char * data, unsigned long len )
   {
+    return writeStridedBlock( data, len, 1 );
+  }
+
+
+  template <typename T>
+  long GisImageWriter<T>::writeStridedBlock( const char * data,
+                                             unsigned long len, long stride )
+  {
     if( !_itemw.get() )
     {
       DefaultItemWriter<T>      diw;
       _itemw.reset( diw.writer( _binary, _byteswap ) );
     }
     unsigned long nitems = len / sizeof( T );
-    return _itemw->write( *source(), (const T *) data, nitems ) * sizeof( T );
+    if( stride == 1 )
+      // optimal memory orientation
+      return _itemw->write( *source(),
+                            (const T *) data, nitems ) * sizeof( T );
+    else
+    {
+      unsigned long chunk_size = 100000, chunk;
+      long written = 0;
+      std::vector<T> buffer( chunk_size );
+      const T* p = reinterpret_cast<const T*>( data );
+      while( nitems != 0 )
+      {
+        chunk = std::min( chunk_size, nitems );
+        for( long i=0; i<chunk; ++i, p+=stride )
+          buffer[i] = *p;
+        written += _itemw->write( *source(), &buffer[0], chunk ) * sizeof( T );
+        nitems -= chunk;
+      }
+      return written;
+    }
   }
 
 
@@ -280,7 +307,7 @@ namespace soma {
           // we move in the buffer
           // FIXME: stride[0] not taken into account for now
           const char * target = (char *) &*it;
-          if( writeBlock( target, len ) != (long) len )
+          if( writeStridedBlock( target, len, strides[0] ) != (long) len )
               throw carto::eof_error( url() );
         }
       }
