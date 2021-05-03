@@ -99,6 +99,9 @@ namespace soma
 
     protected:
       void buildDSList( DataSourceList & dsl, carto::Object options ) const;
+      long writeStridedBlock( const char * data, unsigned long len,
+                              long stride = 1 );
+
       std::unique_ptr<ItemWriter<T> > _itemw;
       std::vector<std::vector<int> >  _sizes;
       bool  _binary;
