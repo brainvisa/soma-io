@@ -666,6 +666,9 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base,
   if( FileUtil::extension( filename ) != "minf" )
     filename += ".minf";
 
+  if( FileUtil::fileStat( filename ).find( '+' ) == string::npos )
+    return minf;
+
   Object  opts = Object::value( PropertySet() );
   if (options.get()){
     localMsg( "Read minf using options ..." );
