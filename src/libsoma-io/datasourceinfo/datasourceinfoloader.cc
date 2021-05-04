@@ -261,7 +261,7 @@ namespace
       if( ie->second == format )
       {
         elen = ie->first.length();
-        if( elen > size
+        if( elen > size && flen > elen
             && url.substr( flen - elen - 1, elen + 1 )
                == string(".") + ie->first )
         {
