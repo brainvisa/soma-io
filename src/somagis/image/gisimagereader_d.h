@@ -160,19 +160,49 @@ namespace soma {
     return source()->at( pos );
   }
   
-  template <typename T> 
+  template <typename T>
   long GisImageReader<T>::readBlock( char * data, unsigned long maxlen )
+  {
+    return readStridedBlock( data, maxlen, 1 );
+  }
+
+
+  template <typename T>
+  long GisImageReader<T>::readStridedBlock( char * data, unsigned long len,
+                                            long stride )
   {
     if( !_itemr.get() )
     {
       DefaultItemReader<T>      dir;
       _itemr.reset( dir.reader( _binary, _byteswap ) );
     }
-    unsigned long nitems = maxlen / sizeof( T );
-    return _itemr->read( *source(), (T *) data, nitems ) * sizeof( T );
+    unsigned long nitems = len / sizeof( T );
+    if( stride == 1 )
+      // optimal memory orientation
+      return _itemr->read( *source(), (T *) data, nitems ) * sizeof( T );
+    else
+    {
+      unsigned long chunk_size = 100000, chunk;
+      long nread = 0, temp;
+      std::vector<T> buffer( chunk_size );
+      T* p = reinterpret_cast<T*>( data );
+      while( nitems != 0 )
+      {
+        chunk = std::min( chunk_size, nitems );
+        temp = _itemr->read( *source(), &buffer[0], chunk );
+
+        for( long i=0; i<temp; ++i, p+=stride )
+          *p = buffer[i];
+        nitems -= temp;
+        nread += temp * sizeof( T );
+        if( temp != chunk ) // error
+          return nread;
+      }
+      return nread;
+    }
   }
-  
-  template <typename T> 
+
+  template <typename T>
   long GisImageReader<T>::writeBlock( const char * /* data */,
                                       unsigned long /* len */ )
   {
@@ -260,7 +290,9 @@ namespace soma {
         // we move in the buffer
         // FIXME: stride[0] not taken into account for now
         char * target = (char *) &*it;
-        if( ( readout = readBlock( target, len ) ) != (long) len ) {
+        if( ( readout = readStridedBlock( target, len, strides[0] ) )
+            != (long) len )
+        {
 #ifdef CARTO_DEBUG
           std::cerr << "readBlock( failed at ( ";
           for (size_t d=0; d < ndim; ++d){

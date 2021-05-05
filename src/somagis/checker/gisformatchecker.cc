@@ -460,7 +460,7 @@ DataSourceInfo GisFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekSlice( true );
     dsi.capabilities().setSeekVolume( true );
     dsi.capabilities().setRandomAccessEfficient( true );
-    dsi.capabilities().setHandleStrides( false );
+    dsi.capabilities().setHandleStrides( true );
   }
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );

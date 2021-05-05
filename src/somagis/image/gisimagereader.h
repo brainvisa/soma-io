@@ -96,6 +96,8 @@ namespace soma
       virtual bool setpos( const std::vector<int> & pos );
 
     protected:
+      long readStridedBlock( char * data, unsigned long len, long stride = 1 );
+
       std::unique_ptr<ItemReader<T> > _itemr;
       std::vector<std::vector<int> >  _sizes;
       bool  _binary;
