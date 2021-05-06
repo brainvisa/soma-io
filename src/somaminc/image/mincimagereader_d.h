@@ -332,8 +332,8 @@ namespace soma
       vpos[2] = Z_pos;
 
       /* std::cout << "vdir: " << vdir[0] << ", " << vdir[1] << ", " << vdir[2] << ", " << vdir[3] << std::endl;
-      std::cout << "vpos: " << vpos[0] << ", " << vpos[1] << ", " << vpos[2] << ", " << vpos[3] << std::endl; */
-      /* std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
+      std::cout << "vpos: " << vpos[0] << ", " << vpos[1] << ", " << vpos[2] << ", " << vpos[3] << std::endl;
+      std::cout << "size: " << size[0] << ", " << size[1] << ", " << size[2] << ", " << size[3] << std::endl;
       std::cout << "pos: " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", " << pos[3] << std::endl; */
 
       std::vector<int> tsize;
@@ -696,12 +696,13 @@ namespace soma
                 target = dest + offset;
                 for( int x=0; x<size[0]; ++x )
                 {
-                  *target++ = (T)rint(get_volume_real_value(
+                  *target = (T)rint(get_volume_real_value(
                     volume,
                     (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
                     (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
                     (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
                     pos[3] + it.position()[0], 0 ));
+                  target += strides[0];
                 }
               }
         }
@@ -716,12 +717,13 @@ namespace soma
                 target = dest + offset;
                 for( int x=0; x<size[0]; ++x )
                 {
-                  *target++ = (T)get_volume_real_value(
+                  *target = (T)get_volume_real_value(
                     volume,
                     (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
                     (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
                     (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
                     pos[3] + it.position()[0], 0 );
+                  target += strides[0];
                 }
               }
         }
@@ -740,12 +742,13 @@ namespace soma
               target = dest + offset;
               for( int x=0; x<size[0]; ++x )
               {
-                *target++ = (T)get_volume_voxel_value(
+                *target = (T)get_volume_voxel_value(
                   volume,
                     (X_pos) * _sizes[0][0] - dirX * ( x + pos[0] ) - (X_pos),
                     (Y_pos) * _sizes[0][1] - dirY * ( y + pos[1] ) - (Y_pos),
                     (Z_pos) * _sizes[0][2] - dirZ * ( z + pos[2] ) - (Z_pos),
                     pos[3] + it.position()[0], 0 );
+                target += strides[0];
               }
             }
       }
