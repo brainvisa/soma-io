@@ -382,6 +382,7 @@ namespace soma
       stride.resize( ndim, 0 );
     if( stride[0] == 0 )
       stride[0] = 1;
+
     std::vector<long> istride( ndim, 1 );
     for( dim=1; dim<ndim; ++dim )
     {
@@ -443,15 +444,16 @@ namespace soma
             offset = it.offset() + z * stride[2] + y * stride[1];
             target = dest + offset;
 
-            for( int x=0; x<vx; x+=dstinc, psrc += minc )
+            for( int x=0; x<vx; ++x, psrc += minc )
             {
               if( psrc >= pmin && psrc < pmax )
-                *target++ = _scaledValue( (T) *psrc, s[0], s[1] );
+                *target = _scaledValue( (T) *psrc, s[0], s[1] );
               else
               {
-                *target++ = 0;
+                *target = 0;
                 fail = true;
               }
+              target += dstinc;
             }
           }
       }
@@ -498,15 +500,17 @@ namespace soma
             offset = it.offset() + z * stride[2] + y * stride[1];
             target = dest + offset;
 
-            for( int x=0; x<vx; x+=dstinc, psrc += minc )
+            for( int x=0; x<vx; ++x, psrc += minc )
             {
               if( psrc >= pmin && psrc < pmax )
-                *target++ = (T) *psrc;
+                *target = (T) *psrc;
               else
               {
-                *target++ = 0;
+                *target = 0;
                 fail = true;
               }
+
+              target += dstinc;
             }
           }
       }
