@@ -254,8 +254,9 @@ namespace soma {
                       + " tile count " + carto::toString(tcountx)
                                        + "x" + carto::toString(tcounty) );
 
-      uint32_t * pdest;
+      T * pdest;
       int64_t offset, tsizexmax, tsizeymax;
+      std::vector<T> buffer;
 //       int32_t progress = 0, progress2 = 0;
         
       for (int64_t t = 0; t < size[3]; ++t) {      
@@ -284,9 +285,19 @@ namespace soma {
                        + z * stride[2]
                        + t * stride[3];
 
-                pdest = ((uint32_t *)dest) + offset;
+                pdest = dest + offset;
+                T *rpdest = pdest;
+
+                if( stride[0] != 1 )
+                {
+                  // stides on X axis: use a temp buffer and copy
+                  if( buffer.size() < tsizexmax )
+                    buffer.resize( tsizexmax );
+                  rpdest = &buffer[0];
+                }
+
                 openslide_read_region(_osimage,
-                                      pdest,
+                                      (uint32_t *) pdest,
                                       (int64_t)(pos[0] + tsizex * tx)
                                               * _sizes[0][0]
                                               / _sizes[ level ][0], 
@@ -294,8 +305,12 @@ namespace soma {
                                               * _sizes[0][1]
                                               / _sizes[ level ][1],
                                       level, tsizexmax, 1);
+
+                if( stride[0] != 1 )
+                  for( int64_t ix=0; ix<tsizexmax; ++ix )
+                    pdest[ix * stride[0]] = rpdest[ix];
                 
-                swapVoxels((T*)pdest, tsizexmax, byte_order != "ABCD");
+                swapVoxels(pdest, tsizexmax, byte_order != "ABCD");
               }
 
               // localMsg("end tile reading: tx " + carto::toString(tx)
