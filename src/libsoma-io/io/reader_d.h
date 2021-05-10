@@ -57,6 +57,8 @@
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "READER" )
 // localMsg must be undef at end of file
+// #undef localMsg
+// #define localMsg( message ) std::cerr << (message) << std::endl;
 
 //----------------------------------------------------------------------------
 
@@ -222,7 +224,7 @@ namespace soma
                         int passbegin, int passend )
   {
     localMsg( "<" + carto::DataTypeCode<T>::name() + "> "
-      + _datasourceinfo->url() );
+      + _datasourceinfo->url() + " reading existing object" );
 
     if( !header.isNone() )
       _datasourceinfo->header() = header;
