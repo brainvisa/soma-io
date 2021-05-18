@@ -42,12 +42,12 @@
 #define SOMAIO_VECTOR_VECTOR_H
 
 #include <cartobase/exception/assert.h>
-#include <soma-io/utilities/asciidatasourcetraits.h>
 #include <cartobase/type/types.h>
 #include <cartobase/type/datatypetraits.h>
+#include <cartobase/object/object.h>
+#include <soma-io/utilities/asciidatasourcetraits.h>
 #include <fstream>
 #include <math.h>
-#include <cartobase/object/object.h>
 #include <vector>
 
 template <class T,int D> class AimsVector;
@@ -1126,5 +1126,98 @@ AimsVector<T,3> vectProduct( const AimsVector<T,3> & v1,
         	   v1[0] * v2[1] - v1[1] * v2[0] );
 }
 
+
+//=== AsciiDataSourceTraits specializations ===================================
+
+namespace soma
+{
+  //=== AIMSVECTOR<T> =========================================================
+
+  template<typename T, int D>
+  class AsciiDataSourceTraits<AimsVector<T, D> >
+  {
+  public:
+    static bool read( DataSource & ds, AimsVector<T, D> & item );
+    static bool write( DataSource & ds, const AimsVector<T, D> & item );
+  };
+
+
+  // -----------
+
+#ifndef DOXYGEN_HIDE_INTERNAL_CLASSES
+
+  template<typename T, int D>
+  inline
+  bool AsciiDataSourceTraits<AimsVector<T, D> >::read( DataSource & ds,
+                                                       AimsVector<T, D> & x )
+  {
+    char c;
+
+    if( !StreamUtil::skip( ds ) )
+      return false;
+    c = ds.getch();
+    if( c != '(' )
+      return false;
+
+    for( int i=0; i<D; ++i )
+    {
+      if( !StreamUtil::skip( ds ) )
+        return false;
+      if( !AsciiDataSourceTraits<T>::read( ds, x[i] ) )
+        return false;
+      if( i < D-1 )
+      {
+        if( !StreamUtil::skip( ds ) )
+            return false;
+        c = ds.getch();
+        if( c != ',' )
+          return false;
+      }
+    }
+
+    if( !StreamUtil::skip( ds ) )
+      return false;
+    c = ds.getch();
+    if( c != ')' )
+      return false;
+
+    return true;
+  }
+
+
+  template<typename T, int D>
+  inline
+  bool AsciiDataSourceTraits<AimsVector<T, D> >::write(
+    DataSource & ds, const AimsVector<T, D> & x )
+  {
+    ds.putch( '(');
+
+
+    for( int i=0; i<D; ++i )
+    {
+      AsciiDataSourceTraits<T>::write( ds, x[i] );
+      if( i < D-1 )
+      {
+        ds.putch( ',' );
+        ds.putch( ' ' );
+      }
+    }
+
+    ds.putch( ')');
+    return ds.isOpen();
+  }
+
+
+  template <typename T, int D>
+  inline DataSource & operator << ( DataSource & ds,
+                                    const AimsVector<T, D> & x )
+  {
+    AsciiDataSourceTraits<AimsVector<T, D> >::write( ds, x );
+    return ds;
+  }
+
+#endif
+
+}
 
 #endif
