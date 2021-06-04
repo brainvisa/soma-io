@@ -262,8 +262,8 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
                     scale_factor = ds[0x7053, 0x1000].value
                 else:
                     scale_factor = ds[0x7053, 0x1009].value
-        except:
-            pass
+        except Exception as e:
+            raise(e)
 
         rescaleparamsbytime[time].append({'RescaleSlope': float(slope),
                                           'RescaleIntercept': float(inter),
@@ -274,10 +274,19 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
         try:
             ds.RescaleSlope = 1
             ds.RescaleIntercept = 0
-            ds[0x7053, 0x1000].value = "1"
-            ds[0x7053, 0x1009].value = "1"
-        except:
-            pass
+            if ds.get((0x7053, 0x1000)):
+                if isinstance(ds[0x7053, 0x1000].value, str):
+                    ds[0x7053, 0x1000].value = "1"
+                else:
+                    ds[0x7053, 0x1000].value = b"1"
+            
+            if ds.get((0x7053, 0x1009)):
+                if isinstance(ds[0x7053, 0x1009].value, str):
+                    ds[0x7053, 0x1009].value = "1"
+                else:
+                    ds[0x7053, 0x1009].value = b"1"
+        except Exception as e:
+            raise(e)
 
         ds.save_as(tempfile)
 
