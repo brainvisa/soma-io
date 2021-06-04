@@ -5,11 +5,14 @@ from __future__ import print_function
 import os
 import shutil
 import string
-import dicom
 import argparse
 from soma.dicom import aggregator
 import sys
 import traceback
+try:
+    import pydicom as dicom
+except ImportError as e:
+    import dicom
 
 
 def createTree(serie):
