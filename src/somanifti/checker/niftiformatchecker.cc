@@ -130,6 +130,9 @@ namespace soma
     case NIFTI_XFORM_MNI_152:
       return StandardReferentials::mniTemplateReferential();
       break;
+    case NIFTI_XFORM_TEMPLATE_OTHER:
+      return "Other template";
+      break;
     default:
       // A transformation is provided but its target referential is unknown.
       return "Unknown transformation";
@@ -148,6 +151,8 @@ namespace soma
       return NIFTI_XFORM_MNI_152;
     else if( ref == StandardReferentials::talairachReferential() )
       return NIFTI_XFORM_TALAIRACH;
+    else if( ref == "Other template" )
+      return NIFTI_XFORM_TEMPLATE_OTHER;
     else
       return NIFTI_XFORM_UNKNOWN;
     // In the case of StandardReferentials::acPcReferential() we do NOT want to
@@ -527,20 +532,24 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
        || nim->sform_code == NIFTI_XFORM_MNI_152
        || nim->sform_code == NIFTI_XFORM_TALAIRACH ) {
     nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
-  } else if ( nim->qform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+  } else if ( nim->qform_code != 0 ) {
     nifti_mat44_to_orientation( nim->qto_xyz, &idir, &jdir, &kdir );
     clog << "somanifti warning: cannot determine the orientation of the Nifti "
-      "file reliably, assuming that 'aligned coordinates' are in RAS+ "
-      "orientation." << endl;
-  } else if ( nim->sform_code == NIFTI_XFORM_ALIGNED_ANAT ) {
+            "file reliably, assuming that the target coordinates of qform "
+            "have RAS+ orientation (qform_code = "
+         << nim->qform_code << " a.k.a. " << NiftiReferential(nim->qform_code)
+         << ")." << endl;
+  } else if ( nim->sform_code != 0 ) {
     nifti_mat44_to_orientation( nim->sto_xyz, &idir, &jdir, &kdir );
     clog << "somanifti warning: cannot determine the orientation of the Nifti "
-      "file reliably, assuming that 'aligned coordinates' are in RAS+ "
-      "orientation." << endl;
+            "file reliably, assuming that the target coordinates of sform "
+            "have RAS+ orientation (sform_code = "
+         << nim->sform_code << " a.k.a. " << NiftiReferential(nim->sform_code)
+         << ").\n" << endl;
   } else {
     // default is left-to-right, anterior-to-posterior and inferior-to-superior
-    clog << "somanifti warning: cannot determine the orientation of the Nifti "
-      "file reliably, assuming that the on-disk data order is RAS+." << endl;
+    clog << "somanifti warning: this Nifti file has neither a qform nor a "
+      "sform, assuming that the on-disk data order is RAS+." << endl;
     idir = NIFTI_L2R;
     jdir = NIFTI_P2A;
     kdir = NIFTI_I2S;
