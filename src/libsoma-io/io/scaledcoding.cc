@@ -31,6 +31,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  */
 
+#include <algorithm>
 #include <cstdlib>
 #include <cartobase/type/limits.h>
 #include <soma-io/io/scaledcoding.h>
@@ -38,6 +39,7 @@
 #include <set>
 #include <cmath>
 #include <iostream>
+#include <iterator>
 
 using namespace soma;
 using namespace carto;
@@ -55,6 +57,8 @@ bool canencode( const T * thing, float & slope,
 {
   using std::isnan;
   using std::isinf;
+
+  const bool debug = false;
 
   int x, dx = sizes[0], dy = sizes[1],
     dz = sizes[2], dt = sizes[3];
@@ -79,10 +83,10 @@ bool canencode( const T * thing, float & slope,
   const_line_NDIterator<T> it( thing, sizes, strides );
   for( ; !it.ended(); ++it )
   {
-    const T* buf = &*it;
-    for( x=0; x<dx; ++x, ++buf )
+    const T* p = &*it;
+    for( const T * pp = p + it.line_length(); p != pp; it.inc_line_ptr(p) )
     {
-      val = *buf;
+      val = *p;
       if( isnan( val ) || isinf( val ) )
         return false;
       if( val < vmin )
@@ -93,6 +97,12 @@ bool canencode( const T * thing, float & slope,
       if( values.size() > 65536 )
         return false;
     }
+  }
+
+  if(debug) {
+    clog << "Set of values: ";
+    ostream_iterator<hset::value_type> out_it(clog, ", ");
+    copy(values.begin(), values.end(), out_it);
   }
 
   if( !enableoffset )
