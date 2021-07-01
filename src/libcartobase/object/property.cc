@@ -284,6 +284,13 @@ std::string PropertySet::iterator::key() const
 
 
 //-----------------------------------------------------------------------------
+Object PropertySet::iterator::keyObject() const
+{
+  return Object::reference( (*_iterator)->first );
+}
+
+
+//-----------------------------------------------------------------------------
 Object PropertySet::iterator::currentValue() const
 {
   return (*_iterator)->second.object;

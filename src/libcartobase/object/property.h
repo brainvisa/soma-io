@@ -137,7 +137,7 @@ private:
 
 public:
 
-  class iterator : public DictionaryIteratorInterface
+  class iterator : public KeyIteratorInterface, public DictionaryIteratorInterface
   {
   public:
     inline iterator();
@@ -145,6 +145,7 @@ public:
     // DictionaryIteratorInterface methods
     bool isValid() const;
     std::string key() const;
+    Object keyObject() const;
     Object currentValue() const;
     void next();
 

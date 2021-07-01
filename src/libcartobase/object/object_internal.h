@@ -1948,7 +1948,7 @@ namespace interface_internal {
   };
 
   template <typename M>
-  class MapIterator : public IteratorInterface
+  class MapIterator : public KeyIteratorInterface
   {
   public:
     inline MapIterator() {_iterator = _end; };
@@ -1963,6 +1963,11 @@ namespace interface_internal {
     void next()
     {
       ++_iterator;
+    }
+
+    virtual Object keyObject() const
+    {
+      return Object::reference( _iterator->first );
     }
 
     inline 
@@ -2042,7 +2047,7 @@ namespace interface_internal {
 
 
   template <typename T>
-  class MapIterator< std::map< T, Object > > : public IteratorInterface
+  class MapIterator< std::map< T, Object > > : public KeyIteratorInterface
   {
   public:
     inline MapIterator() { _iterator = _end; }
@@ -2058,10 +2063,14 @@ namespace interface_internal {
     {
       ++_iterator;
     }
+    virtual Object keyObject() const
+    {
+      return Object::reference( _iterator->first );
+    }
 
     inline 
     MapIterator( const typename std::map< T, Object >::const_iterator &begin,
-                  const typename std::map< T, Object >::const_iterator &end ) :
+                 const typename std::map< T, Object >::const_iterator &end ) :
      IteratorInterface(), 
      _iterator( begin ),
      _end( end ) {}
@@ -2171,7 +2180,7 @@ namespace interface_internal {
   //---------------------------------------------------------------------------
   template <typename T>
   class MapIterator< std::map<std::string, T > > :
-    public DictionaryIteratorInterface
+    public KeyIteratorInterface, public DictionaryIteratorInterface
   {
   public:
     inline MapIterator() { _iterator = _end; }
@@ -2196,7 +2205,12 @@ namespace interface_internal {
       return _iterator->first;
     }
 
-    inline 
+    virtual Object keyObject() const
+    {
+      return Object::reference( _iterator->first );
+    }
+
+    inline
     MapIterator( const typename 
                  std::map< std::string, T >::const_iterator &begin,
                  const typename 
@@ -2272,7 +2286,7 @@ namespace interface_internal {
 
   template <>
   class MapIterator< std::map<std::string, Object > > :
-    public DictionaryIteratorInterface
+    public KeyIteratorInterface, public DictionaryIteratorInterface
   {
   public:
     inline MapIterator() { _iterator = _end; }
@@ -2297,7 +2311,12 @@ namespace interface_internal {
       return _iterator->first;
     }
 
-    inline 
+    virtual Object keyObject() const
+    {
+      return Object::reference( _iterator->first );
+    }
+
+    inline
     MapIterator( const std::map< std::string, Object >::const_iterator &begin,
                  const std::map< std::string, Object >::const_iterator &end ) :
       IteratorInterface(), DictionaryIteratorInterface(),
@@ -2515,7 +2534,7 @@ namespace interface_internal {
 
   template <>
   class MapIterator< std::map<int, Object > > :
-    public IntKeyIteratorInterface
+    public KeyIteratorInterface, public IntKeyIteratorInterface
   {
   public:
     inline MapIterator() { _iterator = _end; }
@@ -2538,6 +2557,11 @@ namespace interface_internal {
     long intKey() const
     {
       return _iterator->first;
+    }
+
+    virtual Object keyObject() const
+    {
+      return Object::reference( _iterator->first );
     }
 
     inline
@@ -2685,6 +2709,18 @@ namespace interface_internal {
   }
 
 */
+
+
+    //----------------------//
+   //  map<Object,Object>  //
+  //----------------------//
+
+  // IterableInterface
+  //---------------------------------------------------------------------------
+
+
+
+
 } // namespace interface_internal
 
 #endif // DOXYGEN_HIDE_INTERNAL_CLASSES

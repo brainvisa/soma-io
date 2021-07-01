@@ -1543,6 +1543,13 @@ inline Object Object::reference( const T &value )
   return Object::reference( const_cast< T & >( value ) );
 }
 
+//-----------------------------------------------------------------------------
+template <>
+inline Object Object::reference( Object &value )
+{
+  return value;
+}
+
 
 //-----------------------------------------------------------------------------
 inline bool Object::isNone() const
