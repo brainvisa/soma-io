@@ -1020,6 +1020,9 @@ DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<double> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::vector<std::string> > )
 DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::set<unsigned> > )
 
+DECLARE_GENERIC_OBJECT_TYPE( std::list<unsigned> )
+DECLARE_GENERIC_OBJECT_TYPE( std::vector<std::list<unsigned> > )
+
 DECLARE_GENERIC_OBJECT_TYPE( std::list<std::vector<std::string> > )
 
 DECLARE_GENERIC_OBJECT_TYPE( std::set<int> )

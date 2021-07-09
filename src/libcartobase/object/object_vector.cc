@@ -42,6 +42,8 @@ namespace carto {
  //  instantiations  //
 //------------------//
 
+INSTANTIATE_GENERIC_OBJECT_TYPE( std::list<unsigned> )
+
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<int> )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<unsigned> )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<char> )
@@ -73,6 +75,7 @@ INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::vector<unsigned long long> > )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::vector<float> > )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::vector<double> > )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::set<unsigned> > )
+INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::list<unsigned> > )
 
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::vector<std::vector<std::string> > )
 INSTANTIATE_GENERIC_OBJECT_TYPE( std::list<std::vector<std::string> > )
