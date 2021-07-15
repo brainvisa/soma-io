@@ -205,6 +205,8 @@ class AimsVector
     const_iterator end() const { return _value + D; }
     /// @}
 
+    typedef T value_type;
+
     std::vector<T> toStdVector() const;
 
   protected:
@@ -466,6 +468,39 @@ AimsVector<T,D>::AimsVector( const std::vector<T> & value )
 #ifndef DOXYGEN_HIDE_INTERNAL_CLASSES
 namespace internal
 {
+
+  template <typename T>
+  class null_value
+  {
+  public:
+    static T null()
+    {
+      return T();
+    }
+  };
+
+  template <> inline int8_t null_value<int8_t>::null() { return 0; }
+  template <> inline uint8_t null_value<uint8_t>::null() { return 0; }
+  template <> inline int16_t null_value<int16_t>::null() { return 0; }
+  template <> inline uint16_t null_value<uint16_t>::null() { return 0; }
+  template <> inline int32_t null_value<int32_t>::null() { return 0; }
+  template <> inline uint32_t null_value<uint32_t>::null() { return 0; }
+  template <> inline int64_t null_value<int64_t>::null() { return 0; }
+  template <> inline uint64_t null_value<uint64_t>::null() { return 0; }
+  template <> inline float null_value<float>::null() { return 0; }
+  template <> inline double null_value<double>::null() { return 0; }
+
+  template <typename T>
+  class null_value<T*>
+  {
+  public:
+    static T* null()
+    {
+      return 0;
+    }
+  };
+
+
   template <typename T, int D>
   class fill_aimsvector2
   {
@@ -475,7 +510,7 @@ namespace internal
       _value[0] = x;
       _value[1] = y;
       for (int d = 2; d < D; d++)
-        _value[d] = 0;
+        _value[d] = null_value<T>::null();
     }
   };
 
@@ -489,7 +524,7 @@ namespace internal
       _value[1] = y;
       _value[2] = z;
       for (int d = 3; d < D; d++)
-        _value[d] = 0;
+        _value[d] = null_value<T>::null();
     }
   };
 
@@ -505,7 +540,7 @@ namespace internal
       _value[2] = z;
       _value[3] = t;
       for (int d = 4; d < D; d++)
-        _value[d] = 0;
+        _value[d] = null_value<T>::null();
     }
   };
 
