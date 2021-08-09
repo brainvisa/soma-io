@@ -185,7 +185,7 @@ def removeCorruptTags(dataset):
             dataset.pop(tag)
 
 
-def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
+def convert_to_nifti(serie, args, mergeDynSeries=True, remove_corrupt_tags=True):
     modality = ""
     uuid = None
     series_instance_uid = None
@@ -425,8 +425,7 @@ def convert_to_nifti(serie, mergeDynSeries=True, remove_corrupt_tags=True):
     add_version_to_minf(minf, get_mcverter(), header)
 
 
-def convert_to_nifti_MR(serie, remove_corrupt_tags=True):
-
+def convert_to_nifti_MR(serie, args, remove_corrupt_tags=True):
     uuid = None
     series_instance_uid = None
 
@@ -474,7 +473,7 @@ def convert_to_nifti_MR(serie, remove_corrupt_tags=True):
 
         if custom:
             # restore original user's .dcm2nii.ini
-            with open(local_ini, 'w') as local_file:
+            with open(local_ini, 'wb') as local_file:
                 local_file.write(local_ini_content)
 
     tags = ((0x0010, 0x0010), (0x0008, 0x0021),
@@ -567,7 +566,7 @@ def convert_to_nifti_MR(serie, remove_corrupt_tags=True):
     fd.close()
 
 
-def convert_to_nifti_NM(serie, remove_corrupt_tags=True):
+def convert_to_nifti_NM(serie, args, remove_corrupt_tags=True):
     tmpDir = mkdtemp()
     shutil.copy(serie[0], tmpDir)
     tempFile = os.path.join(tmpDir, os.path.basename(serie[0]))
@@ -688,7 +687,7 @@ def add_version_to_minf(minf, converter, oMinf=None):
     fd.close()
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='''
 Convert input DICOM files into NIfTI files
 ''')
@@ -726,12 +725,16 @@ Convert input DICOM files into NIfTI files
 
         # Choose method according to modality
         if modality == 'MR':
-            convert_to_nifti_MR(serie)
+            convert_to_nifti_MR(serie, args)
         elif modality == "NM" and len(serie) == 1:
-            convert_to_nifti_NM(serie)
+            convert_to_nifti_NM(serie, args)
         else:
             if not get_mcverter():
                 print(
                     'mcverter was not found on your system. It is mandatory to convert your DICOM files.')
                 exit(0)
-            convert_to_nifti(serie, args.merge4DSeries)
+            convert_to_nifti(serie, args, args.merge4DSeries)
+
+
+if __name__ == '__main__':
+    main()
