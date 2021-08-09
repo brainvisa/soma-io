@@ -434,11 +434,48 @@ def convert_to_nifti_MR(serie, remove_corrupt_tags=True):
     if remove_corrupt_tags:
         removeCorruptTags(ds)
 
-    dcm2niiOptions = ['-b', findSharedFile('dcm2nii_DV.ini')]
 
     tmpdir = mkdtemp()
-    check_call(['dcm2nii'] + dcm2niiOptions +
-               ['-o', tmpdir, os.path.dirname(serie[0])])
+    ini = findSharedFile('dcm2nii_DV.ini')
+
+    converter = os.environ.get('DCM2NII', 'dcm2nii')
+
+    if converter != 'dcm2niix':
+        check_call([converter, '-b', ini,
+            '-o', tmpdir, os.path.dirname(serie[0])])
+    else:
+        # dcm2niix excepts it's .ini file in $HOME/.dcm2nii.ini,
+        # the -b otion is reused for another purpose.
+        # install shared dcm2nii_DV.ini as $HOME/.dcm2nii.ini
+        with open(ini, 'rb') as shared_file:
+            shared_ini_content = shared_file.read()
+        local_ini = os.path.join(os.environ['HOME'],
+            '.dcm2nii.ini')
+
+        custom = False
+
+        if os.path.exists(local_ini):
+            # check content
+
+            with open(local_ini, 'rb') as local_file:
+                local_ini_content = local_file.read()
+
+            if shared_ini_content != local_ini_content:
+
+                custom = True
+
+        if custom or not os.path.exists(local_ini):
+            # copy soma's shared dcm2ini_DV.ini to $HOME/.dcm2nii.ini
+            with open(local_ini, 'wb') as local_file:
+                local_file.write(shared_ini_content)
+
+        check_call([converter,
+            '-o', tmpdir, os.path.dirname(serie[0])])
+
+        if custom:
+            # restore original user's .dcm2nii.ini
+            with open(local_ini, 'w') as local_file:
+                local_file.write(local_ini_content)
 
     tags = ((0x0010, 0x0010), (0x0008, 0x0021),
             (0x0008, 0x0060), (0x0008, 0x103e),
