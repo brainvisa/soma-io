@@ -311,6 +311,9 @@ namespace soma
     bool allowsMemoryMapping() const;
     void setAllowsMemoryMapping( bool x );
 
+    // a static shared context for fast memory allocation
+    static const AllocatorContext & fast();
+
   private:
     mutable const LowLevelAllocator	  *_alloc;
     mutable carto::rc_ptr<DataSource>  _datasource;

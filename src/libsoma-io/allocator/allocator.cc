@@ -545,3 +545,9 @@ AllocatorStrategy::lowLevelAllocator( MappingMode m )
 }
 
 
+const AllocatorContext & AllocatorContext::fast()
+{
+  static AllocatorContext fc( &MemoryAllocator::singleton() );
+  return fc;
+}
+
