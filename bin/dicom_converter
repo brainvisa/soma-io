@@ -709,12 +709,12 @@ Convert input DICOM files into NIfTI files
         parser.parse_args(['-h'])
 
     # Aggregate input files
-    aggregator = aggregator.DicomAggregator()
-    aggregator.add_dicom_sources(args.input)
-    aggregator.aggregate()
+    aggr = aggregator.DicomAggregator()
+    aggr.add_dicom_sources(args.input)
+    aggr.aggregate()
 
     # Browse aggregated DICOM series
-    for serie in aggregator._aggregate_sources.values():
+    for serie in aggr._aggregate_sources.values():
         
         ds = dicom.read_file(serie[0])
 
