@@ -611,6 +611,7 @@ def convert_to_nifti_NM(serie, args, remove_corrupt_tags=True):
 
     check_call(['AimsFileConvert', '-i', tempFile, '-o', outfile])
     rescale_image_according_to_minf(outfile)
+    shutil.rmtree(tmpDir)
     # try:
     #     if ds[0x0008,0x0070].value == "SIEMENS NM" and \
     #        ds[0x0008,0x1090].value == "Encore2":
