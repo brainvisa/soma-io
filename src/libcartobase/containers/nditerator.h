@@ -143,6 +143,7 @@ namespace carto
     // virtual ~NDIterator() {}
 
     T & operator * () const;
+    T * operator -> () const;
 
   protected:
     T* _buffer;
@@ -163,6 +164,7 @@ namespace carto
     // virtual ~const_NDIterator() {}
 
     const T & operator * () const;
+    const T * operator -> () const;
 
   protected:
     const T* _buffer;
@@ -216,6 +218,7 @@ namespace carto
     // virtual ~line_NDIterator() {}
 
     T & operator * () const;
+    T * operator -> () const;
     /// increment a "line" pointer (advancing through the line)
     void inc_line_ptr( T* & p ) const;
     /// increment a "line" pointer (advancing through the line)
@@ -251,6 +254,7 @@ namespace carto
     // virtual ~const_line_NDIterator() {}
 
     const T & operator * () const;
+    const T * operator -> () const;
     /// increment a "line" pointer (advancing through the line)
     void inc_line_ptr( const T* & p ) const;
     /// line_size * line stride: end of line
@@ -521,6 +525,11 @@ namespace carto
     return _buffer[ _offset ];
   }
 
+  template <typename T> inline T * NDIterator<T>::operator -> () const
+  {
+    return _buffer + _offset;
+  }
+
   // --
 
   template <typename T>  inline
@@ -562,6 +571,12 @@ namespace carto
   const_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
+  }
+
+  template <typename T> const inline T *
+  const_NDIterator<T>::operator -> () const
+  {
+    return _buffer + _offset;
   }
 
   // --
@@ -610,6 +625,12 @@ namespace carto
   template <typename T> inline T & line_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
+  }
+
+
+  template <typename T> inline T * line_NDIterator<T>::operator -> () const
+  {
+    return _buffer + _offset;
   }
 
 
@@ -686,6 +707,13 @@ namespace carto
   const_line_NDIterator<T>::operator * () const
   {
     return _buffer[ _offset ];
+  }
+
+
+  template <typename T> inline const T *
+  const_line_NDIterator<T>::operator -> () const
+  {
+    return _buffer + _offset;
   }
 
 
