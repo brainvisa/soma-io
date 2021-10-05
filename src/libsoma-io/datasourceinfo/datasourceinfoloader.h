@@ -134,7 +134,7 @@ namespace soma
       ///                 ( \c resolution_level ).
       /// \return  A DataSourceInfo object containing a header, a list of
       ///          DataSource and a list of Capabilities.
-      /// It is possible to specify wich passes to process through
+      /// It is possible to specify which passes to process through
       /// \c passbegin and \c passend.
       /// - pass 1 : extension
       /// - pass 2 : empty extension
@@ -149,7 +149,7 @@ namespace soma
       void launchException();
 
       /// \brief Called inter alia by format-specific FormatChecker to 
-      /// complete header informations
+      /// complete header information
       /// \param ds DataSource to minf file
       /// \param base If given, the function keeps information from the base
       /// header and adds that from the minf file.

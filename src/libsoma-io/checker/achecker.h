@@ -73,7 +73,7 @@ namespace soma
     //------------------------------------------------------------------------
     //@{
 
-    /**	checks wether a mandatory semantic attribute is missing from
+    /**	checks whether a mandatory semantic attribute is missing from
 	an object
 	@param object object to check
 	@return missing semantic attributes

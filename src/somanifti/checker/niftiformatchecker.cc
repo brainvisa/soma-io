@@ -762,7 +762,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     hdr->setProperty( "extdata", extdata );
   }
 
-  /* keep the nifti structur in the header, because it will be used during
+  /* keep the nifti structure in the header, because it will be used during
      reading. */
   hdr->setProperty( "_nifti_structure",
                     Object::value( rc_ptr<NiftiStructWrapper>(

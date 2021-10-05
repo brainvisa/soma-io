@@ -104,7 +104,7 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
       throw wrong_format_error( "Not a DICOM dataset", imaname );
     }
     
-    // select files and read information relevent for memory allocation
+    // select files and read information relevant for memory allocation
     dcm::DicomDatasetHeader datasetHeader( dataInfo );
 
     if ( !dcm::DicomIO::getInstance().check( imaname, 

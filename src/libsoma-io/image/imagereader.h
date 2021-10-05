@@ -67,10 +67,10 @@ namespace soma
       ///                contain the region to read.
       /// \param pos     Position of the first voxel of the region to read, 
       ///                expressed in the referential of the chosen level
-      ///                (if multiresolution enbaled).
+      ///                (if multiresolution enabled).
       /// \param size    Size of the region to read, expressed in the 
       ///                referential of the chosen level (if multiresolution
-      ///                enbaled).
+      ///                enabled).
       /// \param stride  May be used to specialize the reading. Indicates the
       ///                number of cells to skip to read in a given direction.
       /// \param options Communicates info to the reader (for example, the

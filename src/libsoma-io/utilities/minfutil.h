@@ -43,7 +43,7 @@
 namespace soma
 {
 
-  /// Meta informations utilities
+  /// Meta information utilities
   ///
   class MinfUtil
   {

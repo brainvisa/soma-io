@@ -221,10 +221,10 @@ public:
 
     The purpose of this class is to provide a way to reference dynamically
     allocated objects without worrying about their destruction. To avoid
-    confusion with build-in C++ references we call a \e Ref an
+    confusion with built-in C++ references we call a \e Ref an
     object of class \a const_ref or \a ref.
 
-    A Ref act as a pointer on a dynamicaly allocated object (with \c new).
+    A Ref act as a pointer on a dynamically allocated object (with \c new).
     The main difference between a \e Ref an a pointer is the link that exists
     between the \e Ref lifetime and the pointed object lifetime. An object
     pointed to by a \e Ref is destroyed when the last \e Ref pointed to it is

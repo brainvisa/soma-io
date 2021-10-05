@@ -575,7 +575,7 @@ void OptionsParser::addOptionSeries( T &values, const std::string &name,
     then call initialize() to parse commandline options.
 
     initialize() should always been called within a try..catch block, and
-    the exception \c carto::user_interruption should be catched because it is
+    the exception \c carto::user_interruption should be caught because it is
     thrown whenever the help is required (--help option).
 */
 class CartoApplication : public OptionsParser

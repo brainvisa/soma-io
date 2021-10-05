@@ -252,7 +252,7 @@ namespace carto
 
 
   /** format is recognized but contains parameters that can not be handled 
-      by curent parser */
+      by current parser */
   class invalid_format_error : public format_mismatch_error
   {
   public:
@@ -264,7 +264,7 @@ namespace carto
 
 
   /** format is recognized but contains data types that can not be read 
-      by curent reader */
+      by current reader */
   class datatype_format_error : public invalid_format_error
   {
   public:
@@ -283,7 +283,7 @@ namespace carto
 	@param what_arg what the parser was waiting for
 	@param token_arg current token
 	@param filename_arg name of the file
-	@param line_arg line where the error occured
+	@param line_arg line where the error occurred
     */
     parse_error( const std::string& what_arg,
                  const std::string& token_arg,
@@ -292,7 +292,7 @@ namespace carto
     /**	Only use this version or the previous one
 	@param what_arg what the parser was waiting for
 	@param token_arg current token
-	@param line_arg line where the error occured
+	@param line_arg line where the error occurred
     */
     parse_error( const std::string& what_arg,
                  const std::string& token_arg,

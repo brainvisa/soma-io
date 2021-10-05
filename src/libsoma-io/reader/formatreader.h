@@ -55,7 +55,7 @@ namespace soma
   /// Low-level object IO reader specialized for a specific format
   ///
   /// To invoque such a format-specific reader, information about the source 
-  /// is supposed te be already read, this is to say: the object header has 
+  /// is supposed to be already read, this is to say: the object header has 
   /// already been read (using DataSourceInfo).
   ///
   /// This is a low-level format reader, which is not intended to be used 
@@ -65,7 +65,7 @@ namespace soma
   /// The job of a reader can be decomposed into several steps:
   /// - (the header has already been read by a FormatChecker)
   /// - determination of the correct allocator, matching with the stream
-  ///   decoder characterstics: this means creating an AllocatorContext bound
+  ///   decoder characteristics: this means creating an AllocatorContext bound
   ///   to the specific DataSource decoder.
   /// - allocation or setup (reallocation, resizing) of the object to be read, 
   ///   according to reading options (partial reading of an already allocated 

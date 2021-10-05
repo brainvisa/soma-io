@@ -357,7 +357,7 @@ namespace soma {
                     }
                   }
                   
-                // offset y in buffer is only for the firt stride read
+                // offset y in buffer is only for the first stride read
                 // because only the first and last strides can be incomplete
                 boffset[1] = 0;
               }

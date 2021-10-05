@@ -92,7 +92,7 @@ namespace soma
   inline
   bool AsciiDataSourceTraits<T>::read( DataSource &, T & x )
   {
-    make_compil_error( x, "Instanciation on an unexpected type. "
+    make_compil_error( x, "Instantiation on an unexpected type. "
                           "This function must be specialized." );
 
     /*
@@ -108,7 +108,7 @@ namespace soma
   inline
   bool AsciiDataSourceTraits<T>::write( DataSource &, const T & x )
   {
-    make_compil_error( x, "Instanciation on an unexpected type. "
+    make_compil_error( x, "Instantiation on an unexpected type. "
                           "This function must be specialized." );
 
     /*

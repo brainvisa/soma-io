@@ -193,7 +193,7 @@ namespace soma
     localMsg("DicomProxy allocation");
     data.allocate(); // to set up accessors
 
-    localMsg("DicomIO writting");
+    localMsg("DicomIO writing");
     dcm::DicomIO::getInstance().write( basename, data );
     
   }

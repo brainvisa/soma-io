@@ -62,7 +62,7 @@ namespace carto
   - libsigc++ 2.0 or newer: http://sourceforge.net/projects/libsigc/
   - libxml2: http://xmlsoft.org/
 
-  Optionally, the followng libraries may be used if available:
+  Optionally, the following libraries may be used if available:
   - boost: http://boost.org for thread-safe reference counters
 
 
@@ -129,7 +129,7 @@ namespace carto
 /*! \page genericobject Generic object API changes
 
 There has been three generations of generic objects with three different 
-interfaces. The last two have disapeared: they are not present anymore in
+interfaces. The last two have disappeared: they are not present anymore in
 cartobase version 3.1, but still cited here for porting purpose.
 
 - GenericObject API: this is the new API that should be used now.
@@ -254,7 +254,7 @@ using namespace std;
 
 - don't hesitate to include \c \<iostream\> as soon as \c cin or \c cout is 
   used in a source file, on some systems/compilers they are not always needed 
-  but thay may not be defined when \c \<fstream\> is included and not 
+  but they may not be defined when \c \<fstream\> is included and not 
   \c \<iostream\>
 
 
@@ -368,7 +368,7 @@ toto[12] = 5;
   - \c rint() is defined in \c \<cartobase/config/cartobase_config.h\>
   - \c max() is not defined in every compiler. But STL provides some templated 
     versions of it
-  - directories manipulation fonctions: \c opendir(), \c closedir(), 
+  - directories manipulation functions: \c opendir(), \c closedir(), 
     \c readdir() - use carto::FileUtil and carto::Directory
   - \c mkdir( <i>name</i>, <i>access_rights</i> \c ) -> 
     \c mkdir( <i>name</i> \c ) 

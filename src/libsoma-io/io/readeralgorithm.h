@@ -79,7 +79,7 @@ namespace soma
   ///                                         Object header,
   ///                                         rc_ptr<DataSource> source );
   /// \endcode
-  /// Instantiate such an algorothm class, and register every needed
+  /// Instantiate such an algorithm class, and register every needed
   /// type with the registerAlgorithmType() function (you can do it in your
   /// algo constructor).
   /// Then call the execute() function with the file name (or other

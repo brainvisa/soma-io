@@ -77,7 +77,7 @@ int main( int argc, const char** argv )
       }
     }
     ASSERT(tiffpluginfound);
-    tiffplugin = tiffplugin; // stupid code to avoid a complation warning
+    tiffplugin = tiffplugin; // stupid code to avoid a compiler warning
     
     // Get tiff FormatChecker
     FormatChecker * fc = DataSourceInfoLoader::formatInfo( "TIFF" );

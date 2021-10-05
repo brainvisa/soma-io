@@ -52,9 +52,9 @@ namespace carto
   UUID is convertible to and from a string so it is very easily to save and 
   reload.
 
-  UUIDs are attached to persistant objects that must be identified and shared 
+  UUIDs are attached to persistent objects that must be identified and shared 
   between several applications, or on a network, etc. They are a bit like 
-  persistant pointers which remain valid accross applications.
+  persistent pointers which remain valid across applications.
   */
   class UUID
   {

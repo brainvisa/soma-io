@@ -124,14 +124,14 @@ private:
 template <unsigned SIZE> 
 void ByteSwapper::_doSwap( char * )
 {
-  throw std::runtime_error( "Invalide byte order swap size" );
+  throw std::runtime_error( "Invalid byte order swap size" );
 }
 
 // Non specialized reading is forbidden
 template <unsigned SIZE> 
 std::istream &ByteSwapper::_swappedRead( std::istream & s, char * )
 {
-  throw std::runtime_error( "Invalide byte order read size" );
+  throw std::runtime_error( "Invalid byte order read size" );
   return s;
 }
 
@@ -139,7 +139,7 @@ std::istream &ByteSwapper::_swappedRead( std::istream & s, char * )
 template <unsigned SIZE> 
 std::ostream &ByteSwapper::_swappedWrite( std::ostream & s, char * )
 {
-  throw std::runtime_error( "Invalide byte order write size" );
+  throw std::runtime_error( "Invalid byte order write size" );
   return s;
 }
 

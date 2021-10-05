@@ -341,7 +341,7 @@ namespace soma
     subbb1[1] = idims[1];
     subbb1[2] = idims[2];
 
-    // check if it is a compressed streem to optimize reading
+    // check if it is a compressed stream to optimize reading
     char *tmpimgname = nifti_findimgname(nim->iname , nim->nifti_type);
     if( !tmpimgname )
     {

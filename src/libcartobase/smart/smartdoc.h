@@ -67,7 +67,7 @@ namespace carto
 
 In some cases it can be necessary to build a \e Ref from a pointer to an already allocated object. This operation is allowed if and only if the object class derives from \c RCObject.
 
-Here is an example of what \e must \e not be done. The following program build a \c Window class that has a static member named \c shownWindows which contains a list of all shown windows. The \c show() method must add a reference to \c this in the shown windows list. The program will compile but it will crash because the \c Window object will be destroyed several times. The problem is that the \c ref<Window> created in \c main() and the one created in \c Window::show() are in different scope. Therefore they have no way to know about eachother existence. Thus, each \c ref<Window> will use its own reference counter and both will destroy the \c Window upon destruction.
+Here is an example of what \e must \e not be done. The following program build a \c Window class that has a static member named \c shownWindows which contains a list of all shown windows. The \c show() method must add a reference to \c this in the shown windows list. The program will compile but it will crash because the \c Window object will be destroyed several times. The problem is that the \c ref<Window> created in \c main() and the one created in \c Window::show() are in different scope. Therefore they have no way to know about each other existence. Thus, each \c ref<Window> will use its own reference counter and both will destroy the \c Window upon destruction.
 \code
 #include <iostream>
 #include <list>
@@ -184,7 +184,7 @@ int main()
 
 \warning It is strongly recommended to use \c virtual inheritance of \c RCObject to have exactly one reference counter in all derived classes.
 
-\warning When a class \c T is derived from \c RCObject, the constructors and destructors of \c ref<T> and \c const_ref<T> are redefined. This is done statically (at compile time). The \e Ref mecanism does not use any virtual function member.
+\warning When a class \c T is derived from \c RCObject, the constructors and destructors of \c ref<T> and \c const_ref<T> are redefined. This is done statically (at compile time). The \e Ref mechanism does not use any virtual function member.
  */
 
 } // namespace carto

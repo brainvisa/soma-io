@@ -379,7 +379,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   // cout << "MincHeader::read(), file : " << _name << endl;
 
-  // Work aroud BUG in netCDF which incorrectly uses assert and
+  // Work around BUG in netCDF which incorrectly uses assert and
   // aborts on empty files
   struct stat   st;
   stat( fname.c_str(), &st ); // succeeds because it has already been done
@@ -587,12 +587,12 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
     //OC : Meta-info: should we add something to read the rest of the minc header ?
 
-    //1) Voxel to world tranform
+    //1) Voxel to world transform
     //2) Space name
     //3) All other attributes
 
 
-    //1) Voxel to world tranform
+    //1) Voxel to world transform
     //Handle positive/negative voxel size.
     AffineTransformation3dBase s2m;
     s2m.matrix()( 0, 0 )

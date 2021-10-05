@@ -117,7 +117,7 @@ namespace soma
   carto::rc_ptr<DataSourceInfo> FormatReader<T>::checkDataSourceInfo(
       carto::rc_ptr<DataSourceInfo> dsi, carto::Object options )
   {
-    localMsg("Checking data source informations...")
+    localMsg("Checking data source information...")
     // copy options dict to avoid modifying it
     // (it would kill thread safety)
     carto::Object new_options( options->clone() );
