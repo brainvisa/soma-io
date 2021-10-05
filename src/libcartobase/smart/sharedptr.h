@@ -62,7 +62,7 @@ namespace carto
     */
     bool testDeletable();
     /** tests if the shared object can be deleted. If possible, it is actually
-        deleted (suicide is commited and the object is not valid any more
+        deleted (suicide is committed and the object is not valid any more
         after this call)
     */
     bool tryDelete();

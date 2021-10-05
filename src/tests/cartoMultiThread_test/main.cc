@@ -94,7 +94,7 @@ int main( int /*argc*/, char* /*argv*/[] )
 
   // That will give, for instance, on a single processor computer:
   // 1 thread does iterations i=3,4,5,6,7.
-  // Parallely, 1 thread does iterations i=8,9,10,11,12.
+  // Parallelly, 1 thread does iterations i=8,9,10,11,12.
   // The first of the threads that has finished realizes the 5 last iterations
   // i=13,14,15,16,17.
   // As a result, 2 threads are created on that single-processor computer.

@@ -56,7 +56,7 @@ namespace soma
   - libsigc++ 2.0 or newer: http://sourceforge.net/projects/libsigc/
   - libxml2: http://xmlsoft.org/
 
-  Optionally, the followng libraries may be used if available:
+  Optionally, the following libraries may be used if available:
   - boost: http://boost.org for thread-safe reference counters
 
   - it also relies on the \ref cartobase library, which is part of the same package.

@@ -46,11 +46,11 @@ namespace soma
   /// Reading/Writing Capabilities of a FormatReader
   ///
   /// This object is constructed by the FormatChecker after reading the 
-  /// header. It allows one to give informations about the possible ways to 
+  /// header. It allows one to give information about the possible ways to 
   /// read a volume ( partial reading ... ).
   ///
   /// \remarks Since capabilities may be file-dependant (and not just format-
-  /// dependant, think of compressed data), they need being stored in the
+  /// dependent, think of compressed data), they need being stored in the
   /// class. The current implementation uses an integer of chosen size so 
   /// that each capability is written on one bit. If more capabilities must be
   /// added, increase the number of bytes of the integer.

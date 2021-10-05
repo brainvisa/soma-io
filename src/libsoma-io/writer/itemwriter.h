@@ -65,7 +65,7 @@ namespace soma
   ///	Default low-levels writers.
 	/// They are a default implementation of the writers for most common types,
 	/// and can be specialized for other types if needed.
-	/// We have aleady specialized AimsVector writers
+	/// We have already specialized AimsVector writers
 	/// \sa DefaultItemReader 
   template <typename T>
   class DefaultItemWriter : public ItemWriter<T>

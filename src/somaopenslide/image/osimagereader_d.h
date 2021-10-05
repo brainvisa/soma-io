@@ -204,7 +204,7 @@ namespace soma {
      && (stride[2] == ((long)size[1]) * stride[1])
      && (stride[3] == ((long)size[2]) * stride[2])) {
       localMsg("OpenSlide: reading contiguous area")
-      // Optimal case where data can be read completly to contiguous memory
+      // Optimal case where data can be read completely to contiguous memory
       // area
       openslide_read_region(_osimage,
                             (uint32_t*)dest,

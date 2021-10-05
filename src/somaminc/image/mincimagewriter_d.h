@@ -203,7 +203,7 @@ namespace soma
     // dim_names[2] and sizes[2] must contain X axis info
     // dim_names[3] and sizes[3] must contain T axis info
     //
-    // So I disabled the code bellow and always store data in a 4 dimensions volume
+    // So I disabled the code below and always store data in a 4 dimensions volume
     // ------------------------------------------------------------------------
 
     //   if(thing.dimT()==1) {
@@ -453,7 +453,7 @@ namespace soma
       Object transs;
       try
       {
-        // convert AIMS transformaton to storage coords
+        // convert AIMS transformation to storage coords
     //     std::cout << "==== MINC::Before getting transformations"
     //               << std::endl << std::flush;
     //     if (! hdr.getProperty( "transformations", transs )) {

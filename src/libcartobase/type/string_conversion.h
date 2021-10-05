@@ -72,7 +72,7 @@ inline std::string toString( const char& object )
 
 
 /*! Split a \c string with in parts separated by a substring
-  \param text \c string to be splitted
+  \param text \c string to be split
   \param sep \c string to be used as separator
 */
 std::vector< std::string > split( const std::string &text,

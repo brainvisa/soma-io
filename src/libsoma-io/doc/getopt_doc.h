@@ -94,7 +94,7 @@ namespace soma
     }
     catch( exception & e )
     {
-      // all other exceptions are catched here (commandline errors like 
+      // all other exceptions are caught here (commandline errors like 
       // missing or unrecognized option, or any other exception thrown 
       // during the program execution)
 

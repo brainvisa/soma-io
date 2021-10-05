@@ -57,7 +57,7 @@ namespace soma
   ///  - The list is built by a FormatChecker and contains all the files
   ///    involved in the reading/writing process (header, data, ...)
   ///  - The header is built by a FormatChecker and contains meta information.
-  ///  - The DSC contains properties dependant of the format,
+  ///  - The DSC contains properties dependent of the format,
   ///    the specific file, the reading process (partial reading), etc.
   /// It is possible to fix some or all of these three objects so that
   /// they are not recomputed by the FormatChecker.

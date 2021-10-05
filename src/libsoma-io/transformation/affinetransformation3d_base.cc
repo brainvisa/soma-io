@@ -102,7 +102,7 @@ equivalent of the current _rotation attribute, whose name is highly confusing),
 3x3 matrix
  	_shift ( would contain t = C - A x C + T ), 3x1 vector
  
- # by rewritting (1) as
+ # by rewriting (1) as
  	AffineTransformation3d( P ) = A x P + ( C - A x C + T ) = A x P + t            (2)
 we see that the method AffineAffineTransformation3d::transform corresponds the current
 AffineTransformation3d::transform, implementing P = _linear x P + _shift.
@@ -442,10 +442,10 @@ void AffineTransformation3dBase::setTranslation(Point3df t)
 current translation ( _translation <- (_translation + t) ). This LONG and
 UNCLEAR code seems to be strictly equivalent to
 	  translation() += t;
-To be more relevent (and consistent with the name of the method), one should
+To be more relevant (and consistent with the name of the method), one should
 even use
 		translation() = t;
-however, it should be noted that for the moment, the informations about the
+however, it should be noted that for the moment, the information about the
 center of transformations are contained in the _translation attribute (see for
 example AffineTransformation3d::setRotationAffine or DecomposedAffineTransformation3d::transAffine) so that
  using this last form would reset the center of transformation to the origin

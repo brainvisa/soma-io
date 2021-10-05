@@ -430,7 +430,7 @@ namespace soma
   }
 
 
-  // Instanciates ScaledEncoding class
+  // Instantiates ScaledEncoding class
   template class ScaledEncoding<float, int8_t>;
   template class ScaledEncoding<double, int8_t>;
   template class ScaledEncoding<float, uint8_t>;

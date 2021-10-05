@@ -34,7 +34,7 @@
 #include <cartobase/type/datatypetraits.h>
 
 namespace carto {
-  // Instanciate static variables for DataTypeTraits
+  // Instantiate static variables for DataTypeTraits
   DATA_TYPE_TRAITS_INSTANCIATE_SPECIALIZATION( bool )
   DATA_TYPE_TRAITS_INSTANCIATE_SPECIALIZATION( uint8_t )
   DATA_TYPE_TRAITS_INSTANCIATE_SPECIALIZATION( int8_t )

@@ -444,7 +444,7 @@ def convert_to_nifti_MR(serie, args, remove_corrupt_tags=True):
             '-o', tmpdir, os.path.dirname(serie[0])])
     else:
         # dcm2niix excepts it's .ini file in $HOME/.dcm2nii.ini,
-        # the -b otion is reused for another purpose.
+        # the -b option is reused for another purpose.
         # install shared dcm2nii_DV.ini as $HOME/.dcm2nii.ini
         with open(ini, 'rb') as shared_file:
             shared_ini_content = shared_file.read()

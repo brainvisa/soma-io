@@ -376,11 +376,11 @@ list<string> Paths::findResourceFiles( const string & filename,
 
   for( ip=searchpath.begin(); ip!=ep; ++ip )
   {
-    // search full versionned path
+    // search full versioned path
     string fpath = *ip + s + ppath + s + filename;
     if( FileUtil::fileStat( fpath ).find( '+' ) != string::npos )
       fpaths.push_back( fpath );
-    /* search full versionned path, hidden directpry
+    /* search full versioned path, hidden directory
     (eg $HOME/.anatomist-4.1/...) */
     fpath = *ip + s + '.' + ppath + s + filename;
     if( FileUtil::fileStat( fpath ).find( '+' ) != string::npos )
@@ -437,11 +437,11 @@ string Paths::findResourceFile( const string & filename,
 
   for( ip=searchpath.begin(); ip!=ep; ++ip )
   {
-    // search full versionned path
+    // search full versioned path
     string fpath = *ip + s + ppath + s + filename;
     if( FileUtil::fileStat( fpath ).find( '+' ) != string::npos )
       return fpath;
-    /* search full versionned path, hidden directpry
+    /* search full versioned path, hidden directory
     (eg $HOME/.anatomist-4.1/...) */
     fpath = *ip + s + '.' + ppath + s + filename;
     if( FileUtil::fileStat( fpath ).find( '+' ) != string::npos )

@@ -77,7 +77,7 @@ namespace soma
                       const carto::SyntaxSet& rules,
                       const HelperSet& helpers = HelperSet() );
 
-    /**	configure the parametres
+    /**	configure the parameters
 	@param filename name of the file to read into
 	@param rules list of all possible semantic attributes
 	@param helpers for reading basic data types
@@ -86,7 +86,7 @@ namespace soma
 		     const carto::SyntaxSet& rules,
 		     const HelperSet& helpers = HelperSet());
 
-    /**	configure the parametres
+    /**	configure the parameters
 	@param rules list of all possible semantic attributes
 	@param helpers for reading basic data types
     */

@@ -67,7 +67,7 @@ namespace soma
     virtual ~PythonReader();
 
     virtual carto::GenericObject* read();
-    /** attemps to read an already allocated object, if file data matches 
+    /** attempts to read an already allocated object, if file data matches 
     the object type.
     It currently only works for dictionaries */
     virtual void read( carto::GenericObject & );

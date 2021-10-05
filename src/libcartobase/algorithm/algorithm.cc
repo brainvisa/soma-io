@@ -61,7 +61,7 @@ BaseParameter::~BaseParameter() {}
  //  _registeredAlgorithms  //
 //-------------------------//
 
-// I think there should be a class for algorthm registration 
+// I think there should be a class for algorithm registration 
 // (class Namespace ?). But for this example code, I will just
 // use STL classes.
 //-----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ map< string, vector< Algorithm *> >  _registeredAlgorithms;
 //-----------------------------------------------------------------------------
 Algorithm::Algorithm( const string &name ) : _name( name )
 {
-  cerr << "register agorithm: " << name << endl;
+  cerr << "register algorithm: " << name << endl;
   _registeredAlgorithms[ _name ].push_back( this );
 }
 

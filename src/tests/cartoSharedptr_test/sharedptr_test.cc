@@ -105,7 +105,7 @@ int main( int, char** )
     cout << "+weak_shared\n";
     ASSERT( obj->tryDelete() );
     cout << "tryDelete done - obj should be destroyed.\n";
-    cout << "weak_shared ptr (sould be null): " << wsp2->get() << endl;
+    cout << "weak_shared ptr (should be null): " << wsp2->get() << endl;
     ASSERT( !wsp2->get() );
     delete wsp2;
     cout << "-weak_shared\n";
@@ -166,7 +166,7 @@ int main( int, char** )
     cout << "+weak_shared\n";
     ASSERT( obj->tryDelete() );
     cout << "tryDelete done - obj should be destroyed.\n";
-    cout << "weak_shared ptr (sould be null): " << wsp2->get() << endl;
+    cout << "weak_shared ptr (should be null): " << wsp2->get() << endl;
     ASSERT( !wsp2->get() );
     delete wsp2;
     cout << "-weak_shared\n";

@@ -97,7 +97,7 @@ library
 //         double						(1)
 //         long double						(1)
 //
-// GNU C++ undertstands (where supported by the host C-library) 
+// GNU C++ understands (where supported by the host C-library) 
 //   * integer
 //         long long, unsigned long long			(2)
 //

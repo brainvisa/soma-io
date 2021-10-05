@@ -92,7 +92,7 @@ namespace soma
     /// if \c format is specified, this format is tried first, so you can use
     /// it as a hint if you already know it (from the DataSourceInfoLoader
     /// check ).
-    /// It is possible to specify wich passes to process through
+    /// It is possible to specify which passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint
     /// - pass 2 : extension
@@ -109,7 +109,7 @@ namespace soma
     /// The default is just to create a T and call the read( T&, ... )
     /// function, but some specialized low-level readers may behave
     /// differently.
-    /// It is possible to specify wich passes to process through
+    /// It is possible to specify which passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint
     /// - pass 2 : extension
@@ -142,7 +142,7 @@ namespace soma
     //========================================================================
     //   D A T A S O U R C E
     //========================================================================
-    // these methods are kept for compability. They manipulate the "default" 
+    // these methods are kept for compatibility. They manipulate the "default" 
     // datasource
     const carto::rc_ptr<DataSource> dataSource() const;
           carto::rc_ptr<DataSource> dataSource();

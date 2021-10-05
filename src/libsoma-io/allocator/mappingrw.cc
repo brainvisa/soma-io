@@ -151,7 +151,7 @@ char* MappingRWAllocator::allocate( size_t n, size_t sz, DataSource* ds ) const
               return buffer;
             }
           close( fildest );
-          cerr << "cound not mmap (RW) " << name << endl;
+          cerr << "could not mmap (RW) " << name << endl;
           if( errno == ENOMEM )
             cerr << "Not enough memory left (or addressable)" << endl;
           return 0;

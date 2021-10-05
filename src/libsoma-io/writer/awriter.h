@@ -74,7 +74,7 @@ namespace soma
     //------------------------------------------------------------------------
     //@{
 
-    ///	configure the parametres
+    ///	configure the parameters
     /// \param filename name of the file to write into
     /// \param rules syntactic attribute / rules pairs
     /// \param helpers writing functions set
@@ -82,7 +82,7 @@ namespace soma
                       const carto::SyntaxSet& rules,
                       const HelperSet& helpers = HelperSet() );
 
-    ///	configure the parametres
+    ///	configure the parameters
     /// \param rules syntactic attribute / rules pairs
     /// \param helpers writing functions set
     AttributedWriter( const carto::SyntaxSet& rules,

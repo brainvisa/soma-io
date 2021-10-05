@@ -61,7 +61,7 @@ template <class T,int D>
 bool operator == (const AimsVector<T,D>& v1,
 		  const T& val);
 
-/// should be defined implicitely, but fails with some compilers (Intel)
+/// should be defined implicitly, but fails with some compilers (Intel)
 template <class T,int D>
 bool operator != (const AimsVector<T,D>& v1,
 		  const AimsVector<T,D>& v2)
@@ -69,7 +69,7 @@ bool operator != (const AimsVector<T,D>& v1,
   return !( v1 == v2 );
 }
 
-/// should be defined implicitely, but fails with some compilers (Intel)
+/// should be defined implicitly, but fails with some compilers (Intel)
 template <class T,int D>
 bool operator != (const AimsVector<T,D>& v1,
 		  const T& val)
@@ -217,7 +217,7 @@ class AimsVector
 
 /**@name Useful type definitions*/
 //@{
-// Keep those for compability
+// Keep those for compatibility
 typedef AimsVector<int16_t,2> Point2d;
 typedef AimsVector<int16_t,3> Point3d;
 typedef AimsVector<int16_t,4> Point4d;

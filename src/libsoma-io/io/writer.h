@@ -119,7 +119,7 @@ namespace soma
     /// otherwise it will be determined from the filename extension (if
     /// available). If no extension and no format are given, the first
     /// working format will be used.
-    /// It is possible to specify wich passes to process through
+    /// It is possible to specify which passes to process through
     /// \c passbegin and \c passend.
     /// - pass 1 : format hint
     /// - pass 2 : extension

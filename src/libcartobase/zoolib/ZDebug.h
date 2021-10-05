@@ -71,7 +71,7 @@ ZDebugStop(2); // Will unconditionally stop/exit the app when ZCONFIG_Debug is 2
 
 ZDebugStopf takes a debug level, and additionally (in parentheses [coz of macro weirdness]) a printf-style
 parameter list (called printf-params in these docs). Otherwise its behavior is the same as ZDebugStop
-Example: (assuming an accesible int called theValue)
+Example: (assuming an accessible int called theValue)
 ZDebugStop(1, ("Our integer's value is %d", theValue));
 
 ZDebugLog takes a debug level, and if the level is active will cause a statement of the form:
@@ -144,7 +144,7 @@ void ZDebug_DisplayMessage(int inLevel, ZDebug_Action inAction, const char* inFi
 
 // ZAssertCompile can be used to enforce a constraint at compile time, (for example that
 // a struct obeys necessary alignment rules). It either drops out completely or generates an error,
-// depending on whether the expression evaulates true or false.
+// depending on whether the expression evaluates true or false.
 #define ZAssertCompile(a) extern int sCompileTimeAssertionViolated[(a) ? 1 : 0]
 
 // I'd like to formalize ZUnimplemented a little more sometime. Perhaps it should throw an exception in production code.

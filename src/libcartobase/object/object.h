@@ -542,15 +542,15 @@ public:
   /// type() returns the DataTypeCode::name() of the underlying object type
   virtual std::string type() const = 0;
 
-  /** Retreive value in object, const reference.
+  /** Retrieve value in object, const reference.
       This function only works if type T matches the actual value type 
       stored in the object, otherwise it throws an exception */
   template<typename T> const T & value() const;
-  /** Retreive value in object, by non-const reference.
+  /** Retrieve value in object, by non-const reference.
       This function only works if type T matches the actual value type 
       stored in the object, otherwise it throws an exception */
   template<typename T> T & value();
-  /** Retreive value in object, and store it in a variable.
+  /** Retrieve value in object, and store it in a variable.
       This function only works if type T matches the actual value type 
       stored in the object, otherwise it throws an exception */
   template <typename T> bool value( T & ) const;
@@ -665,14 +665,14 @@ public:
   virtual ~TypedObject();
   
   // This function should be pure virtual but it is mandatory to
-  // do explicit instanciation of TypedObject and it is not possible
+  // do explicit instantiation of TypedObject and it is not possible
   // with pure virtual classes.
   virtual T &getValue();
   inline const T &getValue() const;
   virtual void setValue( Object val );
   
   // This function should be pure virtual but it is mandatory to
-  // do explicit instanciation of TypedObject and it is not possible
+  // do explicit instantiation of TypedObject and it is not possible
   // with pure virtual classes.
   virtual Object clone() const;
 

@@ -79,7 +79,7 @@ class Headered : virtual public RCObject, public Observable, public Observer
 
     virtual void initialize();
 
-    /// retreive or generate an UUID - this method intentionally is non-const
+    /// retrieve or generate an UUID - this method intentionally is non-const
     std::string uuid();
     /** take the UUID from another header and set it to this.
         \return false if the source had no UUID

@@ -377,8 +377,8 @@ string FileUtil::windowsFilename(const string & filename)
     // Split filename using slashes, then join using backslashes
     set<string> seps;
     seps.insert("/");
-    vector<string> splitted = carto::split(filename, seps);
-    return carto::join(splitted, "\\");
+    vector<string> split = carto::split(filename, seps);
+    return carto::join(split, "\\");
 }
 
 string FileUtil::linuxFilename(const string & filename)
@@ -387,8 +387,8 @@ string FileUtil::linuxFilename(const string & filename)
     // Split filename using backslashes, then join using slashes
     set<string> seps;
     seps.insert("\\");
-    vector<string> splitted = carto::split(filename, seps);
-    return carto::join(splitted, "/");
+    vector<string> split = carto::split(filename, seps);
+    return carto::join(split, "/");
 //     for ( size_t pos = filename.find("\\"); 
 //         pos != string::npos; pos = filename.find("\\", pos + 1) )
 //     filename.replace(pos, 1, "/");

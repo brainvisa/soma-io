@@ -33,7 +33,7 @@
 
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
-#include <soma-io/datasource/streamdatasource.h>            // class defintion
+#include <soma-io/datasource/streamdatasource.h>            // class definition
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/smart/rcptr.h>                        // function argument
 //--- system -----------------------------------------------------------------

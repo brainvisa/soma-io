@@ -157,7 +157,7 @@ static bool loadlib2( const string & lname, int verbose )
       // already loaded
       CloseHandle( hl );
       if( verbose > 1 )
-        cout << "PLUGINLOADER:: DLL " << lname << " alreay loaded.\n";
+        cout << "PLUGINLOADER:: DLL " << lname << " already loaded.\n";
       return true;
     }
     if( verbose > 1 )
@@ -169,7 +169,7 @@ static bool loadlib2( const string & lname, int verbose )
 
     if( libbase.find( lname ) != libbase.end() )  {
       if( verbose > 1 )
-          cout << "PLUGINLOADER:: library " << lname << " alreay loaded.\n";
+          cout << "PLUGINLOADER:: library " << lname << " already loaded.\n";
       return true;	// already loaded
     }
     libbase.insert( lname );
