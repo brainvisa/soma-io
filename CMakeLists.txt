@@ -19,10 +19,15 @@ find_package( Doxygen )
 
 # OpenSlide support library
 find_package( OpenSlide )
-if( OPENSLIDE_FOUND )
-  BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )
-  BRAINVISA_VERSION_CONVERT( OPENSLIDE_HEX_VERSION ${OPENSLIDE_VERSION} HEX )
-  BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenslide DEV )
+# Temporary condition to ensure compatibility with a branch
+# of brainvisa-cmake where BRAINVISA_VERSION_CONVERT has disappeard
+# and where dependencies are useless.
+if ( NOT NO_BV_MAKER )
+  if( OPENSLIDE_FOUND )
+    BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )
+    BRAINVISA_VERSION_CONVERT( OPENSLIDE_HEX_VERSION ${OPENSLIDE_VERSION} HEX )
+    BRAINVISA_DEPENDENCY( DEV RECOMMENDS libopenslide DEV )
+  endif()
 endif()
 
 # TIFF support library
