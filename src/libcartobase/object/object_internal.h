@@ -247,6 +247,16 @@ namespace interface_internal
       return false;
     }
 
+    static inline bool isContiguous( const TypedObject<T> & )
+    {
+      return false;
+    }
+
+    static inline bool hasItem( const TypedObject<T> &, int )
+    {
+      return false;
+    }
+
     static inline Object getArrayItem( const TypedObject<T> &, int )
     {
       throw std::runtime_error( std::string( "object of type " ) + 
@@ -269,6 +279,16 @@ namespace interface_internal
     static inline bool isArray( const TypedObject<T> & object )
     {
       return object.getValue().isArray();
+    }
+
+    static inline bool isContiguous( const TypedObject<T> & object )
+    {
+      return object.getValue().isContiguous();
+    }
+
+    static inline bool hasItem( const TypedObject<T> & object, int index )
+    {
+      return object.getValue().hasItem( index );
     }
 
     static inline Object getArrayItem( const TypedObject<T> &object,
@@ -1529,7 +1549,19 @@ namespace interface_internal
       return true;
     }
 
-    static inline Object 
+    static inline bool isContiguous(
+      const TypedObject< std::vector<T> > & object )
+    {
+      return true;
+    }
+
+    static inline bool hasItem( const TypedObject< std::vector<T> > & object,
+                                int index )
+    {
+      return index >= 0 && index < object.getValue().size();
+    }
+
+    static inline Object
     getArrayItem( const TypedObject<std::vector<T> > &object,
                   int index )
     {
@@ -2429,7 +2461,20 @@ namespace interface_internal {
       return true;
     }
 
-    static inline Object 
+    static inline bool isContiguous(
+      const TypedObject< std::map<int, T> > & object )
+    {
+      return false;
+    }
+
+    static inline bool hasItem( const TypedObject< std::map<int, T> > & object,
+                                int index )
+    {
+      const std::map<int,T>	& val = object.getValue();
+      return val.find( index ) != val.end();
+    }
+
+    static inline Object
     getArrayItem( const TypedObject<std::map<int,T> > &object,
                   int index )
     {

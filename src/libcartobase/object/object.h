@@ -343,11 +343,20 @@ class Object;
         inherit this interface whatever they actually contain)
     */
     virtual bool isArray() const;
-    /** Get the element of index \c index. An exception will be thrown if 
-        the stored object doesn't actually implement the ArrayInterface. But 
-        if it does, access to an element of index greater or equal to 
-        size() should not be attempted: depending on the exact storage type 
-        and array implementation, it can either throw an exception, or 
+    /** Tells if array indices are contiguous (as in a vector), contrarily to
+        an int key dictionary.
+     */
+    virtual bool isContiguous() const = 0;
+    /** Tells if array item index actually exists.
+        False if index exceeds a vector size, or if it is not part of a
+        dict key, for example.
+     */
+    virtual bool hasItem( int index ) const = 0;
+    /** Get the element of index \c index. An exception will be thrown if
+        the stored object doesn't actually implement the ArrayInterface. But
+        if it does, access to an element of index greater or equal to
+        size() should not be attempted: depending on the exact storage type
+        and array implementation, it can either throw an exception, or
         simply crash the program.
      */
     virtual Object getArrayItem( int index ) const = 0;
@@ -690,6 +699,8 @@ public:
 
   // ArrayInterface methods
   virtual bool isArray() const;
+  virtual bool isContiguous() const;
+  virtual bool hasItem( int index ) const;
   virtual Object getArrayItem( int index ) const;
   virtual void setArrayItem( int, Object );
   virtual size_t size() const;

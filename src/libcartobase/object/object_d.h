@@ -368,6 +368,22 @@ bool TypedObject<T>::isArray() const
 
 //-----------------------------------------------------------------------------
 template <typename T>
+bool TypedObject<T>::isContiguous() const
+{
+  return interface_internal::
+    ArrayImpl< T, SUPERSUBCLASS(ArrayInterface,T) >::isContiguous( *this );
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool TypedObject<T>::hasItem( int index ) const
+{
+  return interface_internal::
+    ArrayImpl< T, SUPERSUBCLASS(ArrayInterface,T) >::hasItem( *this, index );
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 Object TypedObject<T>::getArrayItem( int index ) const
 {
   return interface_internal::
