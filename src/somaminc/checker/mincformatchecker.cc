@@ -359,6 +359,257 @@ int MincFormatChecker::readMincHistory( Object hdr, const string & fname,
 
 }
 
+/* Here we duplicate a bit of libminc, because these functions are static and
+   we need to call them manually: in libminc, with ignore_offsets is set to
+   TRUE (hard-coded) thus translation information is dropped and
+   transformations are wrong for mgz/mgh formats. */
+
+#define MGH_MAX_DIMS 4          /* Maximum number of dimensions */
+#define MGH_N_SPATIAL VIO_N_DIMENSIONS /* Number of spatial dimensions */
+#define MGH_N_COMPONENTS 4      /* Number of transform components. */
+#define MGH_N_XFORM (MGH_N_COMPONENTS * MGH_N_SPATIAL)
+
+#define MGH_HEADER_SIZE 284 /* Total number of bytes in the header. */
+#define MGH_EXTRA_SIZE 194   /* Number of "unused" bytes in the header. */
+
+// WARNING: dependency over niftilib for znzlib
+#include <nifti/znzlib.h>
+#ifdef _WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  include <Winsock2.h>
+#else
+#  include <arpa/inet.h> /* for ntohl and ntohs */
+#endif
+
+extern "C" {
+
+struct mgh_header {
+  int version;                  /**< Must be 0x00000001. */
+  int sizes[MGH_MAX_DIMS];      /**< Dimension sizes, fastest-varying FIRST. */
+  int type;                     /**< One of the MGH_TYPE_xxx values. */
+  int dof;                      /**< Degrees of freedom, if used. */
+  short goodRASflag;            /**< True if spacing and dircos valid. */
+  float spacing[MGH_N_SPATIAL]; /**< Dimension spacing.  */
+  float dircos[MGH_N_COMPONENTS][MGH_N_SPATIAL]; /**< Dimension transform. */
+};
+
+/**
+ * Trivial function to swap floats if necessary.
+ * \param f The big-endian 4-byte float value.
+ * \return The float value in host byte order.
+ */
+static float
+swapFloat(float f)
+{
+  union {
+    float f;
+    int i;
+  } sl;
+
+  sl.f = f;
+
+  sl.i = ntohl(sl.i);
+
+  return sl.f;
+}
+
+/**
+ * Converts a MGH file header into a general linear transform for the
+ * Volume IO library. There are two different ways of defining the
+ " "centre" of the volume in the MGH world. One uses the values in
+ * c_r, c_a, and c_s (the last row of the dircos field) to offset
+ * the origin. The other, more common case ignores these fields and
+ * just uses the voxel size and spacing to determine a value for
+ * the centre.
+ * Note that the geometric structures produced by MGH tools use
+ * the latter case.
+ *
+ * \param hdr_ptr A pointer to the MGH header structure.
+ * \param in_ptr A pointer to the input information for this volume.
+ * \param ignore_offsets TRUE if we should use grid centres.
+ * \param linear_xform_ptr A pointer to the output transform
+ */
+static void
+mgh_header_to_linear_transform(const struct mgh_header *hdr_ptr,
+                               const volume_input_struct *in_ptr,
+                               VIO_BOOL ignore_offsets,
+                               struct VIO_General_transform *linear_xform_ptr)
+{
+  int           i, j;
+  VIO_Transform mnc_xform;
+  VIO_Real      mgh_xform[MGH_N_SPATIAL][MGH_N_COMPONENTS];
+
+  make_identity_transform(&mnc_xform);
+
+#if DEBUG
+  /* Print out the raw MGH transform information.
+   */
+  for (i = 0; i < MGH_N_SPATIAL; i++)
+  {
+    for (j = 0; j < MGH_N_COMPONENTS; j++)
+    {
+      printf("%c_%c %8.4f ", "xyzc"[j], "ras"[i], hdr_ptr->dircos[j][i]);
+    }
+    printf("\n");
+  }
+#endif // DEBUG
+
+  /* Multiply the direction cosines by the spacings.
+   */
+  for (i = 0; i < MGH_N_SPATIAL; i++)
+  {
+    for (j = 0; j < MGH_N_SPATIAL; j++)
+    {
+      mgh_xform[i][j] = hdr_ptr->dircos[j][i] * hdr_ptr->spacing[i];
+    }
+  }
+
+  /* Work out the final MGH transform. This requires that we figure out
+   * the origin values to fill in the final column of the transform.
+   */
+  for (i = 0; i < MGH_N_SPATIAL; i++)
+  {
+    double temp = 0.0;
+    for (j = 0; j < MGH_N_SPATIAL; j++)
+    {
+      temp += mgh_xform[i][j] * (hdr_ptr->sizes[j] / 2.0);
+    }
+
+    /* Set the origin for the voxel-to-world transform .
+     */
+    if (ignore_offsets)
+    {
+      mgh_xform[i][MGH_N_COMPONENTS - 1] = -temp;
+    }
+    else
+    {
+      mgh_xform[i][MGH_N_COMPONENTS - 1] = hdr_ptr->dircos[MGH_N_COMPONENTS - 1][i] - temp;
+    }
+  }
+
+#if DEBUG
+  printf("mgh_xform:\n");       /* DEBUG */
+  for (i = 0; i < MGH_N_SPATIAL; i++)
+  {
+    for (j = 0; j < MGH_N_COMPONENTS; j++)
+    {
+      printf("%.4f ", mgh_xform[i][j]);
+    }
+    printf("\n");
+  }
+#endif // DEBUG
+
+  /* Convert MGH transform to the MINC format. The only difference is
+   * that our transform is always written in XYZ (RAS) order, so we
+   * have to swap the _columns_ as needed.
+   */
+  for (i = 0; i < MGH_N_SPATIAL; i++)
+  {
+    for (j = 0; j < MGH_N_COMPONENTS; j++)
+    {
+      int volume_axis = j;
+      if (j < VIO_N_DIMENSIONS)
+      {
+        volume_axis = in_ptr->axis_index_from_file[j];
+      }
+      Transform_elem(mnc_xform, i, volume_axis) = mgh_xform[i][j];
+    }
+  }
+  create_linear_transform(linear_xform_ptr, &mnc_xform);
+#if DEBUG
+  output_transform(stdout, "debug", NULL, NULL, linear_xform_ptr);
+#endif // DEBUG
+}
+
+/**
+ * Read an MGH header from an open file stream.
+ * \param fp The open file (may be a pipe).
+ * \param hdr_ptr A pointer to the header structure to fill in.
+ * \returns TRUE if successful.
+ */
+static VIO_BOOL
+mgh_header_from_file(znzFile fp, struct mgh_header *hdr_ptr)
+{
+  int i, j;
+  char dummy[MGH_HEADER_SIZE];
+
+  /* Read in the header. We do this piecemeal because the mgh_header
+   * struct will not be properly aligned on most systems, so a single
+   * fread() WILL NOT WORK.
+   */
+  if (znzread(&hdr_ptr->version, sizeof(int), 1, fp) != 1 ||
+      znzread(hdr_ptr->sizes, sizeof(int), MGH_MAX_DIMS, fp) != MGH_MAX_DIMS ||
+      znzread(&hdr_ptr->type, sizeof(int), 1, fp) != 1 ||
+      znzread(&hdr_ptr->dof, sizeof(int), 1, fp) != 1 ||
+      znzread(&hdr_ptr->goodRASflag, sizeof(short), 1, fp) != 1 ||
+      /* The rest of the fields are optional, but we can safely read them
+       * now and check goodRASflag later to see if we should really trust
+       * them.
+       */
+      znzread(hdr_ptr->spacing, sizeof(float), MGH_N_SPATIAL, fp) != MGH_N_SPATIAL ||
+      znzread(hdr_ptr->dircos, sizeof(float), MGH_N_XFORM, fp) != MGH_N_XFORM ||
+      znzread(dummy, 1, MGH_EXTRA_SIZE, fp) != MGH_EXTRA_SIZE)
+  {
+    print_error((char *) "Problem reading MGH file header.");
+    return FALSE;
+  }
+
+  /* Successfully read all of the data. Now we have to convert it to the
+   * machine's byte ordering.
+   */
+  hdr_ptr->version = ntohl(hdr_ptr->version);
+  for (i = 0; i < MGH_MAX_DIMS; i++)
+  {
+    hdr_ptr->sizes[i] = ntohl(hdr_ptr->sizes[i]);
+  }
+  hdr_ptr->type = ntohl(hdr_ptr->type);
+  hdr_ptr->dof = ntohl(hdr_ptr->dof);
+  hdr_ptr->goodRASflag = ntohs(hdr_ptr->goodRASflag);
+
+  if (hdr_ptr->version != 1)
+  {
+    print_error((char *) "Must be MGH version 1.\n");
+    return FALSE;
+  }
+
+  if (hdr_ptr->goodRASflag)
+  {
+    for (i = 0; i < MGH_N_SPATIAL; i++)
+    {
+      hdr_ptr->spacing[i] = swapFloat(hdr_ptr->spacing[i]);
+      for (j = 0; j < MGH_N_COMPONENTS; j++)
+      {
+        hdr_ptr->dircos[j][i] = swapFloat(hdr_ptr->dircos[j][i]);
+      }
+    }
+  }
+  else
+  {
+    /* Flag is zero, so just use the defaults.
+     */
+    for (i = 0; i < MGH_N_SPATIAL; i++)
+    {
+      /* Default spacing is 1.0.
+       */
+      hdr_ptr->spacing[i] = 1.0;
+
+      /* Assume coronal orientation.
+       */
+      for (j = 0; j < MGH_N_COMPONENTS; j++)
+      {
+        hdr_ptr->dircos[j][i] = 0.0;
+      }
+      hdr_ptr->dircos[0][0] = -1.0;
+      hdr_ptr->dircos[1][2] = -1.0;
+      hdr_ptr->dircos[2][1] = 1.0;
+    }
+  }
+  return TRUE;
+}
+
+}
+
+
 /*** BUILDING HEADER *********************************************************
  * This method builds a header from a .mnc DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
@@ -489,6 +740,9 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
     if( n_dimensions >= 1 )
       dims[0] = sizes[0];
 
+    vector< vector<float> > transs;
+    vector<string> refs;
+
     //Read voxel size
     //In MINC, voxel size can be positive or negative. Here we take the absolute value of the voxel size and the case of negative increment steps (negative voxel sizes) is treated when the volume is read (in MincReader).
     vs[3] = fabs(volume->separations[3]);
@@ -502,6 +756,58 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       vs[2] = fabs(volume->separations[0]);
       vs[1] = fabs(volume->separations[1]);
       vs[0] = fabs(volume->separations[2]);
+
+      struct mgh_header hdr;
+      znzFile           fp;
+      VIO_General_transform *mnc_native_xform
+        = get_voxel_to_world_transform(volume);
+
+      // we must re-open and re-read the file header because some info
+      // (offsets in transform) has been dropped
+      if ((fp = znzopen(fileName, "rb", 1)) == NULL)
+      {
+        cerr << "Unable to open file\n";
+      }
+
+      mgh_header_from_file( fp, &hdr );
+      znzclose(fp);
+
+      delete_general_transform( mnc_native_xform );
+      mgh_header_to_linear_transform( &hdr, &input_info, FALSE,
+                                      mnc_native_xform );
+
+      vector<float> transfo( 16 );
+      for( int i=0;i<4;i++ )
+      {
+        for( int j=0; j<4; j++ )
+        {
+          transfo[i*4+j] = Transform_elem( *mnc_native_xform->linear_transform, i, j );
+        }
+      }
+      // "voxel to world" from minc to "scanner-based"
+      AffineTransformation3dBase s2sb( transfo );
+      // mem to scanner-based
+      AffineTransformation3dBase m2sb;
+      Point3df p = s2sb.transform( 0.f, 0.f, 0.f );
+      m2sb.matrix()(0, 0) = -1;
+      m2sb.matrix()(1, 1) = -1;
+      m2sb.matrix()(2, 2) = -1;
+      m2sb.matrix()(0, 3) = p[0];
+      m2sb.matrix()(1, 3) = p[1];
+      m2sb.matrix()(2, 3) = p[2];
+      // when there will be a flip toward the aims coordinates,
+      // then invert the translation. Here we suppose s2sb is diagonal.
+      // I admit I don't completely understand this, it is empiric.
+      if( s2sb.matrix()(0, 0) > 0 )
+        m2sb.matrix()(0, 3) += dims[0] - 1;
+      if( s2sb.matrix()(1, 1) > 0 )
+        m2sb.matrix()(1, 3) += dims[1] - 1;
+      if( s2sb.matrix()(2, 2) > 0 )
+        m2sb.matrix()(2, 3) += dims[2] - 1;
+      // fill in directly transforms because s2m is unreliable here.
+      refs.push_back( "Scanner-based anatomical coordinates" );
+      transs.push_back( m2sb.toVector() );
+
     }
     else
     {
@@ -651,38 +957,24 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
         }
       }
       AffineTransformation3dBase tr( transfo );
-      if( is_buggy_mgh )
+      if( !is_buggy_mgh )  // freesurfer trans are processed differently
       {
-        // FIXME this seems not sufficient, fixed the 3x3 matrix but
-        // translation is still wrong.
-        // flip x and z axes
-        cout << "Warning: transformations in a freesurfer .mgh / .mgz are "
-          "probably wrong.\n";
-        AffineTransformation3dBase flip;
-        flip.matrix()(0, 0) = 0.;
-        flip.matrix()(0, 2) = 1.;
-        flip.matrix()(2, 0) = 1.;
-        flip.matrix()(2, 2) = 0.;
-        tr = flip * tr * flip;
+        tr *= s2m.inverse();
+        AffineTransformation3dBase vsmi;
+        vsmi.matrix()(0,0) = 1./vs[0];
+        vsmi.matrix()(1,1) = 1./vs[1];
+        vsmi.matrix()(2,2) = 1./vs[2];
+        tr *= vsmi;
+        transs.push_back( tr.toVector() );
+        // check to recognize MNI template referential
+        if( dims[0] * vs[0] == 182 && dims[1] * vs[1] == 218
+            && dims[2] * vs[2] == 182
+            && tr.transform( Point3df( 0, 0, 0 ) ) == Point3df( 90, 90, 108 ) )
+          refs.push_back( "Talairach-MNI template-SPM" );
+        else
+          refs.push_back( "Scanner-based anatomical coordinates" );
       }
-      tr *= s2m.inverse();
-      AffineTransformation3dBase vsmi;
-      vsmi.matrix()(0,0) = 1./vs[0];
-      vsmi.matrix()(1,1) = 1./vs[1];
-      vsmi.matrix()(2,2) = 1./vs[2];
-      tr *= vsmi;
-      vector< vector<float> > transs;
-      transs.push_back( tr.toVector() );
       hdr->setProperty( "transformations", transs );
-      vector<string> refs;
-      // check to recognize MNI template referential
-      if( dims[0] * vs[0] == 182 && dims[1] * vs[1] == 218
-          && dims[2] * vs[2] == 182
-          && tr.transform( Point3df( 0, 0, 0 ) ) == Point3df( 90, 90, 108 ) )
-//         refs.push_back( StandardReferentials::mniTemplateReferential() );
-        refs.push_back( "Talairach-MNI template-SPM" );
-      else
-        refs.push_back( "Scanner-based anatomical coordinates" );
       hdr->setProperty( "referentials", refs );
     }
 
