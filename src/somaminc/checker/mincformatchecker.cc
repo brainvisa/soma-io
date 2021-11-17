@@ -414,114 +414,6 @@ swapFloat(float f)
 }
 
 /**
- * Converts a MGH file header into a general linear transform for the
- * Volume IO library. There are two different ways of defining the
- " "centre" of the volume in the MGH world. One uses the values in
- * c_r, c_a, and c_s (the last row of the dircos field) to offset
- * the origin. The other, more common case ignores these fields and
- * just uses the voxel size and spacing to determine a value for
- * the centre.
- * Note that the geometric structures produced by MGH tools use
- * the latter case.
- *
- * \param hdr_ptr A pointer to the MGH header structure.
- * \param in_ptr A pointer to the input information for this volume.
- * \param ignore_offsets TRUE if we should use grid centres.
- * \param linear_xform_ptr A pointer to the output transform
- */
-static void
-mgh_header_to_linear_transform(const struct mgh_header *hdr_ptr,
-                               const volume_input_struct *in_ptr,
-                               VIO_BOOL ignore_offsets,
-                               struct VIO_General_transform *linear_xform_ptr)
-{
-  int           i, j;
-  VIO_Transform mnc_xform;
-  VIO_Real      mgh_xform[MGH_N_SPATIAL][MGH_N_COMPONENTS];
-
-  make_identity_transform(&mnc_xform);
-
-#if DEBUG
-  /* Print out the raw MGH transform information.
-   */
-  for (i = 0; i < MGH_N_SPATIAL; i++)
-  {
-    for (j = 0; j < MGH_N_COMPONENTS; j++)
-    {
-      printf("%c_%c %8.4f ", "xyzc"[j], "ras"[i], hdr_ptr->dircos[j][i]);
-    }
-    printf("\n");
-  }
-#endif // DEBUG
-
-  /* Multiply the direction cosines by the spacings.
-   */
-  for (i = 0; i < MGH_N_SPATIAL; i++)
-  {
-    for (j = 0; j < MGH_N_SPATIAL; j++)
-    {
-      mgh_xform[i][j] = hdr_ptr->dircos[j][i] * hdr_ptr->spacing[i];
-    }
-  }
-
-  /* Work out the final MGH transform. This requires that we figure out
-   * the origin values to fill in the final column of the transform.
-   */
-  for (i = 0; i < MGH_N_SPATIAL; i++)
-  {
-    double temp = 0.0;
-    for (j = 0; j < MGH_N_SPATIAL; j++)
-    {
-      temp += mgh_xform[i][j] * (hdr_ptr->sizes[j] / 2.0);
-    }
-
-    /* Set the origin for the voxel-to-world transform .
-     */
-    if (ignore_offsets)
-    {
-      mgh_xform[i][MGH_N_COMPONENTS - 1] = -temp;
-    }
-    else
-    {
-      mgh_xform[i][MGH_N_COMPONENTS - 1] = hdr_ptr->dircos[MGH_N_COMPONENTS - 1][i] - temp;
-    }
-  }
-
-#if DEBUG
-  printf("mgh_xform:\n");       /* DEBUG */
-  for (i = 0; i < MGH_N_SPATIAL; i++)
-  {
-    for (j = 0; j < MGH_N_COMPONENTS; j++)
-    {
-      printf("%.4f ", mgh_xform[i][j]);
-    }
-    printf("\n");
-  }
-#endif // DEBUG
-
-  /* Convert MGH transform to the MINC format. The only difference is
-   * that our transform is always written in XYZ (RAS) order, so we
-   * have to swap the _columns_ as needed.
-   */
-  for (i = 0; i < MGH_N_SPATIAL; i++)
-  {
-    for (j = 0; j < MGH_N_COMPONENTS; j++)
-    {
-      int volume_axis = j;
-      if (j < VIO_N_DIMENSIONS)
-      {
-        volume_axis = in_ptr->axis_index_from_file[j];
-      }
-      Transform_elem(mnc_xform, i, volume_axis) = mgh_xform[i][j];
-    }
-  }
-  create_linear_transform(linear_xform_ptr, &mnc_xform);
-#if DEBUG
-  output_transform(stdout, "debug", NULL, NULL, linear_xform_ptr);
-#endif // DEBUG
-}
-
-/**
  * Read an MGH header from an open file stream.
  * \param fp The open file (may be a pipe).
  * \param hdr_ptr A pointer to the header structure to fill in.
@@ -742,6 +634,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
     vector< vector<float> > transs;
     vector<string> refs;
+    AffineTransformation3dBase s2m;
 
     //Read voxel size
     //In MINC, voxel size can be positive or negative. Here we take the absolute value of the voxel size and the case of negative increment steps (negative voxel sizes) is treated when the volume is read (in MincReader).
@@ -753,9 +646,6 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       // freesurfer mgz / mgh files seem to be in a different order
       // (is this a bug in minc io or in our interpretation ?)
       is_buggy_mgh = true;
-      vs[2] = fabs(volume->separations[0]);
-      vs[1] = fabs(volume->separations[1]);
-      vs[0] = fabs(volume->separations[2]);
 
       struct mgh_header hdr;
       znzFile           fp;
@@ -772,42 +662,58 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       mgh_header_from_file( fp, &hdr );
       znzclose(fp);
 
-      delete_general_transform( mnc_native_xform );
-      mgh_header_to_linear_transform( &hdr, &input_info, FALSE,
-                                      mnc_native_xform );
-
-      vector<float> transfo( 16 );
-      for( int i=0;i<4;i++ )
+      AffineTransformation3dBase f2sb;
+      for( int i=0; i<3; ++i )
       {
-        for( int j=0; j<4; j++ )
+        for( int j=0; j<3; ++j )
         {
-          transfo[i*4+j] = Transform_elem( *mnc_native_xform->linear_transform, i, j );
+          f2sb.matrix()(i, j) = hdr.dircos[j][i] * hdr.spacing[j];
         }
+        f2sb.matrix()(i, 3) = hdr.dircos[3][i];
       }
-      // "voxel to world" from minc to "scanner-based"
-      AffineTransformation3dBase s2sb( transfo );
+      // cout << "f2sb:\n" << f2sb << endl;
+      Point3df p = f2sb.transform(hdr.sizes[0] / 2.f, hdr.sizes[1] / 2.f, hdr.sizes[2] / 2.f ) - f2sb.transform(0.f, 0.f, 0.f);
+      f2sb.matrix()(0, 3) -= p[0];
+      f2sb.matrix()(1, 3) -= p[1];
+      f2sb.matrix()(2, 3) -= p[2];
+      // cout << "f2sb:\n" << f2sb << endl;
+      // f2sb is the matrix exactly in the nifti converted by mri_convert,
+      // with the same voxel order.
+
+      // we have to combine storage_to_memory and vs
+      // BUT the storage_to_memory calculation from minc (later) is wrong here.
+      // we do it from mgh data instead.
+      for( int i=0; i<3; ++i )
+        for( int j=0; j<3; ++j )
+        {
+          float m = hdr.dircos[j][i];
+          if( fabs(m) < 0.5 )
+            m = 0.f;
+          else
+            m = -(int)(m / fabs(m));
+          s2m.matrix()( i, j ) = m;
+          if( m < 0 )
+            s2m.matrix()(i, 3) += hdr.sizes[j] - 1;
+        }
+      // now we can transform the voxel sizes
+      p = s2m.transform( hdr.spacing[0], hdr.spacing[1], hdr.spacing[2] )
+        - s2m.transform( 0.f, 0.f, 0.f );
+
+      vs[0] = fabs(p[0]);
+      vs[1] = fabs(p[1]);
+      vs[2] = fabs(p[2]);
+
       // mem to scanner-based
       AffineTransformation3dBase m2sb;
-      Point3df p = s2sb.transform( 0.f, 0.f, 0.f );
-      m2sb.matrix()(0, 0) = -1;
-      m2sb.matrix()(1, 1) = -1;
-      m2sb.matrix()(2, 2) = -1;
-      m2sb.matrix()(0, 3) = p[0];
-      m2sb.matrix()(1, 3) = p[1];
-      m2sb.matrix()(2, 3) = p[2];
-      // when there will be a flip toward the aims coordinates,
-      // then invert the translation. Here we suppose s2sb is diagonal.
-      // I admit I don't completely understand this, it is empiric.
-      if( s2sb.matrix()(0, 0) > 0 )
-        m2sb.matrix()(0, 3) += dims[0] - 1;
-      if( s2sb.matrix()(1, 1) > 0 )
-        m2sb.matrix()(1, 3) += dims[1] - 1;
-      if( s2sb.matrix()(2, 2) > 0 )
-        m2sb.matrix()(2, 3) += dims[2] - 1;
+      // get back to mm (vox) -> mm (world)
+      AffineTransformation3dBase vst;
+      vst.matrix()(0, 0) = 1. / vs[0];
+      vst.matrix()(1, 1) = 1. / vs[1];
+      vst.matrix()(2, 2) = 1. / vs[2];
+      m2sb = f2sb * s2m.inverse() * vst;
       // fill in directly transforms because s2m is unreliable here.
       refs.push_back( "Scanner-based anatomical coordinates" );
       transs.push_back( m2sb.toVector() );
-
     }
     else
     {
@@ -900,7 +806,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
     //1) Voxel to world transform
     //Handle positive/negative voxel size.
-    AffineTransformation3dBase s2m;
+    s2m = AffineTransformation3dBase();
     s2m.matrix()( 0, 0 )
         = -(int)(volume->separations[2]/fabs(volume->separations[2]));
     s2m.matrix()( 1, 1 )
