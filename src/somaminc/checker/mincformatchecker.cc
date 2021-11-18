@@ -806,20 +806,23 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
     //1) Voxel to world transform
     //Handle positive/negative voxel size.
-    s2m = AffineTransformation3dBase();
-    s2m.matrix()( 0, 0 )
-        = -(int)(volume->separations[2]/fabs(volume->separations[2]));
-    s2m.matrix()( 1, 1 )
-        = -(int)(volume->separations[1]/fabs(volume->separations[1]));
-    s2m.matrix()( 2, 2 )
-        = -(int)(volume->separations[0]/fabs(volume->separations[0]));
+    if( !is_buggy_mgh )
+    {
+      s2m = AffineTransformation3dBase();
+      s2m.matrix()( 0, 0 )
+          = -(int)(volume->separations[2]/fabs(volume->separations[2]));
+      s2m.matrix()( 1, 1 )
+          = -(int)(volume->separations[1]/fabs(volume->separations[1]));
+      s2m.matrix()( 2, 2 )
+          = -(int)(volume->separations[0]/fabs(volume->separations[0]));
 
-    if( s2m.matrix()( 0, 0 ) < 0 )
-      s2m.matrix()( 0, 3 ) = dims[0]-1;
-    if( s2m.matrix()( 1, 1 ) < 0 )
-      s2m.matrix()( 1, 3 ) = dims[1]-1;
-    if( s2m.matrix()( 2, 2 ) < 0 )
-      s2m.matrix()( 2, 3 ) = dims[2]-1;
+      if( s2m.matrix()( 0, 0 ) < 0 )
+        s2m.matrix()( 0, 3 ) = dims[0]-1;
+      if( s2m.matrix()( 1, 1 ) < 0 )
+        s2m.matrix()( 1, 3 ) = dims[1]-1;
+      if( s2m.matrix()( 2, 2 ) < 0 )
+        s2m.matrix()( 2, 3 ) = dims[2]-1;
+    }
     hdr->setProperty( "storage_to_memory", s2m.toVector() );
 
     VIO_General_transform *gt=get_voxel_to_world_transform(volume);
