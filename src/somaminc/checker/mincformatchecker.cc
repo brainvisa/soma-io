@@ -372,8 +372,9 @@ int MincFormatChecker::readMincHistory( Object hdr, const string & fname,
 #define MGH_HEADER_SIZE 284 /* Total number of bytes in the header. */
 #define MGH_EXTRA_SIZE 194   /* Number of "unused" bytes in the header. */
 
-// WARNING: dependency over niftilib for znzlib
-#include <nifti/znzlib.h>
+// WARNING: dependency over niftilib for znzlib, the lib is in the nifti
+// plugin code
+#include <soma-io/nifticlib/znzlib/znzlib.h>
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <Winsock2.h>
