@@ -44,12 +44,23 @@ DJ2KEncoderBase::~DJ2KEncoderBase()
 }
 
 
-OFCondition DJ2KEncoderBase::decode( 
+// the API changed in dcmtk 3.6.6
+#if PACKAGE_VERSION_NUMBER >= 366
+OFCondition DJ2KEncoderBase::decode(
+                           const DcmRepresentationParameter* /* fromRepParam */,
+                           DcmPixelSequence* /* pixSeq */,
+                           DcmPolymorphOBOW& /* uncompressedPixelData */,
+                           const DcmCodecParameter* /* cp */,
+                           const DcmStack& /* objStack */,
+                           OFBool & /*removeOldRep*/ ) const
+#else
+OFCondition DJ2KEncoderBase::decode(
                            const DcmRepresentationParameter* /* fromRepParam */,
                            DcmPixelSequence* /* pixSeq */,
                            DcmPolymorphOBOW& /* uncompressedPixelData */,
                            const DcmCodecParameter* /* cp */,
                            const DcmStack& /* objStack */ ) const
+#endif
 {
 
   return EC_IllegalCall;
@@ -74,6 +85,17 @@ OFCondition DJ2KEncoderBase::decodeFrame(
 }
 
 
+// the API changed in dcmtk 3.6.6
+#if PACKAGE_VERSION_NUMBER >= 366
+OFCondition DJ2KEncoderBase::encode(
+                             const Uint16* /* pixelData */,
+                             const Uint32 /* length */,
+                             const DcmRepresentationParameter* /* toRepParam */,
+                             DcmPixelSequence*& /* pixSeq */,
+                             const DcmCodecParameter* /* cp */,
+                             DcmStack& /* objStack */,
+                             OFBool & /*removeOldRep*/ ) const
+#else
 OFCondition DJ2KEncoderBase::encode(
                              const Uint16* /* pixelData */,
                              const Uint32 /* length */,
@@ -81,6 +103,7 @@ OFCondition DJ2KEncoderBase::encode(
                              DcmPixelSequence*& /* pixSeq */,
                              const DcmCodecParameter* /* cp */,
                              DcmStack& /* objStack */ ) const
+#endif
 {
 #if 0
                                    const Uint16* pixelData,
@@ -398,6 +421,18 @@ OFCondition DJ2KEncoderBase::encode(
 }
 
 
+// the API changed in dcmtk 3.6.6
+#if PACKAGE_VERSION_NUMBER >= 366
+OFCondition DJ2KEncoderBase::encode(
+                           const E_TransferSyntax /* fromRepType */,
+                           const DcmRepresentationParameter* /* fromRepParam */,
+                           DcmPixelSequence* /* fromPixSeq */,
+                           const DcmRepresentationParameter* /* toRepParam */,
+                           DcmPixelSequence*& /* toPixSeq */,
+                           const DcmCodecParameter* /* cp */,
+                           DcmStack& /* objStack */,
+                           OFBool & /*removeOldRep*/ ) const
+#else
 OFCondition DJ2KEncoderBase::encode(
                            const E_TransferSyntax /* fromRepType */,
                            const DcmRepresentationParameter* /* fromRepParam */,
@@ -406,6 +441,7 @@ OFCondition DJ2KEncoderBase::encode(
                            DcmPixelSequence*& /* toPixSeq */,
                            const DcmCodecParameter* /* cp */,
                            DcmStack& /* objStack */ ) const
+#endif
 {
 
   // we don't support re-coding for now.

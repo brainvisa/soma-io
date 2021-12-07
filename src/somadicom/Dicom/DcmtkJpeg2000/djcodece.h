@@ -20,11 +20,21 @@ class  DJ2KEncoderBase : public DcmCodec
     DJ2KEncoderBase();
     virtual ~DJ2KEncoderBase();
 
+// the API changed in dcmtk 3.6.6
+#if PACKAGE_VERSION_NUMBER >= 366
+    virtual OFCondition decode( const DcmRepresentationParameter* fromRepParam,
+                                DcmPixelSequence* pixSeq,
+                                DcmPolymorphOBOW& uncompressedPixelData,
+                                const DcmCodecParameter* cp,
+                                const DcmStack& objStack,
+                                OFBool & removeOldRep ) const;
+#else
     virtual OFCondition decode( const DcmRepresentationParameter* fromRepParam,
                                 DcmPixelSequence* pixSeq,
                                 DcmPolymorphOBOW& uncompressedPixelData,
                                 const DcmCodecParameter* cp,
                                 const DcmStack& objStack ) const;
+#endif
 
     virtual OFCondition decodeFrame(
                                     const DcmRepresentationParameter* fromParam,
@@ -37,6 +47,25 @@ class  DJ2KEncoderBase : public DcmCodec
                                     Uint32 bufSize,
                                     OFString& decompressedColorModel ) const;
 
+// the API changed in dcmtk 3.6.6
+#if PACKAGE_VERSION_NUMBER >= 366
+    virtual OFCondition encode( const Uint16* pixelData,
+                                const Uint32 length,
+                                const DcmRepresentationParameter* toRepParam,
+                                DcmPixelSequence*& pixSeq,
+                                const DcmCodecParameter* cp,
+                                DcmStack& objStack,
+                                OFBool & removeOldRep ) const;
+
+    virtual OFCondition encode( const E_TransferSyntax fromRepType,
+                                const DcmRepresentationParameter* fromRepParam,
+                                DcmPixelSequence* fromPixSeq,
+                                const DcmRepresentationParameter* toRepParam,
+                                DcmPixelSequence*& toPixSeq,
+                                const DcmCodecParameter* cp,
+                                DcmStack& objStack,
+                                OFBool & removeOldRep ) const;
+#else
     virtual OFCondition encode( const Uint16* pixelData,
                                 const Uint32 length,
                                 const DcmRepresentationParameter* toRepParam,
@@ -51,6 +80,7 @@ class  DJ2KEncoderBase : public DcmCodec
                                 DcmPixelSequence*& toPixSeq,
                                 const DcmCodecParameter* cp,
                                 DcmStack& objStack ) const;
+#endif
 
     virtual OFBool canChangeCoding( const E_TransferSyntax oldRepType,
                                     const E_TransferSyntax newRepType ) const;
