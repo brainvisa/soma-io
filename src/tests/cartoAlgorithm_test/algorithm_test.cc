@@ -89,7 +89,7 @@ Thresholder<T>::Thresholder() :
   inputParameter( _mode, "mode", "Thresholding mode" )
     .choice( "gt", GREATER )
     .choice( "bw", BETWEEN );
-  inputParameter( _level1, "level1", "Frist threshold" );
+  inputParameter( _level1, "level1", "First threshold" );
   inputParameter( _level2, "level2", "Second threshold" ).optional();
 }
 
@@ -161,7 +161,7 @@ Thresholder<T>::Thresholder() :
   inputParameter( _mode, "mode", "Thresholding mode" )
     .choice( "gt", GREATER )
     .choice( "bw", BETWEEN );
-  inputParameter( _level1, "level1", "Frist threshold" );
+  inputParameter( _level1, "level1", "First threshold" );
   inputParameter( _level2, "level2", "Second threshold" ).optional();
 }
 
