@@ -249,7 +249,6 @@ def convert_to_nifti(serie, args, mergeDynSeries=True, remove_corrupt_tags=True)
 
         indexesbytime[time].append(ds.ImagePositionPatient[2])
 
-        slope = 1
         inter = 0
         scale_factor = 1
         try:
