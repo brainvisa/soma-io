@@ -58,7 +58,7 @@ WeakObject::WeakObject()
 
 
 /*!
-  A weak object is copy-constructed.  It's a new object so it has no obervers.
+  A weak object is copy-constructed.  It's a new object so it has no observers.
 */
 WeakObject::WeakObject( const WeakObject& )
 {
@@ -66,7 +66,7 @@ WeakObject::WeakObject( const WeakObject& )
 
 
 /*!
-  A weak object is copied.  It's a new object so it has no obervers.
+  A weak object is copied.  It's a new object so it has no observers.
 */
 WeakObject& WeakObject::operator=( const WeakObject& )
 {
