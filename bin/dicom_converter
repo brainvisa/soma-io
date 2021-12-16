@@ -42,7 +42,6 @@ import glob
 import platform
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
-import sys
 import numpy as np
 import soma
 from soma.path import split_path
