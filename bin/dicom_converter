@@ -177,7 +177,7 @@ def removeCorruptTags(dataset):
     data_tag_list = list(six.viewkeys(dataset))
     for tag in data_tag_list:
         try:
-            data_element = dataset[tag]
+            _ = dataset[tag]
         except KeyError as e:
             print("KeyError: %s" % e)
             print("Tag %s will be erase" % tag)
