@@ -1400,9 +1400,9 @@ namespace soma
     Point3df df = m2s.transform( Point3df( dims[0], dims[1], dims[2] ) )
         - m2s.transform( Point3df( 0, 0, 0 ) );
     std::vector<int> tdims = dims;
-    tdims[0] = short( rint( fabs( df[0] ) ) );
-    tdims[1] = short( rint( fabs( df[1] ) ) );
-    tdims[2] = short( rint( fabs( df[2] ) ) );
+    tdims[0] = int( rint( fabs( df[0] ) ) );
+    tdims[1] = int( rint( fabs( df[1] ) ) );
+    tdims[2] = int( rint( fabs( df[2] ) ) );
     // fix s2m dims if needed (happens in case image dims have changed)
     s2m.matrix()(0,3) = 0; // erase initial translation
     s2m.matrix()(1,3) = 0;
