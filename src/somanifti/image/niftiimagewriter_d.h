@@ -1065,7 +1065,9 @@ namespace soma
         minf,
         options
     );
-    
+
+    // reopen in case a previous write attemps has failed (nifti1 before nifti2...)
+    dsi.list().dataSource( "minf" )->reset();
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
 //     //--- partial-io case ----------------------------------------------------
