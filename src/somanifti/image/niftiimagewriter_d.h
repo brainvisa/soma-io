@@ -1066,10 +1066,11 @@ namespace soma
         options
     );
 
-    // reopen in case a previous write attemps has failed (nifti1 before nifti2...)
-    dsi.list().dataSource( "minf" )->reset();
     Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
     minfw.write( *minf );
+    // close the stream to ensure nothing will be appended later.
+    dsi.list().dataSource( "minf" )->close();
+
 //     //--- partial-io case ----------------------------------------------------
 //     if( options->hasProperty( "unallocated" ) )
 //     {
