@@ -256,10 +256,13 @@ def convert_to_nifti(serie, args, mergeDynSeries=True, remove_corrupt_tags=True)
             if modality == 'PT' and \
                ds.Units == 'CNTS' and \
                ds.get('Manufacturer') == 'Philips Medical Systems':
-                if args.suv:
-                    scale_factor = ds[0x7053, 0x1000].value
-                else:
-                    scale_factor = ds[0x7053, 0x1009].value
+                try:
+                    if args.suv:
+                        scale_factor = ds[0x7053, 0x1000].value
+                    else:
+                        scale_factor = ds[0x7053, 0x1009].value
+                except KeyError:
+                    scale_factor = ds[0x0028, 0x1053].value
         except Exception as e:
             raise(e)
 
@@ -283,6 +286,12 @@ def convert_to_nifti(serie, args, mergeDynSeries=True, remove_corrupt_tags=True)
                     ds[0x7053, 0x1009].value = "1"
                 else:
                     ds[0x7053, 0x1009].value = b"1"
+            
+            if ds.get((0x0028, 0x1053)):
+                if isinstance(ds[0x0028, 0x1053].value, str):
+                    ds[0x0028, 0x1053].value = "1"
+                else:
+                    ds[0x0028, 0x1053].value = b"1"
         except Exception as e:
             raise(e)
 
