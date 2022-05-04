@@ -1019,7 +1019,7 @@ std::ostream& operator << ( std::ostream& out,const AimsVector<char,D>& thing)
 
 template <int D>
 inline
-std::ostream& operator << ( std::ostream& out,const AimsVector<byte,D>& thing)
+std::ostream& operator << ( std::ostream& out,const AimsVector<::byte,D>& thing)
 {
   out << '(';
   for (int d = 0; d < D-1 ; ++d)
@@ -1111,7 +1111,7 @@ std::istream& operator >> (std::istream& is, AimsVector<char,D>& thing)
 
 template <int D>
 inline
-std::istream& operator >> (std::istream& is, AimsVector<byte,D>& thing)
+std::istream& operator >> (std::istream& is, AimsVector<::byte,D>& thing)
 {
   char ch = 0;
   int tmp;
@@ -1125,7 +1125,7 @@ std::istream& operator >> (std::istream& is, AimsVector<byte,D>& thing)
       is >> ch;
       carto::StreamUtil::skip( is );
       is >> tmp;
-      thing.item(0) = (byte)tmp;
+      thing.item(0) = (::byte)tmp;
       for (int i = 1; i < D; ++i)
         {
           carto::StreamUtil::skip( is );
@@ -1134,7 +1134,7 @@ std::istream& operator >> (std::istream& is, AimsVector<byte,D>& thing)
             break;
           carto::StreamUtil::skip( is );
           is >> tmp;
-          thing.item(i) = (byte)tmp;
+          thing.item(i) = (::byte)tmp;
         }
       if( is )
         {
