@@ -48,6 +48,7 @@
 #include <cartobase/object/property.h>                               // header
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/thread/mutex.h>
+#include <cartobase/stream/fdinhibitor.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "MINCFORMATCHECKER" )
@@ -559,6 +560,10 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   try
   {
+    // suppress stderr output to avoid netcdf messages
+    fdinhibitor fdi( 2 );
+    fdi.close();
+
     status = start_volume_input( fileName, 0, &dim_names[0],
                                 MI_ORIGINAL_TYPE, TRUE,
                                 0.0, 0.0, TRUE, &volume,
@@ -1060,7 +1065,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
     DataSource* hds = dsi.list().dataSource( "mnc" ).get();
     dsi.header() = _buildHeader( hds );
     std::string format = dsi.header()->getProperty( "format" )->getString();
-    
+
     localMsg( "Reading minf..." );
     DataSource* minfds = dsi.list().dataSource( "minf" ).get();
     DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
@@ -1082,7 +1087,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
         dsi.header()->setProperty( "volume_dimension", dims );
       }
     }
-    
+
     int32_t size = 0;
     if (dsi.header()->getProperty("sizeX", size))
       if (size <= 0)
