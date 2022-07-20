@@ -37,6 +37,7 @@
 #include <soma-io/config/soma_config.h>
 #include <soma-io/reader/formatreader.h>                  // class declaration
 #include <soma-io/datasource/datasource.h>            // for templating rc_ptr
+#include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <soma-io/utilities/creator.h>         // used by setup() and create()
 #include <soma-io/allocator/allocator.h>                   // AllocatorContext
 //--- cartobase --------------------------------------------------------------
