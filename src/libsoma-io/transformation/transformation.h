@@ -43,11 +43,16 @@
 
 #include <soma-io/vector/vector.h>
 #include <cartobase/smart/rcptr.h>
+#include <cartobase/type/types.h>
 
 namespace soma
 {
 
-  /** Polymorphic base class for spatial transformations
+  /** Polymorphic base class for spatial transformations.
+
+      In Soma-IO 5.1 (2022) the header() has beed added in the base
+      Transformation class, whereas it used to be only in Aims
+      AffineTransformation3d. Now all transformations variants have a header.
    */
   class Transformation : public virtual carto::RCObject
   {
@@ -70,8 +75,14 @@ namespace soma
       return false;
     }
 
+    carto::Object header() { return _header; }
+    const carto::Object header() const { return _header; }
+    void setHeader( carto::Object ph );
+
   protected:
-    Transformation() {}
+    carto::Object _header;
+
+    Transformation();
   };
 
 
@@ -107,7 +118,7 @@ namespace soma
     };
 
   protected:
-    Transformation3d() {}
+    Transformation3d() : Transformation() {}
 
     virtual Point3dd transformDouble( double x, double y, double z ) const = 0;
     virtual Point3dd transformPoint3dd( const Point3dd & pos ) const;
@@ -186,6 +197,23 @@ namespace soma
     return Point3d( (int16_t) rint( transformed[0] ),
                     (int16_t) rint( transformed[1] ),
                     (int16_t) rint( transformed[2] ) );
+  }
+
+  // --
+
+  template <> inline std::string DataTypeCode<Transformation3d>::objectType()
+  {
+    return "Transformation3d";
+  }
+
+  template <> inline std::string DataTypeCode<Transformation3d>::dataType()
+  {
+    return "VOID";
+  }
+
+  template <> inline std::string DataTypeCode<Transformation3d>::name()
+  {
+    return "Transformation3d";
   }
 
 }

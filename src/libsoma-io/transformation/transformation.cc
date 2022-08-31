@@ -32,12 +32,29 @@
  */
 
 #include <soma-io/transformation/transformation.h>
+#include <cartobase/object/property.h>
 
 using namespace soma;
+using namespace carto;
 using namespace std;
+
+Transformation::Transformation()
+  : _header( Object::value( PropertySet() ) )
+{
+}
+
 
 Transformation::~Transformation()
 {
+}
+
+
+void Transformation::setHeader( Object ph )
+{
+  if( ph )
+    _header = Object::value( PropertySet( ph->value<PropertySet>() ) );
+  else
+    _header = Object::value( PropertySet() );
 }
 
 

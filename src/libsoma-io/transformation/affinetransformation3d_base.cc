@@ -34,6 +34,7 @@
 #include <cstdlib>
 #include <soma-io/transformation/affinetransformation3d_base.h>
 #include <soma-io/vector/vector.h>
+#include <cartobase/object/property.h>
 #include <iostream>
 #include <iomanip>
 
@@ -150,6 +151,8 @@ AffineTransformation3dBase::AffineTransformation3dBase(
   Transformation3d( other ),
   _matrix( other._matrix )
 {
+  if( other.header() )
+    _header = Object::value( other.header()->value<PropertySet>() );
 }
 
 
@@ -188,6 +191,10 @@ AffineTransformation3dBase& AffineTransformation3dBase::operator =
   if( &other == this )
     return *this;
   _matrix = other._matrix;
+  if( other.header() )
+    _header = Object::value( other.header()->value<PropertySet>() );
+  else
+    _header->clearProperties();
   return *this;
 }
 
