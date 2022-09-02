@@ -51,10 +51,9 @@ Transformation::~Transformation()
 
 void Transformation::setHeader( Object ph )
 {
+  _header = Object::value( PropertySet() );
   if( ph )
-    _header = Object::value( PropertySet( ph->value<PropertySet>() ) );
-  else
-    _header = Object::value( PropertySet() );
+    _header->copyProperties( ph );
 }
 
 
