@@ -233,6 +233,8 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
     hds->ungetch( c );
   }
   size_t ndim = dims.size();
+  if( ndim < 3 )
+    ndim = 3;
   vector<float>  vs( ndim, 1. );
 
   const Syntax  &sx = DataSourceInfoLoader::minfSyntax()[ "__generic__" ];
@@ -264,15 +266,35 @@ Object GisFormatChecker::_buildHeader( DataSource* hds ) const
     else if (token == "dz" )
       fir.read( *hds, &vs[2] );
     else if (token == "dt" )
+    {
+      if( vs.size() < 4 )
+        vs.resize( 4 );
       fir.read( *hds, &vs[3] );
+    }
     else if (token == "dx4" )
+    {
+      if( vs.size() < 5 )
+        vs.resize( 5 );
       fir.read( *hds, &vs[4] );
+    }
     else if (token == "dx5" )
+    {
+      if( vs.size() < 6 )
+        vs.resize( 6 );
       fir.read( *hds, &vs[5] );
+    }
     else if (token == "dx6" )
+    {
+      if( vs.size() < 7 )
+        vs.resize( 7 );
       fir.read( *hds, &vs[6] );
+    }
     else if (token == "dx7" )
+    {
+      if( vs.size() < 8 )
+        vs.resize( 8 );
       fir.read( *hds, &vs[7] );
+    }
     else if (token == "bo" )
       sir.read( *hds, &byteord );
     else if (token == "om" )
