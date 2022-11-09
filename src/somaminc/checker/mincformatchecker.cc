@@ -527,8 +527,10 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   // Work around BUG in netCDF which incorrectly uses assert and
   // aborts on empty files
   struct stat   st;
-  stat( fname.c_str(), &st ); // succeeds because it has already been done
-  if( st.st_size == 0 )
+  // should succeed because it has already been done, but apparently it has
+  // not always...
+  int sres = stat( fname.c_str(), &st );
+  if( sres != 0 || st.st_size == 0 )
     throw eof_error( fname );
 
   // MINC does not support windows filenames, so we replace it using linux
@@ -565,9 +567,9 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
     fdi.close();
 
     status = start_volume_input( fileName, 0, &dim_names[0],
-                                MI_ORIGINAL_TYPE, TRUE,
-                                0.0, 0.0, TRUE, &volume,
-                                (minc_input_options *) NULL, &input_info );
+                                 MI_ORIGINAL_TYPE, TRUE,
+                                 0.0, 0.0, TRUE, &volume,
+                                 (minc_input_options *) NULL, &input_info );
     milog_init("stderr");
 
     if(status != VIO_OK)
@@ -678,7 +680,9 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
         f2sb.matrix()(i, 3) = hdr.dircos[3][i];
       }
       // cout << "f2sb:\n" << f2sb << endl;
-      Point3df p = f2sb.transform(hdr.sizes[0] / 2.f, hdr.sizes[1] / 2.f, hdr.sizes[2] / 2.f ) - f2sb.transform(0.f, 0.f, 0.f);
+      Point3df p = f2sb.transform(hdr.sizes[0] / 2.f, hdr.sizes[1] / 2.f,
+                                  hdr.sizes[2] / 2.f )
+        - f2sb.transform(0.f, 0.f, 0.f);
       f2sb.matrix()(0, 3) -= p[0];
       f2sb.matrix()(1, 3) -= p[1];
       f2sb.matrix()(2, 3) -= p[2];
