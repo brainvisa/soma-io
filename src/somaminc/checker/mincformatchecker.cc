@@ -1000,13 +1000,13 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
     }
 
     //Free memory
+    delete_general_transform(gt);
     delete_volume(volume);
     delete_string(fileName);
     delete_string(dim_names[0]);
     delete_string(dim_names[1]);
     delete_string(dim_names[2]);
     delete_string(dim_names[3]);
-    delete_general_transform(gt);
     delete_volume_input(&input_info);
   }
   catch( ... )
