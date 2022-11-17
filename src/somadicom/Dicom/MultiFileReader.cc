@@ -209,8 +209,11 @@ bool dcm::MultiFileReader::sortFiles( dcm::DicomDatasetHeader& datasetHeader )
 
       while ( f != fe )
       {
-
+        if( lut.size() <= pos )
+          lut.resize( pos + 1 );
         lut[ pos ] = f->second._bufferIndex;
+        if( _positions.size() <= pos )
+          _positions.resize( pos + 1 );
         _positions[ pos ] = f->second._imagePosition;
         
         pos += dimZ;
