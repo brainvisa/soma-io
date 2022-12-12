@@ -77,9 +77,9 @@ unexpected_option::unexpected_option( const string &optionName ) :
 
 //-----------------------------------------------------------------------------
 unexpected_option_value::unexpected_option_value( const string &optionName,
-						  const string &value ) :
+                                                  const string &value ) :
   runtime_error( string("unexpected value for option \"") + optionName +
-	       "\" (" + value + ")" )
+               "\" (" + value + ")" )
 {
 }
 
@@ -126,11 +126,11 @@ namespace
 
   void parseOptionsFile( const string & fname, vector<string> & fopts )
   {
-    ifstream	f( fname.c_str() );
+    ifstream f( fname.c_str() );
     if( !f )
       return;
-    string	line;
-    int		c;
+    string line;
+    int c;
     while( !f.eof() )
       {
         line.clear();
@@ -186,7 +186,7 @@ void OptionsParser::pushOption( OptionBase *opt )
 //-----------------------------------------------------------------------------
 void OptionsParser::parse()
 {
-  string	optionFile;
+  string optionFile;
   addOption( optionFile, "--optionsfile", "Read additional commandline "
              "options from the specified file (one switch or value per line)",
              true );
@@ -204,46 +204,46 @@ void OptionsParser::parse()
     if ( i == options.end() ) {
       // Not an option name
       if ( currentOption ) {
-	if ( currentOption->feed( *arg ) ) {
-	  ++arg;
-	  continue;
-	} else {
-	  currentOption = NULL;
-	}
+        if ( currentOption->feed( *arg ) ) {
+          ++arg;
+          continue;
+        } else {
+          currentOption = NULL;
+        }
       }
       // Throw an error if the argument looks like an option name (this catches
       // misspelt option names)
       if(!arg->empty() && (*arg)[0] == '-') {
-	throw unexpected_option( *arg );
+        throw unexpected_option( *arg );
       }
       // If the argument does not look like an option, pass it to the first
       // option that does not yet have a value
       for( i = options.begin(); i != options.end(); ++i ) {
-	if ( (*i)->feed( *arg ) ) break;
+        if ( (*i)->feed( *arg ) ) break;
       }
       if ( i == options.end() ) {
-	throw unexpected_option( *arg );
+        throw unexpected_option( *arg );
       } else {
-	++arg;
+        ++arg;
       }
     } else {
       // Option name
       currentOption = *i;
       ++arg;
       if ( arg != cla.end() ) {
-	if ( currentOption->feed( *arg ) ) {
-	  ++arg;
+        if ( currentOption->feed( *arg ) ) {
+          ++arg;
           if( currentOption->name() == "--optionsfile" )
             {
-              vector<string>	fopts;
-              unsigned		n = arg - cla.begin();
+              vector<string> fopts;
+              unsigned n = arg - cla.begin();
               parseOptionsFile( optionFile, fopts );
               cla.insert( arg, fopts.begin(), fopts.end() );
               arg = cla.begin() + n;
             }
-	} else {
-	  currentOption = NULL;
-	}
+        } else {
+          currentOption = NULL;
+        }
       }
     }
   }
@@ -369,11 +369,11 @@ namespace
   //---------------------------------------------------------------------------
   string formatted( const string & in, unsigned indent = 4 )
   {
-    string::size_type	pos = 0, cols = 80, sz = in.size(), p2, ccols = cols,
+    string::size_type pos = 0, cols = 80, sz = in.size(), p2, ccols = cols,
       i, skip;
-    string	out, prefix;
-    char	c;
-    bool	first = true;
+    string out, prefix;
+    char c;
+    bool first = true;
 
     while( pos < sz )
       {
@@ -436,7 +436,7 @@ void CartoApplication::initialize()
   alias( "--help", "-h" );
   addOption( version, "--version", "show Cartograph version", true );
   addOption( info, "--info", "show libraries information (install, plugins, "
-	     "paths, etc.)", true );
+             "paths, etc.)", true );
   parse();
 
   PluginLoader::load();
@@ -445,7 +445,7 @@ void CartoApplication::initialize()
     {
       cout << endl << "    " << _name << endl
            << "    ";
-      unsigned	i, n = _name.size();
+      unsigned i, n = _name.size();
       for( i=0; i<n; ++i )
         cout << '-';
       cout << endl << endl << formatted( _documentation, 0 ) << endl << endl;
