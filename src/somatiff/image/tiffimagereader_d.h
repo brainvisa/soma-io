@@ -326,7 +326,7 @@ namespace soma {
                 }
                 else {
 //                   std::cout << "Reading strip: " << carto::toString(s) << " ...";
-                  TIFFReadRGBAStrip(tif, s * srows, (uint32*)buffer );
+                  TIFFReadRGBAStrip(tif, s * srows, (uint32_t*)buffer );
 //                   std::cout << " OK" << std::endl;
                 }
 
