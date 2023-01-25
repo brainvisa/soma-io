@@ -737,7 +737,12 @@ Object DataSourceInfoLoader::readMinf( DataSource & ds, Object base,
     
     else if( minf->hasProperty( "item_type" ) )
       minf->removeProperty( "item_type" );
-    
+
+    if( minf->hasProperty( "format" ) )
+      minf->removeProperty( "format" );
+    if( minf->hasProperty( "file_type" ) )
+      minf->removeProperty( "file_type" );
+
     return minf;
   } catch( exception & e ){
   } catch( ... ) {
