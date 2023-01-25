@@ -236,14 +236,15 @@ namespace soma {
 
     // Get files and tiff directories to use for reading
     localMsg("Try to read tiff file using format: " + _mfi.type); 
-    switch (_mfi.type) {
+    switch (_mfi.type)
+    {
       case MultiFileFormatInfo::Single :
       case MultiFileFormatInfo::Time :
         // Z dimension is stored in tiff directories
         dirmin = oz;
         dirmax = oz + vz;
         break;
-        
+
       case MultiFileFormatInfo::Slice :
       case MultiFileFormatInfo::SliceTime :
         // Only use the first tiff directories because Z dimension
@@ -254,13 +255,14 @@ namespace soma {
     }
 
     TIFFSetWarningHandler( 0 );
-    
+
     for (t = 0; t < vt; ++t) {
-      for ( z = 0; z < vz; z += (dirmax - dirmin) ) {
+      for ( z = 0; z < vz; z += (dirmax - dirmin) )
+      {
         filename = MultiFileFormat::filename( _mfi,
                                               _mfi.slicemin + oz + z,
                                               _mfi.timemin + ot + t );
-        
+
         localMsg("Try to read slice " + carto::toString(z) + " for time " + carto::toString(t)
                  + " from file: " + filename); 
         // Open the tiff file to read
