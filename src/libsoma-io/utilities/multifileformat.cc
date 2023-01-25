@@ -61,6 +61,8 @@ const std::string MultiFileFormat::FILENAME_TIME_REGEX = "^(.*)t([0-9]+)$";
 MultiFileFormatInfo::MultiFileFormatInfo() 
   : slicemin(0),
     slicemax(0),
+    sel_slice(-1),
+    sel_time(-1),
     timemin(0),
     timemax(0),
     initialized(false){
@@ -73,24 +75,25 @@ MultiFileFormat::MultiFileFormat() {
 MultiFileFormat::~MultiFileFormat() {
 }
 
-MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
-  
+MultiFileFormatInfo MultiFileFormat::info( const std::string & filename )
+{
+
   string  name = FileUtil::basename( FileUtil::removeExtension( filename ) ),
           ext = FileUtil::extension( filename ),
           dirname = FileUtil::dirname( filename );
   MultiFileFormatInfo info;
-  
+
   info.directory = dirname;
   info.slicemin = info.slicemax = info.timemin = info.timemax = 0;
-  
+
   // Regular expression to find slice and time in filename
   regex_t regst;
   regcomp( &regst, MultiFileFormat::FILENAME_TIME_SLICE_REGEX.c_str(), REG_EXTENDED | REG_ICASE );
-  
+
   // Regular expression to find time number at the end of filename
   regex_t regt;
   regcomp( &regt, MultiFileFormat::FILENAME_TIME_REGEX.c_str(), REG_EXTENDED | REG_ICASE );
-  
+
   // Regular expression to find number at the end of filename
   regex_t regs;
   regcomp( &regs, MultiFileFormat::FILENAME_SLICE_REGEX.c_str(), REG_EXTENDED | REG_ICASE );
@@ -110,6 +113,15 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
                    + "([0-9]+)_s([0-9]+)\\." + ext + "$";
     info.format = name.substr( 0, rmatch[1].rm_eo + 1 ) + "%0" 
                   + num1 + "u_s%0" + num2 + "u." + ext;
+
+    string sslice = name.substr( rmatch[3].rm_so, lens );
+    stringstream s(sslice);
+    s >> info.sel_slice;
+    string stime = name.substr( rmatch[2].rm_so, lent );
+    s = stringstream( stime );
+    s >> info.sel_time;
+    // cout << "slice: " << info.sel_slice << ", time: " << info.sel_time << endl;
+
     info.type = MultiFileFormatInfo::SliceTime;
   }
   // Try to find time in filename
@@ -123,6 +135,12 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
                    + "t([0-9]+)\\." + ext + "$";
     info.format = name.substr( 0, rmatch[1].rm_eo ) + "t%0" 
                   + num + "u." + ext;
+
+    string stime = name.substr( rmatch[2].rm_so, lent );
+    stringstream s(stime);
+    s >> info.sel_time;
+    // cout << "time: " << info.sel_time << endl;
+
     info.type = MultiFileFormatInfo::Time;
   }
   // Try to find slice in filename
@@ -136,6 +154,12 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
                    + "([0-9]+)\\." + ext + "$";
     info.format = name.substr( 0, rmatch[1].rm_eo ) + "%0" 
                   + num + "u." + ext;
+
+    string sslice = name.substr( rmatch[2].rm_so, lens );
+    stringstream s(sslice);
+    s >> info.sel_slice;
+    // cout << "slice: " << info.sel_slice << endl;
+
     info.type = MultiFileFormatInfo::Slice;
   }
   else
@@ -177,7 +201,7 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
               info.timemax = n;
             if( !hast )
               hast = true;
-              
+
             num = is->substr( rmatch[2].rm_so, rmatch[2].rm_eo );
             sscanf( num.c_str(), "%u", &n );
             if( n < info.slicemin || !hass )
@@ -186,9 +210,9 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
               info.slicemax = n;
             if( !hass )
               hass = true;
-            
+
             break;
-            
+
           case MultiFileFormatInfo::Time:
             num = is->substr( rmatch[1].rm_so, rmatch[1].rm_eo );
             sscanf( num.c_str(), "%u", &n );
@@ -198,7 +222,7 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
               info.timemax = n;
             if( !hast )
               hast = true;
-            
+
             break;
 
           default:
@@ -211,18 +235,69 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename ) {
               info.slicemax = n;
             if( !hass )
               hass = true;
-            
+
             break;
         }
       }
     }
 
     regfree( &regst );
+
+    if( ( info.sel_slice >= 0 && ( info.sel_slice < info.slicemin
+                                   || info.sel_slice > info.slicemax ) )
+        || ( info.sel_time >= 0 && ( info.sel_time < info.timemin
+                                   || info.sel_time > info.timemax ) ) )
+    {
+      // slice / time out of bounds: fallback to single slice
+      info.type != MultiFileFormatInfo::Single;
+      info.pattern = name + "." +ext;
+      info.format = name + "." +ext;
+    }
   }
-  
+
   info.initialized = true;
   return info;
 }
+
+
+void MultiFileFormat::updateInfo( MultiFileFormatInfo & info, Object header,
+                                  bool force_vol )
+{
+  if( info.type == MultiFileFormatInfo::Single || force_vol )
+    return;  // nothing to do
+
+  bool single = false;
+  string fname = filename( info );
+  string name = FileUtil::basename( fname );
+  // cout << "check filename: " << name << endl;
+
+  try
+  {
+    Object o_filenames = header->getProperty( "filenames" );
+    if( !o_filenames )
+      single = true;
+    else
+    {
+      Object it = o_filenames->objectIterator();
+      for( ; it->isValid(); it->next() )
+        if( it->currentValue()->getString() == name )
+          break;  // found: not single
+    }
+  }
+  catch( ... )
+  {
+    single = true;
+  }
+
+  if( single )
+  {
+    // cout << "switch to single file mode\n";
+    info.type = MultiFileFormatInfo::Single;
+    info.pattern = name;
+    info.format = name;
+  }
+}
+
 
 void MultiFileFormat::updateDimensions( const MultiFileFormatInfo & info,
                                         vector<int> & dims ) {
@@ -268,11 +343,17 @@ vector<string> MultiFileFormat::filenames( const MultiFileFormatInfo & info,
                                            uint32_t slicemin, uint32_t slicemax,
                                            uint32_t timemin, uint32_t timemax )
 {
+  vector<string> filenames;
+
+  if( info.type == MultiFileFormatInfo::Single )
+  {
+    filenames.push_back( filename( info ) );
+    return filenames;
+  }
 
   uint32_t dimz = slicemax - slicemin + 1;
   uint32_t dimt = timemax - timemin + 1;
-  
-  vector<string> filenames;
+
   filenames.reserve( dimz * dimt );
   
   for( uint32_t t = 0; t < dimt; ++t )
@@ -283,8 +364,15 @@ vector<string> MultiFileFormat::filenames( const MultiFileFormatInfo & info,
 }
 
 string MultiFileFormat::filename( const MultiFileFormatInfo & info, 
-                                  uint32_t slice, 
-                                  uint32_t time ) {
+                                  int32_t slice,
+                                  int32_t time )
+{
+  if( info.type == MultiFileFormatInfo::Single )
+  {
+    slice = -1;
+    time = -1;
+  }
+
   string filename;
 //   std::cout << "pattern: " << info.pattern << std::endl
 //             << "format: " << info.format << std::endl
@@ -294,6 +382,16 @@ string MultiFileFormat::filename( const MultiFileFormatInfo & info,
 //             << "minslice: " << carto::toString(info.slicemin) << std::endl
 //             << "mintime: " << carto::toString(info.timemin) << std::endl;
   char *fname;
+
+  if( slice < 0 )
+    slice = info.sel_slice;
+  if( slice < 0 )
+    slice = 0;
+  if( time < 0 )
+    time = info.sel_time;
+  if( time < 0 )
+    time = 0;
+
   switch( info.type )
   {
     case MultiFileFormatInfo::Single:

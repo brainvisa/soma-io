@@ -107,40 +107,46 @@ void TiffFormatChecker::_buildMultiFileFormatInfo( DataSourceInfo & dsi ) const
  * each of the following keywords : "dim", "ima", "minf", "default", but
  * in the worst case they can all be the initial ds.
  ****************************************************************************/
-void TiffFormatChecker::_buildDSList( DataSourceList & dsl, const MultiFileFormatInfo & mfi ) const
+void TiffFormatChecker::_buildDSList( DataSourceList & dsl,
+                                      const MultiFileFormatInfo & mfi ) const
 {
+  // cout << "_buildDSList " << &dsl << endl;
   DataSource* pds = dsl.dataSource().get();
   string defaultname, tiffname, minfname, ext;
-  
+
   // Get the default file name from the given url
   defaultname = tiffname = minfname = FileUtil::uriFilename( pds->url() );
   tiffname = _getTiffFileName( defaultname );
   ext = carto::stringLower(FileUtil::extension(tiffname));
   localMsg("tiffname: " + tiffname);
   localMsg("extension found: " + ext);
-  
-  if( defaultname.empty() ) {
-    // we suppose ds is a dim file and a imafile
-    dsl.addDataSource( "0", rc_ptr<DataSource>( pds ) );
-  }
-  else if (( ext == "tif") || (ext == "tiff")) {
+
+  dsl.reset();  // erase any previous DL list in case it is run several times
+  rc_ptr<DataSource> default_ds = rc_ptr<DataSource>( pds );
+
+  dsl.addDataSource( "default", default_ds );
+
+  if (( ext == "tif") || (ext == "tiff"))
+  {
     // Find filenames from the MultiFileFormatInfo
     const vector<string> & filenames = MultiFileFormat::filenames(mfi);
     
     localMsg("found " + carto::toString(filenames.size()) + " filenames.");
-    if (filenames.size() > 0) {
+    if (filenames.size() > 0)
+    {
       vector<string>::const_iterator it, ie = filenames.end();
       uint32_t i;
+
       for (it = filenames.begin(), i = 0; it != ie; ++it, ++i)
-        dsl.addDataSource( carto::toString(i), rc_ptr<DataSource>( new FileDataSource( *it ) ) );
-    }
-    else {
-      dsl.addDataSource( "0", rc_ptr<DataSource>( pds ) );
+        dsl.addDataSource( carto::toString(i),
+                           rc_ptr<DataSource>( new FileDataSource( *it ) ) );
+      // the first file will be associated with the .minf
+      default_ds = dsl.dataSource( "0" );
     }
   }
-  
-  localMsg( "tiff: " + dsl.dataSource( "0" )->url() );
-  minfname = _getMinfFileName(dsl.dataSource( "0" )->url());
+
+  localMsg( "tiff: " + dsl.dataSource( "default" )->url() );
+  minfname = _getMinfFileName( default_ds->url() );
   dsl.addDataSource( "minf", rc_ptr<DataSource>
                               ( new FileDataSource( minfname ) ) );
 
@@ -402,7 +408,7 @@ DataSourceInfo TiffFormatChecker::check( DataSourceInfo dsi,
   if( doread ) {
     localMsg( "Reading header..." );
     // Uses the first datasource to build header
-    DataSource* hds = dsi.list().dataSource( "0" ).get();
+    DataSource* hds = dsi.list().dataSource( "default" ).get();
     dsi.privateIOData()->getProperty( "tiff_info", mfi );
     dsi.header() = _buildHeader( hds, mfi );
     
@@ -416,11 +422,40 @@ DataSourceInfo TiffFormatChecker::check( DataSourceInfo dsi,
     dsi.header()->setProperty( "object_type", obtype );
     if( !dtype.empty() )
       dsi.header()->setProperty( "data_type", dtype );
+    // re-check multifile
+    if( mfi.type != MultiFileFormatInfo::Single )
+    {
+      bool force_vol = false;
+      if( options )
+        try
+        {
+          force_vol
+            = bool( options->getProperty( "force_volume" )->getScalar() );
+        }
+        catch( ... )
+        {
+        }
+      if( !force_vol )
+      {
+        MultiFileFormat::updateInfo( mfi, dsi.header(), force_vol );
+        // std::cout << "updateInfo done (TIFF)\n";
+        if( mfi.type == MultiFileFormatInfo::Single )
+        {
+          // rebuild header from single file
+          // cout << "go back to single file mode\n";
+          _buildDSList( dsi.list(), mfi );
+          dsi.header() = _buildHeader( hds, mfi );
+          minfds = dsi.list().dataSource( "minf" ).get();
+          DataSourceInfoLoader::readMinf( *minfds, dsi.header(), options );
+          dsi.privateIOData()->setProperty( "tiff_info", mfi );
+        }
+      }
+    }
   }
   //--- write capabilities ---------------------------------------------------
   if( docapa ) {
     localMsg ("Writing capabilities..." );
-    dsi.capabilities().setDataSource( dsi.list().dataSource( "0" ) );
+    dsi.capabilities().setDataSource( dsi.list().dataSource( "default" ) );
     dsi.capabilities().setMemoryMapping( false );
     dsi.capabilities().setThreadSafe( true ); /* TODO */
     dsi.capabilities().setOrdered( true );
