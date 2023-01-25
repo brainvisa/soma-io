@@ -74,6 +74,14 @@ Volume options
             For formats allowing multi-resolution images, such as OpenSlide, this parameter specifies the resolution level to be read.
         </td>
     </tr>
+    <tr class="row-odd">
+        <td>force_volume</td>
+        <td>bool (int)</td>
+        <td>
+            <b>New</b> in Soma-IO 5.1<br/>
+            When reading a volums split into multiple files (typically using 2D formats such as Jpeg, Tiff or other 2D image formats), the first slice </tt>.minf</tt> file should specify the list of filenames constituting the volume. If such a <tt>filenames</tt> field is not present, then we assume the file is an independent 2D image. However we can force to recover the 3D or 4D pattern and load the full volume using this flag. <b>Note</b> that it only works for Soma-IO formats, not for AIMS IO.
+        </td>
+    </tr>
     </table>
 
 .. toctree::
