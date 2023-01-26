@@ -112,7 +112,8 @@ namespace soma
       std::string url() const { return _datasourcelist.dataSource()->url(); }
       std::string identifiedFormat() const { return _identifiedFormat; }
       void setIdentifiedFormat( const std::string & format )
-      { _identifiedFormat = format; }
+      { _identifiedFormat = format;
+        if( header() ) header()->setProperty( "format", format ); }
       std::string identifiedFileExtension() const
       { return _identifiedFileExtension; }
       void setIdentifiedFileExtension( const std::string & ext )
