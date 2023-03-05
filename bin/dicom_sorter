@@ -9,6 +9,8 @@ import argparse
 from soma.dicom import aggregator
 import sys
 import traceback
+import reg
+
 try:
     import pydicom as dicom
 except ImportError as e:
@@ -24,36 +26,27 @@ def createTree(serie):
     :param serie: list of all the path DICOM of a serie
     :return: 
     """
-    def makeValidValue(value):
-        valid_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
-        return ''.join(c for c in value.replace(' ', '_') if c in valid_chars)
+
+    def clean_path(path):
+        return re.sub(r'[^a-zA-Z0-9.-]', '_', '{0}'.format(path))
 
     if len(serie) == 0:
         return
 
     first = serie[0]
-    try:
-        # Get DICOM information to build file tree
-        ds = dicom.read_file(first)
-        patientName = makeValidValue(ds.PatientsName)
-        modality = makeValidValue(ds.Modality)
-        try:
-            seriesDescription = makeValidValue(ds.SeriesDescription)
-        except AttributeError:
-            print("Datasets does not have \"SeriesDescription\"")
-            seriesDescription = ''
-        seriesInstanceUid = makeValidValue(ds.SeriesInstanceUID)
-    except:
-        print("Exception in user code:")
-        print('-'*60)
-        traceback.print_exc(file=sys.stdout)
-        print('-'*60)
-        return
+    
+    # Get DICOM information to build file tree
+    ds = dicom.read_file(first, stop_before_pixels=True)
+
+    dsAttrs={}
+    for tag in ("PatientName","Modality","SeriesDescription","SeriesInstanceUID"):
+        if tag in ds:
+            dsAttrs[tag]=clean_path(ds.get(tag)) if tag in ds else ''
 
     try:
         # Create the patient directory
         patientDirName = os.path.join(args.output,
-                                      patientName)
+                                      dsAttrs["PatientName"])
 
         # Inspect
         inc = 1
@@ -68,7 +61,7 @@ def createTree(serie):
             patientDirName += "_" + str(inc)
 
         if patientDirName not in sessionPatientDirNames:
-            os.mkdir(patientDirName)
+            os.makedirs(patientDirName)
         sessionPatientDirNames.append(patientDirName)
 
     except:
@@ -80,7 +73,7 @@ def createTree(serie):
     try:
         # Create serie/acquisition directory
         serieDir = os.path.join(patientDirName,
-                                modality + "_" + seriesDescription)
+                                dsAttrs["Modality"] + "_" + dsAttrs["SeriesDescription"])
 
         # Inspect if the serie directory exist and change its name in case
         inc2 = 1
@@ -93,8 +86,8 @@ def createTree(serie):
             serieDir += "_" + str(inc2)
 
         if args.unique:
-            serieDir += "_" + seriesInstanceUid
-        os.mkdir(serieDir)
+            serieDir += "_" + dsAttrs["SeriesInstanceUID"]
+        os.makedirs(serieDir)
 
         # Copy DICOM files into serie directory
         for f in serie:
@@ -105,7 +98,7 @@ def createTree(serie):
                 destFile = baseDestFile + "_" + str(num)
                 num += 1
             shutil.copyfile(f, destFile)
-        os.chmod(serieDir, 0o444)
+        #os.chmod(serieDir, 0o444)
     except:
         print("Exception in user code:")
         print('-'*60)
