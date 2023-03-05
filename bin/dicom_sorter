@@ -9,7 +9,7 @@ import argparse
 from soma.dicom import aggregator
 import sys
 import traceback
-import reg
+import re
 
 try:
     import pydicom as dicom
