@@ -40,8 +40,7 @@ def createTree(serie):
 
     dsAttrs={}
     for tag in ("PatientName","Modality","SeriesDescription","SeriesInstanceUID"):
-        if tag in ds:
-            dsAttrs[tag]=clean_path(ds.get(tag)) if tag in ds else ''
+        dsAttrs[tag]=clean_path(ds.get(tag)) if tag in ds else ''
 
     try:
         # Create the patient directory
