@@ -155,8 +155,17 @@ namespace soma
 
     Point3dd transformVector( const Point3dd & vec ) const;
     Point3df transformVector( const Point3df & dir ) const;
+    Point3df transformVector( const Point3di & dir ) const;
     Point3dd transformVector( double x, double y, double z ) const;
     Point3df transformVector( float x, float y, float z ) const;
+    Point3di transformVector( int x, int y, int z ) const;
+    virtual std::vector<double>
+      transformVector( const std::vector<double> & pos ) const;
+    virtual std::vector<float>
+      transformVector( const std::vector<float> & pos ) const;
+    virtual std::vector<int>
+      transformVector( const std::vector<int> & pos ) const;
+
     Point3dd transformNormal( const Point3dd & dir ) const;
     Point3df transformNormal( const Point3df & dir ) const;
     Point3dd transformNormal( double x, double y, double z ) const;
@@ -199,11 +208,13 @@ namespace soma
   protected:
     Point3dd transformDouble( double x, double y, double z ) const CARTO_OVERRIDE;
     Point3df transformFloat( float x, float y, float z ) const CARTO_OVERRIDE;
+    Point3di transformInt( int x, int y, int z ) const CARTO_OVERRIDE;
 
     virtual Point3dd transformVectorPoint3dd( const Point3dd & vec ) const;
     virtual Point3df transformVectorPoint3df( const Point3df & dir ) const;
     virtual Point3dd transformVectorDouble( double x, double y, double z ) const;
     virtual Point3df transformVectorFloat( float x, float y, float z ) const;
+    virtual Point3di transformVectorInt( int x, int y, int z ) const;
     virtual Point3dd transformNormalPoint3dd( const Point3dd & dir ) const;
     virtual Point3df transformNormalPoint3df( const Point3df & dir ) const;
     virtual Point3dd transformNormalDouble( double x, double y, double z ) const;
@@ -240,6 +251,13 @@ namespace soma
   }
 
 
+  inline Point3di
+  AffineTransformation3dBase::transformVector( int x, int y, int z ) const
+  {
+    return transformVectorInt( x, y, z );
+  }
+
+
   inline Point3df
   AffineTransformation3dBase::transformVector( const Point3df & pos ) const
   {
@@ -251,6 +269,45 @@ namespace soma
   AffineTransformation3dBase::transformVector( const Point3dd & pos ) const
   {
     return transformVectorPoint3dd( pos );
+  }
+
+
+  inline std::vector<double>
+  AffineTransformation3dBase::transformVector(
+    const std::vector<double> & pos ) const
+  {
+    std::vector<double> tr = pos;
+    Point3dd p = transformVectorDouble( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<float>
+  AffineTransformation3dBase::transformVector(
+    const std::vector<float> & pos ) const
+  {
+    std::vector<float> tr = pos;
+    Point3df p = transformVectorFloat( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<int>
+  AffineTransformation3dBase::transformVector(
+    const std::vector<int> & pos ) const
+  {
+    std::vector<int> tr = pos;
+    Point3di p = transformVectorInt( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
   }
 
 

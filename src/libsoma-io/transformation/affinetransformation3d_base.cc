@@ -303,6 +303,19 @@ AffineTransformation3dBase::transformFloat( float x, float y, float z ) const
 }
 
 
+Point3di
+AffineTransformation3dBase::transformInt( int x, int y, int z ) const
+{
+  return Point3di(
+    int( rint( _matrix[0] * x + _matrix[4] * y + _matrix[8] * z
+              + _matrix[12] ) ),
+    int( rint( _matrix[1] * x + _matrix[5] * y + _matrix[9] * z
+               + _matrix[13] ) ),
+    int( rint( _matrix[2] * x + _matrix[6] * y + _matrix[10] * z
+               + _matrix[14] ) ) );
+}
+
+
 Point3dd
 AffineTransformation3dBase::transformVectorDouble( double x, double y,
                                                    double z ) const
@@ -319,6 +332,16 @@ AffineTransformation3dBase::transformVectorFloat( float x, float y, float z ) co
   return Point3df( _matrix[0] * x + _matrix[4] * y + _matrix[8] * z,
                    _matrix[1] * x + _matrix[5] * y + _matrix[9] * z,
                    _matrix[2] * x + _matrix[6] * y + _matrix[10] * z );
+}
+
+
+Point3di
+AffineTransformation3dBase::transformVectorInt( int x, int y, int z ) const
+{
+  return Point3di(
+    int( rint( _matrix[0] * x + _matrix[4] * y + _matrix[8] * z ) ),
+    int( rint( _matrix[1] * x + _matrix[5] * y + _matrix[9] * z ) ),
+    int( rint( _matrix[2] * x + _matrix[6] * y + _matrix[10] * z ) ) );
 }
 
 

@@ -79,6 +79,19 @@ namespace soma
     const carto::Object header() const { return _header; }
     void setHeader( carto::Object ph );
 
+    virtual std::vector<double>
+      transform( const std::vector<double> & pos ) const = 0;
+    virtual std::vector<float>
+      transform( const std::vector<float> & pos ) const;
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const;
+
+    virtual std::vector<double>
+      transformVector( const std::vector<double> & pos ) const;
+    virtual std::vector<float>
+      transformVector( const std::vector<float> & pos ) const;
+    virtual std::vector<int>
+      transformVector( const std::vector<int> & pos ) const;
+
   protected:
     carto::Object _header;
 
@@ -98,6 +111,20 @@ namespace soma
     Point3df transform( const Point3df & dir ) const;
     Point3df transform( float x, float y, float z ) const;
     Point3d transform( const Point3d & p ) const;
+    Point3di transform( const Point3di & p ) const;
+    Point3di transform( int x, int y, int z ) const;
+    virtual std::vector<double>
+      transform( const std::vector<double> & pos ) const;
+    virtual std::vector<float>
+      transform( const std::vector<float> & pos ) const;
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const;
+
+    virtual std::vector<double>
+      transformVector( const std::vector<double> & pos ) const;
+    virtual std::vector<float>
+      transformVector( const std::vector<float> & pos ) const;
+    virtual std::vector<int>
+      transformVector( const std::vector<int> & pos ) const;
 
     /** Test if the transformation can be inverted
 
@@ -124,8 +151,68 @@ namespace soma
     virtual Point3dd transformPoint3dd( const Point3dd & pos ) const;
     virtual Point3df transformPoint3df( const Point3df & dir ) const;
     virtual Point3d transformPoint3d( const Point3d & p ) const;
+    virtual Point3di transformPoint3di( const Point3di & p ) const;
     virtual Point3df transformFloat( float x, float y, float z ) const;
+    virtual Point3di transformInt( int x, int y, int z ) const;
   };
+
+
+  // --
+
+  inline std::vector<float>
+  Transformation::transform( const std::vector<float> & pos ) const
+  {
+    std::vector<double> tr
+      = transform( std::vector<double>( pos.begin(), pos.end() ) );
+    return std::vector<float>( tr.begin(), tr.end() );
+  }
+
+
+  inline std::vector<int>
+  Transformation::transform( const std::vector<int> & pos ) const
+  {
+    std::vector<double> tr
+      = transform( std::vector<double>( pos.begin(), pos.end() ) );
+    std::vector<int> itr( tr.size() );
+    for( int i=0; i<tr.size(); ++i )
+      itr[i] = int( rint( tr[i] ) );
+
+    return itr;
+  }
+
+
+  inline std::vector<double>
+  Transformation::transformVector( const std::vector<double> & pos ) const
+  {
+    std::vector<double> tr = transform( pos );
+    std::vector<double> tr0
+      = transform( std::vector<double>( pos.size(), 0. ) );
+    for( int i=0; i<tr.size(); ++i )
+      tr[i] -= tr0[i];
+    return tr;
+  }
+
+
+  inline std::vector<float>
+  Transformation::transformVector( const std::vector<float> & pos ) const
+  {
+    std::vector<double> tr
+      = transformVector( std::vector<double>( pos.begin(), pos.end() ) );
+    return std::vector<float>( tr.begin(), tr.end() );
+  }
+
+
+  inline std::vector<int>
+  Transformation::transformVector( const std::vector<int> & pos ) const
+  {
+    std::vector<double> tr
+      = transformVector( std::vector<double>( pos.begin(), pos.end() ) );
+    std::vector<int> itr( tr.size() );
+    for( int i=0; i<tr.size(); ++i )
+      itr[i] = int( rint( tr[i] ) );
+
+    return itr;
+  }
 
 
   // --
@@ -141,6 +228,13 @@ namespace soma
   Transformation3d::transform( float x, float y, float z ) const
   {
     return transformFloat( x, y, z );
+  }
+
+
+  inline Point3di
+  Transformation3d::transform( int x, int y, int z ) const
+  {
+    return transformInt( x, y, z );
   }
 
 
@@ -161,6 +255,13 @@ namespace soma
   Transformation3d::transform( const Point3d & pos ) const
   {
     return transformPoint3d( pos );
+  }
+
+
+  inline Point3di
+  Transformation3d::transform( const Point3di & pos ) const
+  {
+    return transformPoint3di( pos );
   }
 
 
@@ -197,6 +298,102 @@ namespace soma
     return Point3d( (int16_t) rint( transformed[0] ),
                     (int16_t) rint( transformed[1] ),
                     (int16_t) rint( transformed[2] ) );
+  }
+
+
+  inline Point3di
+  Transformation3d::transformPoint3di( const Point3di & p ) const
+  {
+    Point3dd transformed = transform( (double) p[0], (double) p[1],
+                                      (double) p[2] );
+    return Point3di( (int) rint( transformed[0] ),
+                     (int) rint( transformed[1] ),
+                     (int) rint( transformed[2] ) );
+  }
+
+
+  inline Point3di
+  Transformation3d::transformInt( int x, int y, int z ) const
+  {
+    Point3dd transformed = transform( (double) x, (double) y, (double) z );
+    return Point3di( (int) rint( transformed[0] ),
+                     (int) rint( transformed[1] ),
+                     (int) rint( transformed[2] ) );
+  }
+
+
+  inline std::vector<double>
+  Transformation3d::transform( const std::vector<double> & pos ) const
+  {
+    std::vector<double> tr = pos;
+    Point3dd p = transform( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<float>
+  Transformation3d::transform( const std::vector<float> & pos ) const
+  {
+    std::vector<float> tr = pos;
+    Point3df p = transform( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<int>
+  Transformation3d::transform( const std::vector<int> & pos ) const
+  {
+    std::vector<int> tr = pos;
+    Point3di p = transform( pos[0], pos[1], pos[2] );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<double>
+  Transformation3d::transformVector( const std::vector<double> & pos ) const
+  {
+    std::vector<double> tr = pos;
+    Point3dd p = transform( pos[0], pos[1], pos[2] )
+      - transform( Point3dd( 0., 0., 0. ) );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<float>
+  Transformation3d::transformVector( const std::vector<float> & pos ) const
+  {
+    std::vector<float> tr = pos;
+    Point3df p = transform( pos[0], pos[1], pos[2] )
+      - transform( Point3df( 0.f, 0.f, 0.f ) );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
+  }
+
+
+  inline std::vector<int>
+  Transformation3d::transformVector( const std::vector<int> & pos ) const
+  {
+    std::vector<int> tr = pos;
+    Point3di p = transform( pos[0], pos[1], pos[2] )
+      - transform( Point3di( 0, 0, 0 ) );
+    tr[0] = p[0];
+    tr[1] = p[1];
+    tr[2] = p[2];
+    return tr;
   }
 
   // --
