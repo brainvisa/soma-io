@@ -52,31 +52,9 @@ namespace soma
   //---------------------------------------------------------------------------
   /** Affine 3D transformation
 
-  WARNING: this is the old Motion class of Aims 3.x, which has been renamed and
-  changed in Aims 4.0. It has been partly moved to Soma-IO in soma-io/aims 4.7
-  since it is needed in IO systems.
-
   A new transformation classes tree has been setup to allow non-linear
   transformations: see Transformation and Transformation3d.
   AffineTransformation3d now inherits Transformation3d.
-
-  A typedef is still provided for backward compatibility, in
-  aims/resampling/motion.h (the former location of the Motion class) and should
-  minimize inconvenience when compiling old code which used Motion. However a few
-  API differences may cause compilation problems:
-
-  - forward declarations for the Motion class will not work any longer, since
-    Motion is not a class anymore but a typedef. It is still possible to replace:
-  \code class Motion;
-  \endcode
-    by:
-  \code namespace aims { class AffineTransformation3d; }
-  typedef aims::AffineTransformation3d Motion;
-  \endcode
-    but of course it is better to use directly the AffineTransformation3d class
-    under its real name.
-
-  - the Motion::transform_normal() method is now transformUnitNormal()
 
   - there are now several overloaded transform() methods taking double, or float
     numbers, or Point3df or Point3dd arguments. As there were formerly only float
@@ -86,8 +64,6 @@ namespace soma
   - the base aims::Transformation class introduces a name ambiguity with
     anatomist anatomist::Transformation class, so it now requires to handle
     namespaces carefully.
-
-  - the Motion DataTypeCode has also changed to AffineTransformation3d.
   */
   class AffineTransformation3dBase : public Transformation3d
   {
