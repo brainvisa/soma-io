@@ -350,7 +350,8 @@ namespace
                   const std::vector<int> & size,
                   const std::vector<std::vector<int> > & sizes )
   {
-    soma::AffineTransformation3dBase m, m2s, mems2m;
+    soma::AffineTransformation3dBase m, mems2m;
+    std::unique_ptr<soma::AffineTransformation3dBase> m2s;
     Point3df p, p0( 0, 0, 0 ), tp;
 
     try
@@ -390,27 +391,27 @@ namespace
     m2s = m.inverse();
 
     // total volume size, in disk orientation
-//     Point3df vtsize = m2s.transform(
+//     Point3df vtsize = m2s->transform(
 //       Point3df( sizes[0][0], sizes[0][1], sizes[0][2] ) )
-//       - m2s.transform( p0 );
+//       - m2s->transform( p0 );
 //     int  sx = int( rint( fabs( vtsize[ 0 ] ) ) );
 //     int  sy = int( rint( fabs( vtsize[ 1 ] ) ) );
 //     int  sz = int( rint( fabs( vtsize[ 2 ] ) ) );
 //     int  st = sizes[ 0 ][ 3 ];
 
     // region size, in disk orientation
-    Point3df vsize = m2s.transform(
+    Point3df vsize = m2s->transform(
       Point3df( size[0], size[1], size[2] ) )
-      - m2s.transform( p0 );
+      - m2s->transform( p0 );
     std::vector<int> tr_size = size;
     tr_size[0] = int( rint( fabs( vsize[ 0 ] ) ) );
     tr_size[1] = int( rint( fabs( vsize[ 1 ] ) ) );
     tr_size[2] = int( rint( fabs( vsize[ 2 ] ) ) );
 
     // region position, in disk orientation
-    Point3df orig = m2s.transform(
+    Point3df orig = m2s->transform(
       Point3df( pos[0], pos[1], pos[2] ) );
-    Point3df pend = m2s.transform(
+    Point3df pend = m2s->transform(
       Point3df( pos[0] + size[0] - 1, pos[1] + size[1] - 1,
                       pos[2] + size[2] - 1 ) );
     std::vector<int> tr_pos = pos;
@@ -1269,7 +1270,8 @@ namespace soma
     if( header->getProperty( "b_values", bval )
       && header->getProperty( "diffusion_directions", bvec ) )
     {
-      AffineTransformation3dBase s2m, m2s;
+      AffineTransformation3dBase s2m;
+      std::unique_ptr<AffineTransformation3dBase> m2s;
       Object storage_to_memory;
       storage_to_memory = header->getProperty( "storage_to_memory" );
       s2m = storage_to_memory;
@@ -1295,8 +1297,8 @@ namespace soma
       for( i=0; i<n; ++i )
       {
         Point3df vec1( bvec[i][0],  bvec[i][1],  bvec[i][2] );
-        Point3df vec2 = m2s.transform( vec1 )
-          - m2s.transform( Point3df( 0, 0, 0 ) );
+        Point3df vec2 = m2s->transform( vec1 )
+          - m2s->transform( Point3df( 0, 0, 0 ) );
         std::vector<float> vvec( 3, 0. );
         vvec[0] = vec2[0];
         vvec[1] = vec2[1];
@@ -1399,9 +1401,9 @@ namespace soma
       s2m.matrix()(2,2) = -1.0;
     }
 
-    AffineTransformation3dBase m2s = s2m.inverse();
-    Point3df df = m2s.transform( Point3df( dims[0], dims[1], dims[2] ) )
-        - m2s.transform( Point3df( 0, 0, 0 ) );
+    std::unique_ptr<AffineTransformation3dBase> m2s = s2m.inverse();
+    Point3df df = m2s->transform( Point3df( dims[0], dims[1], dims[2] ) )
+        - m2s->transform( Point3df( 0, 0, 0 ) );
     std::vector<int> tdims = dims;
     tdims[0] = int( rint( fabs( df[0] ) ) );
     tdims[1] = int( rint( fabs( df[1] ) ) );
@@ -1489,8 +1491,8 @@ namespace soma
     if( hdr->hasProperty( "tr" ) )
       vs[3] = hdr->getProperty( "tr" )->getScalar();
 
-    df = m2s.transform( Point3df( vs[0], vs[1], vs[2] ) )
-        - m2s.transform( Point3df( 0, 0, 0 ) );
+    df = m2s->transform( Point3df( vs[0], vs[1], vs[2] ) )
+        - m2s->transform( Point3df( 0, 0, 0 ) );
     std::vector<float> tvs = vs;
     tvs[0] = fabs( df[0] );
     tvs[1] = fabs( df[1] );

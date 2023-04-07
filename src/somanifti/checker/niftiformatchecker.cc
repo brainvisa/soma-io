@@ -668,7 +668,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     for (int i=0;i<4;++i)
       for (int j=0;j<4;++j)
         qto_xyz.matrix()(i, j) = nim->qto_xyz.m[i][j];
-    qto_xyz = qto_xyz * ( vsM * s2m ).inverse();
+    qto_xyz = qto_xyz * *( vsM * s2m ).inverse();
     transformations.push_back( qto_xyz.toVector() );
   }
   if( nim->sform_code > NIFTI_XFORM_UNKNOWN )
@@ -678,7 +678,7 @@ Object NiftiFormatChecker::_buildHeader( DataSource* hds ) const
     for (int i=0;i<4;++i)
       for (int j=0;j<4;++j)
         sto_xyz.matrix()(i, j) = nim->sto_xyz.m[i][j];
-    sto_xyz = sto_xyz  * ( vsM * s2m ).inverse();
+    sto_xyz = sto_xyz  * *( vsM * s2m ).inverse();
     transformations.push_back( sto_xyz.toVector() );
   }
 

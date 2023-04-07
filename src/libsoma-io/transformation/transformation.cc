@@ -62,3 +62,16 @@ Transformation3d::~Transformation3d()
 }
 
 
+Transformation & Transformation::operator = ( const Transformation & other )
+{
+  if( &other == this )
+    return *this;
+  if( other.header() )
+    _header = Object::value( other.header()->value<PropertySet>() );
+  else
+    _header->clearProperties();
+  return *this;
+}
+
+
+

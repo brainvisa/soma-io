@@ -59,6 +59,8 @@ namespace soma
   public:
     virtual ~Transformation();
 
+    virtual Transformation & operator = ( const Transformation & other );
+
     /** Test if the transformation can safely be omitted
 
         This method returns true only if the transformation behaves exactly
@@ -92,6 +94,26 @@ namespace soma
     virtual std::vector<int>
       transformVector( const std::vector<int> & pos ) const;
 
+    /** Test if the transformation can be inverted
+
+        getInverse() can be called if this method returns true, in order to
+        obtain the inverse transformation.
+     */
+    virtual bool invertible() const
+    {
+      return false;
+    };
+    /** Obtain the inverse transformation
+
+        This method should only be called if invertible() returns true.
+        Otherwise, it will throw an exception if the transformation is not
+        actually invertible.
+     */
+    virtual std::unique_ptr<Transformation> getInverse() const
+    {
+      throw std::logic_error("not implemented");
+    }
+
   protected:
     carto::Object _header;
 
@@ -101,7 +123,7 @@ namespace soma
 
   /** Polymorphic base class for spatial transformations in 3D
    */
-  class Transformation3d : public Transformation
+  class Transformation3d : public virtual Transformation
   {
   public:
     virtual ~Transformation3d();
@@ -125,24 +147,6 @@ namespace soma
       transformVector( const std::vector<float> & pos ) const;
     virtual std::vector<int>
       transformVector( const std::vector<int> & pos ) const;
-
-    /** Test if the transformation can be inverted
-
-        getInverse() can be called if this method returns true, in order to
-        obtain the inverse transformation.
-     */
-    virtual bool invertible() const {
-      return false;
-    };
-    /** Obtain the inverse transformation
-
-        This method should only be called if invertible() returns true.
-        Otherwise, it will throw an exception if the transformation is not
-        actually invertible.
-     */
-    virtual std::unique_ptr<Transformation3d> getInverse() const {
-      throw std::logic_error("not implemented");
-    };
 
   protected:
     Transformation3d() : Transformation() {}
@@ -174,7 +178,7 @@ namespace soma
     std::vector<double> tr
       = transform( std::vector<double>( pos.begin(), pos.end() ) );
     std::vector<int> itr( tr.size() );
-    for( int i=0; i<tr.size(); ++i )
+    for( size_t i=0; i<tr.size(); ++i )
       itr[i] = int( rint( tr[i] ) );
 
     return itr;
@@ -187,7 +191,7 @@ namespace soma
     std::vector<double> tr = transform( pos );
     std::vector<double> tr0
       = transform( std::vector<double>( pos.size(), 0. ) );
-    for( int i=0; i<tr.size(); ++i )
+    for( size_t i=0; i<tr.size(); ++i )
       tr[i] -= tr0[i];
     return tr;
   }
@@ -208,7 +212,7 @@ namespace soma
     std::vector<double> tr
       = transformVector( std::vector<double>( pos.begin(), pos.end() ) );
     std::vector<int> itr( tr.size() );
-    for( int i=0; i<tr.size(); ++i )
+    for( size_t i=0; i<tr.size(); ++i )
       itr[i] = int( rint( tr[i] ) );
 
     return itr;

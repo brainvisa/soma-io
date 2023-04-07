@@ -299,7 +299,7 @@ namespace soma
     hdr->getProperty( "storage_to_memory", storage_to_memory );
 
     AffineTransformation3dBase s2m( storage_to_memory );
-    AffineTransformation3dBase m2s = s2m.inverse();
+    std::unique_ptr<AffineTransformation3dBase> m2s = s2m.inverse();
 
     std::vector<float> s(2);
     s[0] = 1.;
@@ -309,10 +309,10 @@ namespace soma
     std::string dt;
     hdr->getProperty( "disk_data_type", dt );
 
-    Point3df pdims = m2s.transform( Point3df( vx, vy, vz ) )
-        - m2s.transform( Point3df( 0, 0, 0 ) );
-    Point3df posf1 = m2s.transform( Point3df( pos[0], pos[1], pos[2] ) );
-    Point3df posf2 = m2s.transform( Point3df( pos[0] + vx - 1,
+    Point3df pdims = m2s->transform( Point3df( vx, vy, vz ) )
+        - m2s->transform( Point3df( 0, 0, 0 ) );
+    Point3df posf1 = m2s->transform( Point3df( pos[0], pos[1], pos[2] ) );
+    Point3df posf2 = m2s->transform( Point3df( pos[0] + vx - 1,
                                               pos[1] + vy - 1,
                                               pos[2] + vz - 1 ) );
     std::vector<int> idims = size;
@@ -323,8 +323,8 @@ namespace soma
     ipos[0] = (int) rint( std::min( posf1[0], posf2[0] ) );
     ipos[1] = (int) rint( std::min( posf1[1], posf2[1] ) );
     ipos[2] = (int) rint( std::min( posf1[2], posf2[2] ) );
-    Point3df incf = m2s.transform( Point3df( 1, 0, 0 ) )
-        - m2s.transform( Point3df( 0, 0, 0 ) );
+    Point3df incf = m2s->transform( Point3df( 1, 0, 0 ) )
+        - m2s->transform( Point3df( 0, 0, 0 ) );
     int inc[3];
     inc[0] = int( rint( incf[0] ) );
     inc[1] = int( rint( incf[1] ) );
@@ -433,7 +433,7 @@ namespace soma
           for( int y=0; y<vy; ++y )
           {
             d0 = volpos;
-            d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
+            d0f = m2s->transform( Point3df( ox, oy+y, oz+z ) );
             d0[0] = int( rint( d0f[0] ) ) - ipos[0];
             d0[1] = int( rint( d0f[1] ) ) - ipos[1];
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];
@@ -489,7 +489,7 @@ namespace soma
           for( int y=0; y<vy; ++y )
           {
             d0 = volpos;
-            d0f = m2s.transform( Point3df( ox, oy+y, oz+z ) );
+            d0f = m2s->transform( Point3df( ox, oy+y, oz+z ) );
             d0[0] = int( rint( d0f[0] ) ) - ipos[0];
             d0[1] = int( rint( d0f[1] ) ) - ipos[1];
             d0[2] = int( rint( d0f[2] ) ) - ipos[2];

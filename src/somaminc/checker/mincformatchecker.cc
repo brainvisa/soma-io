@@ -720,7 +720,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       vst.matrix()(0, 0) = 1. / vs[0];
       vst.matrix()(1, 1) = 1. / vs[1];
       vst.matrix()(2, 2) = 1. / vs[2];
-      m2sb = f2sb * s2m.inverse() * vst;
+      m2sb = f2sb * *s2m.inverse() * vst;
       // fill in directly transforms because s2m is unreliable here.
       refs.push_back( "Scanner-based anatomical coordinates" );
       transs.push_back( m2sb.toVector() );
@@ -878,7 +878,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       AffineTransformation3dBase tr( transfo );
       if( !is_buggy_mgh )  // freesurfer trans are processed differently
       {
-        tr *= s2m.inverse();
+        tr *= *s2m.inverse();
         AffineTransformation3dBase vsmi;
         vsmi.matrix()(0,0) = 1./vs[0];
         vsmi.matrix()(1,1) = 1./vs[1];

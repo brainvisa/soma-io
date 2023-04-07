@@ -44,28 +44,7 @@
 namespace soma
 {
 
-  //---------------------------------------------------------------------------
-
-    //--------------------------//
-   //  AffineTransformation3d  //
-  //--------------------------//
-  //---------------------------------------------------------------------------
-  /** Affine 3D transformation
-
-  A new transformation classes tree has been setup to allow non-linear
-  transformations: see Transformation and Transformation3d.
-  AffineTransformation3d now inherits Transformation3d.
-
-  - there are now several overloaded transform() methods taking double, or float
-    numbers, or Point3df or Point3dd arguments. As there were formerly only float
-    and Point3df arguments, ambiguities may raise from calling them with mixed
-    double/float arguments
-
-  - the base aims::Transformation class introduces a name ambiguity with
-    anatomist anatomist::Transformation class, so it now requires to handle
-    namespaces carefully.
-  */
-  class AffineTransformation3dBase : public Transformation3d
+  class AffineTransformationBase : public virtual Transformation
   {
   public:
 
@@ -110,6 +89,75 @@ namespace soma
       unsigned ncols;
     };
 
+    AffineTransformationBase( int order = 3 );
+    AffineTransformationBase( const AffineTransformationBase& other );
+    /// Create a AffineTransformation3d from a matrix given as a line vector
+    AffineTransformationBase( const std::vector<float> & mat );
+    virtual ~AffineTransformationBase();
+
+    virtual AffineTransformationBase &operator = ( const AffineTransformationBase& other );
+    virtual AffineTransformationBase &operator = ( const std::vector<float> & mat );
+    virtual AffineTransformationBase &operator = ( const carto::Object mat );
+
+    virtual bool operator == ( const AffineTransformationBase & ) const;
+
+    AffineTransformationBase & operator *= (
+      const AffineTransformationBase & trans );
+    AffineTransformationBase operator - () const;
+    void negate();
+
+    bool isIdentity() const CARTO_OVERRIDE;
+    virtual void setToIdentity();
+
+    bool invertible() const CARTO_OVERRIDE;
+    std::unique_ptr<AffineTransformationBase> inverse() const;
+    std::unique_ptr<Transformation> getInverse() const CARTO_OVERRIDE;
+
+    int order() const { return _matrix.ncols - 1; }
+
+    virtual std::vector<double> transform(
+      const std::vector<double>& pos ) const;
+    virtual std::vector<float>
+      transform( const std::vector<float> & pos ) const
+    { return this->Transformation::transform( pos ); }
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const
+    { return this->Transformation::transform( pos ); }
+
+    Table<float> & matrix() { return _matrix; }
+    const Table<float> & matrix() const { return _matrix; }
+
+  protected:
+
+    // column-vector to be compatible with the former Volume storage with
+    // math notation
+    Table<float> _matrix;
+  };
+
+  //---------------------------------------------------------------------------
+
+    //--------------------------//
+   //  AffineTransformation3d  //
+  //--------------------------//
+  //---------------------------------------------------------------------------
+  /** Affine 3D transformation
+
+  A new transformation classes tree has been setup to allow non-linear
+  transformations: see Transformation and Transformation3d.
+  AffineTransformation3d now inherits Transformation3d.
+
+  - there are now several overloaded transform() methods taking double, or float
+    numbers, or Point3df or Point3dd arguments. As there were formerly only float
+    and Point3df arguments, ambiguities may raise from calling them with mixed
+    double/float arguments
+
+  - the base aims::Transformation class introduces a name ambiguity with
+    anatomist anatomist::Transformation class, so it now requires to handle
+    namespaces carefully.
+  */
+  class AffineTransformation3dBase
+    : public Transformation3d, public AffineTransformationBase
+  {
+  public:
 
     /// Create an identity transformation
     AffineTransformation3dBase();
@@ -119,15 +167,41 @@ namespace soma
     /// Create a AffineTransformation3d from a 4x4 matrix given as a line vector in an Object
     AffineTransformation3dBase( const carto::Object mat );
     virtual ~AffineTransformation3dBase();
-    virtual AffineTransformation3dBase &operator = ( const AffineTransformation3dBase& other );
-    virtual AffineTransformation3dBase &operator = ( const std::vector<float> & mat );
-    virtual AffineTransformation3dBase &operator = ( const carto::Object mat );
-
-    virtual bool operator == ( const AffineTransformation3dBase & ) const;
+    virtual AffineTransformation3dBase &operator = (
+      const AffineTransformation3dBase& other );
+    virtual AffineTransformation3dBase &operator = (
+      const std::vector<float> & other );
+    virtual AffineTransformation3dBase &operator = (
+      const carto::Object other );
 
     AffineTransformation3dBase & operator *= (
       const AffineTransformation3dBase & trans );
     AffineTransformation3dBase operator - () const;
+
+    virtual bool operator == ( const AffineTransformation3dBase & ) const;
+
+    Point3dd transform( double x, double y, double z ) const
+    { return this->Transformation3d::transform( x, y, z ); }
+    Point3dd transform( const Point3dd & pos ) const
+    { return this->Transformation3d::transform( pos ); }
+    Point3df transform( const Point3df & pos ) const
+    { return this->Transformation3d::transform( pos ); }
+    Point3df transform( float x, float y, float z ) const
+    { return this->Transformation3d::transform( x, y, z ); }
+    Point3d transform( const Point3d & p ) const
+    { return this->Transformation3d::transform( p ); }
+    Point3di transform( const Point3di & p ) const
+    { return this->Transformation3d::transform( p ); }
+    Point3di transform( int x, int y, int z ) const
+    { return this->Transformation3d::transform( x, y, z ); }
+    virtual std::vector<double>
+      transform( const std::vector<double> & pos ) const
+    { return this->AffineTransformationBase::transform( pos ); }
+    virtual std::vector<float>
+      transform( const std::vector<float> & pos ) const
+    { return this->Transformation::transform( pos ); }
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const
+    { return this->Transformation::transform( pos ); }
 
     Point3dd transformVector( const Point3dd & vec ) const;
     Point3df transformVector( const Point3df & dir ) const;
@@ -155,9 +229,9 @@ namespace soma
     virtual void setToIdentity();
 
     // AffineTransformation3d algebraic operation
-    AffineTransformation3dBase inverse() const;
+    std::unique_ptr<AffineTransformation3dBase> inverse() const;
     bool invertible() const CARTO_OVERRIDE;
-    std::unique_ptr<Transformation3d> getInverse() const CARTO_OVERRIDE;
+    std::unique_ptr<Transformation> getInverse() const CARTO_OVERRIDE;
     virtual void scale( const Point3df& sizeFrom, const Point3df& sizeTo );
     /// true if the transformation is direct, false if it changes orientation
     bool isDirect() const;
@@ -178,8 +252,6 @@ namespace soma
     /// transform a column vector to an AffineTransformation3d (useful for
     /// conversions from OpenGL matrices)
     void fromColumnVector( const float* vec );
-    Table<float> & matrix() { return _matrix; }
-    const Table<float> & matrix() const { return _matrix; }
 
   protected:
     Point3dd transformDouble( double x, double y, double z ) const CARTO_OVERRIDE;
@@ -196,9 +268,6 @@ namespace soma
     virtual Point3dd transformNormalDouble( double x, double y, double z ) const;
     virtual Point3df transformNormalFloat( float x, float y, float z ) const;
 
-    // column-vector to be compatible with the former Volume storage with
-    // math notation
-    Table<float> _matrix;
   };
 
 

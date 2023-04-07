@@ -53,8 +53,8 @@ namespace soma
 //   float decompositionLU( Table<float> &a, Table<int32_t> &indx);
 //   void backSubstitutionLU( Table<float> &a, Table<int32_t> &indx,
 //                            Table<float> &b );
-  AffineTransformation3dBase::Table<float>
-  inversionLU( const AffineTransformation3dBase::Table<float> &matrix );
+  AffineTransformationBase::Table<float>
+  inversionLU( const AffineTransformationBase::Table<float> &matrix );
 
 }
 
@@ -123,18 +123,250 @@ computes (1) consistently with all attributes i.e. this methods do
 	_shift <- _center - _linear x _center + _translation;
 
 */
-  //----------//
+
+  //----------------------------//
+ //  AffineTransformationBase  //
+//----------------------------//
+
+//-----------------------------------------------------------------------------
+AffineTransformationBase::AffineTransformationBase( int order )
+  : RCObject(),
+    Transformation(),
+    _matrix( order + 1, order + 1 )
+{
+  for ( int i = 0; i < order + 1; i++ )
+  {
+    _matrix[ i + i* ( order + 1 ) ] = 1.0;
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+AffineTransformationBase::~AffineTransformationBase()
+{
+}
+
+
+//-----------------------------------------------------------------------------
+AffineTransformationBase::AffineTransformationBase(
+  const AffineTransformationBase& other ) :
+  RCObject(),
+  Transformation( other ),
+  _matrix( other._matrix )
+{
+  if( other.header() )
+    _header = Object::value( other.header()->value<PropertySet>() );
+}
+
+
+//-----------------------------------------------------------------------------
+AffineTransformationBase::AffineTransformationBase( const vector<float> & mat )
+  : RCObject(),
+    Transformation(),
+    _matrix( 0, 0 )
+{
+  int n = int( ceil( sqrt( mat.size() ) ) );
+  _matrix.resize( n * n, 0. );
+  _matrix.ncols = n;
+  int m = mat.size(), l, c;
+  for( int i=0; i<m; ++i )
+  {
+    c = i % n;
+    l = i / n;
+    _matrix[ c * n + l ] = mat[i];
+  }
+}
+
+
+AffineTransformationBase & AffineTransformationBase::operator = (
+  const AffineTransformationBase& other )
+{
+  if( &other == this )
+    return *this;
+  Transformation::operator = ( other );
+  _matrix = other._matrix;
+  return *this;
+}
+
+
+AffineTransformationBase & AffineTransformationBase::operator = (
+  const std::vector<float> & mat )
+{
+  int n = int( ceil( sqrt( mat.size() ) ) );
+  _matrix.resize( n * n, 0. );
+  _matrix.ncols = n;
+  int m = mat.size(), l, c;
+  for( int i=0; i<m; ++i )
+  {
+    c = i % n;
+    l = i / n;
+    _matrix[ c * n + l ] = mat[i];
+  }
+
+  return *this;
+}
+
+
+AffineTransformationBase & AffineTransformationBase::operator = (
+  const carto::Object mat )
+{
+  size_t m = mat->size();
+  int n = int( ceil( sqrt( m ) ) );
+  _matrix.resize( n * n, 0. );
+  _matrix.ncols = n;
+  size_t l, c;
+  for( int i=0; i<m; ++i )
+  {
+    c = i % n;
+    l = i / n;
+    _matrix[ c * n + l ] = mat->getArrayItem( i )->getScalar();
+  }
+
+  return *this;
+}
+
+
+bool AffineTransformationBase::operator == (
+  const AffineTransformationBase & other ) const
+{
+  if( this == &other )
+    return true;
+  if( _matrix.size() != other._matrix.size() )
+    return false;
+
+  static float eps = 1e-5;
+  size_t i, n = _matrix.size();
+  for( i=0; i<n; ++i )
+    if( fabs( _matrix[i] - other._matrix[i] ) >= eps )
+      return false;
+
+  return true;
+}
+
+
+AffineTransformationBase & AffineTransformationBase::operator *= (
+  const AffineTransformationBase & trans )
+{
+  size_t i, j, k, n = _matrix.ncols;
+  if( trans.matrix().ncols != n )
+    throw runtime_error( "transformation matrix size mismatch" );
+  cout << "size: " << n << endl;
+
+  for( i=0; i<n; ++i )
+    for( j=0; j<n; ++j )
+    {
+      float & v = _matrix( i, j );
+      v = 0;
+      for( k=0; k<n; ++k )
+        v += _matrix( i, k ) * trans.matrix()( k, j );
+    }
+
+  return *this;
+}
+
+
+void AffineTransformationBase::negate()
+{
+  size_t n = _matrix.size() - 1;
+  for( int i=0; i<n; ++i )
+    _matrix[i] = -_matrix[i];
+}
+
+
+AffineTransformationBase AffineTransformationBase::operator - () const
+{
+  AffineTransformationBase t( *this );
+
+  t.negate();
+
+  return t;
+}
+
+
+bool AffineTransformationBase::isIdentity() const
+{
+  size_t n = _matrix.ncols, i, j;
+  for( i=0; i<n; ++i )
+    for( j=0; j<n; ++j )
+      if( _matrix( i, j ) != ( i == j ? 1. : 0.) )
+        return false;
+
+  return true;
+}
+
+
+void AffineTransformationBase::setToIdentity()
+{
+  size_t n = _matrix.ncols, i, j;
+  for( i=0; i<n; ++i )
+    for( j=0; j<n; ++j )
+      _matrix( i, j ) = ( i == j ? 1. : 0.);
+}
+
+
+bool AffineTransformationBase::invertible() const
+{
+  try
+  {
+    getInverse();
+  }
+  catch( ... )
+  {
+    return false;
+  }
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
+unique_ptr<AffineTransformationBase> AffineTransformationBase::inverse() const
+{
+  AffineTransformationBase *affineTransformation
+    = new AffineTransformationBase;
+  affineTransformation->_matrix = inversionLU( _matrix );
+  return unique_ptr<AffineTransformationBase>( affineTransformation );
+}
+
+
+std::unique_ptr<Transformation> AffineTransformationBase::getInverse() const
+{
+  unique_ptr<AffineTransformationBase> ti = inverse();
+  unique_ptr<Transformation> res( ti.get() );
+  ti.release();
+  return res;
+}
+
+
+std::vector<double> AffineTransformationBase::transform(
+  const std::vector<double> & pos ) const
+{
+  if( pos.size() < _matrix.ncols - 1 )
+    throw logic_error( "vector is too small" );
+  size_t i, k, n =  _matrix.ncols - 1;
+  vector<double> tpos = pos;
+  for( i=0; i<n; ++i )
+  {
+    double & v = tpos[i];
+    v = 0.;
+    for( k=0; k<n; ++k )
+      v += _matrix( i, k ) * pos[k];
+    v += _matrix( i, n );
+  }
+  return tpos;
+}
+
+
+  //------------------------------//
  //  AffineTransformation3dBase  //
-//----------//
+//------------------------------//
 
 //-----------------------------------------------------------------------------
 AffineTransformation3dBase::AffineTransformation3dBase()
-  : _matrix( 4, 4 )
+  : RCObject(),
+    Transformation(),
+    Transformation3d(),
+    AffineTransformationBase( 3 )
 {
-  for ( int i = 0; i < 4; i++ )
-  {
-    _matrix[ i + i*4 ] = 1.0;
-  }
 }
 
 
@@ -148,37 +380,30 @@ AffineTransformation3dBase::~AffineTransformation3dBase()
 AffineTransformation3dBase::AffineTransformation3dBase(
   const AffineTransformation3dBase& other ) :
   RCObject(),
+  Transformation( other ),
   Transformation3d( other ),
-  _matrix( other._matrix )
+  AffineTransformationBase( other )
 {
-  if( other.header() )
-    _header = Object::value( other.header()->value<PropertySet>() );
 }
 
 
 //-----------------------------------------------------------------------------
-AffineTransformation3dBase::AffineTransformation3dBase( const vector<float> & mat ) :
-    Transformation3d(), _matrix( 4, 4 )
+AffineTransformation3dBase::AffineTransformation3dBase(
+  const vector<float> & mat ) :
+    RCObject(),
+    Transformation(),
+    Transformation3d(),
+    AffineTransformationBase( mat )
 {
-  _matrix[0] = mat[0];
-  _matrix[4] = mat[1];
-  _matrix[8] = mat[2];
-  _matrix[12] = mat[3];
-  _matrix[1] = mat[4];
-  _matrix[5] = mat[5];
-  _matrix[9] = mat[6];
-  _matrix[13] = mat[7];
-  _matrix[2] = mat[8];
-  _matrix[6] = mat[9];
-  _matrix[10] = mat[10];
-  _matrix[14] = mat[11];
-  _matrix[15] = 1.f;
 }
 
 
 //-----------------------------------------------------------------------------
 AffineTransformation3dBase::AffineTransformation3dBase( const Object mat ) :
-    Transformation3d(), _matrix( 4, 4 )
+    RCObject(),
+    Transformation(),
+    Transformation3d(),
+    AffineTransformationBase( 3 )
 {
   *this = mat;
 }
@@ -190,95 +415,34 @@ AffineTransformation3dBase& AffineTransformation3dBase::operator =
 {
   if( &other == this )
     return *this;
-  _matrix = other._matrix;
-  if( other.header() )
-    _header = Object::value( other.header()->value<PropertySet>() );
-  else
-    _header->clearProperties();
+  AffineTransformationBase::operator = ( other );
   return *this;
 }
 
 
 //-----------------------------------------------------------------------------
-AffineTransformation3dBase& AffineTransformation3dBase::operator = (
-  const vector<float> & mat )
+AffineTransformation3dBase& AffineTransformation3dBase::operator =
+  ( const vector<float> & other )
 {
-  _matrix.resize( 16 );
-  _matrix[0] = mat[0];
-  _matrix[4] = mat[1];
-  _matrix[8] = mat[2];
-  _matrix[12] = mat[3];
-  _matrix[1] = mat[4];
-  _matrix[5] = mat[5];
-  _matrix[9] = mat[6];
-  _matrix[13] = mat[7];
-  _matrix[2] = mat[8];
-  _matrix[6] = mat[9];
-  _matrix[10] = mat[10];
-  _matrix[14] = mat[11];
-  _matrix[3] = 0.f;
-  _matrix[7] = 0.f;
-  _matrix[11] = 0.f;
-  _matrix[15] = 1.f;
+  AffineTransformationBase::operator = ( other );
   return *this;
 }
 
 
 //-----------------------------------------------------------------------------
-AffineTransformation3dBase& AffineTransformation3dBase::operator = ( const Object mat )
+AffineTransformation3dBase& AffineTransformation3dBase::operator =
+  ( const Object other )
 {
-  if( mat->size() < 12 )
-    return *this; // or throw something ?
-  Object  iter = mat->objectIterator();
-  if( !iter->isValid() )
-    return *this; // or throw something ?
-  _matrix[0] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[4] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[8] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[12] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[1] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[5] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[9] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[13] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[2] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[6] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[10] = iter->currentValue()->getScalar();
-  iter->next();
-  _matrix[14] = iter->currentValue()->getScalar();
-  _matrix[3] = 0.F;
-  _matrix[7] = 0.F;
-  _matrix[11] = 0.F;
-  _matrix[15] = 1.F;
+  AffineTransformationBase::operator = ( other );
   return *this;
 }
 
 
 //-----------------------------------------------------------------------------
-bool AffineTransformation3dBase::operator == ( const AffineTransformation3dBase & other ) const
+bool AffineTransformation3dBase::operator ==
+  ( const AffineTransformation3dBase & other ) const
 {
-  static float eps = 1e-5;
-  return fabs( _matrix[0] - other._matrix[0] ) < eps
-      && fabs( _matrix[1] - other._matrix[1] ) < eps
-      && fabs( _matrix[2] - other._matrix[2] ) < eps
-      && fabs( _matrix[4] - other._matrix[4] ) < eps
-      && fabs( _matrix[5] - other._matrix[5] ) < eps
-      && fabs( _matrix[6] - other._matrix[6] ) < eps
-      && fabs( _matrix[8] - other._matrix[8] ) < eps
-      && fabs( _matrix[9] - other._matrix[9] ) < eps
-      && fabs( _matrix[10] - other._matrix[10] ) < eps
-      && fabs( _matrix[12] - other._matrix[12] ) < eps
-      && fabs( _matrix[13] - other._matrix[13] ) < eps
-      && fabs( _matrix[14] - other._matrix[14] ) < eps;
+  return AffineTransformationBase::operator == ( other );
 }
 
 
@@ -403,19 +567,21 @@ void AffineTransformation3dBase::setToIdentity()
 
 
 //-----------------------------------------------------------------------------
-AffineTransformation3dBase AffineTransformation3dBase::inverse() const
+unique_ptr<AffineTransformation3dBase> AffineTransformation3dBase::inverse() const
 {
-  AffineTransformation3dBase AffineTransformation3d;
-  AffineTransformation3d._matrix = inversionLU( _matrix );
-  return AffineTransformation3d;
+  AffineTransformation3dBase *AffineTransformation3d
+    = new AffineTransformation3dBase;
+  AffineTransformation3d->_matrix = inversionLU( _matrix );
+  return unique_ptr<AffineTransformation3dBase>( AffineTransformation3d );
 }
+
 
 bool AffineTransformation3dBase::invertible() const
 {
   // inverse() will throw carto::assert_error if matrix inversion fails
   try
   {
-    inverse();
+    getInverse();
   }
   catch( const assert_error& )
   {
@@ -424,10 +590,12 @@ bool AffineTransformation3dBase::invertible() const
   return true;
 }
 
-unique_ptr<Transformation3d> AffineTransformation3dBase::getInverse() const
+unique_ptr<Transformation> AffineTransformation3dBase::getInverse() const
 {
-  return unique_ptr<Transformation3d>(
-    new AffineTransformation3dBase(inverse()));
+  unique_ptr<AffineTransformation3dBase> pi = inverse();
+  unique_ptr<Transformation> res( pi.get() );
+  pi.release();
+  return res;
 }
 
 
@@ -451,6 +619,7 @@ void AffineTransformation3dBase::scale( const Point3df& sizeFrom,
   _matrix( 1, 3 ) /= sizeTo[ 1 ];
   _matrix( 2, 3 ) /= sizeTo[ 2 ];
 }
+
 
 
 //-----------------------------------------------------------------------------
@@ -532,10 +701,9 @@ AffineTransformation3dBase & AffineTransformation3dBase::operator *= (
 
 AffineTransformation3dBase AffineTransformation3dBase::operator - () const
 {
-  AffineTransformation3dBase t;
+  AffineTransformation3dBase t( *this );
 
-  for( int i=0; i<15; ++i )
-    t._matrix[i] = -_matrix[i];
+  t.negate();
 
   return t;
 }
