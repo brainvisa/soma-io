@@ -356,6 +356,36 @@ std::vector<double> AffineTransformationBase::transform(
 }
 
 
+//-----------------------------------------------------------------------------
+vector<float> AffineTransformationBase::toVector() const
+{
+  vector<float> vec( ( order() + 1 ) * ( order() + 1 ) );
+  int i, j, n = order() + 1;
+  for( i=0; i<n; ++i )
+    for( j=0; j<n; ++j )
+      vec[ i + j * n ] = _matrix[ j + i * n ];
+
+  return vec;
+}
+
+
+//-----------------------------------------------------------------------------
+vector<float> AffineTransformationBase::toColumnVector() const
+{
+  return _matrix;
+}
+
+
+//-----------------------------------------------------------------------------
+void AffineTransformationBase::fromColumnVector( const float* vec,
+                                                 unsigned size )
+{
+  int n = int( sqrt( size ) );
+  _matrix.clear();
+  _matrix.insert( _matrix.begin(), vec, vec + n * n );
+}
+
+
   //------------------------------//
  //  AffineTransformation3dBase  //
 //------------------------------//
@@ -709,6 +739,17 @@ AffineTransformation3dBase AffineTransformation3dBase::operator - () const
 }
 
 
+void AffineTransformation3dBase::fromColumnVector( const float* vec )
+{
+  _matrix.clear();
+  _matrix.insert( _matrix.begin(), vec, vec + 16 );
+  _matrix[3] = 0.f;
+  _matrix[7] = 0.f;
+  _matrix[11] = 0.f;
+  _matrix[15] = 1.f;
+}
+
+
 //-----------------------------------------------------------------------------
 namespace soma
 {
@@ -740,53 +781,6 @@ namespace soma
     return AffineTransformation3dOut;
   }
 
-}
-
-//-----------------------------------------------------------------------------
-vector<float> AffineTransformation3dBase::toVector() const
-{
-  vector<float> vec( 16 );
-  vec[0] = _matrix[0];
-  vec[1] = _matrix[4];
-  vec[2] = _matrix[8];
-  vec[3] = _matrix[12];
-  vec[4] = _matrix[1];
-  vec[5] = _matrix[5];
-  vec[6] = _matrix[9];
-  vec[7] = _matrix[13];
-  vec[8] = _matrix[2];
-  vec[9] = _matrix[6];
-  vec[10] = _matrix[10];
-  vec[11] = _matrix[14];
-  vec[12] = 0;
-  vec[13] = 0;
-  vec[14] = 0;
-  vec[15] = 1.;
-  return vec;
-}
-
-
-//-----------------------------------------------------------------------------
-vector<float> AffineTransformation3dBase::toColumnVector() const
-{
-  return _matrix;
-}
-
-
-//-----------------------------------------------------------------------------
-void AffineTransformation3dBase::fromColumnVector( const float* vec )
-{
-  _matrix.clear();
-  _matrix.insert( _matrix.begin(), vec, vec + 16 );
-  _matrix[3] = 0.f;
-  _matrix[7] = 0.f;
-  _matrix[11] = 0.f;
-  _matrix[15] = 1.f;
-}
-
-
-namespace soma
-{
 
   ostream& operator << ( ostream& os,
                         const soma::AffineTransformation3dBase & thing )

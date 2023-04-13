@@ -126,6 +126,21 @@ namespace soma
     Table<float> & matrix() { return _matrix; }
     const Table<float> & matrix() const { return _matrix; }
 
+    /// conversions and IO)
+    std::vector<float> toVector() const;
+    /// transform AffineTransformation3d to a column vector (useful for
+    /// conversions to OpenGL matrices)
+    std::vector<float> toColumnVector() const;
+    /// transform a column vector to an AffineTransformation3d (useful for
+    /// conversions from OpenGL matrices)
+    void fromColumnVector( const std::vector<float> & vec )
+    {
+      return fromColumnVector( &vec[0], vec.size() );
+    }
+    /// transform a column vector to an AffineTransformation3d (useful for
+    /// conversions from OpenGL matrices)
+    void fromColumnVector( const float* vec, unsigned size );
+
   protected:
 
     // column-vector to be compatible with the former Volume storage with
@@ -238,17 +253,6 @@ namespace soma
 
     //Initialisation
     void setTranslation(Point3df trans);
-    /// conversions and IO)
-    std::vector<float> toVector() const;
-    /// transform AffineTransformation3d to a column vector (useful for
-    /// conversions to OpenGL matrices)
-    std::vector<float> toColumnVector() const;
-    /// transform a column vector to an AffineTransformation3d (useful for
-    /// conversions from OpenGL matrices)
-    void fromColumnVector( const std::vector<float> & vec )
-    {
-      return fromColumnVector( &vec[0] );
-    }
     /// transform a column vector to an AffineTransformation3d (useful for
     /// conversions from OpenGL matrices)
     void fromColumnVector( const float* vec );
