@@ -93,6 +93,8 @@ namespace soma
     AffineTransformationBase( const AffineTransformationBase& other );
     /// Create a AffineTransformation3d from a matrix given as a line vector
     AffineTransformationBase( const std::vector<float> & mat );
+    /// Create a AffineTransformation from a NxN matrix given as a line vector in an Object
+    AffineTransformationBase( const carto::Object mat );
     virtual ~AffineTransformationBase();
 
     virtual AffineTransformationBase &operator = ( const AffineTransformationBase& other );
@@ -114,6 +116,7 @@ namespace soma
     std::unique_ptr<Transformation> getInverse() const CARTO_OVERRIDE;
 
     int order() const { return _matrix.ncols - 1; }
+    virtual void extendOrder( unsigned n );
 
     virtual std::vector<double> transform(
       const std::vector<double>& pos ) const;
@@ -194,6 +197,8 @@ namespace soma
     AffineTransformation3dBase operator - () const;
 
     virtual bool operator == ( const AffineTransformation3dBase & ) const;
+
+    virtual void extendOrder( unsigned n );
 
     Point3dd transform( double x, double y, double z ) const
     { return this->Transformation3d::transform( x, y, z ); }
@@ -281,6 +286,12 @@ namespace soma
                     affineTransformation3d1,
                  const soma::AffineTransformation3dBase&
                     affineTransformation3d2 );
+
+  soma::AffineTransformationBase
+    operator * ( const soma::AffineTransformationBase&
+                    affineTransformation1,
+                 const soma::AffineTransformationBase&
+                    affineTransformation2 );
 
   std::ostream&
     operator << ( std::ostream& os,

@@ -92,7 +92,7 @@ where
 	C is the "center" of the linear transformation
 	T is the translation.
 	
- # then, an AffineAffineTransformation3d should contain the following attributes:
+ # then, an AffineTransformation3d should contain the following attributes:
  	_rotation (the equivalent of _rot in DecomposedAffineTransformation3d), 3x3 matrix
  	_scaling (equivalent in DecomposedAffineTransformation3d), 3x3 matrix
  	_shearing (equivalent in DecomposedAffineTransformation3d), 3x3 matrix
@@ -105,7 +105,7 @@ equivalent of the current _rotation attribute, whose name is highly confusing),
  
  # by rewriting (1) as
  	AffineTransformation3d( P ) = A x P + ( C - A x C + T ) = A x P + t            (2)
-we see that the method AffineAffineTransformation3d::transform corresponds the current
+we see that the method AffineTransformation3d::transform corresponds the current
 AffineTransformation3d::transform, implementing P = _linear x P + _shift.
 The reason of the attributes _linear and _shift is a matter of optimization:
 each transformation require only 9 multiplications et 12 additions. Otherwise,
@@ -116,7 +116,7 @@ the number of necessary operations.
 _shearing, _translation, _center, BUT DO NOT CHANGE _linear and _shift, so it
 does not change the results of a transformation by this AffineTransformation3d
 
- # finally a method like "AffineAffineTransformation3d::updateTransformation" should update
+ # finally a method like "AffineTransformation3d::updateTransformation" should update
 the attributes _linear and _shift so that the transformation (2) correctly
 computes (1) consistently with all attributes i.e. this methods do
 	_linear <- _rotation x _scaling x _shearing;
@@ -174,6 +174,25 @@ AffineTransformationBase::AffineTransformationBase( const vector<float> & mat )
     c = i % n;
     l = i / n;
     _matrix[ c * n + l ] = mat[i];
+  }
+}
+
+
+AffineTransformationBase::AffineTransformationBase( const carto::Object mat )
+  : RCObject(),
+    Transformation(),
+    _matrix( 0, 0 )
+{
+  unsigned n = int( ceil( sqrt( mat->size() ) ) );
+  _matrix.resize( n * n, 0.f );
+  _matrix.ncols = n;
+  unsigned l, c;
+  Object it = mat->objectIterator();
+  for( unsigned i=0; it->isValid(); ++i, it->next() )
+  {
+    c = i % n;
+    l = i / n;
+    _matrix[ c * n + l ] = float( it->currentValue()->getScalar() );
   }
 }
 
@@ -250,16 +269,21 @@ AffineTransformationBase & AffineTransformationBase::operator *= (
   size_t i, j, k, n = _matrix.ncols;
   if( trans.matrix().ncols != n )
     throw runtime_error( "transformation matrix size mismatch" );
-  cout << "size: " << n << endl;
+
+  vector<float> line( n, 0.f );
 
   for( i=0; i<n; ++i )
+  {
+    for( j=0; j<n; ++j )
+      line[j] = _matrix( i, j );
     for( j=0; j<n; ++j )
     {
       float & v = _matrix( i, j );
       v = 0;
       for( k=0; k<n; ++k )
-        v += _matrix( i, k ) * trans.matrix()( k, j );
+        v += line[ k ] * trans.matrix()( k, j );
     }
+  }
 
   return *this;
 }
@@ -315,6 +339,39 @@ bool AffineTransformationBase::invertible() const
     return false;
   }
   return true;
+}
+
+
+void AffineTransformationBase::extendOrder( unsigned n )
+{
+  if( order() == n )
+    return;
+  Table<float> mat = _matrix;
+  _matrix.clear();
+  _matrix.resize( (n + 1) * (n + 1), 0.f );
+  unsigned i, j, m = mat.ncols;
+  if( m > n )
+    m = n;
+  for( i=0; i<m; ++i )
+  {
+    for( j=0; j<m; ++j )
+      _matrix(i, j) = mat(i, j);
+    for( ; j<n; ++j )
+    {
+      if( i == j )
+        _matrix(i, i) = 1.f;
+      else
+        _matrix(i, j) = 0.f;
+    }
+  }
+  for( ; i<n; ++i )
+    for( j=0; j<n; ++j )
+    {
+      if( i == j )
+        _matrix(i, i) = 1.f;
+      else
+        _matrix(i, j) = 0.f;
+    }
 }
 
 
@@ -688,6 +745,14 @@ see NOTE, line 38. */
 }
 
 
+void AffineTransformation3dBase::extendOrder( unsigned n )
+{
+  if( n != 3 )
+    throw logic_error( "only order 3 is allowed for an "
+                       "AffineTransformation3dBase" );
+}
+
+
 AffineTransformation3dBase & AffineTransformation3dBase::operator *= (
   const AffineTransformation3dBase & m )
 {
@@ -771,7 +836,7 @@ namespace soma
     mat3( 2, 2 ) = 0.f;
     mat3( 3, 3 ) = 0.f;
 
-    int i, j, k;
+    unsigned i, j, k;
 
     for( j=0; j<4; ++j )
       for( i=0; i<4; ++i )
@@ -779,6 +844,37 @@ namespace soma
           mat3(i,j) += mat1(i,k) * mat2(k,j);
 
     return AffineTransformation3dOut;
+  }
+
+
+  AffineTransformationBase operator * (
+    const AffineTransformationBase& AffineTransformation1,
+    const AffineTransformationBase& AffineTransformation2 )
+  {
+    if( AffineTransformation1.order() != AffineTransformation2.order() )
+      throw logic_error( "mismatching matrices dimensions for *" );
+
+    unsigned i, n = AffineTransformation1.order();
+    AffineTransformationBase AffineTransformationOut( n );
+
+    const AffineTransformationBase::Table< float >
+      & mat1 = AffineTransformation1.matrix(),
+      & mat2 = AffineTransformation2.matrix();
+    AffineTransformationBase::Table< float >
+      & mat3 = AffineTransformationOut.matrix();
+    // init mat3 to null, not to ID
+    ++n;
+    for( i=0; i<n; ++i )
+      mat3( i, i ) = 0.f;
+
+    unsigned j, k;
+
+    for( j=0; j<n; ++j )
+      for( i=0; i<n; ++i )
+        for(k=0;k<n;++k)
+          mat3(i,j) += mat1(i,k) * mat2(k,j);
+
+    return AffineTransformationOut;
   }
 
 
