@@ -351,29 +351,72 @@ void AffineTransformationBase::extendOrder( unsigned n )
   _matrix.clear();
   _matrix.resize( (n + 1) * (n + 1), 0.f );
   _matrix.ncols = n + 1;
-  unsigned i, j, m = mat.ncols;
+  unsigned i, j, m = mat.ncols - 1;
   if( m > n )
     m = n;
   for( i=0; i<m; ++i )
   {
     for( j=0; j<m; ++j )
-      _matrix(i, j) = mat(i, j);
+      _matrix( i, j ) = mat( i, j );
+    _matrix( i, n ) = mat( i, m );
     for( ; j<n; ++j )
     {
       if( i == j )
-        _matrix(i, i) = 1.f;
+        _matrix( i, i ) = 1.f;
       else
-        _matrix(i, j) = 0.f;
+        _matrix( i, j ) = 0.f;
     }
   }
   for( ; i<n; ++i )
     for( j=0; j<n; ++j )
     {
       if( i == j )
-        _matrix(i, i) = 1.f;
+        _matrix( i, i ) = 1.f;
       else
-        _matrix(i, j) = 0.f;
+        _matrix( i, j ) = 0.f;
     }
+}
+
+void AffineTransformationBase::squeezeOrder( unsigned n, bool check,
+                                             bool notify_fail )
+{
+  float eps = 1e-5f;
+
+  if( n >= order() )
+    return;
+
+  unsigned i, j, m = order();
+  float x;
+
+  if( check )
+  {
+    for( i=0; i<n; ++i )
+      for( j=n; j<m; ++j )
+        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > eps )
+        {
+          if( notify_fail )
+            throw runtime_error( "matrix cannot be squeezed" );
+          return;
+        }
+    for( i=n; i<m; ++i )
+      for( j=0; j<m; ++j )
+        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > eps )
+        {
+          if( notify_fail )
+            throw runtime_error( "matrix cannot be squeezed" );
+          return;
+        }
+  }
+
+  // actually squeeze
+  Table<float> matrix( n + 1, n + 1 );
+  for( i=0; i<n; ++i )
+  {
+    for( j=0; j<n; ++j )
+      matrix( i, j ) = _matrix( i, j );
+    matrix( i, n ) = _matrix( i, m );
+  }
+  _matrix = matrix;
 }
 
 

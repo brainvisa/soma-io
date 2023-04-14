@@ -117,6 +117,8 @@ namespace soma
 
     int order() const { return _matrix.ncols - 1; }
     virtual void extendOrder( unsigned n );
+    virtual void squeezeOrder( unsigned n, bool check = true,
+                               bool notify_fail = true );
 
     virtual std::vector<double> transform(
       const std::vector<double>& pos ) const;
