@@ -346,9 +346,11 @@ void AffineTransformationBase::extendOrder( unsigned n )
 {
   if( order() == n )
     return;
+
   Table<float> mat = _matrix;
   _matrix.clear();
   _matrix.resize( (n + 1) * (n + 1), 0.f );
+  _matrix.ncols = n + 1;
   unsigned i, j, m = mat.ncols;
   if( m > n )
     m = n;
