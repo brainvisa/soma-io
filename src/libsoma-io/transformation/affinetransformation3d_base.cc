@@ -367,8 +367,8 @@ void AffineTransformationBase::extendOrder( unsigned n )
         _matrix( i, j ) = 0.f;
     }
   }
-  for( ; i<n; ++i )
-    for( j=0; j<n; ++j )
+  for( ; i<=n; ++i )
+    for( j=0; j<=n; ++j )
     {
       if( i == j )
         _matrix( i, i ) = 1.f;
@@ -416,6 +416,8 @@ void AffineTransformationBase::squeezeOrder( unsigned n, bool check,
       matrix( i, j ) = _matrix( i, j );
     matrix( i, n ) = _matrix( i, m );
   }
+  matrix( n, n ) = 1.f;
+
   _matrix = matrix;
 }
 
