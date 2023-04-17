@@ -41,8 +41,8 @@ namespace soma
 {
 
 float
-decompositionLU( AffineTransformation3dBase::Table<float> &a,
-                 AffineTransformation3dBase::Table<int32_t> &indx)
+decompositionLU( AffineTransformationBase::Table<float> &a,
+                 AffineTransformationBase::Table<int32_t> &indx)
 {
   int   i,imax=0,j,k,n;
   float big,dum,sum,temp,TINY=1.0e-20,d;
@@ -97,9 +97,9 @@ decompositionLU( AffineTransformation3dBase::Table<float> &a,
 }
 
 
-void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
-                         AffineTransformation3dBase::Table<int32_t> &indx,
-                         AffineTransformation3dBase::Table<float> &b)
+void backSubstitutionLU( AffineTransformationBase::Table<float> &a,
+                         AffineTransformationBase::Table<int32_t> &indx,
+                         AffineTransformationBase::Table<float> &b)
 {
   int   i,ii=-1,ip,j,n;
   float sum;
@@ -124,23 +124,23 @@ void backSubstitutionLU( AffineTransformation3dBase::Table<float> &a,
 }
 
 
-AffineTransformation3dBase::Table<float>
-inversionLU( const AffineTransformation3dBase::Table<float> &matrix )
+AffineTransformationBase::Table<float>
+inversionLU( const AffineTransformationBase::Table<float> &matrix )
 {
   int                 n,i,j;
   //float d;
 
   n = matrix.dimX();
 
-  AffineTransformation3dBase::Table<float> inverse(n,n);
-  AffineTransformation3dBase::Table<float> stockage(n,n);
+  AffineTransformationBase::Table<float> inverse(n,n);
+  AffineTransformationBase::Table<float> stockage(n,n);
 
   for (j=n;j--;)
     for (i=n;i--;)  stockage(i,j) = matrix(i,j);
 
-  AffineTransformation3dBase::Table<float> column(1,n);
+  AffineTransformationBase::Table<float> column(1,n);
 
-  AffineTransformation3dBase::Table<int32_t>  indx(1,n);
+  AffineTransformationBase::Table<int32_t>  indx(1,n);
 
   /*d =*/ decompositionLU(stockage,indx);
 
