@@ -266,10 +266,10 @@ namespace soma
   template <typename T>
   template <typename U>
   void NiftiImageReader<T>::readType( T * dest, DataSourceInfo & dsi,
-                                std::vector<int> & pos,
-                                std::vector<int> & size,
-                                std::vector<long> & stride,
-                                carto::Object      /* options */ )
+                                      std::vector<int> & pos,
+                                      std::vector<int> & size,
+                                      std::vector<long> & stride,
+                                      carto::Object /* options */ )
   {
     // dest is supposed to be allocated
 
@@ -309,22 +309,18 @@ namespace soma
     std::string dt;
     hdr->getProperty( "disk_data_type", dt );
 
-    Point3df pdims = m2s->transform( Point3df( vx, vy, vz ) )
-        - m2s->transform( Point3df( 0, 0, 0 ) );
+    std::vector<int> idims = m2s->transformVector( size );
     Point3df posf1 = m2s->transform( Point3df( pos[0], pos[1], pos[2] ) );
     Point3df posf2 = m2s->transform( Point3df( pos[0] + vx - 1,
-                                              pos[1] + vy - 1,
-                                              pos[2] + vz - 1 ) );
-    std::vector<int> idims = size;
-    idims[0] = (int) rint( fabs( pdims[0] ) );
-    idims[1] = (int) rint( fabs( pdims[1] ) );
-    idims[2] = (int) rint( fabs( pdims[2] ) );
+                                               pos[1] + vy - 1,
+                                               pos[2] + vz - 1 ) );
+    for( dim=0; dim<ndim; ++dim )
+      idims[dim] = std::abs( idims[dim] );
     std::vector<int> ipos = pos;
     ipos[0] = (int) rint( std::min( posf1[0], posf2[0] ) );
     ipos[1] = (int) rint( std::min( posf1[1], posf2[1] ) );
     ipos[2] = (int) rint( std::min( posf1[2], posf2[2] ) );
-    Point3df incf = m2s->transform( Point3df( 1, 0, 0 ) )
-        - m2s->transform( Point3df( 0, 0, 0 ) );
+    Point3df incf = m2s->transformVector( Point3df( 1, 0, 0 ) );
     int inc[3];
     inc[0] = int( rint( incf[0] ) );
     inc[1] = int( rint( incf[1] ) );
