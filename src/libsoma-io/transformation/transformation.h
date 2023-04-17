@@ -114,6 +114,31 @@ namespace soma
       throw std::logic_error("not implemented");
     }
 
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vadd( const std::vector<T> & v1,
+                                const std::vector<T> & v2 );
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vsub( const std::vector<T> & v1,
+                                const std::vector<T> & v2 );
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vadd( const std::vector<T> & v1,
+                                const T & v2 );
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vsub( const std::vector<T> & v1,
+                                const T & v2 );
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vadd( const T & v1,
+                                const std::vector<T> & v2 );
+    /// vector arithmetics, as convenience static functions
+    template <typename T>
+    static std::vector<T> vsub( const T & v1,
+                                const std::vector<T> & v2 );
+
   protected:
     carto::Object _header;
 
@@ -398,6 +423,111 @@ namespace soma
     tr[1] = p[1];
     tr[2] = p[2];
     return tr;
+  }
+
+  // -- vector arithmetics
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vadd( const std::vector<T> & v1,
+                                       const std::vector<T> & v2 )
+  {
+    size_t n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
+      n4 = std::min( n1, n2 ), i;
+    std::vector<T> res( n3, 0 );
+
+    for( i=0; i<n4; ++i )
+      res[i] = v1[i] + v2[i];
+    for( ; i<n1; ++i )
+      res[i] = v1[i];
+    for( ; i<n2; ++i )
+      res[i] = v2[i];
+    for( ; i<n3; ++i )
+      res[i] = 0;
+
+    return res;
+  }
+
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vsub( const std::vector<T> & v1,
+                                       const std::vector<T> & v2 )
+  {
+    size_t n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
+      n4 = std::min( n1, n2 ), i;
+    std::vector<T> res( n3, 0 );
+
+    for( i=0; i<n4; ++i )
+      res[i] = v1[i] - v2[i];
+    for( ; i<n1; ++i )
+      res[i] = v1[i];
+    for( ; i<n2; ++i )
+      res[i] = -v2[i];
+    for( ; i<n3; ++i )
+      res[i] = 0;
+
+    return res;
+  }
+
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vadd( const std::vector<T> & v1,
+                                       const T & v2 )
+  {
+    unsigned n1 = v1.size(), i;
+    std::vector<T> res( n1, 0 );
+
+    for( i=0; i<n1; ++i )
+      res[i] = v1[i] + v2;
+
+    return res;
+  }
+
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vsub( const std::vector<T> & v1,
+                                       const T & v2 )
+  {
+    unsigned n1 = v1.size(), i;
+    std::vector<T> res( n1, 0 );
+
+    for( i=0; i<n1; ++i )
+      res[i] = v1[i] - v2;
+
+    return res;
+  }
+
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vadd( const T & v1,
+                                       const std::vector<T> & v2 )
+  {
+    unsigned n1 = v2.size(), i;
+    std::vector<T> res( n1, 0 );
+
+    for( i=0; i<n1; ++i )
+      res[i] = v1 + v2[i];
+
+    return res;
+  }
+
+
+  template <typename T>
+  inline
+  std::vector<T> Transformation::vsub( const T & v1,
+                                       const std::vector<T> & v2 )
+  {
+    unsigned n1 = v2.size(), i;
+    std::vector<T> res( n1, 0 );
+
+    for( i=0; i<n1; ++i )
+      res[i] = v1 - v2[i];
+
+    return res;
   }
 
   // --

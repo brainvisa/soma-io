@@ -330,64 +330,6 @@ namespace
   }
 
 
-  namespace
-  {
-
-    std::vector<int> __plus( const std::vector<int> & v1,
-                             const std::vector<int> & v2 )
-    {
-      unsigned n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
-        n4 = std::min( n1, n2 ), i;
-      std::vector<int> res( n3, 0 );
-
-      for( i=0; i<n4; ++i )
-        res[i] = v1[i] + v2[i];
-      for( ; i<n1; ++i )
-        res[i] = v1[i];
-      for( ; i<n2; ++i )
-        res[i] = v2[i];
-      for( ; i<n3; ++i )
-        res[i] = 0;
-
-      return res;
-    }
-
-
-    std::vector<int> __minus( const std::vector<int> & v1,
-                              const std::vector<int> & v2 )
-    {
-      unsigned n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
-        n4 = std::min( n1, n2 ), i;
-      std::vector<int> res( n3, 0 );
-
-      for( i=0; i<n4; ++i )
-        res[i] = v1[i] - v2[i];
-      for( ; i<n1; ++i )
-        res[i] = v1[i];
-      for( ; i<n2; ++i )
-        res[i] = -v2[i];
-      for( ; i<n3; ++i )
-        res[i] = 0;
-
-      return res;
-    }
-
-
-    std::vector<int> __minus( const std::vector<int> & v1,
-                              int v2 )
-    {
-      unsigned n1 = v1.size(), i;
-      std::vector<int> res( n1, 0 );
-
-      for( i=0; i<n1; ++i )
-        res[i] = v1[i] - v2;
-
-      return res;
-    }
-
-  }
-
-
   template <typename T>
   void dataTOnim( nifti_image *nim, carto::Object & hdr,
                   const T* source, int tt, znzFile zfp, 
@@ -463,7 +405,9 @@ namespace
 
     // region position, in disk orientation
     std::vector<int> orig = m2s->transform( pos );
-    std::vector<int> posend = __minus( __plus( pos, size ), 1 );
+    std::vector<int> posend
+      = soma::Transformation::vsub( soma::Transformation::vadd( pos, size ),
+                                    1 );
     std::vector<int> pend = m2s->transform( posend );
     std::vector<int> tr_pos = pos;
     if( tr_pos.size() < tr_size.size() )
