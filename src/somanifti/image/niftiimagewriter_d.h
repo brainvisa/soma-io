@@ -108,9 +108,9 @@ namespace soma
 
 namespace
 {
-  void dataTOnim_checks2m( soma::AffineTransformation3dBase & m,
-                           const Point3df & p,
-                           const Point3df & tp, int ip, int il )
+  void dataTOnim_checks2m( soma::AffineTransformationBase & m,
+                           const std::vector<int> & p,
+                           const std::vector<int> & tp, int ip, int il )
   {
     if( tp[il] != 0 )
     {
@@ -125,7 +125,7 @@ namespace
   template <typename T>
   bool expandNiftiScaleFactor( const carto::Object & hdr,
                                nifti_image *nim, 
-                               const soma::AffineTransformation3dBase & m,
+                               const soma::AffineTransformationBase & m,
                                const T* data,
                                znzFile zfp, 
                                const std::vector<long> & strides,
@@ -139,17 +139,13 @@ namespace
         && hdr->getProperty( "scale_factor", s[0] )
         && hdr->getProperty( "scale_offset", s[1] ) )
     {
-      Point3df d0f;
       size_t dim, ndim = vsz.size();
       if( ndim > 7 )
         ndim = 7; // NIFTI is limited to 7D
       std::vector<int> d0( ndim, 0  );
-      Point3df incf = m.transform( Point3df( 1, 0, 0 ) )
-          - m.transform( Point3df( 0, 0, 0 ) );
-      std::vector<int> inc(3);
-      inc[0] = int( rint( incf[0] ) );
-      inc[1] = int( rint( incf[1] ) );
-      inc[2] = int( rint( incf[2] ) );
+      std::vector<int> p1( ndim, 0 );
+      p1[0] = 1;
+      std::vector<int> inc = m.transformVector( p1 );
       long pinc = inc[2] * strides[2]
         + inc[1] * strides[1]
         + inc[0] * strides[0];
@@ -171,11 +167,9 @@ namespace
       for( ; !it.ended(); ++it )
       {
         const std::vector<int> & volpos = it.position();
-        d0 = volpos;
-        d0f = m.transform( Point3df( 0, volpos[1], volpos[2] ) );
-        d0[0] = int( rint( d0f[0] ) );
-        d0[1] = int( rint( d0f[1] ) );
-        d0[2] = int( rint( d0f[2] ) );
+        std::vector<int> vp = volpos;
+        vp[0] = 0;
+        d0 = m.transform( vp );
         d = &buf[0];
         p0 = data;
         offset = 0;
@@ -206,7 +200,7 @@ namespace
 
   template <>
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
-                               const soma::AffineTransformation3dBase &,
+                               const soma::AffineTransformationBase &,
                                const carto::VoxelRGB*,
                                znzFile,
                                const std::vector<long> &,
@@ -219,7 +213,7 @@ namespace
 
   template <>
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
-                               const soma::AffineTransformation3dBase &,
+                               const soma::AffineTransformationBase &,
                                const carto::VoxelRGBA*,
                                znzFile,
                                const std::vector<long> &,
@@ -232,7 +226,7 @@ namespace
 
   template <>
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
-                               const soma::AffineTransformation3dBase &,
+                               const soma::AffineTransformationBase &,
                                const carto::VoxelHSV*,
                                znzFile,
                                const std::vector<long> &,
@@ -245,7 +239,7 @@ namespace
 
   template <>
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
-                               const soma::AffineTransformation3dBase &,
+                               const soma::AffineTransformationBase &,
                                const cfloat*,
                                znzFile,
                                const std::vector<long> &,
@@ -258,7 +252,7 @@ namespace
 
   template <>
   bool expandNiftiScaleFactor( const carto::Object &, nifti_image *,
-                               const soma::AffineTransformation3dBase &,
+                               const soma::AffineTransformationBase &,
                                const cdouble*,
                                znzFile,
                                const std::vector<long> &,
@@ -272,24 +266,20 @@ namespace
   template <typename T>
   void writeWithoutScaleFactor( const carto::Object & /* hdr */,
                                 nifti_image *nim,
-                                const soma::AffineTransformation3dBase & m,
+                                const soma::AffineTransformationBase & m,
                                 const T* data,
                                 znzFile zfp,
                                 const std::vector<long> & strides,
                                 const std::vector<int> & vsz,
                                 const std::vector<int> & opos )
   {
-    Point3df d0f;
     size_t dim, ndim = vsz.size();
     if( ndim > 7 )
       ndim = 7; // NIFTI is limited to 7D
-    std::vector<int> d0( ndim, 0  );
-    Point3df incf = m.transform( Point3df( 1, 0, 0 ) )
-        - m.transform( Point3df( 0, 0, 0 ) );
-    std::vector<int> inc(3);
-    inc[0] = int( rint( incf[0] ) );
-    inc[1] = int( rint( incf[1] ) );
-    inc[2] = int( rint( incf[2] ) );
+    std::vector<int> d0( ndim, 0 );
+    std::vector<int> p1( ndim, 0 );
+    p1[0] = 1;
+    std::vector<int> inc = m.transformVector( p1 );
     long pinc = inc[2] * strides[2]
       + inc[1] * strides[1]
       + inc[0] * strides[0];
@@ -311,11 +301,9 @@ namespace
     for( ; !it.ended(); ++it )
     {
       const std::vector<int> & volpos = it.position();
-      d0 = volpos;
-      d0f = m.transform( Point3df( 0, volpos[1], volpos[2] ) );
-      d0[0] = int( rint( d0f[0] ) );
-      d0[1] = int( rint( d0f[1] ) );
-      d0[2] = int( rint( d0f[2] ) );
+      std::vector<int> vp = volpos;
+      vp[0] = 0;
+      d0 = m.transform( vp );
       d = &buf[0];
       p0 = data;
       offset = 0;
@@ -342,6 +330,64 @@ namespace
   }
 
 
+  namespace
+  {
+
+    std::vector<int> __plus( const std::vector<int> & v1,
+                             const std::vector<int> & v2 )
+    {
+      unsigned n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
+        n4 = std::min( n1, n2 ), i;
+      std::vector<int> res( n3, 0 );
+
+      for( i=0; i<n4; ++i )
+        res[i] = v1[i] + v2[i];
+      for( ; i<n1; ++i )
+        res[i] = v1[i];
+      for( ; i<n2; ++i )
+        res[i] = v2[i];
+      for( ; i<n3; ++i )
+        res[i] = 0;
+
+      return res;
+    }
+
+
+    std::vector<int> __minus( const std::vector<int> & v1,
+                              const std::vector<int> & v2 )
+    {
+      unsigned n1 = v1.size(), n2 = v2.size(), n3 = std::max( n1, n2 ),
+        n4 = std::min( n1, n2 ), i;
+      std::vector<int> res( n3, 0 );
+
+      for( i=0; i<n4; ++i )
+        res[i] = v1[i] - v2[i];
+      for( ; i<n1; ++i )
+        res[i] = v1[i];
+      for( ; i<n2; ++i )
+        res[i] = -v2[i];
+      for( ; i<n3; ++i )
+        res[i] = 0;
+
+      return res;
+    }
+
+
+    std::vector<int> __minus( const std::vector<int> & v1,
+                              int v2 )
+    {
+      unsigned n1 = v1.size(), i;
+      std::vector<int> res( n1, 0 );
+
+      for( i=0; i<n1; ++i )
+        res[i] = v1[i] - v2;
+
+      return res;
+    }
+
+  }
+
+
   template <typename T>
   void dataTOnim( nifti_image *nim, carto::Object & hdr,
                   const T* source, int tt, znzFile zfp, 
@@ -350,9 +396,9 @@ namespace
                   const std::vector<int> & size,
                   const std::vector<std::vector<int> > & sizes )
   {
-    soma::AffineTransformation3dBase m, mems2m;
-    std::unique_ptr<soma::AffineTransformation3dBase> m2s;
-    Point3df p, p0( 0, 0, 0 ), tp;
+    soma::AffineTransformationBase m, mems2m;
+    std::unique_ptr<soma::AffineTransformationBase> m2s;
+    std::vector<int> p, p1, tp;
 
     try
     {
@@ -361,18 +407,28 @@ namespace
       m = storage_to_memory;
       /* adjust translations so that they fit (in case the vol size has
          changed) */
-      p = Point3df( nim->nx - 1, 0, 0 );
-      tp = m.transform( Point3df( 1, 0, 0 ) ) - m.transform( p0 );
+      unsigned n = m.order();
+      p1 = std::vector<int>( n, 0 );
+      p = std::vector<int>( n, 0 );
+      p[0] = nim->nx - 1;
+      p1[0] = 1;
+      tp = m.transformVector( p1 );
       dataTOnim_checks2m( m, p, tp, 0, 0 );
       dataTOnim_checks2m( m, p, tp, 0, 1 );
       dataTOnim_checks2m( m, p, tp, 0, 2 );
-      p = Point3df( 0, nim->ny - 1, 0 );
-      tp = m.transform( Point3df( 0, 1, 0 ) ) - m.transform( p0 );
+      p[0] = 0;
+      p[1] = nim->ny - 1;
+      p1[0] = 0;
+      p1[1] = 1;
+      tp = m.transformVector( p1 );
       dataTOnim_checks2m( m, p, tp, 1, 0 );
       dataTOnim_checks2m( m, p, tp, 1, 1 );
       dataTOnim_checks2m( m, p, tp, 1, 2 );
-      p = Point3df( 0, 0, nim->nz - 1 );
-      tp = m.transform( Point3df( 0, 0, 1 ) ) - m.transform( p0 );
+      p[1] = 0;
+      p[2] = nim->nz - 1;
+      p1[1] = 0;
+      p1[2] = 1;
+      tp = m.transformVector( p1 );
       dataTOnim_checks2m( m, p, tp, 2, 0 );
       dataTOnim_checks2m( m, p, tp, 2, 1 );
       dataTOnim_checks2m( m, p, tp, 2, 2 );
@@ -400,52 +456,51 @@ namespace
 //     int  st = sizes[ 0 ][ 3 ];
 
     // region size, in disk orientation
-    Point3df vsize = m2s->transform(
-      Point3df( size[0], size[1], size[2] ) )
-      - m2s->transform( p0 );
-    std::vector<int> tr_size = size;
-    tr_size[0] = int( rint( fabs( vsize[ 0 ] ) ) );
-    tr_size[1] = int( rint( fabs( vsize[ 1 ] ) ) );
-    tr_size[2] = int( rint( fabs( vsize[ 2 ] ) ) );
+    std::vector<int> tr_size = m2s->transformVector( size );
+    size_t dim, n = tr_size.size();
+    for( dim=0; dim<n; ++dim )
+      tr_size[dim] = std::abs(tr_size[dim] );
 
     // region position, in disk orientation
-    Point3df orig = m2s->transform(
-      Point3df( pos[0], pos[1], pos[2] ) );
-    Point3df pend = m2s->transform(
-      Point3df( pos[0] + size[0] - 1, pos[1] + size[1] - 1,
-                      pos[2] + size[2] - 1 ) );
+    std::vector<int> orig = m2s->transform( pos );
+    std::vector<int> posend = __minus( __plus( pos, size ), 1 );
+    std::vector<int> pend = m2s->transform( posend );
     std::vector<int> tr_pos = pos;
     if( tr_pos.size() < tr_size.size() )
       tr_pos.resize( tr_size.size(), 0 );
-    tr_pos[0] = std::min( int( rint( fabs( orig[ 0 ] ) ) ),
-                          int( rint( fabs( pend[ 0 ] ) ) ) );
-    tr_pos[1] = std::min( int( rint( fabs( orig[ 1 ] ) ) ),
-                          int( rint( fabs( pend[ 1 ] ) ) ) );
-    tr_pos[2] = std::min( int( rint( fabs( orig[ 2 ] ) ) ),
-                          int( rint( fabs( pend[ 2 ] ) ) ) );
+    tr_pos[0] = std::min( std::abs( orig[ 0 ] ), std::abs( pend[ 0 ] ) );
+    tr_pos[1] = std::min( std::abs( orig[ 1 ] ), std::abs( pend[ 1 ] ) );
+    tr_pos[2] = std::min( std::abs( orig[ 2 ] ), std::abs( pend[ 2 ] ) );
     
     // TODO: still need a s2m matrix for the memory object
     // memory volume-size s2m
     mems2m = m;
-    p = Point3df( tr_size[0] - 1, 0, 0 );
-    tp = mems2m.transform( Point3df( 1, 0, 0 ) ) - mems2m.transform( p0 );
+    p[2] = 0;
+    p[0] = tr_size[0] - 1;
+    p1[2] = 0;
+    p1[0] = 1;
+    tp = mems2m.transformVector( p1 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 0, 2 );
-    p = Point3df( 0, tr_size[1] - 1, 0 );
-    tp = mems2m.transform( Point3df( 0, 1, 0 ) )
-      - mems2m.transform( p0 );
+    p[0] = 0;
+    p[1] = tr_size[1] - 1;
+    p1[0] = 0;
+    p1[1] = 1;
+    tp = mems2m.transformVector( p1 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 1, 2 );
-    p = Point3df( 0, 0, tr_size[2] - 1 );
-    tp = mems2m.transform( Point3df( 0, 0, 1 ) )
-      - mems2m.transform( p0 );
+    p[1] = 0;
+    p[2] = tr_size[2] - 1;
+    p1[1] = 0;
+    p1[2] = 1;
+    tp = mems2m.transformVector( p1 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 0 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 1 );
     dataTOnim_checks2m( mems2m, p, tp, 2, 2 );
 
-    size_t dim, ndim = sizes[0].size();
+    size_t ndim = sizes[0].size();
     if( ndim > 7 )
     {
       ndim = 7; // NIFTI is limited to 7D
@@ -522,12 +577,12 @@ void store_transformations_as_qform_and_sform(
    const carto::Object& referentials,
    const carto::Object& transformations,
    nifti_image *nim,
-   const soma::AffineTransformation3dBase& voxsz,
-   const soma::AffineTransformation3dBase& s2m,
+   const soma::AffineTransformationBase& voxsz,
+   const soma::AffineTransformationBase& s2m,
    const std::vector<float>& tvs,
    const bool debug_transforms)
 {
-  using soma::AffineTransformation3dBase;
+  using soma::AffineTransformationBase;
   using soma::NiftiReferential;
 
   nim->qform_code = NIFTI_XFORM_UNKNOWN;
@@ -535,15 +590,15 @@ void store_transformations_as_qform_and_sform(
 
   size_t nt = std::min(referentials->size(), transformations->size());
   std::vector<int> nifti_referentials( nt );
-  std::vector<AffineTransformation3dBase> mv( nt );
+  std::vector<AffineTransformationBase> mv( nt );
   if( nt > 0 )
-    mv[0] = AffineTransformation3dBase( transformations->getArrayItem(0) );
+    mv[0] = AffineTransformationBase( transformations->getArrayItem(0) );
 
   bool sform_is_a_copy_of_qform = false;
   for( size_t i=0; i<nt; ++i )
   {
     // Skip duplicate transformations
-    mv[i] = AffineTransformation3dBase( transformations->getArrayItem(i) );
+    mv[i] = AffineTransformationBase( transformations->getArrayItem(i) );
     nifti_referentials[i] = NiftiReferential( referentials->getArrayItem(i)->getString() );
     bool skip = false;
     for( size_t j=0; j<i; ++j )
@@ -556,7 +611,7 @@ void store_transformations_as_qform_and_sform(
     }
     if( !skip )
     {
-      AffineTransformation3dBase mot( mv[i] );
+      AffineTransformationBase mot( mv[i] );
       std::string ref = referentials->getArrayItem(i)->getString();
 
       int xform_code = NiftiReferential( ref );
@@ -628,7 +683,7 @@ void store_transformations_as_qform_and_sform(
   }
 }
 
-bool nifti_is_s2m_oriented(const soma::AffineTransformation3dBase& s2m,
+bool nifti_is_s2m_oriented(const soma::AffineTransformationBase& s2m,
                            nifti_image* nim,
                            bool nifti_strong_orientation)
 {
@@ -637,7 +692,7 @@ bool nifti_is_s2m_oriented(const soma::AffineTransformation3dBase& s2m,
   int icod, jcod, kcod;
   {
     // The Nifti convention (RAS+) is the opposite of soma-io (LIP+).
-    soma::AffineTransformation3dBase mi;
+    soma::AffineTransformationBase mi;
     mi.matrix()(0, 0) = mi.matrix()(1, 1) = mi.matrix()(2, 2) = -1;
     std::vector<float> mvec = (s2m * mi).toVector();
     mat44 S2M_m44;
@@ -717,7 +772,7 @@ void copy_referentials_and_transformations(const carto::Object& referentials,
   r2.reserve(nt);
   t2.reserve(nt);
   for( size_t i=0; i<nt; ++i ) {
-    soma::AffineTransformation3dBase mat(transformations->getArrayItem(i));
+    soma::AffineTransformationBase mat(transformations->getArrayItem(i));
     t2.push_back(mat.toVector());
     r2.push_back(referentials->getArrayItem(i)->getString());
   }
@@ -1270,8 +1325,8 @@ namespace soma
     if( header->getProperty( "b_values", bval )
       && header->getProperty( "diffusion_directions", bvec ) )
     {
-      AffineTransformation3dBase s2m;
-      std::unique_ptr<AffineTransformation3dBase> m2s;
+      AffineTransformationBase s2m;
+      std::unique_ptr<AffineTransformationBase> m2s;
       Object storage_to_memory;
       storage_to_memory = header->getProperty( "storage_to_memory" );
       s2m = storage_to_memory;
@@ -1296,14 +1351,9 @@ namespace soma
       // handle bvec coordinates system
       for( i=0; i<n; ++i )
       {
-        Point3df vec1( bvec[i][0],  bvec[i][1],  bvec[i][2] );
-        Point3df vec2 = m2s->transform( vec1 )
-          - m2s->transform( Point3df( 0, 0, 0 ) );
-        std::vector<float> vvec( 3, 0. );
-        vvec[0] = vec2[0];
-        vvec[1] = vec2[1];
-        vvec[2] = vec2[2];
-        dbvec.push_back( vvec );
+        std::vector<float> vec2 = m2s->transformVector( bvec[i] );
+        vec2.resize( 3, 0.f );
+        dbvec.push_back( vec2 );
       }
 
       bvecfile->open( DataSource::Write );
@@ -1382,7 +1432,7 @@ namespace soma
       hdr->getProperty( "sizeT", dims[3] );
     }
 
-    AffineTransformation3dBase s2m;
+    AffineTransformationBase s2m;
     try
     {
       Object storage_to_memory;
@@ -1393,6 +1443,7 @@ namespace soma
     {
       /* TODO */ // Should use 'spm_force_output_convention' and 'spm_output_radio_convention'
       /* TODO */ // and also see if 'spm_radio_convention' is present
+      s2m = AffineTransformationBase( 3 );
       s2m.matrix()(0,3) = dims[0] - 1;
       s2m.matrix()(1,3) = dims[1] - 1;
       s2m.matrix()(2,3) = dims[2] - 1;
@@ -1401,29 +1452,20 @@ namespace soma
       s2m.matrix()(2,2) = -1.0;
     }
 
-    std::unique_ptr<AffineTransformation3dBase> m2s = s2m.inverse();
-    Point3df df = m2s->transform( Point3df( dims[0], dims[1], dims[2] ) )
-        - m2s->transform( Point3df( 0, 0, 0 ) );
-    std::vector<int> tdims = dims;
-    tdims[0] = int( rint( fabs( df[0] ) ) );
-    tdims[1] = int( rint( fabs( df[1] ) ) );
-    tdims[2] = int( rint( fabs( df[2] ) ) );
+    std::unique_ptr<AffineTransformationBase> m2s = s2m.inverse();
+    std::vector<int> tdims = m2s->transformVector( dims );
+    size_t dim, ndim = dims.size();
+    for( dim=0; dim<ndim; ++dim )
+      tdims[dim] = std::abs( tdims[dim] );
     // fix s2m dims if needed (happens in case image dims have changed)
-    s2m.matrix()(0,3) = 0; // erase initial translation
-    s2m.matrix()(1,3) = 0;
-    s2m.matrix()(2,3) = 0;
-    Point3df p = s2m.transform( Point3df( tdims[0], tdims[1], tdims[2] ) ),
-      pp( 0. );
+    unsigned so = s2m.order();
+    for( dim=0; dim<so; ++dim )
+      s2m.matrix()( dim, so ) = 0; // erase initial translation
+    std::vector<int> p = s2m.transform( tdims );
 
-    if( p[0] < 0 )
-      pp[0] = -p[0] - 1;
-    if( p[1] < 0 )
-      pp[1] = -p[1] - 1;
-    if( p[2] < 0 )
-      pp[2] = -p[2] - 1;
-    s2m.matrix()(0,3) = pp[0];
-    s2m.matrix()(1,3) = pp[1];
-    s2m.matrix()(2,3) = pp[2];
+    for( dim=0; dim<ndim; ++dim )
+      if( p[dim] < 0 )
+        s2m.matrix()( dim, so ) = -p[dim] - 1;
 
     if( dims.size() > 7 )
       dims.resize( 7 );
@@ -1438,7 +1480,6 @@ namespace soma
       }
     }
 
-    size_t dim, ndim = dims.size();
     nim->ndim = nim->dim[0] = dims.size();
     for( dim=0; dim<ndim; ++dim )
       nim->dim[dim + 1] = tdims[dim];
@@ -1491,12 +1532,9 @@ namespace soma
     if( hdr->hasProperty( "tr" ) )
       vs[3] = hdr->getProperty( "tr" )->getScalar();
 
-    df = m2s->transform( Point3df( vs[0], vs[1], vs[2] ) )
-        - m2s->transform( Point3df( 0, 0, 0 ) );
-    std::vector<float> tvs = vs;
-    tvs[0] = fabs( df[0] );
-    tvs[1] = fabs( df[1] );
-    tvs[2] = fabs( df[2] );
+    std::vector<float> tvs = m2s->transformVector( vs );
+    for( dim=0; dim<tvs.size(); ++dim )
+      tvs[dim] = fabs( tvs[dim] );
 
     nim->pixdim[0] = 0;
     
@@ -1670,7 +1708,7 @@ namespace soma
     }
 
     // voxel size transformation in memory orientation
-    AffineTransformation3dBase voxsz;
+    AffineTransformationBase voxsz;
     voxsz.matrix()(0,0) = vs[0];
     voxsz.matrix()(1,1) = vs[1];
     voxsz.matrix()(2,2) = vs[2];
@@ -1744,7 +1782,7 @@ namespace soma
                      "to fix data orientation" << std::endl;
       }
 
-      AffineTransformation3dBase NIs2m_aims;
+      AffineTransformationBase NIs2m_aims;
       NIs2m_aims.matrix()( 0, 0 ) = -1; // invert all axes
       NIs2m_aims.matrix()( 1, 1 ) = -1;
       NIs2m_aims.matrix()( 2, 2 ) = -1;
