@@ -926,35 +926,20 @@ namespace soma
 
 
   ostream& operator << ( ostream& os,
-                        const soma::AffineTransformation3dBase & thing )
+                        const soma::AffineTransformationBase & thing )
   {
-  //   os << "{translation=" << thing.translation() << ", "<<endl
-  //      << "rotation=[[" << thing.rotation()(0,0)
-  //      << ", " << thing.rotation()(0,1)
-  //      << ", " << thing.rotation()(0,2)
-  //      << "]," << endl << "[" << thing.rotation()(1,0)
-  //      << ", " << thing.rotation()(1,1)
-  //      << ", " << thing.rotation()(1,2)
-  //      << "]," << endl << "[" << thing.rotation()(2,0)
-  //      << ", " << thing.rotation()(2,1)
-  //      << ", " << thing.rotation()(2,2)
-  //      << "]]}";
-
-    os << "[[ " << setw(8) << thing.matrix()(0,0)
-      << ", " << setw(8) << thing.matrix()(0,1)
-      << ",   " << setw(8) << thing.matrix()(0,2)
-      << ", " << setw(8) << thing.matrix()(0, 3)
-      << " ]," << endl
-      << " [ " << setw(8) << thing.matrix()(1,0)
-      << ", " << setw(8) << thing.matrix()(1,1)
-      << ",   " << setw(8) << thing.matrix()(1,2)
-      << ", " << setw(8) << thing.matrix()(1, 3)
-      << " ]," << endl
-      << " [ " << setw(8) << thing.matrix()(2,0)
-      << ", " << setw(8) << thing.matrix()(2,1)
-      << ",   " << setw(8) << thing.matrix()(2,2)
-      << ", " << setw(8) << thing.matrix()(2,3)
-      << " ]]";
+    os << "[";
+    size_t i, j, n = thing.order();
+    for( i=0; i<n + 1; ++i )
+    {
+      os << "[ ";
+      for( j=0; j<n; ++j )
+        os << setw(8) << thing.matrix()(i, j) << ", ";
+      os << setw(8) << thing.matrix()(i, n) << " ]";
+      if( i < n )
+        os << ",\n ";
+    }
+    os << "]";
 
     return os;
   }

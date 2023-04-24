@@ -297,7 +297,7 @@ namespace soma
 
   std::ostream&
     operator << ( std::ostream& os,
-                  const soma::AffineTransformation3dBase & thing );
+                  const soma::AffineTransformationBase & thing );
 
   inline Point3dd
   AffineTransformation3dBase::transformVector( double x, double y, double z ) const
