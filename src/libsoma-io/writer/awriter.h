@@ -133,6 +133,11 @@ namespace soma
 
     //@}
 
+    void setSyntax( const carto::SyntaxSet & rules )
+    { _rules = rules; }
+    const carto::SyntaxSet & getSyntax() const
+    { return _rules; }
+
   protected:
 
     //------------------------------------------------------------------------
