@@ -446,7 +446,7 @@ def convert_to_nifti_MR(serie, args, remove_corrupt_tags=True):
 
     converter = os.environ.get('DCM2NII', 'dcm2nii')
 
-    if converter != 'dcm2niix':
+    if not converter.endswith('dcm2niix'):
         check_call([converter, '-b', ini,
             '-o', tmpdir, os.path.dirname(serie[0])])
     else:
