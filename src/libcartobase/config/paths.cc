@@ -160,6 +160,9 @@ const string & Paths::globalShared()
     
     if( env_path )
       plist.push_back( env_path );
+    env_path = getenv( "CONDA_PREFIX" );
+    if( env_path )
+      plist.push_back( string(env_path) + FileUtil::separator() + "share"  );
     env_path = getenv( "SHFJ_SHARED_PATH" );
     if( env_path )
       plist.push_back( env_path );
