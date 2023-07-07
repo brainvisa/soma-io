@@ -68,9 +68,9 @@ namespace soma
   void MifImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     if(!dsi.header()->getProperty( "volume_dimension", _dims )
-       || dsi.privateIOData()->getProperty( "_mif_storage_strides", _strides )
-       || dsi.privateIOData()->getProperty( "_mif_data_offset", _data_offset )
-       || dsi.privateIOData()->getProperty( "_mif_byteswap", _byteswap )) {
+       || !dsi.privateIOData()->getProperty( "_mif_storage_strides", _strides )
+       || !dsi.privateIOData()->getProperty( "_mif_data_offset", _data_offset )
+       || !dsi.privateIOData()->getProperty( "_mif_byteswap", _byteswap )) {
       throw std::logic_error("missing fields that should have been set by MifFormatChecker");
     }
   }
