@@ -5,6 +5,7 @@ attributes = {
     'libsomanifti.so',
     'libsomadicom.so',
     'libsomatiff.so',
-    'libsomaminc.so'
-  ], 
+    'libsomaminc.so',
+    'libsomamif.so'
+  ],
 }
