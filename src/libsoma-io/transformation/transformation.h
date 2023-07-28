@@ -114,6 +114,9 @@ namespace soma
       throw std::logic_error("not implemented");
     }
 
+    /// true if the transformation is direct, false if it changes orientation
+    virtual bool isDirect() const = 0;
+
     /// vector arithmetics, as convenience static functions
     template <typename T>
     static std::vector<T> vadd( const std::vector<T> & v1,
