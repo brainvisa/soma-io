@@ -328,6 +328,58 @@ void AffineTransformationBase::setToIdentity()
 }
 
 
+namespace {
+  template <typename T> T _determinant(const AffineTransformationBase::Table<T>& matrix, unsigned n);
+
+  // Helper function for calculating the determinant (used in isDirect)
+  template <typename T> T determinant(const AffineTransformationBase::Table<T>& matrix) {
+    unsigned n = matrix.size() / matrix.ncols;
+    if(n != matrix.ncols) {
+      return 0.0;  // A non-square transform is neither direct nor indirect
+    }
+    if(n == 1) {
+      return matrix(0, 0);
+    } else {
+      return _determinant(matrix, n);
+    }
+  }
+
+  template <typename T> T _determinant(const AffineTransformationBase::Table<T>& matrix, unsigned n) {
+    if(n == 2) {
+      return matrix(0, 0) * matrix(1, 1) - matrix(0, 1) * matrix(1, 0);
+    } else {
+      T result = 0.0;
+      AffineTransformationBase::Table<T> tmp(n - 1, n - 1);
+      for(unsigned p = 0; p < n; ++p) {
+        unsigned h = 0, k = 0;
+        for(unsigned i = 1; i < n; ++i) {
+          for(unsigned j = 0; j < n; ++j) {
+            if(j == p) {
+              continue;
+            }
+            tmp(h, k) = matrix(i, j);
+            k++;
+            if(k == n-1) {
+              h++;
+              k = 0;
+            }
+          }
+        }
+        result += ((p%2==0) ? 1 : -1) * matrix(0, p) * _determinant(tmp, n - 1);
+      }
+      return result;
+    }
+  }
+}
+
+
+bool AffineTransformationBase::isDirect() const
+{
+  float det = determinant(_matrix);
+  return ( det >= 0 );
+}
+
+
 bool AffineTransformationBase::invertible() const
 {
   try
@@ -754,19 +806,6 @@ void AffineTransformation3dBase::scale( const Point3df& sizeFrom,
   _matrix( 2, 3 ) /= sizeTo[ 2 ];
 }
 
-
-
-//-----------------------------------------------------------------------------
-bool AffineTransformation3dBase::isDirect() const
-{
-  float	det = _matrix(0,0) * ( _matrix(1,1) * _matrix(2,2)
-                               - _matrix(2,1) * _matrix(1,2) )
-    + _matrix(1,0) * ( _matrix(2,1) * _matrix(0,2)
-                       - _matrix(0,1) * _matrix(2,2) )
-    + _matrix(2,0) * ( _matrix(0,1) * _matrix(1,2)
-                       - _matrix(1,1) * _matrix(0,2) );
-  return( det >= 0 );
-}
 
 
 //-----------------------------------------------------------------------------
