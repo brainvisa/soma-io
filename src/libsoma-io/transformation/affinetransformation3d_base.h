@@ -111,6 +111,8 @@ namespace soma
     bool isIdentity() const CARTO_OVERRIDE;
     virtual void setToIdentity();
 
+    bool isDirect() const override;
+
     bool invertible() const CARTO_OVERRIDE;
     std::unique_ptr<AffineTransformationBase> inverse() const;
     std::unique_ptr<Transformation> getInverse() const CARTO_OVERRIDE;
@@ -255,8 +257,6 @@ namespace soma
     bool invertible() const CARTO_OVERRIDE;
     std::unique_ptr<Transformation> getInverse() const CARTO_OVERRIDE;
     virtual void scale( const Point3df& sizeFrom, const Point3df& sizeTo );
-    /// true if the transformation is direct, false if it changes orientation
-    bool isDirect() const;
 
     //Initialisation
     void setTranslation(Point3df trans);
