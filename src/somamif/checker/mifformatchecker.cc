@@ -464,10 +464,6 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   if(layout.size() != ndims) {
     throw invalid_format_error("Invalid MIF file: layout vs dim inconsistency", hds.url());
   }
-  // axis_inversions: boolean, one element per dimension, if the dimension should be flipped upon reading
-  // stride_order: nonnegative integer, order of inscreasing strides
-  vector<char> axis_inversions(ndims);  // vector<bool> is evil, use char instead
-  vector<unsigned int> stride_order(ndims);
   vector<int> readable_data_layout(ndims); // As displayed by mrinfo (1-based)
   for(size_t i = 0; i < ndims; ++i) {
     string element = layout[i];
@@ -493,14 +489,12 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
     if(axis_index < 0 || static_cast<std::size_t>(axis_index) >= ndims) {
       throw invalid_format_error("Invalid MIF file: invalid 'layout' field", hds.url());
     }
-    readable_data_layout[i] = invert_to_ras ? (axis_index + 1) : -(axis_index + 1);
+    readable_data_layout[i] = invert_to_ras ? -(axis_index + 1) : (axis_index + 1);
     if(i < 3) {
       invert_to_lpi = !invert_to_ras;
     } else {
       invert_to_lpi = invert_to_ras;
     }
-    stride_order[i] = axis_index;
-    axis_inversions[i] = invert_to_lpi;
     if(i < storage_to_memory_order) {
       storage_to_lpi.matrix()(i, i) = 0;
       if(static_cast<std::size_t>(axis_index) < storage_to_memory_order) {
@@ -513,20 +507,6 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   }
   hdr->setProperty( "mif_data_layout", readable_data_layout );
   hdr->setProperty( "storage_to_memory", storage_to_lpi.toVector() );
-
-  vector<ptrdiff_t> strides(ndims);  // expressed in number of elements, _not_ bytes
-  long current_stride = 1;
-  for(unsigned int i = 0; i < ndims; ++i) {
-    auto it = find(begin(stride_order), end(stride_order), i);
-    if(it == end(stride_order)) {
-      throw invalid_format_error("Invalid MIF header: invalid 'layout' field", hds.url());
-    }
-    int index = it - begin(stride_order);
-    bool invert = static_cast<bool>(axis_inversions[index]);
-    strides[index] = current_stride * (invert ? -1 : 1);
-    current_stride *= dims[index];
-  }
-  hdr->setProperty( "_mif_storage_strides", strides );
 
   /**************************/
   /* OPTIONAL HEADER FIELDS */
@@ -676,14 +656,13 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
       return dsi;
 
     dsi.header() = _buildHeader( *hds );
-    dsi.privateIOData()->setProperty("_mif_storage_strides",
-      dsi.header()->getProperty("_mif_storage_strides"));
+    dsi.privateIOData()->setProperty("_mif_data_layout",
+      dsi.header()->getProperty("mif_data_layout"));
     dsi.privateIOData()->setProperty("_mif_data_offset",
       dsi.header()->getProperty("_mif_data_offset"));
     dsi.privateIOData()->setProperty("_mif_byteswap",
       dsi.header()->getProperty("byte_swapping"));
     if(!mif_debug_enabled) {
-      dsi.header()->removeProperty("_mif_storage_strides");
       dsi.header()->removeProperty("_mif_data_offset");
       dsi.header()->removeProperty("_mif_byteswap");
     }

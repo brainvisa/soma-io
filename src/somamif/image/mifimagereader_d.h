@@ -71,7 +71,7 @@ namespace soma
   void MifImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     if(!dsi.header()->getProperty( "volume_dimension", _dims )
-       || !dsi.privateIOData()->getProperty( "_mif_storage_strides", _lpi_to_storage_strides )
+       || !dsi.privateIOData()->getProperty( "_mif_data_layout", _data_layout )
        || !dsi.privateIOData()->getProperty( "_mif_data_offset", _data_offset )
        || !dsi.privateIOData()->getProperty( "_mif_byteswap", _byteswap )) {
       localMsg("missing/incorrect fields that should have been set by MifFormatChecker");
@@ -94,7 +94,7 @@ namespace soma
   void MifImageReader<T>::resetParams()
   {
     _dims.clear();
-    _lpi_to_storage_strides.clear();
+    _data_layout.clear();
   }
 
   //==========================================================================
@@ -294,12 +294,14 @@ namespace soma
              + "\nsize = " + toString(size)
              + "\nstride = " + toString(strides_to_lpi)
              + "\n_mif_data_offset = " + toString(_data_offset)
-             + "\n_mif_storage_strides = " + toString(_lpi_to_storage_strides)
+             + "\n_mif_data_layout = " + toString(_data_layout)
              + "\n_mif_byteswap = " + toString(_byteswap)
              + "\nvolume_dimension = " + toString(_dims) + "\n");
 
     if( _dims.empty() )
       updateParams( dsi );
+
+    assert(_dims == size);
 
     auto data_ds = dsi.list().dataSource("data");
     if(!data_ds->isOpen()) {
@@ -314,26 +316,32 @@ namespace soma
       dsi.header()->setProperty( "scale_factor_applied", true );
     }
 
-    ///
-    /// 2023-09-07 TODO: simplify a lot : I don't need the actual "storage
-    /// strides", just the axis ordering such as stored in the header (or the
-    /// readable version) --> argsort can go
-    ///
     std::vector<std::ptrdiff_t> composite_strides;
     std::vector<int> storage_dims;
 
-    std::vector<size_t> storage_order = argsort_abs(_lpi_to_storage_strides);
+    std::vector<size_t> storage_order = argsort_abs(_data_layout);
     std::size_t total_size = 1;
     std::size_t origin_offset = 0;
-    for(auto it = begin(storage_order), ite = end(storage_order); it != ite; ++it) {
-      storage_dims.push_back(_dims[*it]);
-      if(_lpi_to_storage_strides[*it] < 0) {
-        origin_offset += strides_to_lpi[*it] * (_dims[*it] - 1);
-        composite_strides.push_back(-strides_to_lpi[*it]);
+    for(size_t i = 0; i < storage_order.size(); ++i) {
+      size_t axis_index = storage_order[i];
+      assert(axis_index < _dims.size());
+      assert(axis_index < strides_to_lpi.size());
+      storage_dims.push_back(_dims[axis_index]);
+      bool invert_axis;
+      if(i < 3) {
+        // MIF data layout points to RAS+, whereas AIMS uses LPI+, so the
+        // orientation of the first 3 (spatial) axes is inverted
+        invert_axis = (_data_layout[axis_index] > 0);
       } else {
-        composite_strides.push_back(strides_to_lpi[*it]);
+        invert_axis = (_data_layout[axis_index] < 0);
       }
-      total_size *= _dims[*it];
+      if(invert_axis) {
+        origin_offset += strides_to_lpi[axis_index] * (_dims[axis_index] - 1);
+        composite_strides.push_back(-strides_to_lpi[axis_index]);
+      } else {
+        composite_strides.push_back(strides_to_lpi[axis_index]);
+      }
+      total_size *= _dims[axis_index];
     }
 
     localMsg(__func__ + std::string(" derived:")

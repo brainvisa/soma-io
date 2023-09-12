@@ -80,7 +80,7 @@ namespace soma
                      std::vector<long> & stride,
                      carto::Object options = carto::none() );
       std::vector<int>  _dims ;
-      std::vector<ptrdiff_t> _lpi_to_storage_strides;
+      std::vector<int> _data_layout;
       size_t _data_offset;
       bool _byteswap;
       bool _scaling;
