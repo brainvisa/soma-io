@@ -45,11 +45,14 @@
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
 #include <cartobase/type/datatypetraits.h>              // datatypetraits
-#include <cartobase/type/voxelrgb.h>
+#include <cartobase/type/byte_order.h>
 #include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
+#include <algorithm>
+#include <cassert>
 #include <stdexcept>
 #include <memory>
+#include <numeric>
 #include <vector>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
@@ -68,10 +71,22 @@ namespace soma
   void MifImageReader<T>::updateParams( DataSourceInfo & dsi )
   {
     if(!dsi.header()->getProperty( "volume_dimension", _dims )
-       || !dsi.privateIOData()->getProperty( "_mif_storage_strides", _strides )
+       || !dsi.privateIOData()->getProperty( "_mif_storage_strides", _lpi_to_storage_strides )
        || !dsi.privateIOData()->getProperty( "_mif_data_offset", _data_offset )
        || !dsi.privateIOData()->getProperty( "_mif_byteswap", _byteswap )) {
-      throw std::logic_error("missing fields that should have been set by MifFormatChecker");
+      localMsg("missing/incorrect fields that should have been set by MifFormatChecker");
+      throw std::logic_error("missing/incorrect fields that should have been set by MifFormatChecker");
+    }
+    if(dsi.header()->hasProperty( "scale_factor" )
+       && dsi.header()->hasProperty( "scale_offset" )) {
+      _scaling = true;
+      if(!dsi.header()->getProperty( "scale_factor", _scale_factor)
+         || !dsi.header()->getProperty( "scale_offset", _scale_offset)) {
+      localMsg("incorrect scaling fields");
+        throw std::logic_error("missing/incorrect fields that should have been set by MifFormatChecker");
+      }
+    } else {
+      _scaling = false;
     }
   }
 
@@ -79,7 +94,7 @@ namespace soma
   void MifImageReader<T>::resetParams()
   {
     _dims.clear();
-    _strides.clear();
+    _lpi_to_storage_strides.clear();
   }
 
   //==========================================================================
@@ -119,6 +134,9 @@ namespace soma
     std::string dt;
     dsi.header()->getProperty( "disk_data_type", dt );
 
+    // TODO this is very wasteful: all combinations of raw/scaled datatypes are
+    // instanciated, whereas only FLOAT and DOUBLE are really used
+
     if( dt == "S16" )
       readType<int16_t>( dest, dsi, pos, size, stride, options );
     else if( dt == "FLOAT" )
@@ -139,7 +157,6 @@ namespace soma
       throw carto::datatype_format_error( dsi.url() );
   }
 
-#if 0  // TODO remove if superfluous
   // specialize complex
   template <>
   void MifImageReader<cfloat>::read( cfloat * dest,
@@ -181,7 +198,6 @@ namespace soma
     else
       throw carto::datatype_format_error( dsi.url() );
   }
-#endif
 }
 
 
@@ -212,17 +228,76 @@ namespace
 }
 
 
+namespace std
+{
+  // For debugging
+  template <typename T>
+  ostream& operator << (ostream& os, std::vector<T> const & vec) {
+    os << "[";
+    auto it = begin(vec);
+    if(it != end(vec)) {
+      os << *it;
+      ++it;
+    }
+    for(; it != end(vec); ++it) {
+      os << ", ";
+      os << *it;
+    }
+    os << "]";
+    return os;
+  }
+}
+
+namespace { // for file-local helper functions
+
+template <typename SequenceT>
+std::vector<size_t> argsort_abs(SequenceT const & values) {
+  std::vector<size_t> ret(values.size());
+  std::iota(begin(ret), end(ret), 0);
+  std::sort(begin(ret), end(ret), [values](auto a, auto b) -> bool {
+    return std::abs(values[a]) < std::abs(values[b]);
+  });
+  return ret;
+}
+
+template <typename T, typename DiskT>
+T apply_scaling(DiskT raw_value, float _scale_factor, float _scale_offset)
+{
+  return raw_value * _scale_factor + _scale_offset;
+}
+
+template <>
+std::complex<double> apply_scaling(std::complex<double> raw_value,
+                                   float _scale_factor, float _scale_offset)
+{
+  return raw_value * static_cast<double>(_scale_factor) + static_cast<double>(_scale_offset);
+}
+
+
+} // end of anonymous namespace for file-local helper functions
+
+
 namespace soma
 {
 
   template <typename T>
-  template <typename U>
+  template <typename DiskT>
   void MifImageReader<T>::readType( T *const dest, DataSourceInfo & dsi,
                                     std::vector<int> & pos,
                                     std::vector<int> & size,
-                                    std::vector<long> & stride,
+                                    std::vector<long> & strides_to_lpi,
                                     carto::Object /* options */ )
   {
+    // strides are given in LPI orientation
+    localMsg(__func__ + std::string(" called with:")
+             + "\npos = " + toString(pos)
+             + "\nsize = " + toString(size)
+             + "\nstride = " + toString(strides_to_lpi)
+             + "\n_mif_data_offset = " + toString(_data_offset)
+             + "\n_mif_storage_strides = " + toString(_lpi_to_storage_strides)
+             + "\n_mif_byteswap = " + toString(_byteswap)
+             + "\nvolume_dimension = " + toString(_dims) + "\n");
+
     if( _dims.empty() )
       updateParams( dsi );
 
@@ -235,19 +310,75 @@ namespace soma
       throw read_write_error("MIF reader cannot seek to the data offset");
     }
 
-    size_t total_size = sizeof(T);
-    for(auto it = begin(_dims); it != end(_dims); ++it)
-      total_size *= *it;
+    if(_scaling) {
+      dsi.header()->setProperty( "scale_factor_applied", true );
+    }
 
-    // FIXME: obviously this does not handle any shape, strides,
-    // byteswapping, or scaling whatsoever
-    std::clog << "MIF byteswap: " << _byteswap << std::endl;
-    char * const dest_begin = reinterpret_cast<char*>(dest);
-    char * dest_cur = reinterpret_cast<char*>(dest);
-    while(dest_cur < dest_begin + total_size && !!(*data_ds)) {
-      std::size_t bytes_read = data_ds->readBlock(dest_cur, total_size);
-      localMsg("read " + toString(bytes_read) + " bytes");
-      dest_cur += bytes_read;
+    ///
+    /// 2023-09-07 TODO: simplify a lot : I don't need the actual "storage
+    /// strides", just the axis ordering such as stored in the header (or the
+    /// readable version) --> argsort can go
+    ///
+    std::vector<std::ptrdiff_t> composite_strides;
+    std::vector<int> storage_dims;
+
+    std::vector<size_t> storage_order = argsort_abs(_lpi_to_storage_strides);
+    std::size_t total_size = 1;
+    std::size_t origin_offset = 0;
+    for(auto it = begin(storage_order), ite = end(storage_order); it != ite; ++it) {
+      storage_dims.push_back(_dims[*it]);
+      if(_lpi_to_storage_strides[*it] < 0) {
+        origin_offset += strides_to_lpi[*it] * (_dims[*it] - 1);
+        composite_strides.push_back(-strides_to_lpi[*it]);
+      } else {
+        composite_strides.push_back(strides_to_lpi[*it]);
+      }
+      total_size *= _dims[*it];
+    }
+
+    localMsg(__func__ + std::string(" derived:")
+             + "\ntotal_size = " + toString(total_size)
+             + "\nstorage_order = " + toString(storage_order)
+             + "\ncomposite_strides = "+ toString(composite_strides)
+             + "\norigin_offset = " + toString(origin_offset) + "\n");
+
+    // The file is read by blocks of a fixed size
+    const std::size_t block_size = 1048576; // 1 million elements (1024^2)
+    DiskT buffer[block_size];
+    std::size_t elements_remaining = total_size;
+    //auto buffer = std::make_unique<char[]>(block_size);
+    carto::NDIterator<T> dest_it(dest + origin_offset, storage_dims,
+                                 composite_strides);
+    ByteSwapper swapper;
+    swapper.setSwapped(_byteswap);
+
+    std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
+    while(!dest_it.ended()) {
+      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer),
+                                            std::min(sizeof(buffer),
+                                                     elements_remaining * sizeof(DiskT)));
+      if(bytes_avail <= 0) {
+        throw read_write_error("cannot read enough data (premature end of file?)");
+      } else if(bytes_avail % sizeof(DiskT) != 0) {
+        throw std::runtime_error("unhandled corner case: readBlock returned a "
+                                 "non-multiple of dtype size");
+      }
+      const DiskT * const buffer_end = reinterpret_cast<DiskT*>(reinterpret_cast<char*>(buffer) + bytes_avail);
+
+      for(DiskT * buf_ptr = buffer ; buf_ptr < buffer_end; ++buf_ptr) {
+        T * dest_ptr = &(*dest_it);
+        assert(dest_ptr >= dest);
+        assert(dest_ptr < dest + dest_size);
+        DiskT raw_value = *buf_ptr;
+        swapper.reorder(raw_value);
+        if(_scaling) {
+          *dest_it = apply_scaling<T>(raw_value, _scale_factor, _scale_offset);
+        } else {
+          *dest_it = raw_value;
+        }
+        ++dest_it;
+      }
+      elements_remaining -= (buffer_end - buffer);
     }
   }
 

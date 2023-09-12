@@ -224,6 +224,8 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
 }
 
 
+namespace {  // for file-local helper functions
+
 string get_unique_mif_header_field(const unordered_map<string, list<string>> &raw_header,
                                    const string& field_name, const string& filename)
 {
@@ -261,7 +263,7 @@ vector<Element> parse_comma_separated_string(const string& str,
     }
     result.push_back(element);
   }
-  return move(result);
+  return result;
 }
 
 
@@ -272,6 +274,8 @@ vector<Element> parse_comma_separated_field(const unordered_map<string, list<str
   string raw_value = get_unique_mif_header_field(raw_header, field_name, filename);
   return parse_comma_separated_string<Element>(raw_value, field_name, filename);
 }
+
+} // end of anonymous namespace for file-local helper functions
 
 
 /*** BUILDING HEADER *********************************************************
@@ -430,16 +434,16 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
     throw datatype_format_error("Unrecognized MIF data type "
                                 + datatype, hds.url());
   }
-  bool bswap = false;
-  const string byte_order = byteOrderString();
-  if(endian == "le") {
-    if(byte_order != "DCBA" /* little endian */)
-      bswap = true;
+  bool bswap;
+  if(endian.empty()) {
+    bswap = false; // native endianness
+  } else if(endian == "le") {
+    bswap = (std::string(byteOrderString()) != "DCBA" /* little endian */);
   } else if(endian == "be") {
-    if(byte_order != "ABCD" /* big endian */)
-      bswap = true;
+    bswap = (std::string(byteOrderString()) != "ABCD" /* big endian */);
   } else {
-    throw datatype_format_error("Unrecognized MIF data type " + datatype, hds.url());
+    throw datatype_format_error("Unrecognized MIF data type endianness " + datatype,
+                                hds.url());
   }
   localMsg("type: " + type + ", sz: " + carto::toString(sz));
 
@@ -455,6 +459,8 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   // (LPI+). As a result, we can simply flip the inversion flag (+/- prefix in
   // the layout field) but consider the axis indices as column indices into the
   // storage_to_memory matrix.
+  const size_t storage_to_memory_order = ndims;  // FIXME: or 3????
+  AffineTransformationBase storage_to_lpi(ndims);
   if(layout.size() != ndims) {
     throw invalid_format_error("Invalid MIF file: layout vs dim inconsistency", hds.url());
   }
@@ -462,17 +468,18 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   // stride_order: nonnegative integer, order of inscreasing strides
   vector<char> axis_inversions(ndims);  // vector<bool> is evil, use char instead
   vector<unsigned int> stride_order(ndims);
-  for(int i = 0; i < ndims; ++i) {
+  vector<int> readable_data_layout(ndims); // As displayed by mrinfo (1-based)
+  for(size_t i = 0; i < ndims; ++i) {
     string element = layout[i];
-    bool invert;  // w.r.t. the AIMS referential
+    bool invert_to_ras, invert_to_lpi;
     if(element[0] == '-') {
-      invert = false;
+      invert_to_ras = true;
       element = element.substr(1);
     } else if(element[1] == '+') {
-      invert = true;
+      invert_to_ras = false;
       element = element.substr(1);
     } else {
-      invert = true;  // assume +
+      invert_to_ras = false;  // assume +
     }
     int axis_index;
     {
@@ -483,13 +490,29 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
         throw invalid_format_error("Invalid MIF header: invalid 'layout' field", hds.url());
       }
     }
-    if(axis_index < 0 || axis_index >= ndims) {
+    if(axis_index < 0 || static_cast<std::size_t>(axis_index) >= ndims) {
       throw invalid_format_error("Invalid MIF file: invalid 'layout' field", hds.url());
     }
+    readable_data_layout[i] = invert_to_ras ? (axis_index + 1) : -(axis_index + 1);
+    if(i < 3) {
+      invert_to_lpi = !invert_to_ras;
+    } else {
+      invert_to_lpi = invert_to_ras;
+    }
     stride_order[i] = axis_index;
-    axis_inversions[i] = invert;
+    axis_inversions[i] = invert_to_lpi;
+    if(i < storage_to_memory_order) {
+      storage_to_lpi.matrix()(i, i) = 0;
+      if(static_cast<std::size_t>(axis_index) < storage_to_memory_order) {
+        storage_to_lpi.matrix()(i, axis_index) = invert_to_lpi ? -1.0 : 1.0;
+      }
+      if(invert_to_lpi) {
+        storage_to_lpi.matrix()(i, storage_to_memory_order) = dims[i] - 1;
+      }
+    }
   }
-  hdr->setProperty( "mif_layout", layout );
+  hdr->setProperty( "mif_data_layout", readable_data_layout );
+  hdr->setProperty( "storage_to_memory", storage_to_lpi.toVector() );
 
   vector<ptrdiff_t> strides(ndims);  // expressed in number of elements, _not_ bytes
   long current_stride = 1;
@@ -505,11 +528,11 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   }
   hdr->setProperty( "_mif_storage_strides", strides );
 
-
   /**************************/
   /* OPTIONAL HEADER FIELDS */
   /**************************/
 
+  string dt = type;
   /* Scaling parameter: slope, intercept */
   auto header_it = raw_header.find("scaling");
   if(header_it != end(raw_header)) {
@@ -519,7 +542,6 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
     }
     float offset = scaling_params[0];
     float slope = scaling_params[1];
-    string dt = type;
     if ( slope != 0.0 )
     {
       hdr->setProperty( "scale_factor", slope );
@@ -527,19 +549,20 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
       if( type != "DOUBLE" )
         dt = "FLOAT";
     }
-    hdr->setProperty( "data_type", dt );
     hdr->setProperty( "scale_factor_applied", false );
-    vector<string> vt;
-    vt.push_back( dt );
-    if( dt != type )
-      vt.push_back( type );
-    if( dt != "FLOAT" )
-      vt.push_back( "FLOAT" );
-    if( dt != "DOUBLE" )
-      vt.push_back( "DOUBLE" );
-    hdr->setProperty( "possible_data_types", vt );
   }
 
+  // Data type
+  hdr->setProperty( "data_type", dt );
+  vector<string> vt;
+  vt.push_back( dt );
+  if( dt != type )
+    vt.push_back( type );
+  if( dt != "FLOAT" )
+    vt.push_back( "FLOAT" );
+  if( dt != "DOUBLE" )
+    vt.push_back( "DOUBLE" );
+  hdr->setProperty( "possible_data_types", vt );
 
   header_it = raw_header.find("transform");
   if(header_it != end(raw_header)) {
@@ -695,14 +718,7 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
   {
     localMsg ("Writing capabilities..." );
     dsi.capabilities().setMemoryMapping( false );
-//     try
-//     {
-//       if( !(bool) dsi.header()->getProperty( "byte_swapping" )->getScalar() )
-//         dsi.capabilities().setMemoryMapping( true );
-//     }
-//     catch( ... ) {}
-
-    dsi.capabilities().setDataSource( dsi.list().dataSource( "data" ) );  // ??
+    //dsi.capabilities().setDataSource( dsi.list().dataSource( "data" ) );  // ?? maybe for memory mapping?
     dsi.capabilities().setThreadSafe( false ); /* TODO */
     dsi.capabilities().setOrdered( true ); // FIXME: what does that mean??
     dsi.capabilities().setSeekVoxel( false );
@@ -710,7 +726,7 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setSeekSlice( false );
     dsi.capabilities().setSeekVolume( false );
     dsi.capabilities().setRandomAccessEfficient( false );
-    dsi.capabilities().setHandleStrides( false );
+    dsi.capabilities().setHandleStrides( true );
   }
   //--------------------------------------------------------------------------
   localMsg( "Checking done" );
