@@ -134,25 +134,74 @@ namespace soma
     std::string dt;
     dsi.header()->getProperty( "disk_data_type", dt );
 
-    // TODO this is very wasteful: all combinations of raw/scaled datatypes are
-    // instanciated, whereas only FLOAT and DOUBLE are really used
+    if( dt == DataTypeCode<T>::name() )
+      readType<T>( dest, dsi, pos, size, stride, options );
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
 
-    if( dt == "S16" )
-      readType<int16_t>( dest, dsi, pos, size, stride, options );
-    else if( dt == "FLOAT" )
+  // Specialized case for float and double: may be used to read any scalar disk
+  // data type when scaling is used
+  template <>
+  void MifImageReader<float>::read( float * dest, DataSourceInfo & dsi,
+                                    std::vector<int> & pos,
+                                    std::vector<int> & size,
+                                    std::vector<long> & stride,
+                                    carto::Object      options )
+  {
+    if( _dims.empty() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "FLOAT" )
       readType<float>( dest, dsi, pos, size, stride, options );
     else if( dt == "S8" )
       readType<int8_t>( dest, dsi, pos, size, stride, options );
     else if( dt == "U8" )
       readType<uint8_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S16" )
+      readType<int16_t>( dest, dsi, pos, size, stride, options );
     else if( dt == "U16" )
       readType<uint16_t>( dest, dsi, pos, size, stride, options );
     else if( dt == "S32" )
       readType<int32_t>( dest, dsi, pos, size, stride, options );
     else if( dt == "U32" )
       readType<uint32_t>( dest, dsi, pos, size, stride, options );
-    else if( dt == "DOUBLE" )
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
+  template <>
+  void MifImageReader<double>::read( double * dest, DataSourceInfo & dsi,
+                                     std::vector<int> & pos,
+                                     std::vector<int> & size,
+                                     std::vector<long> & stride,
+                                     carto::Object      options )
+  {
+    if( _dims.empty() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+
+    if( dt == "DOUBLE" )
       readType<double>( dest, dsi, pos, size, stride, options );
+    else if( dt == "FLOAT" )
+      readType<float>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S8" )
+      readType<int8_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U8" )
+      readType<uint8_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S16" )
+      readType<int16_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U16" )
+      readType<uint16_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "S32" )
+      readType<int32_t>( dest, dsi, pos, size, stride, options );
+    else if( dt == "U32" )
+      readType<uint32_t>( dest, dsi, pos, size, stride, options );
     else
       throw carto::datatype_format_error( dsi.url() );
   }
