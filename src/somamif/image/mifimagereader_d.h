@@ -351,10 +351,9 @@ namespace soma
              + "\norigin_offset = " + toString(origin_offset) + "\n");
 
     // The file is read by blocks of a fixed size
-    const std::size_t block_size = 1048576; // 1 million elements (1024^2)
-    DiskT buffer[block_size];
+    const std::size_t buffer_size = 1048576; // 1 million elements (1024^2)
+    std::unique_ptr<DiskT, std::default_delete<DiskT[]>> buffer(new DiskT[buffer_size]);
     std::size_t elements_remaining = total_size;
-    //auto buffer = std::make_unique<char[]>(block_size);
     carto::NDIterator<T> dest_it(dest + origin_offset, storage_dims,
                                  composite_strides);
     ByteSwapper swapper;
@@ -362,8 +361,8 @@ namespace soma
 
     std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
     while(!dest_it.ended()) {
-      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer),
-                                            std::min(sizeof(buffer),
+      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer.get()),
+                                            std::min(buffer_size * sizeof(DiskT),
                                                      elements_remaining * sizeof(DiskT)));
       if(bytes_avail <= 0) {
         throw read_write_error("cannot read enough data (premature end of file?)");
@@ -371,9 +370,9 @@ namespace soma
         throw std::runtime_error("unhandled corner case: readBlock returned a "
                                  "non-multiple of dtype size");
       }
-      const DiskT * const buffer_end = reinterpret_cast<DiskT*>(reinterpret_cast<char*>(buffer) + bytes_avail);
+      const DiskT * const buffer_end = reinterpret_cast<DiskT*>(reinterpret_cast<char*>(buffer.get()) + bytes_avail);
 
-      for(DiskT * buf_ptr = buffer ; buf_ptr < buffer_end; ++buf_ptr) {
+      for(DiskT * buf_ptr = buffer.get() ; buf_ptr < buffer_end; ++buf_ptr) {
         T * dest_ptr = &(*dest_it);
         assert(dest_ptr >= dest);
         assert(dest_ptr < dest + dest_size);
@@ -386,7 +385,7 @@ namespace soma
         }
         ++dest_it;
       }
-      elements_remaining -= (buffer_end - buffer);
+      elements_remaining -= (buffer_end - buffer.get());
     }
   }
 
