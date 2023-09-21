@@ -140,6 +140,32 @@ namespace soma
       throw carto::datatype_format_error( dsi.url() );
   }
 
+  template <>
+  void MifImageReader<uint8_t>::read( uint8_t * dest, DataSourceInfo & dsi,
+                                      std::vector<int> & pos,
+                                      std::vector<int> & size,
+                                      std::vector<long> & stride,
+                                      carto::Object      options )
+  {
+    if( _dims.empty() )
+      updateParams( dsi );
+
+    std::string dt;
+    dsi.header()->getProperty( "disk_data_type", dt );
+    int bits_allocated;
+    dsi.header()->getProperty( "bits_allocated", bits_allocated );
+
+    if( dt == "U8" ) {
+      if(bits_allocated == 1) {
+        readBitwise( dest, dsi, pos, size, stride, options );
+      } else {
+        readType<uint8_t>( dest, dsi, pos, size, stride, options );
+      }
+    }
+    else
+      throw carto::datatype_format_error( dsi.url() );
+  }
+
   // Specialized case for float and double: may be used to read any scalar disk
   // data type when scaling is used
   template <>
@@ -442,6 +468,109 @@ namespace soma
     }
   }
 
+  template <typename T>
+  void MifImageReader<T>::readBitwise( uint8_t *const dest, DataSourceInfo & dsi,
+                                       std::vector<int> & pos,
+                                       std::vector<int> & size,
+                                       std::vector<long> & strides_to_lpi,
+                                       carto::Object /* options */ )
+  {
+    // strides are given in LPI orientation
+    localMsg(__func__ + std::string(" called with:")
+             + "\npos = " + toString(pos)
+             + "\nsize = " + toString(size)
+             + "\nstride = " + toString(strides_to_lpi)
+             + "\n_mif_data_offset = " + toString(_data_offset)
+             + "\n_mif_data_layout = " + toString(_data_layout)
+             + "\n_mif_byteswap = " + toString(_byteswap)
+             + "\nvolume_dimension = " + toString(_dims) + "\n");
+
+    if( _dims.empty() )
+      updateParams( dsi );
+
+    const size_t ndims = _data_layout.size();
+    assert(_dims == size);
+    assert(strides_to_lpi.size() >= ndims);
+
+    auto data_ds = dsi.list().dataSource("data");
+    if(!data_ds->isOpen()) {
+      data_ds->open(DataSource::Read);
+    }
+    // Seek to the beginning of the data
+    if(!data_ds->at(_data_offset)) {
+      throw read_write_error("MIF reader cannot seek to the data offset");
+    }
+
+    if(_scaling) {
+      dsi.header()->setProperty( "scale_factor_applied", true );
+    }
+
+    std::vector<std::ptrdiff_t> composite_strides;
+    std::vector<int> storage_dims;
+
+    std::vector<size_t> storage_order = argsort_abs(_data_layout);
+    localMsg(__func__ + std::string(" derived:")
+             + "\nstorage_order = " + toString(storage_order));
+    std::size_t total_size = 1;
+    std::size_t origin_offset = 0;
+    for(size_t i = 0; i < ndims; ++i) {
+      size_t axis_index = storage_order[i];
+      assert(std::abs(_data_layout[axis_index]) == i + 1);
+      assert(axis_index < ndims);
+      storage_dims.push_back(_dims[axis_index]);
+      bool invert_axis;
+      if(axis_index < 3) {
+        // MIF data layout points to RAS+, whereas AIMS uses LPI+, so the
+        // orientation of the first 3 (spatial) axes is inverted
+        invert_axis = (_data_layout[axis_index] > 0);
+      } else {
+        invert_axis = (_data_layout[axis_index] < 0);
+      }
+      if(invert_axis) {
+        origin_offset += strides_to_lpi[axis_index] * (_dims[axis_index] - 1);
+        composite_strides.push_back(-strides_to_lpi[axis_index]);
+      } else {
+        composite_strides.push_back(strides_to_lpi[axis_index]);
+      }
+      total_size *= _dims[axis_index];
+    }
+
+    localMsg(__func__ + std::string(" derived:")
+             + "\ntotal_size = " + toString(total_size)
+             + "\nstorage_dims = " + toString(storage_dims)
+             + "\ncomposite_strides = "+ toString(composite_strides)
+             + "\norigin_offset = " + toString(origin_offset) + "\n");
+
+    // The file is read by blocks of a fixed size
+    const std::size_t buffer_size = 1048576; // 1 million elements (1024^2)
+    std::unique_ptr<uint8_t, std::default_delete<uint8_t[]>> buffer(new uint8_t[buffer_size]);
+    std::size_t elements_remaining = total_size;
+    carto::NDIterator<uint8_t> dest_it(dest + origin_offset, storage_dims,
+                                       composite_strides);
+
+    std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
+    while(!dest_it.ended()) {
+      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer.get()),
+                                            std::min(buffer_size * sizeof(uint8_t),
+                                                     elements_remaining * sizeof(uint8_t)));
+      if(bytes_avail <= 0) {
+        throw read_write_error("cannot read enough data (premature end of file?)");
+      }
+      const uint8_t * const buffer_end = reinterpret_cast<uint8_t*>(reinterpret_cast<char*>(buffer.get()) + bytes_avail);
+
+      for(uint8_t * buf_ptr = buffer.get() ; buf_ptr < buffer_end; ++buf_ptr) {
+        uint8_t * dest_ptr = &(*dest_it);
+        assert(dest_ptr >= dest);
+        assert(dest_ptr < dest + dest_size);
+        uint8_t raw_value = *buf_ptr;
+        for(int i = 0; (i < 8) && !dest_it.ended(); ++i) {
+          *dest_it = (raw_value & (0x80 >> i)) ? 1 : 0;
+          ++dest_it;
+        }
+      }
+      elements_remaining -= (buffer_end - buffer.get());
+    }
+  }
 
   template <typename T>
   ImageReader<T>* MifImageReader<T>::cloneReader() const

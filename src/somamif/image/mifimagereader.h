@@ -79,6 +79,11 @@ namespace soma
                      std::vector<int> & size,
                      std::vector<long> & stride,
                      carto::Object options = carto::none() );
+      void readBitwise( uint8_t * dest, DataSourceInfo & dsi,
+                        std::vector<int> & pos,
+                        std::vector<int> & size,
+                        std::vector<long> & stride,
+                        carto::Object options = carto::none() );
       std::vector<int>  _dims ;
       std::vector<int> _data_layout;
       size_t _data_offset;

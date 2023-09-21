@@ -395,9 +395,8 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   int sz;
   string endian;
   if(datatype == "bit") {
-    // TODO implement this datatype (will require some reverse engineering, as
-    // it is barely documented)
-    throw runtime_error("MIF image reader: unsupported datatype 'bit'");
+    type = "U8";
+    sz = 1;
   } else if(datatype == "int8") {
     type = "S8";
     sz = 8;
