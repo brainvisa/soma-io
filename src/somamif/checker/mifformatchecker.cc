@@ -48,6 +48,7 @@
 #include <cartobase/type/byte_order.h>
 //--- system -----------------------------------------------------------------
 #include <cstdio>
+#include <limits>
 #include <locale>
 #define SOMAIO_BYTE_ORDER 0x41424344 //"ABCD" in ascii -> used for byteswap
 //--- Boost! -----------------------------------------------------------------
@@ -258,8 +259,13 @@ vector<Element> parse_comma_separated_string(const string& str,
     ss.imbue(locale::classic());
     ss >> element;
     if(ss.fail()) {
-      throw invalid_format_error("Invalid MIF header: cannot parse field "
-                                 + field_name, filename);
+      boost::to_lower(*it, locale::classic());
+      if(*it == "nan") {
+        result.push_back(std::numeric_limits<Element>::quiet_NaN());
+      } else {
+        throw invalid_format_error("Invalid MIF header: cannot parse field "
+                                   + field_name, filename);
+      }
     }
     result.push_back(element);
   }
