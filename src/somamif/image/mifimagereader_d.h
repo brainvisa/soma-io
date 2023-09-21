@@ -350,9 +350,9 @@ namespace soma
     if( _dims.empty() )
       updateParams( dsi );
 
-    const size_t ndims = _dims.size();
+    const size_t ndims = _data_layout.size();
     assert(_dims == size);
-    assert(strides_to_lpi.size() == ndims);
+    assert(strides_to_lpi.size() >= ndims);
 
     auto data_ds = dsi.list().dataSource("data");
     if(!data_ds->isOpen()) {
@@ -371,6 +371,8 @@ namespace soma
     std::vector<int> storage_dims;
 
     std::vector<size_t> storage_order = argsort_abs(_data_layout);
+    localMsg(__func__ + std::string(" derived:")
+             + "\nstorage_order = " + toString(storage_order));
     std::size_t total_size = 1;
     std::size_t origin_offset = 0;
     for(size_t i = 0; i < ndims; ++i) {
@@ -397,7 +399,6 @@ namespace soma
 
     localMsg(__func__ + std::string(" derived:")
              + "\ntotal_size = " + toString(total_size)
-             + "\nstorage_order = " + toString(storage_order)
              + "\nstorage_dims = " + toString(storage_dims)
              + "\ncomposite_strides = "+ toString(composite_strides)
              + "\norigin_offset = " + toString(origin_offset) + "\n");
