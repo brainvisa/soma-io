@@ -350,7 +350,9 @@ namespace soma
     if( _dims.empty() )
       updateParams( dsi );
 
+    const size_t ndims = _dims.size();
     assert(_dims == size);
+    assert(strides_to_lpi.size() == ndims);
 
     auto data_ds = dsi.list().dataSource("data");
     if(!data_ds->isOpen()) {
@@ -371,13 +373,13 @@ namespace soma
     std::vector<size_t> storage_order = argsort_abs(_data_layout);
     std::size_t total_size = 1;
     std::size_t origin_offset = 0;
-    for(size_t i = 0; i < storage_order.size(); ++i) {
+    for(size_t i = 0; i < ndims; ++i) {
       size_t axis_index = storage_order[i];
-      assert(axis_index < _dims.size());
-      assert(axis_index < strides_to_lpi.size());
+      assert(std::abs(_data_layout[axis_index]) == i + 1);
+      assert(axis_index < ndims);
       storage_dims.push_back(_dims[axis_index]);
       bool invert_axis;
-      if(i < 3) {
+      if(axis_index < 3) {
         // MIF data layout points to RAS+, whereas AIMS uses LPI+, so the
         // orientation of the first 3 (spatial) axes is inverted
         invert_axis = (_data_layout[axis_index] > 0);
@@ -396,6 +398,7 @@ namespace soma
     localMsg(__func__ + std::string(" derived:")
              + "\ntotal_size = " + toString(total_size)
              + "\nstorage_order = " + toString(storage_order)
+             + "\nstorage_dims = " + toString(storage_dims)
              + "\ncomposite_strides = "+ toString(composite_strides)
              + "\norigin_offset = " + toString(origin_offset) + "\n");
 
