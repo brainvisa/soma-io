@@ -61,12 +61,9 @@ namespace soma
 
 MifPlugin::MifPlugin() : Plugin()
 {
-    vector<string>  exts(5);
-    exts[0] = "nii";
-    exts[1] = "nii.gz";
-    exts[2] = "img";
-    exts[3] = "img.gz";
-    exts[4] = "hdr";
+    vector<string>  exts(2);
+    exts[0] = "mif";
+    exts[1] = "mif.gz";
 
     //////////////////////////////////////////////////////////////////////////
     ////                         C H E C K E R                            ////
