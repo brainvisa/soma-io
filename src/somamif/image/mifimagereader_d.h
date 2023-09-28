@@ -36,6 +36,7 @@
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/image/mifimagereader.h> // class declaration
 //--- soma-io ----------------------------------------------------------------
+#include <soma-io/nifticlib/znzlib/znzlib.h>
 #include <soma-io/config/soma_config.h>
 #include <soma-io/image/imagereader.h>                  // inheritance
 #include <soma-io/datasourceinfo/datasourceinfo.h>      // function's argument
@@ -45,6 +46,7 @@
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/object/object.h>                    // header, options
 #include <cartobase/type/datatypetraits.h>              // datatypetraits
+#include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/type/byte_order.h>
 #include <cartobase/containers/nditerator.h>
 //--- system -----------------------------------------------------------------
@@ -349,6 +351,25 @@ std::complex<double> apply_scaling(std::complex<double> raw_value,
 }
 
 
+class ZnzWrapper
+{
+public:
+  ZnzWrapper(znzFile fp) : _fp(fp) {};
+  ~ZnzWrapper()
+  {
+    if(!znz_isnull(_fp)) {
+      znzclose(_fp);
+      _fp = nullptr;
+    }
+  }
+
+  operator znzFile () { return _fp; };
+
+private:
+  znzFile _fp;
+};
+
+
 } // end of anonymous namespace for file-local helper functions
 
 
@@ -381,12 +402,20 @@ namespace soma
     assert(strides_to_lpi.size() >= ndims);
 
     auto data_ds = dsi.list().dataSource("data");
-    if(!data_ds->isOpen()) {
-      data_ds->open(DataSource::Read);
+    const std::string fname = FileUtil::uriFilename(data_ds->url());
+    bool gzip_compressed = false;
+    if(fname.length() >= 3 && fname.substr(fname.length() - 3) == ".gz") {
+      gzip_compressed = true;
     }
+
+    ZnzWrapper fp(znzopen(fname.c_str(), "rb", gzip_compressed));
+    if(znz_isnull(fp)) {
+      io_error::launchErrnoExcept( fname );
+    }
+
     // Seek to the beginning of the data
-    if(!data_ds->at(_data_offset)) {
-      throw read_write_error("MIF reader cannot seek to the data offset");
+    if(znzseek(fp, _data_offset, SEEK_SET) == -1) {
+      io_error::launchErrnoExcept( fname );
     }
 
     if(_scaling) {
@@ -440,10 +469,11 @@ namespace soma
 
     std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
     while(!dest_it.ended()) {
-      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer.get()),
-                                            std::min(buffer_size * sizeof(DiskT),
-                                                     elements_remaining * sizeof(DiskT)));
-      if(bytes_avail <= 0) {
+      size_t bytes_avail = znzread(buffer.get(), sizeof(char),
+                                   std::min(buffer_size * sizeof(DiskT),
+                                            elements_remaining * sizeof(DiskT)),
+                                   fp);
+      if(bytes_avail == 0) {
         throw read_write_error("cannot read enough data (premature end of file?)");
       } else if(bytes_avail % sizeof(DiskT) != 0) {
         throw std::runtime_error("unhandled corner case: readBlock returned a "
@@ -493,12 +523,20 @@ namespace soma
     assert(strides_to_lpi.size() >= ndims);
 
     auto data_ds = dsi.list().dataSource("data");
-    if(!data_ds->isOpen()) {
-      data_ds->open(DataSource::Read);
+    const std::string fname = FileUtil::uriFilename(data_ds->url());
+    bool gzip_compressed = false;
+    if(fname.length() >= 3 && fname.substr(fname.length() - 3) == ".gz") {
+      gzip_compressed = true;
     }
+
+    ZnzWrapper fp(znzopen(fname.c_str(), "rb", gzip_compressed));
+    if(znz_isnull(fp)) {
+      io_error::launchErrnoExcept( fname );
+    }
+
     // Seek to the beginning of the data
-    if(!data_ds->at(_data_offset)) {
-      throw read_write_error("MIF reader cannot seek to the data offset");
+    if(znzseek(fp, _data_offset, SEEK_SET) == -1) {
+      io_error::launchErrnoExcept( fname );
     }
 
     if(_scaling) {
@@ -550,10 +588,11 @@ namespace soma
 
     std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
     while(!dest_it.ended()) {
-      long bytes_avail = data_ds->readBlock(reinterpret_cast<char*>(buffer.get()),
-                                            std::min(buffer_size * sizeof(uint8_t),
-                                                     elements_remaining * sizeof(uint8_t)));
-      if(bytes_avail <= 0) {
+      size_t bytes_avail = znzread(buffer.get(),
+                                   std::min(buffer_size * sizeof(uint8_t),
+                                            elements_remaining * sizeof(uint8_t)),
+                                   sizeof(char), fp);
+      if(bytes_avail == 0) {
         throw read_write_error("cannot read enough data (premature end of file?)");
       }
       const uint8_t * const buffer_end = reinterpret_cast<uint8_t*>(reinterpret_cast<char*>(buffer.get()) + bytes_avail);

@@ -34,6 +34,7 @@
 //--- plugin -----------------------------------------------------------------
 #include <soma-io/checker/mifformatchecker.h> // class declaration
 //--- soma-io ----------------------------------------------------------------
+#include <soma-io/nifticlib/znzlib/znzlib.h>
 #include <soma-io/config/soma_config.h>
 #include <soma-io/datasourceinfo/datasourceinfoloader.h>
 #include <soma-io/datasourceinfo/datasourceinfo.h>
@@ -281,6 +282,37 @@ vector<Element> parse_comma_separated_field(const unordered_map<string, list<str
   return parse_comma_separated_string<Element>(raw_value, field_name, filename);
 }
 
+string getline( znzFile fp )
+{
+  string ret;
+  int c = znzgetc(fp);
+  while( c != EOF && c != '\n' && c != '\r' )
+    {
+      ret += static_cast<char>(c);
+      c = znzgetc(fp);
+    }
+  return ret;
+}
+
+class ZnzWrapper
+{
+public:
+  ZnzWrapper(znzFile fp) : _fp(fp) {};
+  ~ZnzWrapper()
+  {
+    if(!znz_isnull(_fp)) {
+      znzclose(_fp);
+      _fp = nullptr;
+    }
+  }
+
+  operator znzFile () { return _fp; };
+
+private:
+  znzFile _fp;
+};
+
+
 } // end of anonymous namespace for file-local helper functions
 
 
@@ -290,12 +322,16 @@ vector<Element> parse_comma_separated_field(const unordered_map<string, list<str
  ****************************************************************************/
 Object MifFormatChecker::_buildHeader( DataSource& hds ) const
 {
-  const string fname = hds.url();
+  const string fname = FileUtil::uriFilename(hds.url());
+  bool gzip_compressed = false;
+  if(fname.length() >= 3 && fname.substr(fname.length() - 3) == ".gz") {
+    gzip_compressed = true;
+  }
 
-  if( !hds.isOpen() )
-    hds.open( DataSource::Read );
-  if( !hds.isOpen() )
+  ZnzWrapper fp(znzopen(fname.c_str(), "rb", gzip_compressed));
+  if(znz_isnull(fp)) {
     io_error::launchErrnoExcept( fname );
+  }
 
   Object hdr = Object::value( PropertySet() );  // AIMS header
 
@@ -305,14 +341,14 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   unordered_map<string, list<string>> raw_header;
 
   string line;
-  StreamUtil::getline(hds, line);
+  line = getline(fp);
 
   if(line.substr(0, 12) != "mrtrix image")
     throw wrong_format_error( "Not an mrtrix MIF image", hds.url() );
 
   /* Read all header fields and store them ***********************************/
   while(line != "END") {
-    StreamUtil::getline(hds, line);
+    line = getline(fp);
     const size_t colon_pos = line.find(':');
     if(colon_pos != string::npos) {
       const string key = line.substr(0, colon_pos);
