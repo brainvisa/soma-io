@@ -5,7 +5,6 @@ using namespace soma;
 
 namespace
 {
-  // force using libaimsdicom.dylib on Mac
   bool __mifplugin = MifPlugin::noop();
 }
 
