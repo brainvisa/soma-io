@@ -74,7 +74,10 @@ namespace carto {
       bool operator != ( const VoxelValue<T,C> & ) const;
       bool operator == ( const T & ) const;
       bool operator != ( const T & ) const;
-      
+
+      // Since C++11 this operator is explicitly defaulted to avoid a warning
+      VoxelValue<T, C>& operator=(const VoxelValue<T, C>&) = default;
+
       //=== CONVERSION =======================================================
       operator bool() const;
 

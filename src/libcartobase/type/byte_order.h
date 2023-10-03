@@ -35,6 +35,7 @@
 #define CARTOBASE_TYPE_BYTE_ORDER_H
 
 #include <cartobase/config/cartobase_config.h>
+#include <complex>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -69,6 +70,8 @@ public:
   inline bool isSwapped() const { return _swap; }
   inline bool setSwapped( bool s ) { _swap = s; return _swap; }
 
+  inline void reorder( signed char &p ) const;
+  inline void reorder( unsigned char &p ) const;
   inline void reorder( short &p ) const;
   inline void reorder( unsigned short &p ) const;
   inline void reorder( int &p ) const;
@@ -80,6 +83,9 @@ public:
   inline void reorder( float &p ) const;
   inline void reorder( double &p ) const;
   inline void reorder( long double &p ) const;
+  inline void reorder( std::complex<float> &p ) const;
+  inline void reorder( std::complex<double> &p ) const;
+  inline void reorder( std::complex<long double> &p ) const;
 
   inline std::istream &read( std::istream &, short &p ) const;
   inline std::istream &read( std::istream &, unsigned short &p ) const;
@@ -184,6 +190,16 @@ std::ostream &ByteSwapper::_swappedWrite<16>( std::ostream &, char * );
 
 
 
+inline void ByteSwapper::reorder( signed char & ) const
+{
+  // Char is 1 byte, nothing to do
+}
+
+inline void ByteSwapper::reorder( unsigned char & ) const
+{
+  // Char is 1 byte, nothing to do
+}
+
 inline void ByteSwapper::reorder( short &p ) const 
 {
   if ( _swap ) _doSwap< sizeof(p) >( reinterpret_cast< char * >( &p ) );
@@ -237,6 +253,42 @@ inline void ByteSwapper::reorder( double &p ) const
 inline void ByteSwapper::reorder( long double &p ) const 
 {
   if ( _swap ) _doSwap< sizeof(p) >( reinterpret_cast< char * >( &p ) );
+}
+
+inline void ByteSwapper::reorder( std::complex<float> &p ) const
+{
+  if ( _swap ) {
+    float real = p.real();
+    reorder(real);
+    p.real(real);
+    float imag = p.imag();
+    reorder(imag);
+    p.imag(imag);
+  }
+}
+
+inline void ByteSwapper::reorder( std::complex<double> &p ) const
+{
+  if ( _swap ) {
+    double real = p.real();
+    reorder(real);
+    p.real(real);
+    double imag = p.imag();
+    reorder(imag);
+    p.imag(imag);
+  }
+}
+
+inline void ByteSwapper::reorder( std::complex<long double> &p ) const
+{
+  if ( _swap ) {
+    long double real = p.real();
+    reorder(real);
+    p.real(real);
+    long double imag = p.imag();
+    reorder(imag);
+    p.imag(imag);
+  }
 }
 
 
