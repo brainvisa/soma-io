@@ -84,17 +84,14 @@ constexpr bool mif_debug_enabled = false;
 void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
 {
   rc_ptr<DataSource> pds = dsl.dataSource();
-  string headername, dataname, minfname, basename;
+  string headername, minfname, basename;
   // headername is the name of the file containing the MIF header (.mif, .mif.gz, or .mih)
-  // dataname is the name of the data file (.mif, .mif.gz or any extension
-  // referenced in a .mih)
 
   headername = FileUtil::uriFilename( pds->url() );
   if( headername.empty() )
   {
     // we suppose ds is an uncompressed mif file
     dsl.addDataSource( "header", pds );
-    dsl.addDataSource( "data", pds );
   }
   else
   {
@@ -103,13 +100,9 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
     if( ext == "mif" )
     {
-      // headername = basename + ".mif";
-      dataname = headername;
     }
     else if( ext == "mih" )
     {
-      // headername = basename + ".mih";
-      dataname = basename + ".dat";  // FIXME: we have to read the header, the filename is stored in the file field
     }
     else if( ext == "gz" )
     {
@@ -118,8 +111,6 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
       {
         ext = "mif.gz";
         basename = FileUtil::removeExtension( basename );
-        // headername = basename + ".mif.gz";
-        dataname = headername;
       }
       else
       {
@@ -138,25 +129,21 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
     {
       if( FileUtil::fileStat( headername ).find( '+' ) != string::npos )
       {
-        dataname = basename;
       }
       else if( FileUtil::fileStat( headername + ".mif" ).find( '+' )
         != string::npos )
       {
         headername = basename + ".mif";
-        dataname = headername;
       }
       else if( FileUtil::fileStat( headername + ".mif.gz" ).find( '+' )
         != string::npos )
       {
         headername = basename + ".mif.gz";
-        dataname = headername;
       }
       else if( FileUtil::fileStat( headername + ".mih" ).find( '+' )
         != string::npos )
       {
         headername = basename + ".mih";
-        dataname = basename + ".dat";  // FIXME: we have to read the header, the filename is stored in the file field
       }
     }
 
@@ -183,32 +170,9 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
       }
     }
 
-    if( dataname == headername )
-    {
-      dsl.addDataSource( "data", dsl.dataSource( "header" ) );
-    }
-    else if( dataname == pds->url() )
-    {
-      // if dataname is original url
-      dsl.addDataSource( "data", pds );
-    }
-    else
-    {
-      if( FileUtil::fileStat( dataname ).find( '+' ) != string::npos )
-      {
-        // if data file exists
-        dsl.addDataSource( "data", rc_ptr<DataSource>
-            ( new FileDataSource( dataname ) ) );
-      }
-      else
-      {
-        // we suppose original url contains data
-        dsl.addDataSource( "data", pds );
-      }
-    }
+
   }
   localMsg( "header: " + dsl.dataSource( "header" )->url() );
-  localMsg( "data: " + dsl.dataSource( "data" )->url() );
 
   // Minf DataSource
   if( !minfname.empty()
@@ -384,24 +348,38 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   string file_and_offset = get_unique_mif_header_field(raw_header, "file", hds.url());
 
   /* File and offset */
-  vector<string> file_and_offset_vec;
-  boost::split(file_and_offset_vec, file_and_offset,
-               boost::is_space(locale::classic()), boost::token_compress_on);
-  if(file_and_offset_vec.size() != 2) {
-    throw invalid_format_error("Invalid MIF header: invalid 'file' field", hds.url());
-  }
-  if(file_and_offset_vec[0] != ".") {
-    throw runtime_error("Split MIF files (.mih + ...) are not supported."); // FIXME
-  }
   size_t data_offset;
-  {
-    std::istringstream ss(file_and_offset_vec[1]);
+  string mif_data_file;
+  auto last_space_it = find_if(rbegin(file_and_offset), rend(file_and_offset),
+                               boost::is_space(locale::classic()));
+  if(last_space_it != rend(file_and_offset)) {
+    // if there is a space
+    size_t last_space_pos = rend(file_and_offset) - last_space_it - 1;
+    mif_data_file = file_and_offset.substr(0, last_space_pos);
+    boost::trim(mif_data_file, locale::classic());
+    std::istringstream ss(file_and_offset.substr(last_space_pos + 1));
     ss.imbue(locale::classic());
     ss >> data_offset;
     if(ss.fail()) {
-      throw invalid_format_error("Invalid MIF header: invalid 'file' field", hds.url());
+      mif_data_file = file_and_offset;
+      data_offset = 0;
     }
   }
+  if(mif_data_file.empty()) {
+    // if there is no space
+    mif_data_file = file_and_offset;
+    boost::trim(mif_data_file, locale::classic());
+    if(mif_data_file == ".") {
+      // Data offset is mandatory for single-file data
+      throw invalid_format_error("Invalid MIF header: invalid 'file' field", hds.url());
+    } else if(mif_data_file.empty()) {
+      // Empty filename is not allowed
+      throw invalid_format_error("Invalid MIF header: invalid 'file' field", hds.url());
+    } else {
+      data_offset = 0;
+    }
+  }
+  hdr->setProperty("_mif_data_file", mif_data_file);
   hdr->setProperty("_mif_data_offset", data_offset);
 
   /* Dimensions of the image */
@@ -679,11 +657,10 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
   if( dolist )
   {
     localMsg( "Building list..." );
-    // TODO: read header to complete the list in case of split MIH+dat file
     _buildDSList( dsi.list() );
   }
   //--- build header ---------------------------------------------------------
-  if( doread )
+  if( doread || dolist )
   {
     localMsg( "Reading header..." );
     DataSource* hds = 0;
@@ -695,11 +672,23 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
     {
     }
     if( !hds )
-      hds = dsi.list().dataSource( "data" ).get();
-    if( !hds )
       return dsi;
 
     dsi.header() = _buildHeader( *hds );
+
+    string dataname;
+    dsi.header()->getProperty("_mif_data_file", dataname);
+    if(dataname == ".") {
+      dsi.list().addDataSource( "data", dsi.list().dataSource( "header" ) );
+    } else {
+      dataname = FileUtil::basename(dataname); // For security, only allow filenames in the same directory
+      dataname = FileUtil::dirname(FileUtil::uriFilename(hds->url()))
+        + FileUtil::separator() + dataname;
+      dsi.list().addDataSource("data", rc_ptr<DataSource>(new FileDataSource(dataname)));
+    }
+
+    localMsg( "data: " + dsi.list().dataSource( "data" )->url() );
+
     dsi.privateIOData()->setProperty("_mif_data_layout",
       dsi.header()->getProperty("mif_data_layout"));
     dsi.privateIOData()->setProperty("_mif_data_offset",
@@ -708,14 +697,7 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
       dsi.header()->getProperty("byte_swapping"));
     if(!mif_debug_enabled) {
       dsi.header()->removeProperty("_mif_data_offset");
-      dsi.header()->removeProperty("_mif_byteswap");
-    }
-    // move _nifti_structure to privateIOData
-    if( dsi.header()->hasProperty( "_nifti_structure" ) )
-    {
-      dsi.privateIOData()->setProperty( "nifti_structure",
-        dsi.header()->getProperty( "_nifti_structure" ) );
-      dsi.header()->removeProperty( "_nifti_structure" );
+      dsi.header()->removeProperty("_mif_data_file");
     }
 
     localMsg( "Reading MINF..." );
