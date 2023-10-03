@@ -282,22 +282,10 @@ vector<Element> parse_comma_separated_field(const unordered_map<string, list<str
   return parse_comma_separated_string<Element>(raw_value, field_name, filename);
 }
 
-string getline( znzFile fp )
-{
-  string ret;
-  int c = znzgetc(fp);
-  while( c != EOF && c != '\n' && c != '\r' )
-    {
-      ret += static_cast<char>(c);
-      c = znzgetc(fp);
-    }
-  return ret;
-}
-
 class ZnzWrapper
 {
 public:
-  ZnzWrapper(znzFile fp) : _fp(fp) {};
+  ZnzWrapper(znzFile fp) : _fp(fp), _eof(false) {};
   ~ZnzWrapper()
   {
     if(!znz_isnull(_fp)) {
@@ -307,9 +295,25 @@ public:
   }
 
   operator znzFile () { return _fp; };
+  string getline()
+  {
+    string ret;
+    int c = znzgetc(_fp);
+    while( c != EOF && c != '\n' && c != '\r' )
+    {
+      ret += static_cast<char>(c);
+      c = znzgetc(_fp);
+    }
+    if(c == EOF) {
+      _eof = true;
+    }
+    return ret;
+  }
+  bool eof() const { return _eof; };
 
 private:
   znzFile _fp;
+  bool _eof;
 };
 
 
@@ -340,15 +344,14 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   // same-key values is important.
   unordered_map<string, list<string>> raw_header;
 
-  string line;
-  line = getline(fp);
+  string line = fp.getline();
 
   if(line.substr(0, 12) != "mrtrix image")
     throw wrong_format_error( "Not an mrtrix MIF image", hds.url() );
 
   /* Read all header fields and store them ***********************************/
-  while(line != "END") {
-    line = getline(fp);
+  while(line != "END" && !fp.eof()) {
+    line = fp.getline();
     const size_t colon_pos = line.find(':');
     if(colon_pos != string::npos) {
       const string key = line.substr(0, colon_pos);
@@ -364,7 +367,7 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
     } else {
       // No colon on that line, must be END
       boost::trim(line, locale::classic());
-      if(line != "END") {
+      if(line != "END" && !fp.eof()) {
         throw invalid_format_error("invalid line in MIF header");
       }
     }
