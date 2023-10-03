@@ -192,7 +192,7 @@ void MifFormatChecker::_buildDSList( DataSourceList & dsl ) const
 
 namespace {  // for file-local helper functions
 
-string get_unique_mif_header_field(const unordered_map<string, list<string>> &raw_header,
+string get_unique_mif_header_field(const unordered_map<string, vector<string>> &raw_header,
                                    const string& field_name, const string& filename)
 {
   auto header_it = raw_header.find(field_name);
@@ -239,7 +239,7 @@ vector<Element> parse_comma_separated_string(const string& str,
 
 
 template<typename Element>
-vector<Element> parse_comma_separated_field(const unordered_map<string, list<string>> &raw_header,
+vector<Element> parse_comma_separated_field(const unordered_map<string, vector<string>> &raw_header,
                                             const string& field_name, const string& filename)
 {
   string raw_value = get_unique_mif_header_field(raw_header, field_name, filename);
@@ -306,7 +306,7 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   // Raw MIF header key-value pairs (string-valued, with their original name).
   // A key can be repeated and take multiple values, and order of these
   // same-key values is important.
-  unordered_map<string, list<string>> raw_header;
+  unordered_map<string, vector<string>> raw_header;
 
   string line = fp.getline();
 
@@ -481,7 +481,7 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
   // (LPI+). As a result, we can simply flip the inversion flag (+/- prefix in
   // the layout field) but consider the axis indices as column indices into the
   // storage_to_memory matrix.
-  const size_t storage_to_memory_order = ndims;  // FIXME: or 3????
+  const size_t storage_to_memory_order = ndims;
   AffineTransformationBase storage_to_lpi(ndims);
   if(layout.size() != ndims) {
     throw invalid_format_error("Invalid MIF file: layout vs dim inconsistency", hds.url());
@@ -608,6 +608,16 @@ Object MifFormatChecker::_buildHeader( DataSource& hds ) const
     hdr->setProperty( "referentials", referentials );
   }
 
+  /************************************************************/
+  /* EXTRA HEADER FIELDS (not interpreted, just passed as is) */
+  /************************************************************/
+  {
+    auto header_end = end(raw_header);
+    for(header_it = begin(raw_header); header_it != header_end; ++header_it) {
+      hdr->setProperty("MIF_" + header_it->first, header_it->second);
+    }
+  }
+
   hdr->setProperty( "object_type", string( "Volume" ) );
   hdr->setProperty( "format", formatName() );
 
@@ -723,9 +733,8 @@ DataSourceInfo MifFormatChecker::check( DataSourceInfo dsi,
   {
     localMsg ("Writing capabilities..." );
     dsi.capabilities().setMemoryMapping( false );
-    //dsi.capabilities().setDataSource( dsi.list().dataSource( "data" ) );  // ?? maybe for memory mapping?
-    dsi.capabilities().setThreadSafe( false ); /* TODO */
-    dsi.capabilities().setOrdered( true ); // FIXME: what does that mean??
+    dsi.capabilities().setThreadSafe( false );
+    dsi.capabilities().setOrdered( true );
     dsi.capabilities().setSeekVoxel( false );
     dsi.capabilities().setSeekLine( false );
     dsi.capabilities().setSeekSlice( false );
