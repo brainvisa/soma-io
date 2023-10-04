@@ -588,10 +588,10 @@ namespace soma
 
     std::size_t dest_size = std::accumulate(begin(size), end(size), 1, [](auto a, auto b) { return a*b; });
     while(!dest_it.ended()) {
-      size_t bytes_avail = znzread(buffer.get(),
+      size_t bytes_avail = znzread(buffer.get(), sizeof(char),
                                    std::min(buffer_size * sizeof(uint8_t),
                                             elements_remaining * sizeof(uint8_t)),
-                                   sizeof(char), fp);
+                                   fp);
       if(bytes_avail == 0) {
         throw read_write_error("cannot read enough data (premature end of file?)");
       }
