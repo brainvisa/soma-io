@@ -90,10 +90,13 @@ namespace carto
 
     void reset( T *p=0 );
     T * get();
+    const T * get() const;
     T * release();
     MutexRcPtr<T> & operator = ( MutexRcPtr<T> &other );
     T * operator -> ();
+    const T * operator -> () const;
     T & operator * ();
+    const T & operator * () const;
     bool operator < ( const MutexRcPtr<T> &other ) const;
     bool operator == ( const MutexRcPtr< T > &other ) const;
     bool operator != ( const MutexRcPtr< T > &other ) const;
@@ -218,6 +221,17 @@ namespace carto
 
 
   template <typename T>
+  inline const T* MutexRcPtr<T>::get() const
+  {
+    /* lock();
+    T	*t = _rcptr.get();
+    unlock();
+    return t; */
+    return _rcptr.get();
+  }
+
+
+  template <typename T>
   inline T* MutexRcPtr<T>::release()
   {
     lock();
@@ -248,7 +262,21 @@ namespace carto
 
 
   template <typename T>
+  inline const T* MutexRcPtr<T>::operator -> () const
+  {
+    return get();
+  }
+
+
+  template <typename T>
   inline T & MutexRcPtr<T>::operator * ()
+  {
+    return *get();
+  }
+
+
+  template <typename T>
+  inline const T & MutexRcPtr<T>::operator * () const
   {
     return *get();
   }
