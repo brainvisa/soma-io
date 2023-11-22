@@ -95,12 +95,11 @@ public:
   template <typename T> void addBuiltinProperty( const std::string &, T &, 
                                                  bool & provided );
 
+  using DictionaryInterface::getProperty;
   template <typename T> bool getProperty( const std::string &, T & ) const;
   template <typename T> void setProperty( const std::string &, const T & );
   virtual bool getProperty( const std::string &, Object & ) const;
   virtual void setProperty( const std::string &, Object );
-  using DictionaryInterface::getProperty;
-  using DictionaryInterface::setProperty;
   virtual bool removeProperty( const std::string & key )
   { return _erase( key ); }
   virtual bool hasProperty( const std::string & ) const;
@@ -207,7 +206,8 @@ DECLARE_GENERIC_OBJECT_TYPE( PropertySet::iterator )
 
 
 //-----------------------------------------------------------------------------
-template <typename T> 
+template <typename T>
+inline
 void PropertySet::setProperty( const std::string &key, const T &value )
 {
   Properties::iterator it = _properties.find( key );
@@ -237,7 +237,8 @@ void PropertySet::setProperty( const std::string &key, const T &value )
 
 
 //-----------------------------------------------------------------------------
-template <typename T> 
+template <typename T>
+inline
 void PropertySet::addBuiltinProperty( const std::string &key, T &reference )
 {
   Properties::iterator it = _properties.find( key );
@@ -251,7 +252,8 @@ void PropertySet::addBuiltinProperty( const std::string &key, T &reference )
 
 
 //-----------------------------------------------------------------------------
-template <typename T> 
+template <typename T>
+inline
 void PropertySet::addBuiltinProperty( const std::string &key, T &reference,
                                       bool & provided )
 {
@@ -267,6 +269,7 @@ void PropertySet::addBuiltinProperty( const std::string &key, T &reference,
 
 //-----------------------------------------------------------------------------
 template <typename T>
+inline
 void PropertySet::changeBuiltinProperty( const std::string &key, T &reference )
 {
   Properties::iterator it = _properties.find( key );
@@ -282,6 +285,7 @@ void PropertySet::changeBuiltinProperty( const std::string &key, T &reference )
 
 //-----------------------------------------------------------------------------
 template <typename T>
+inline
 void PropertySet::changeBuiltinProperty( const std::string &key, T &reference,
                                          bool & provided )
 {
@@ -298,6 +302,7 @@ void PropertySet::changeBuiltinProperty( const std::string &key, T &reference,
 
 //-----------------------------------------------------------------------------
 template <typename T>
+inline
 bool PropertySet::getProperty( const std::string &key, T &value ) const
 {
   Properties::const_iterator it = _properties.find( key );
