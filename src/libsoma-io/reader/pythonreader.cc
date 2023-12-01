@@ -619,7 +619,8 @@ string PythonReader::readVariableName()
   c = d->datasource->getch();
   if( c != '=' )
     throw runtime_error( name() + ": Unrecognized syntax, line " 
-                         + lineString() + " (expecting 'variable = ...')" );
+                         + lineString() + " (expecting 'variable = ...')"
+                         + " in: " + d->datasource->url() );
   return hardcoded;
 }
 
@@ -1128,7 +1129,8 @@ PythonReader::readDictionary2( GenericObject & obj )
           if( c != ':' )
             {
               cerr << "expecting ':', got '" << c << "', line " 
-                   << lineString() << ", id: " << id << endl;
+                   << lineString() << ", id: " << id << " in: "
+                   << d->datasource->url() << endl;
               break;
             }
         }
@@ -1218,7 +1220,8 @@ PythonReader::readIntDictionary2( TypedObject<IntDictionary> & obj )
           if( c != ':' )
             {
               cerr << "expecting ':', got '" << c << "', line " 
-                   << lineString() << ", id: " << id << endl;
+                   << lineString() << ", id: " << id << " in: "
+                   << d->datasource->url() << endl;
               break;
             }
         }
