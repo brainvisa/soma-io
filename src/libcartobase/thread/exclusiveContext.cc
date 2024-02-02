@@ -36,7 +36,8 @@
 #include <cartobase/thread/exclusiveContext.h>
 
 
-carto::ExclusiveContext::ExclusiveContext()
+carto::ExclusiveContext::ExclusiveContext( bool singlethread )
+  : _singlethread( singlethread )
 {
 }
 
@@ -49,7 +50,8 @@ carto::ExclusiveContext::~ExclusiveContext()
 void carto::ExclusiveContext::lock()
 {
 
-  _mutex.lock();
+  if( !_singlethread )
+    _mutex.lock();
 
 }
 
@@ -57,7 +59,8 @@ void carto::ExclusiveContext::lock()
 void carto::ExclusiveContext::unlock()
 {
 
-  _mutex.unlock();
+  if( !_singlethread )
+    _mutex.unlock();
 
 }
 

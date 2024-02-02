@@ -61,7 +61,9 @@ namespace carto
     */
     void setLoopContext( LoopContext* );
 
+    /// run the loop to the end until all iterations are finished
     bool launch( bool resetGauge = true, bool resetCancel = true );
+    /// run one iteration step. It normally calls the LoopContext diIt() method
     void run();
 
     /** Warning: it's possibly not safe to change this value from false to true
@@ -81,6 +83,7 @@ namespace carto
      */
     bool endThreadsWhenDone() const;
     void setLoopCount( int n );
+    bool runSingleThreaded( bool resetGauge = true, bool resetCancel = true );
 
   private:
     struct Private;

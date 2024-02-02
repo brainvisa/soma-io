@@ -50,14 +50,18 @@ namespace carto
 
   public:
 
-    ExclusiveContext();
+    ExclusiveContext( bool singlethread = false );
     virtual ~ExclusiveContext();
 
     void lock();
     void unlock();
+    void setSingleThreaded( bool singlethread )
+    { _singlethread = singlethread; }
+    bool isSingleThreaded() const { return _singlethread; }
 
   private:
 
+    bool _singlethread;
     Mutex _mutex;
   };
 
