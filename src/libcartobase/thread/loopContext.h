@@ -54,7 +54,8 @@ namespace carto
 
   public:
 
-    LoopContext( ThreadGauge* gauge = 0, ThreadCancel* cancel = 0 );
+    LoopContext( ThreadGauge* gauge = 0, ThreadCancel* cancel = 0,
+                 bool singlethread = false );
     virtual ~LoopContext();
 
     virtual void doIt( int startIndex, int countIndex ) = 0;

@@ -39,8 +39,9 @@
 
 
 carto::LoopContext::LoopContext( carto::ThreadGauge* gauge,
-                                 carto::ThreadCancel* cancel )
-  : carto::ExclusiveContext(),
+                                 carto::ThreadCancel* cancel,
+                                 bool singlethread )
+  : carto::ExclusiveContext( singlethread ),
     _gauge( gauge ),
     _cancel( cancel )
 {

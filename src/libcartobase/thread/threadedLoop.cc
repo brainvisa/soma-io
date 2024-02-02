@@ -180,18 +180,19 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
   bool result = true;
 
-  _loopContext->unlock();
-  _loopContext->lock();
-
   unsigned nCpu = cpuCount();
 
   if ( _maxThreadCount >= 1
        && static_cast<unsigned>(_maxThreadCount) < nCpu )
   {
-
     nCpu = _maxThreadCount;
-
   }
+  int nth = static_cast<int>( rint( nCpu * _threadsByCpu ) );
+  _loopContext->setSingleThreaded( nth == 1 );
+
+  _loopContext->unlock();
+  _loopContext->lock();
+
 
 #ifdef CARTO_DEBUG
 
@@ -200,7 +201,7 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
 #endif
 
-  int		nth = static_cast<int>( rint( nCpu * _threadsByCpu ) ), i, 
+  int		i,
     n = d->threads.size();
   LoopThread	*lt;
   Semaphore	*sem;
@@ -228,6 +229,9 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
         }
       delete lt;
     }
+
+  if( nth == 1 )
+    return runSingleThreaded(resetGauge, resetCancel );
 
   int countThread = 0;
   int t;
@@ -285,6 +289,23 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
   return result;
 
+}
+
+
+bool carto::ThreadedLoop::runSingleThreaded( bool resetGauge,
+                                             bool resetCancel )
+{
+  _loopContext->doIt( _startIndex, _count );
+  if ( resetGauge )
+    _loopContext->resetGauge();
+  if ( resetCancel )
+    _loopContext->resetCancel();
+
+  _loopContext->setSingleThreaded( false );
+
+  if ( _loopContext->cancel() )
+    return false;
+ return true;
 }
 
 
