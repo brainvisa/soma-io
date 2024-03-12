@@ -25,7 +25,7 @@ set( _sources
   nifticlib/niftiapihelpers_p.cc
   nifticlib/znzlib/znzlib.c
 #   nifticlib/niftilib/nifti1_io.c ## included in nifti2_io.c
-  nifticlib/niftilib/nifti2_io.c
+  nifticlib/niftilib/nifti2_io.cc
   plugin/niftiplugin.cc
 )
 
