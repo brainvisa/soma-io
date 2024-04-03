@@ -1066,8 +1066,17 @@ namespace soma
         options
     );
 
-    Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
-    minfw.write( *minf );
+    try
+    {
+      Writer<carto::GenericObject> minfw( dsi.list().dataSource( "minf" ) );
+      minfw.write( *minf );
+    }
+    catch( std::exception & e )
+    {
+      std::cerr << "exception in writing "
+                << dsi.list().dataSource( "minf" )->url() << ": "
+                << e.what() << std::endl;
+    }
     // close the stream to ensure nothing will be appended later.
     dsi.list().dataSource( "minf" )->close();
 

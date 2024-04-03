@@ -50,6 +50,121 @@ using namespace std;
 using namespace carto;
 using namespace soma;
 
+/*
+namespace
+{
+
+  void genDictHelper( const carto::GenericObject & obj, soma::PythonWriter & w,
+                      int indent, bool writeInternals )
+  {
+    std::cout << "genDictHelper\n";
+
+    soma::DataSource	& ds = *w.dataSource();
+    Object im;
+    bool		first = true, hassyntax = false;
+    std::string		ind, ind2;
+    int			i;
+    char		sep = '\n';
+
+    if( w.singleLine() )
+      sep = ' ';
+    else
+    {
+      for( i=0; i<indent-1; ++i )
+        ind += "    ";
+      ind2 = ind + "  ";
+      if( indent > 0 )
+        ind += "    ";
+      ++indent;
+    }
+
+    ds.putch( '{' );
+    ds.putch( sep );
+    soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+
+    std::string	synt;
+    const carto::SyntaxedInterface *si
+      = obj.GenericObject::getInterface<carto::SyntaxedInterface>();
+    if( si && si->hasSyntax() )
+    {
+      synt = si->getSyntax();
+      hassyntax = true;
+    }
+    else
+    {
+      try
+        {
+          carto::Object	sx = obj.getProperty( "__syntax__" );
+          if( sx.get() )
+            {
+              synt = sx->GenericObject::value<std::string>();
+              hassyntax = true;
+            }
+        }
+      catch( ... )
+        {
+        }
+    }
+
+    if( hassyntax )
+    {
+      soma::AsciiDataSourceTraits<std::string>::write( ds, "'__syntax__' : " );
+      w.writeString( ds, synt );
+      first = false;
+    }
+
+    for( im=obj.objectIterator(); im->isValid(); im->next() )
+    {
+      if( first )
+        first = false;
+      else
+      {
+        ds.putch( ',' );
+        ds.putch( sep );
+        soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+      }
+      carto::Object key;
+      cout << "key props: " << im->isDictionaryIterator()  << ", " << im->isIntKeyIterator() << ", " << im->isKeyIterator() << endl;
+      if( im->isDictionaryIterator() )
+        try
+        {
+          cout << "dictiter\n";
+          key = Object::value( im->key() );
+        }
+        catch( exception & )
+        {
+        }
+      if( !key && im->isIntKeyIterator() )
+        try
+        {
+          cout << "intkeyiter\n";
+          key = Object::value( im->intKey() );
+          cout << "int key: " << im->intKey() << endl;
+        }
+        catch( exception & )
+        {
+        }
+      if( !key )
+      {
+        cout << "keyobj\n";
+        key = im->keyObject();
+      }
+      cout << "key: " << key << endl;
+      if( key ) cout << key->type() << endl;
+
+      w.write( key, indent, "", "", writeInternals );
+      soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
+      w.write( im->currentValue(), indent, "", "", writeInternals );
+    }
+
+    ds.putch( sep );
+    soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+    ds.putch( '}' );
+  }
+
+}
+*/
+
 
 PythonWriter::PythonWriter( const std::string& filename, 
 			    const SyntaxSet& rules, const HelperSet& helpers )
@@ -177,6 +292,13 @@ void PythonWriter::init( const HelperSet & helpers )
     if( _helpers.find( x.type() ) == _helpers.end() )
       _helpers[ x.type() ] = &dictHelper<int>;
   }
+  if( _helpers.find( "int_dictionary" ) == _helpers.end() )
+    _helpers[ "int_dictionary" ] = &dictHelper<string>;
+  {
+    ValueObject<IntDictionary>	x;
+    if( _helpers.find( x.type() ) == _helpers.end() )
+      _helpers[ x.type() ] = &dictHelper<int>;
+  }
   {
     ValueObject<map<float, Object> >	x;
     if( _helpers.find( x.type() ) == _helpers.end() )
@@ -186,6 +308,13 @@ void PythonWriter::init( const HelperSet & helpers )
     ValueObject<map<Object, Object> >	x;
     if( _helpers.find( x.type() ) == _helpers.end() )
       _helpers[ x.type() ] = &rcDictHelper;
+  }
+  if( _helpers.find( "object_dictionary" ) == _helpers.end() )
+    _helpers[ "object_dictionary" ] = &dictHelper<string>;
+  {
+    ValueObject<ObjectDictionary>	x;
+    if( _helpers.find( x.type() ) == _helpers.end() )
+      _helpers[ x.type() ] = &dictHelper<Object>;
   }
   if( _helpers.find( "list" ) == _helpers.end() )
     _helpers[ "list" ] = &listHelper;
@@ -400,7 +529,7 @@ void PythonWriter::write( const Object & object, int indent,
     }
     catch( exception & e )
     {
-      if( _catchFunction )
+     if( _catchFunction )
         _catchFunction( *this, e, object );
       else
         throw;
@@ -473,10 +602,25 @@ void PythonWriter::write( const GenericObject & object, int indent,
     if( object.isString() )
       type = "string";
     else if( object.isDictionary() )
-      type = "dictionary";
+    {
+      Object it = object.objectIterator();
+      if( it->isIntKeyIterator() )
+        type = "int_dictionary";
+      else if( it->isKeyIterator() )
+        type = "object_dictionary";
+      else
+        type = "dictionary";
+    }
     else if( object.isIterable() )
-      type = "list";
-    // cout << "type fallback for " << object.type() << ": " << type << endl;
+    {
+      Object it = object.objectIterator();
+      if( it->isIntKeyIterator() )
+        type = "int_dictionary";
+      else if( it->isKeyIterator() )
+        type = "object_dictionary";
+      else
+        type = "list";
+    }
 
     ih = _helpers.find( type );
     if( ih != _helpers.end() )

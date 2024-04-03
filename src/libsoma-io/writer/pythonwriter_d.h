@@ -227,12 +227,13 @@ void dictHelper( const carto::GenericObject & obj, soma::PythonWriter & w, int i
 
 
 template<> 
-void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWriter & w,
-			      int indent, bool writeInternals )
+void dictHelper<std::string>( const carto::GenericObject & obj,
+                              soma::PythonWriter & w,
+                              int indent, bool writeInternals )
 {
   // std::cout << "dictHelper<string>\n";
 
-  soma::DataSource				& ds = *w.dataSource();
+  soma::DataSource			& ds = *w.dataSource();
   const carto::IterableInterface 
     & y = *obj.getInterface<carto::IterableInterface>();
   carto::Object				im;
@@ -247,7 +248,7 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
   else
     {
       for( i=0; i<indent-1; ++i )
-	ind += "    ";
+        ind += "    ";
       ind2 = ind + "  ";
       if( indent > 0 )
         ind += "    ";
@@ -301,11 +302,11 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
           if( first )
             first = false;
           else
-            {
-              ds.putch( ',' );
-              ds.putch( sep );
-              soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
-            }
+          {
+            ds.putch( ',' );
+            ds.putch( sep );
+            soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+          }
           w.writeString( ds, key );
           soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
           w.write( im->currentValue(), indent, "", key, writeInternals );
@@ -313,18 +314,36 @@ void dictHelper<std::string>( const carto::GenericObject & obj, soma::PythonWrit
       }
       catch( ... )
       {
-        long key = im->intKey();
-        if( first )
-          first = false;
-        else
+        try
+        {
+          long key = im->intKey();
+          if( first )
+            first = false;
+          else
           {
             ds.putch( ',' );
             ds.putch( sep );
             soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
           }
-        soma::AsciiDataSourceTraits<long>::write( ds, key );
-        soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
-        w.write( *im->currentValue(), indent, "", "", writeInternals );
+          soma::AsciiDataSourceTraits<long>::write( ds, key );
+          soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
+          w.write( *im->currentValue(), indent, "", "", writeInternals );
+        }
+        catch( ... )
+        {
+          carto::Object key = im->keyObject();
+          if( first )
+            first = false;
+          else
+            {
+              ds.putch( ',' );
+              ds.putch( sep );
+              soma::AsciiDataSourceTraits<std::string>::write( ds, ind );
+            }
+          w.write( key, indent, "", "", writeInternals );
+          soma::AsciiDataSourceTraits<std::string>::write( ds, " : " );
+          w.write( *im->currentValue(), indent, "", "", writeInternals );
+        }
       }
       im->next();
     }
