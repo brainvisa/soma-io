@@ -160,7 +160,7 @@ const rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type,
     return _dslist.find( type )->second[ i ];
   else
     // launch exception
-    throw;
+    throw runtime_error( "datasource type not found" );
 }
 
 rc_ptr<DataSource> & DataSourceList::dataSource ( const string & type, int i )
