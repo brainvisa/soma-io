@@ -47,6 +47,12 @@ FDDataSource::FDDataSource( int fd, int mode )
   : DataSource(), _fd( fd )
 {
   _mode = mode;
+  if( _fd >= 0 )
+  {
+    struct stat	buf;
+    if( fstat( _fd, &buf ) != 0 || S_ISDIR( buf.st_mode ) )
+      _fd = -1;  // don't open dir
+  }
 }
 
 
@@ -71,6 +77,12 @@ int FDDataSource::descriptor() const
 void FDDataSource::setDescriptor( int fd )
 {
   _fd = fd;
+  if( _fd >= 0 )
+  {
+    struct stat	buf;
+    if( fstat( _fd, &buf ) != 0 || S_ISDIR( buf.st_mode ) )
+      _fd = -1;  // don't open dir
+  }
 }
 
 
