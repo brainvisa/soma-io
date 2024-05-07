@@ -128,6 +128,10 @@ computes (1) consistently with all attributes i.e. this methods do
  //  AffineTransformationBase  //
 //----------------------------//
 
+
+float AffineTransformationBase::epsilon = 1e-5;
+
+
 //-----------------------------------------------------------------------------
 AffineTransformationBase::AffineTransformationBase( int order )
   : RCObject(),
@@ -253,10 +257,9 @@ bool AffineTransformationBase::operator == (
   if( _matrix.size() != other._matrix.size() )
     return false;
 
-  static float eps = 1e-5;
   size_t i, n = _matrix.size();
   for( i=0; i<n; ++i )
-    if( fabs( _matrix[i] - other._matrix[i] ) >= eps )
+    if( fabs( _matrix[i] - other._matrix[i] ) >= epsilon )
       return false;
 
   return true;
@@ -432,8 +435,6 @@ void AffineTransformationBase::extendOrder( unsigned n )
 void AffineTransformationBase::squeezeOrder( unsigned n, bool check,
                                              bool notify_fail )
 {
-  float eps = 1e-5f;
-
   if( n >= order() )
     return;
 
@@ -444,7 +445,7 @@ void AffineTransformationBase::squeezeOrder( unsigned n, bool check,
   {
     for( i=0; i<n; ++i )
       for( j=n; j<m; ++j )
-        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > eps )
+        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > epsilon )
         {
           if( notify_fail )
             throw runtime_error( "matrix cannot be squeezed" );
@@ -452,7 +453,7 @@ void AffineTransformationBase::squeezeOrder( unsigned n, bool check,
         }
     for( i=n; i<m; ++i )
       for( j=0; j<m; ++j )
-        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > eps )
+        if( fabs( _matrix( i, j ) - ( i == j ? 1.f : 0.f ) ) > epsilon )
         {
           if( notify_fail )
             throw runtime_error( "matrix cannot be squeezed" );

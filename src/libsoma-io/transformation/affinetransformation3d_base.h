@@ -148,6 +148,9 @@ namespace soma
     /// conversions from OpenGL matrices)
     void fromColumnVector( const float* vec, unsigned size );
 
+    /// used to test equality on elements
+    static float epsilon;
+
   protected:
 
     // column-vector to be compatible with the former Volume storage with
