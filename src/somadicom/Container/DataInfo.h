@@ -7,6 +7,7 @@
 #include <soma-io/Transformation/PatientOrientation.h>
 #include <soma-io/Object/BinaryHeader.h>
 #include <soma-io/Utils/StdInt.h>
+#include <cartobase/object/object.h>
 #else
 #include <Transformation/PatientOrientation.h>
 #include <Object/BinaryHeader.h>
@@ -76,5 +77,11 @@ class DataInfo
 
 }
 
+namespace carto
+{
+
+  DECLARE_GENERIC_OBJECT_TYPE( dcm::DataInfo )
+
+}
 
 #endif

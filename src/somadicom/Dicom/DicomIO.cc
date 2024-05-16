@@ -43,19 +43,30 @@ dcm::DicomIO::~DicomIO()
 }
 
 
+carto::Mutex & dcm::DicomIO::mutex()
+{
+  static carto::Mutex m( carto::Mutex::Recursive );
+  return m;
+}
+
+
 bool dcm::DicomIO::registerReader( dcm::DicomReader* reader )
 {
 
-  return _readerFactory.add( reader );
-
+  mutex().lock();
+  bool r = _readerFactory.add( reader );
+  mutex().unlock();
+  return r;
 }
 
 
 bool dcm::DicomIO::registerWriter( dcm::DicomWriter* writer )
 {
 
-  return _writerFactory.add( writer );
-
+  mutex().lock();
+  bool r = _writerFactory.add( writer );
+  mutex().unlock();
+  return r;
 }
 
 

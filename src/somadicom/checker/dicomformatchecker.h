@@ -43,7 +43,6 @@
 namespace soma
 {
   class DataSource;
-  class DataSourceList;
   class DataSourceInfoLoader;
   class DataSourceInfo;
 
@@ -58,7 +57,7 @@ namespace soma
       virtual ~DicomFormatChecker();
 
     protected:
-      carto::Object  _buildDSList( DataSourceList & dsl ) const;
+      carto::Object  _buildDSList( DataSourceInfo & dsi ) const;
   };
 
 }

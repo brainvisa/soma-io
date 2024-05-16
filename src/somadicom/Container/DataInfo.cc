@@ -148,3 +148,12 @@ void dcm::DataInfo::initialize()
   }
 
 }
+
+
+#include <cartobase/object/object_d.h>
+
+namespace carto {
+
+  INSTANTIATE_GENERIC_OBJECT_TYPE( dcm::DataInfo );
+
+}

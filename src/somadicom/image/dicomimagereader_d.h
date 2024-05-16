@@ -38,7 +38,7 @@
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Container/DicomProxy.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DataInfoCache.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Container/BoundingBox.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
@@ -128,7 +128,10 @@ namespace soma {
       int lz = oz + size[ 2 ] - 1;
       int lt = ot + size[ 3 ] - 1;
 
-      dcm::DataInfo& info = dcm::DataInfoCache::getInstance().getDataInfo();
+      carto::Object pdata = dsi.privateIOData();
+      dcm::DataInfo& info
+        = pdata->getProperty( "data_info" )->value<dcm::DataInfo>();
+
       dcm::DicomDatasetHeader datasetHeader( info );
       std::vector< std::string >& fileList = datasetHeader.getFileList();
       int i, count = dsi.list().size( "dicom" );
@@ -150,7 +153,6 @@ namespace soma {
 
         dcm::DicomProxy data( (uint8_t*)dest, &info );
         dcm::DicomIO::getInstance().read( datasetHeader, data );
-        dcm::DataInfoCache::getInstance().clear();
 
       }
     }

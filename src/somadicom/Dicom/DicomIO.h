@@ -8,6 +8,7 @@
 #include <soma-io/Dicom/DatasetModule.h>
 #include <soma-io/Dicom/DicomReaderFactory.h>
 #include <soma-io/Dicom/DicomWriterFactory.h>
+#include <cartobase/thread/mutex.h>
 #else
 #include <Pattern/Singleton.h>
 #include <Dicom/DatasetModule.h>
@@ -53,6 +54,7 @@ class DicomIO : public Singleton< DicomIO >
     bool write( const std::string& fileName,
                 DicomProxy& proxy,
                 bool forceSecondaryCapture = false );
+    static carto::Mutex & mutex();
 
   protected:
 

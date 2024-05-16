@@ -35,7 +35,7 @@
 #include <soma-io/checker/dicomformatchecker.h>           // class declaration
 #include <soma-io/Dicom/DicomIO.h>
 #include <soma-io/Dicom/DicomDatasetHeader.h>
-#include <soma-io/Container/DataInfoCache.h>
+#include <soma-io/Container/DataInfo.h>
 #include <soma-io/Object/CartoHeader.h>
 //--- soma-io ----------------------------------------------------------------
 #include <soma-io/config/soma_config.h>
@@ -76,9 +76,9 @@ using namespace std;
  * each of the following keyword : "dicom", and "default", but
  * in the worst case they can all be the initial ds.
  ****************************************************************************/
-Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
+Object DicomFormatChecker::_buildDSList( DataSourceInfo & dsi ) const
 {
-
+  DataSourceList & dsl = dsi.list();
   DataSource* pds = dsl.dataSource().get();
   string imaname = FileUtil::uriFilename( pds->url() );
   Object hdr = Object::value( PropertySet() );  // header
@@ -86,96 +86,112 @@ Object DicomFormatChecker::_buildDSList( DataSourceList & dsl ) const
   if ( !imaname.empty() )
   {
 
-    vector< string > fileList;
+    dcm::DicomIO::getInstance().mutex().lock();
 
-    dcm::DataInfoCache::getInstance().clear();
-    dcm::DataInfo& dataInfo = dcm::DataInfoCache::getInstance().getDataInfo();
-
-    // avoid printing anything from dcmtk
-    fdinhibitor   fdi( stderr );
-    fdi.close();
-
-
-    // fast check
-    if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
+    try
     {
+
+      vector< string > fileList;
+
+      carto::Object pdata = dsi.privateIOData();
+      pdata->setProperty( "data_info", dcm::DataInfo() );
+      dcm::DataInfo& dataInfo
+        = pdata->getProperty( "data_info" )->value<dcm::DataInfo>();
+
+      // avoid printing anything from dcmtk
+      fdinhibitor   fdi( stderr );
+      fdi.close();
+
+
+      // fast check
+      if ( !dcm::DicomIO::getInstance().analyze( imaname, dataInfo, true ) )
+      {
+        // open file
+        fdi.open();
+        throw wrong_format_error( "Not a DICOM dataset", imaname );
+      }
+
+      // select files and read information relevant for memory allocation
+      dcm::DicomDatasetHeader datasetHeader( dataInfo );
+
+      if ( !dcm::DicomIO::getInstance().check( imaname,
+                                              dataInfo,
+                                              datasetHeader ) )
+      {
+        // open file
+        fdi.open();
+        throw wrong_format_error( "Error in DICOM dataset", imaname );
+      }
+
       // open file
       fdi.open();
-      throw wrong_format_error( "Not a DICOM dataset", imaname );
-    }
-    
-    // select files and read information relevant for memory allocation
-    dcm::DicomDatasetHeader datasetHeader( dataInfo );
 
-    if ( !dcm::DicomIO::getInstance().check( imaname, 
-                                             dataInfo,
-                                             datasetHeader ) )
+      vector< string >::const_iterator
+        f = datasetHeader.getFileList().begin(),
+        fe = datasetHeader.getFileList().end();
+
+      while ( f != fe )
+      {
+
+        dsl.addDataSource( "dicom",
+                          rc_ptr<DataSource>( new FileDataSource( *f ) ) );
+        ++f;
+
+      }
+
+      string         type;
+      vector<float>  vs(4, 1.); // voxel size
+
+      vs[ 0 ] = dataInfo._resolution.x;
+      vs[ 1 ] = dataInfo._resolution.y;
+      vs[ 2 ] = dataInfo._resolution.z;
+      vs[ 3 ] = dataInfo._repetitionTime;
+
+      localMsg("Bits per pixel:" + carto::toString(dataInfo._bpp));
+
+      switch ( dataInfo._bpp )
+      {
+
+        case 1:
+          type = ( dataInfo._pixelRepresentation & 1 ) ? "S8" : "U8";
+          break;
+
+        case 2:
+          type = ( dataInfo._pixelRepresentation & 1 ) ? "S16" : "U16";
+          break;
+
+        case 3:
+          type = "RGB";
+          break;
+
+        case 4:
+          type = "FLOAT";
+          break;
+
+        default:
+          throw wrong_format_error( "Not a valid DICOM format",
+                                    pds->url() );
+
+      }
+
+      // set base header information
+      hdr->setProperty( "format", string( "DICOM" ) );
+      hdr->setProperty( "voxel_size", vs );
+      hdr->setProperty( "object_type", string( "Volume" ) );
+      hdr->setProperty( "data_type", type );
+
+      // read specific header information
+      dcm::CartoHeader header( hdr );
+      dcm::DicomIO::getInstance().getHeader( header, dataInfo, datasetHeader );
+
+    }
+    catch( ... )
     {
-      // open file
-      fdi.open();
-      throw wrong_format_error( "Error in DICOM dataset", imaname );
-    }
-    
-    // open file
-    fdi.open();
-
-    vector< string >::const_iterator
-      f = datasetHeader.getFileList().begin(),
-      fe = datasetHeader.getFileList().end();
-
-    while ( f != fe )
-    {
-
-      dsl.addDataSource( "dicom", 
-                         rc_ptr<DataSource>( new FileDataSource( *f ) ) );
-      ++f;
-
+      dcm::DicomIO::getInstance().mutex().unlock();
+      throw;
     }
 
-    string         type;
-    vector<float>  vs(4, 1.); // voxel size
-
-    vs[ 0 ] = dataInfo._resolution.x;
-    vs[ 1 ] = dataInfo._resolution.y;
-    vs[ 2 ] = dataInfo._resolution.z;
-    vs[ 3 ] = dataInfo._repetitionTime;
-
-    localMsg("Bits per pixel:" + carto::toString(dataInfo._bpp));
-
-    switch ( dataInfo._bpp )
-    {
-
-      case 1:
-        type = ( dataInfo._pixelRepresentation & 1 ) ? "S8" : "U8";
-        break;
-
-      case 2:
-        type = ( dataInfo._pixelRepresentation & 1 ) ? "S16" : "U16";
-        break;
-
-      case 3:
-        type = "RGB";
-        break;
-
-      case 4:
-        type = "FLOAT";
-        break;
-
-      default:
-        throw wrong_format_error( "Not a valid DICOM format",
-                                  pds->url() );
-
-    }
-
-    // set base header information
-    hdr->setProperty( "format", string( "DICOM" ) );
-    hdr->setProperty( "voxel_size", vs );
-    hdr->setProperty( "object_type", string( "Volume" ) );
-    hdr->setProperty( "data_type", type );
-
-    // read specific header information
-    dcm::CartoHeader header( hdr );
-    dcm::DicomIO::getInstance().getHeader( header, dataInfo, datasetHeader );
+    dcm::DicomIO::getInstance().mutex().unlock();
 
   }
 
@@ -218,7 +234,8 @@ DataSourceInfo DicomFormatChecker::check( DataSourceInfo dsi,
   //--- build datasourcelist -------------------------------------------------
   if( dolist || doread ) {
     localMsg( "Building list and header..." );
-    dsi.header() = _buildDSList( dsi.list() );
+
+    dsi.header() = _buildDSList( dsi );
   }
   
   //--- build header ---------------------------------------------------------
