@@ -8,7 +8,6 @@ set( _headers
   Color/Rgba.h
   Container/BoundingBox.h
   Container/DataInfo.h
-  Container/DataInfoCache.h
   Container/DicomProxy.h
   Container/Matrix.h
   Container/Vector3d.h
@@ -121,7 +120,6 @@ set( _sources
   Color/Rgba.cc
   Container/BoundingBox.cc
   Container/DataInfo.cc
-  Container/DataInfoCache.cc
   Container/DicomProxy.cc
   Container/Matrix.cc
   Container/Vector3d.cc
