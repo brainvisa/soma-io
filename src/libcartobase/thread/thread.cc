@@ -46,7 +46,7 @@ using namespace std;
 #ifdef _WIN32
 static DWORD mainThreadId;
 #else
-static pthread_t mainThreadId;
+static pthread_t mainThreadId = 0;
 #endif
 static bool mainThreadInitialized = false;
 
@@ -423,6 +423,9 @@ bool carto::Thread::isCurrent() const
 
 bool carto::Thread::currentIsMainThread()
 {
+  if( !mainThreadInitialized )
+    return true;
+
 #ifdef _WIN32
   return GetCurrentThreadId() == mainThreadId;
 #else
