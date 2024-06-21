@@ -58,7 +58,9 @@ bool dcm::MultiSliceReader::getHeader( dcm::HeaderProxy& header,
   {
 
     referential.push_back( tmpString.c_str() );
-    header.addAttribute( "referential", referential );
+    // don't use the property "referential" because it's reserved for
+    // coordinates systems management in AIMS
+    header.addAttribute( "dicom_referential", referential );
 
   }
 
