@@ -59,6 +59,8 @@ namespace carto
         has better be large
     */
     const std::string& memmap();
+    /// Root path of the BrainVisa install directory
+    const std::string & installRoot();
     /// The base shared directory for all cartograph / SHFJ data
     const std::string& globalShared();
     /** Shared directory for SHFJ-specific data. Depending on the

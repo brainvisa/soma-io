@@ -148,6 +148,21 @@ const string & Paths::tempDir()
   return _memmap;
 }
 
+
+const string & Paths::installRoot()
+{
+  static string _root;
+
+  if( _root.empty() )
+  {
+    string shared = globalShared();
+    _root = FileUtil::dirname( shared );
+  }
+
+  return _root;
+}
+
+
 const string & Paths::globalShared()
 {
   static string	_shared;
