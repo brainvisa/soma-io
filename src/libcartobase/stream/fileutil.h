@@ -77,6 +77,9 @@ namespace carto
     ///
     /// But I think this fits better the use we may have of it...
     static std::string dirname( const std::string & );
+    /// relative path of fname, relatively to base
+    static std::string relpath( const std::string &fname,
+                                const std::string & base );
     /// Checks file existence, type and read/write permission. 
     /// \return string code containing "+" if the file exists, "r" if it is 
     /// readable, "w" if it is writeable, "d" if it is a directory, 
@@ -88,6 +91,8 @@ namespace carto
     static std::string removeExtension( const std::string & );
     /// true if path is an absolute path, false if it is relative
     static bool isAbsPath( const std::string & path );
+    /// make an absolute path
+    static std::string absPath( const std::string & path );
     /// opens a temporary file.
     /// \param prefix is used to name the temporary file. If it is a local file
     /// (with no path), the temporary directory will be prefixed to it, 

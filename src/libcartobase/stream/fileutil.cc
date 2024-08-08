@@ -47,6 +47,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <limits.h>
+
 
 using namespace carto;
 using namespace std;
@@ -115,6 +117,32 @@ string FileUtil::dirname( const string & name )
       return s;
     }
   return name.substr( 0, pos1 );
+}
+
+
+string FileUtil::relpath( const string &fname, const string & base )
+{
+  if( base.empty() )
+    return fname;
+  if( !isAbsPath( fname ) )
+    return fname;
+
+  string absname = absPath( fname );
+  string absbase = absPath( base ) + "/";
+  if( absname.substr( 0, absbase.length() ) == absbase )
+      return absname.substr( absbase.length(),
+                             absname.length() - absbase.length() );
+  return fname;
+}
+
+
+string FileUtil::absPath( const string &name )
+{
+  if( isAbsPath( name ) )
+    return name;
+  char buf[PATH_MAX + 1];
+  string cwd = getcwd( buf, PATH_MAX );
+  return cwd + separator() + name;
 }
 
 
