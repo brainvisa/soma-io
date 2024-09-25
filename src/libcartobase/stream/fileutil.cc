@@ -124,8 +124,6 @@ string FileUtil::relpath( const string &fname, const string & base )
 {
   if( base.empty() )
     return fname;
-  if( !isAbsPath( fname ) )
-    return fname;
 
   string absname = absPath( fname );
   string absbase = absPath( base ) + "/";
