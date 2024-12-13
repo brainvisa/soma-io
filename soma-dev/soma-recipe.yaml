@@ -1,0 +1,47 @@
+package:
+  name: soma
+
+soma-dev:
+  components:
+    aims-free: ["https://github.com/brainvisa/aims-free.git", "master"]
+    aims-gpl: ["https://github.com/brainvisa/aims-gpl.git", "master"]
+    brainvisa-share: ["https://github.com/brainvisa/brainvisa-share.git", "master"]
+    axon: ["https://github.com/brainvisa/axon.git", "master"]
+
+  internal-dependencies:
+    - soma-python
+
+  type: compiled
+
+requirements:
+  build:
+    - sigcpp-2.0
+    - libblitz
+    - boost-cpp
+    - gfortran
+    - graphviz
+    - dcmtk
+    - doxygen
+    - pkgconfig
+    - numpy
+    - pyyaml
+    - libminc
+    - openjpeg
+
+  run:
+    - sigcpp-2.0
+    - libblitz
+    - boost-cpp
+    - gfortran
+    - dcmtk
+    - numpy <2
+    - pyyaml
+    - libminc
+    - openjpeg
+    - pywebp
+
+tests:
+  - script: |
+      python -m soma_forge test soma
+      python -m soma_forge test aims
+      python -m soma_forge test axon
