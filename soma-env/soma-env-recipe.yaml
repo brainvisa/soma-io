@@ -1,7 +1,7 @@
 package:
   name: soma
 
-soma-dev:
+soma-env:
   components:
     aims-free: ["https://github.com/brainvisa/aims-free.git", "master"]
     aims-gpl: ["https://github.com/brainvisa/aims-gpl.git", "master"]
