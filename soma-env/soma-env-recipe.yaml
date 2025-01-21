@@ -2,6 +2,7 @@ package:
   name: soma
 
 soma-env:
+  publication: neuro-forge
   components:
     aims-free: ["https://github.com/brainvisa/aims-free.git", "soma-env-6.0"]
     aims-gpl: ["https://github.com/brainvisa/aims-gpl.git", "soma-env-6.0"]
