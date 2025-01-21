@@ -36,6 +36,7 @@
 
 //--- cartobase --------------------------------------------------------------
 #include <cartobase/type/voxelvalue.h>
+#include <cartobase/type/string_conversion.h>
 //----------------------------------------------------------------------------
 
 namespace carto {
@@ -129,6 +130,75 @@ namespace carto {
       if( (*this)[ i ] != T(0) )
         return true;
     return false;
+  }
+
+  //=== KEY COMPARATOR =======================================================
+  template <typename V>
+  inline uint64_t KeyComparator<V>::toUnsignedInt(
+    const V &value)
+  {
+    return uint64_t(value);
+  } 
+
+  template <typename T, unsigned C>
+  inline uint64_t KeyComparator<carto::VoxelValue<T, C> >::toUnsignedInt(
+    const carto::VoxelValue<T, C> &value)
+  {
+    static_assert((sizeof(T) * C <= 8), "It is not possible to define toUnsignedInt for carto::VoxelValue<C, T>.");
+
+    uint64_t result = 0;
+    for (unsigned int c=0; c<carto::VoxelValue<T, C>::channelcount; ++c) {
+      #ifdef CARTO_DEBUG_VOXELVALUE
+        std::cout << "VOXELVALUE:: KeyComparator<carto::VoxelValue<T, C> >::toUnsignedInt(), "
+                  << "value[" << carto::toString(c) << "] = " << carto::toString(value[c])
+                  << std::endl;
+      #endif
+      result |= static_cast<uint64_t>(value[c] << (sizeof(T) * 8 * c));
+    }
+
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: KeyComparator<carto::VoxelValue<T, C> >::toUnsignedInt(), "
+                << "result: " << carto::toString(result)
+                << std::endl;
+    #endif
+    return result;
+  }
+
+  template <typename V>
+  inline bool KeyComparator<V>::less(
+    const V & lhs, 
+    const V & rhs )
+  {
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: KeyComparator<V>::less()" << std::endl;
+    #endif
+    return (lhs < rhs);
+  }
+
+  template <typename T, unsigned C>
+  inline bool KeyComparator<carto::VoxelValue<T, C> >::less(
+    const carto::VoxelValue<T, C> & lhs, 
+    const carto::VoxelValue<T, C> & rhs )
+  {
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: KeyComparator<carto::VoxelValue<T, C> >::less()" << std::endl;
+    #endif
+    
+    return (carto::KeyComparator<carto::VoxelValue<T, C> >::toUnsignedInt(lhs) 
+          < carto::KeyComparator<carto::VoxelValue<T, C> >::toUnsignedInt(rhs));
+  }
+
+  //=== KEY COMPARATOR LESS FUNCTOR =======================================================
+  template <typename V>
+  constexpr bool KeyComparatorLess<V>::operator ()(const V & lhs, const V & rhs) const
+  {
+    #ifdef CARTO_DEBUG_VOXELVALUE
+      std::cout << "VOXELVALUE:: KeyComparatorLess<V>::operator()" << std::endl;
+      std::cout << "VOXELVALUE:: KeyComparatorLess<V>::operator(), lhs = " << carto::toString(lhs) << std::endl;
+      std::cout << "VOXELVALUE:: KeyComparatorLess<V>::operator(), rhs = " << carto::toString(rhs) << std::endl;
+    #endif
+
+    return carto::KeyComparator<V>::less(lhs, rhs);
   }
 }
 

@@ -870,6 +870,16 @@ namespace carto {
     return result /= bb;
   }
   
+  // KeyComparator VoxelRGB specialization
+  inline
+  bool KeyComparator<carto::VoxelRGB>::less( const carto::VoxelRGB & lhs, const carto::VoxelRGB & rhs )
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "RGB:: KeyComparator less()" << std::endl;
+    #endif
+    return carto::KeyComparator<carto::VoxelValue<uint8_t, 3> >::less( lhs, rhs );
+  }
+
 }
 
 #endif

@@ -167,6 +167,11 @@ namespace carto {
   VoxelRGB operator * (const long     &aa, const VoxelRGB &bb);
   VoxelRGB operator / (const VoxelRGB &aa, const long     &bb);
 
+  template <>
+  struct KeyComparator<carto::VoxelRGB>
+  {
+    static inline bool less( const carto::VoxelRGB & lhs, const carto::VoxelRGB & rhs );
+  };
 }
 
 #endif
