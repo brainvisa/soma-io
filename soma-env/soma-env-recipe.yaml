@@ -4,10 +4,11 @@ package:
 soma-env:
   publication: neuro-forge
   components:
-    aims-free: ["https://github.com/brainvisa/aims-free.git", "master"]
-    aims-gpl: ["https://github.com/brainvisa/aims-gpl.git", "master"]
-    brainvisa-share: ["https://github.com/brainvisa/brainvisa-share.git", "master"]
-    axon: ["https://github.com/brainvisa/axon.git", "master"]
+    - soma-io
+    - aims-free
+    - aims-gpl
+    - brainvisa-share
+    - axon
 
   internal-dependencies:
     - soma-python
