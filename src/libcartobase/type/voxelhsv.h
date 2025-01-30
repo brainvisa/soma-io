@@ -138,6 +138,12 @@ namespace carto {
   VoxelHSV operator * (const long     &aa, const VoxelHSV &bb);
   VoxelHSV operator / (const VoxelHSV &aa, const long     &bb);
 
+  template <>
+  struct KeyComparator<carto::VoxelHSV>
+  {
+    static inline bool less( const carto::VoxelHSV & lhs, const carto::VoxelHSV & rhs );
+  };
+
   //==========================================================================
   //   D E F I N I T I O N
   //==========================================================================
@@ -904,6 +910,16 @@ namespace carto {
     #endif
     VoxelHSV result( aa );
     return result /= bb;
+  }
+
+  // KeyComparator VoxelHSV specialization
+  inline
+  bool KeyComparator<carto::VoxelHSV>::less( const carto::VoxelHSV & lhs, const carto::VoxelHSV & rhs )
+  {
+    #ifdef CARTO_DEBUG_RGB
+      std::cout << "HSV:: KeyComparator less()" << std::endl;
+    #endif
+    return carto::KeyComparator<carto::VoxelValue<uint8_t, 3> >::less( lhs, rhs );
   }
   
 }

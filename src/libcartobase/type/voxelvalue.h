@@ -38,6 +38,7 @@
 #include <cartobase/type/types.h>
 #include <cartobase/exception/assert.h>
 //--- system -----------------------------------------------------------------
+#include <functional>
 //#define CARTO_DEBUG_VOXELVALUE
 #ifdef CARTO_DEBUG_VOXELVALUE
   #include <iostream>
@@ -89,6 +90,53 @@ namespace carto {
 
     protected:
       T _voxel[C];
+  };
+
+  //=== KEY COMPARATOR =======================================================
+
+  /// KeyComparator is used to compare keys of types that do not have
+  /// comparison operator.
+  /// It is useful to be able to use these types as keys in containers 
+  /// that needs key ordering (such as std::map).
+  /// KeyComparator supports comparison of carto::VoxelValue
+  ///
+  /// \tparam V  data type to use in key comparisons (uint8_t, carto::VoxelValue, ...)
+
+  // General definition
+  template <typename V>
+  struct KeyComparator
+  {
+    static inline uint64_t toUnsignedInt( const V & value);
+
+    static inline bool less( const V & lhs, const V & rhs );
+  };
+
+  // VoxelValue partial specialization
+  template <typename T, unsigned C>
+  struct KeyComparator<carto::VoxelValue<T, C> >
+  {
+    static inline uint64_t toUnsignedInt(const carto::VoxelValue<T, C> & value);
+
+    static inline bool less(const carto::VoxelValue<T, C> & lhs, 
+                            const carto::VoxelValue<T, C> & rhs);
+  };
+
+
+  //=== KEY FUNCTORS =======================================================
+  /// KeyComparatorLess Function object to be used in key comparisons. 
+  /// It supports carto::VoxelValue comparisons which has no real meaning but 
+  /// is necessary in containers that uses key ordering (such as std::map).
+  ///
+  /// The KeyComparatorLess class can be used for std::map key comparisons :
+  /// <tt>std::map<T, T, carto::KeyComparatorLess<T> > m;</tt> \n
+  ///
+  /// \tparam V data type to use in key comparison (uint8_t, carto::VoxelValue, ...)
+
+  // KeyComparatorLess functor
+  template <typename V>
+  struct KeyComparatorLess: std::binary_function<V, V, bool>
+  {
+    constexpr bool operator ()(const V & lhs, const V & rhs) const;
   };
 
   /***************************************************************************

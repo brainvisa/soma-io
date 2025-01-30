@@ -170,6 +170,11 @@ namespace carto {
   VoxelRGBA operator * (const long      &aa, const VoxelRGBA &bb);
   VoxelRGBA operator / (const VoxelRGBA &aa, const long      &bb);
 
+  template <>
+  struct KeyComparator<carto::VoxelRGBA>
+  {
+    static inline bool less( const carto::VoxelRGBA & lhs, const carto::VoxelRGBA & rhs );
+  };
 }
 
 #endif
