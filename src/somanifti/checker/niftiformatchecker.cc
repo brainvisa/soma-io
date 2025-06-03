@@ -154,7 +154,9 @@ namespace soma
     else if( ref == "Other template" )
       return NIFTI_XFORM_TEMPLATE_OTHER;
     else
-      return NIFTI_XFORM_UNKNOWN;
+      // again. Not NIFTI_XFORM_UNKNOWN which means there is no transform at
+      // all
+      return NIFTI_XFORM_ALIGNED_ANAT;  // again
     // In the case of StandardReferentials::acPcReferential() we do NOT want to
     // return NIFTI_XFORM_TALAIRACH, because these referential have inverse
     // orientation (the former is using LPI+, the AIMS convention, while the

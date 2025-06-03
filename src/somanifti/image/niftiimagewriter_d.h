@@ -534,6 +534,10 @@ void store_transformations_as_qform_and_sform(
 
   size_t nt = std::min(referentials->size(), transformations->size());
   std::vector<int> nifti_referentials( nt );
+  if( debug_transforms )
+    std::clog << "somanifti: store_transformations_as_qform_and_sform, n: "
+      << nt << std::endl;
+
   std::vector<AffineTransformationBase> mv( nt );
   if( nt > 0 )
     mv[0] = AffineTransformationBase( transformations->getArrayItem(0) );
@@ -544,12 +548,17 @@ void store_transformations_as_qform_and_sform(
     // Skip duplicate transformations
     mv[i] = AffineTransformationBase( transformations->getArrayItem(i) );
     nifti_referentials[i] = NiftiReferential( referentials->getArrayItem(i)->getString() );
+    if( debug_transforms )
+      std::clog << "somanifti: process trans " << i + 1 << " to ref: "
+        << nifti_referentials[i] << ":\n" << mv[i] << std::endl;
     bool skip = false;
     for( size_t j=0; j<i; ++j )
     {
       if( mv[j] == mv[i] && nifti_referentials[j] == nifti_referentials[i] )
       {
         skip = true;
+        if( debug_transforms )
+          std::clog << "somanifti: skip trans " << i << std::endl;
         break;
       }
     }
@@ -559,10 +568,18 @@ void store_transformations_as_qform_and_sform(
       std::string ref = referentials->getArrayItem(i)->getString();
 
       int xform_code = NiftiReferential( ref );
-      if( xform_code == NIFTI_XFORM_UNKNOWN ) {
+      if( debug_transforms )
+        std::clog << "xform_code: " << xform_code << std::endl;
+      bool skip_qform = false;
+      if( xform_code == NIFTI_XFORM_ALIGNED_ANAT
+          && ( nim->sform_code == NIFTI_XFORM_UNKNOWN
+               || sform_is_a_copy_of_qform ) )
+      {
         // There is no NIfTI code for this referential, ignore this
         // transformation.
-        continue;
+        if( debug_transforms )
+          std::clog << "xform_code is unknown: skipping qform." << std::endl;
+        skip_qform = true;
       }
 
       std::vector<float> m = (mot * voxsz * s2m).toVector();
@@ -574,7 +591,8 @@ void store_transformations_as_qform_and_sform(
 
       bool stored_as_qform = false;
 
-      if( nim->qform_code == NIFTI_XFORM_UNKNOWN ) {
+      if( !skip_qform && nim->qform_code == NIFTI_XFORM_UNKNOWN )
+      {
         QformParams qform_params;
         qform_params.from_mat44(R);
         // check if the matrix can actually be stored as a quaternion
@@ -607,6 +625,8 @@ void store_transformations_as_qform_and_sform(
         if(debug_transforms) {
           std::clog << "somanifti: storing transform "
                     << i + 1 << " / " << nt << " as sform." << std::endl;
+          std::clog << "will be a copy: " << sform_is_a_copy_of_qform
+                    << std::endl;
         }
         nim->sform_code = xform_code;
         for( int x=0; x<4; ++x )
@@ -623,7 +643,14 @@ void store_transformations_as_qform_and_sform(
                     << i + 1 << " / " << nt << "." << std::endl;
         }
       }
+      else if( debug_transforms )
+        std::clog << "somanifti warning: could not save transformation "
+                  << i + 1 << " / " << nt << "." << std::endl;
+      if( debug_transforms )
+        std::clog << "stored_as_qform: " << stored_as_qform << ", sform_code: " << nim->sform_code << ", qform_code: " << nim->qform_code << ", sform_is_a_copy_of_qform: " << sform_is_a_copy_of_qform << std::endl;
     }
+    else if( debug_transforms )
+      std::clog << "skipped.\n";
   }
 }
 
