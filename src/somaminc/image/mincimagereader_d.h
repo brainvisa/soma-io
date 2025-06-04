@@ -151,24 +151,21 @@ namespace soma
 
     // dest is supposed to be allocated
 
-#if 0
-// #if defined( AIMS_HAS_MINC2 ) && !defined( MINC_MNC2_SUPPORT )
-    /* if MINC_MNC2_SUPPORT then the general API also supports mnc2, so we
-        don't need this readMinc2(), which moreover hangs on some versions.
-    */
-    try
+    // in recent / some (?) versions of libminc, trying to read a Minc2
+    // volume using start_volume_input() (minc1 API) results in a segfault...
+    int minc_ver = 0;
+    if( dsi.header()->getProperty( "MINC_version", minc_ver ) )
     {
-      readMinc2( dest, dsi, pos, size, strides, options );
+      // std::cout << "read Minc version: " << minc_ver << std::endl;
+      if( minc_ver == 2 )
+      {
+        readMinc2( dest, dsi, pos, size, strides, options );
+        return;
+      }
     }
-    catch( ... )
-    {
-      // std::cout << "Minc2 read failed, using volume_io\n";
-      readMinc1( dest, dsi, pos, size, strides, options );
-    }
-#else
-    // only Minc1 available
+
+    // Minc1
     readMinc1( dest, dsi, pos, size, strides, options );
-#endif
 
     //Should we delete the header "hdr" ?? No.
 
@@ -771,6 +768,17 @@ namespace soma
       throw;
     }
 
+  }
+
+
+  template <typename T>
+  void MincImageReader<T>::readMinc2( T * dest, DataSourceInfo & dsi,
+                                      std::vector<int> & pos,
+                                      std::vector<int> & size,
+                                      std::vector<long> & stride,
+                                      carto::Object options )
+  {
+    throw io_error( "Minc2 is not supported" );
   }
 
 

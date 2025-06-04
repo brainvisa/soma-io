@@ -537,6 +537,24 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   // separators
   fname = FileUtil::linuxFilename( fname );
 
+  // suppress stderr output to avoid messages
+  fdinhibitor fdi( 2 );
+  fdi.close();
+
+  // check for Minc2 volume
+  // in recent / some (?) versions of libminc, trying to read a Minc2
+  // volume using start_volume_input() (minc1 API) results in a segfault...
+  mihandle_t    minc_volume;
+  ncopts = 0;  // avoid print + exit in netcdf
+  int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
+  if( status2 == MI_NOERROR )
+  {
+    // minc1 and minc2 volumes cannot be read using the same API (!)
+    return _buildMinc2Header( hds, (void *) minc_volume );
+  }
+
+  // here we deal with Minc1
+
   VIO_Volume volume;
   vector<VIO_STR> dim_names( VIO_MAX_DIMENSIONS );
   VIO_STR fileName = create_string ( const_cast<char *>( fname.c_str() ) );
@@ -562,10 +580,6 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   try
   {
-    // suppress stderr output to avoid netcdf messages
-    fdinhibitor fdi( 2 );
-    fdi.close();
-
     status = start_volume_input( fileName, 0, &dim_names[0],
                                  MI_ORIGINAL_TYPE, TRUE,
                                  0.0, 0.0, TRUE, &volume,
@@ -580,6 +594,8 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
       // refuse reading nifti: we handle it in our reader.
       throw wrong_format_error( fileName );
 #endif
+
+    hdr->setProperty( "MINC_version", 1 );
 
     string _type;
     if(volume->nc_data_type==NC_BYTE && volume->signed_flag==FALSE)
@@ -1021,6 +1037,127 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   return hdr;
 }
+
+
+Object MincFormatChecker::_buildMinc2Header( DataSource* hds,
+                                             void *handle ) const
+{
+  // cout << "_buildMinc2Header\n";
+  mihandle_t    minc_volume = (mihandle_t) handle;
+
+  Object hdr = Object::value( PropertySet() );  // header
+
+  try
+  {
+    int result, ndim;
+
+    result = miget_volume_dimension_count( minc_volume, MI_DIMCLASS_ANY,
+                                           MI_DIMATTR_ALL, &ndim );
+    if( result != MI_NOERROR )
+      throw io_error( "cannot read Minc2 dim count" );
+
+    // cout << "ndim: " << ndim << endl;
+    vector<midimhandle_t> dimensions( ndim );
+    vector<misize_t>  sizes( ndim );
+    vector<int> dim_order( ndim, 0 );
+    vector<int> dims( ndim, 1 );
+
+    int i, j, n;
+
+    miget_volume_dimensions( minc_volume, MI_DIMCLASS_ANY,
+                             MI_DIMATTR_ALL, MI_DIMORDER_FILE,
+                             ndim, &dimensions[0] );
+    for( i=0; i<ndim; ++i )
+    {
+      char *dname;
+      miget_dimension_name( dimensions[i], &dname );
+      string name = dname;
+      if( name == MIxspace )
+        dim_order[i] = 0;
+      else if( name == MIyspace )
+        dim_order[i] = 1;
+      else if( name == MIzspace )
+        dim_order[i] = 2;
+      else if( name == MItime )
+        dim_order[i] = 3;
+      else
+      {
+        n = 4;
+        for( j=0; j<i; ++j )
+          if( dim_order[j] >= n )
+            n = dim_order[j] + 1;
+        dim_order[i] = n;
+      }
+    }
+    /* cout << "dims order:\n";
+    for( i=0; i<ndim; ++i )
+      cout << dim_order[i] << endl; */
+
+    result = miget_dimension_sizes( &dimensions[0], ndim, &sizes[0] );
+    for( i=0; i<ndim; ++i )
+      dims[dim_order[i]] = sizes[i];
+    /* cout << "dims:\n";
+    for( i=0; i<ndim; ++i )
+      cout << dims[i] << endl; */
+    hdr->setProperty( "volume_dimension", dims );
+    hdr->setProperty( "MINC_version", 2 );
+    hdr->setProperty( "format", "MINC" );
+    hdr->setProperty( "MINC_dimension_order", dim_order );
+
+    mitype_t volume_data_type;
+
+    miget_data_type( minc_volume, &volume_data_type );
+
+    string _type;
+    if( volume_data_type == MI_TYPE_BYTE )
+      _type = "S8";
+    else if( volume_data_type == MI_TYPE_UBYTE )
+      _type = "U8";
+    else if( volume_data_type == MI_TYPE_SHORT )
+      _type = "S16";
+    else if( volume_data_type == MI_TYPE_USHORT )
+      _type = "U16";
+    else if( volume_data_type == MI_TYPE_INT )
+      _type = "S32";
+    else if( volume_data_type == MI_TYPE_UINT )
+      _type = "U32";
+    else if( volume_data_type == MI_TYPE_FLOAT )
+      _type = "FLOAT";
+    else if( volume_data_type == MI_TYPE_DOUBLE )
+      _type = "DOUBLE";
+    else if( volume_data_type == MI_TYPE_FCOMPLEX )
+      _type = "CFLOAT";
+    else if( volume_data_type == MI_TYPE_DCOMPLEX )
+      _type = "CDOUBLE";
+    else
+      throw wrong_format_error( "unsupported data type in Minc2 file" );
+
+    // cout << "data type: " << _type << endl;
+    hdr->setProperty( "data_type", _type );
+    hdr->setProperty( "object_type", string( "Volume" ) );
+
+    vector<float> vs( ndim );
+
+    for( i=0; i<ndim; ++i )
+    {
+      double separation;
+      miget_dimension_separation( dimensions[i], MI_ORDER_FILE, &separation );
+      vs[dim_order[i]] = float( separation );
+    }
+    hdr->setProperty( "voxel_size", vs );
+
+    miclose_volume( minc_volume );
+  }
+  catch( ... )
+  {
+    miclose_volume( minc_volume );
+    throw;
+  }
+
+  // cout << "header read\n";
+  return hdr;
+}
+
 
 //============================================================================
 //   P U B L I C   M E T H O D S

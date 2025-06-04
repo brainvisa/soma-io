@@ -72,6 +72,8 @@ namespace soma
   protected:
       void  _buildDSList( DataSourceList & dsl ) const;
       carto::Object _buildHeader( DataSource * hds ) const;
+      carto::Object _buildMinc2Header( DataSource * hds,
+                                       void *handle ) const;
 
       int readMincAttribute( carto::Object hdr,
                              carto::Syntax &sx, int mincid,

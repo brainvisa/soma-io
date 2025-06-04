@@ -85,16 +85,11 @@ namespace soma
                            std::vector<int> & size,
                            std::vector<long> & stride,
                            carto::Object options );
-#if 0
-      // readMinc2 is bugy, and the Minc1 API also works for Minc2, Nifti or
-      // other formats supported in newer minc libs
-// #ifdef AIMS_HAS_MINC2
       void readMinc2( T * dest, DataSourceInfo & dsi,
                       std::vector<int> & pos,
                       std::vector<int> & size,
                       std::vector<long> & stride,
-                      carto::Object options, int frame );
-#endif
+                      carto::Object options );
 
       std::vector<std::vector<int> >  _sizes;
   };
