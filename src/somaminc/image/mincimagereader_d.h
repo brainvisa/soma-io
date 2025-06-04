@@ -819,7 +819,7 @@ namespace soma
       offset_t offset;
       T *target;
       double voxel;
-      std::vector<unsigned long> voxel_location( ndim );
+      std::vector<misize_t> voxel_location( ndim );
       std::vector<int> inv_dim_order( ndim, 0 );
       int i;
 
