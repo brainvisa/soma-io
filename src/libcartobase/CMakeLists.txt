@@ -2,11 +2,11 @@
 ## libCartobase
 
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" 
+install( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/version.h" 
                    DESTINATION "include/cartobase/config" 
                    COMPONENT ${PROJECT_NAME}-dev )
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/config.h.in" "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h"
+install( FILES "${CMAKE_BINARY_DIR}/include/cartobase/config/config.h"
                    DESTINATION "include/cartobase/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
@@ -253,7 +253,7 @@ endif(UNIX)
 if(APPLE)
   target_link_libraries( cartobase_0 "-framework CoreServices" )
 endif(APPLE)
-BRAINVISA_INSTALL( TARGETS cartobase_0
+install( TARGETS cartobase_0
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -263,7 +263,7 @@ target_link_libraries( cartobase_1 "cartobase_0" ${LIBXML2_LIBRARIES} ${Sigc++2_
 if(UNIX)
   target_link_libraries( cartobase_1 "pthread" )
 endif(UNIX)
-BRAINVISA_INSTALL( TARGETS cartobase_1
+install( TARGETS cartobase_1
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -273,7 +273,7 @@ target_link_libraries( cartobase "cartobase_1" "cartobase_0" ${LIBXML2_LIBRARIES
 if(UNIX)
   target_link_libraries( cartobase "pthread" )
 endif(UNIX)
-BRAINVISA_INSTALL( TARGETS cartobase
+install( TARGETS cartobase
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 

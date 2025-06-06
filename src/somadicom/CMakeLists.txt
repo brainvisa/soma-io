@@ -1,5 +1,5 @@
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/somadicom.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h"
+install( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somadicom.h"
                    DESTINATION "include/soma-io/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
@@ -309,7 +309,7 @@ target_link_libraries( somadicom soma-io cartobase
                        ${DCMTK_LIBRARIES_ADDITIONAL}
                        ${SOMADICOM_LIBRARIES_ADDITIONAL} )
 
-BRAINVISA_INSTALL( TARGETS somadicom
+install( TARGETS somadicom
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -319,7 +319,7 @@ if( APPLE )
   add_library( bundle_somadicom MODULE plugin/dummy.cc )
   set_property( TARGET bundle_somadicom PROPERTY OUTPUT_NAME somadicom.${${PROJECT_NAME}_VERSION} )
   target_link_libraries( bundle_somadicom somadicom )
-  BRAINVISA_INSTALL( TARGETS bundle_somadicom
+  install( TARGETS bundle_somadicom
                     DESTINATION lib
                     COMPONENT ${PROJECT_NAME} )
 endif()

@@ -4,7 +4,7 @@ if( NOT OPENSLIDE_HEX_VERSION )
 endif()
 
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/osversion.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h"
+install( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/osversion.h"
                    DESTINATION "include/soma-io/config"
                    COMPONENT ${PROJECT_NAME}-dev )
                    
@@ -16,7 +16,7 @@ add_dependencies( somaopenslide ${headersTarget} )
 include_directories( ${OPENSLIDE_INCLUDE_DIRS} )
 set_property( TARGET somaopenslide PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( somaopenslide soma-io cartobase ${OPENSLIDE_LIBRARIES}  )
-BRAINVISA_INSTALL( TARGETS somaopenslide
+install( TARGETS somaopenslide
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -26,7 +26,7 @@ if( APPLE )
   add_library( bundle_somaopenslide MODULE plugin/dummy.cc )
   set_property( TARGET bundle_somaopenslide PROPERTY OUTPUT_NAME somaopenslide.${${PROJECT_NAME}_VERSION} )
   target_link_libraries( bundle_somaopenslide somaopenslide )
-  BRAINVISA_INSTALL( TARGETS bundle_somaopenslide
+  install( TARGETS bundle_somaopenslide
                     DESTINATION lib
                     COMPONENT ${PROJECT_NAME} )
 endif()

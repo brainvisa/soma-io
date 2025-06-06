@@ -1,10 +1,10 @@
 ## Soma-IO config
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/version.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/version.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/version.h" 
+install( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/version.h" 
                    DESTINATION "include/soma-io/config" 
                    COMPONENT ${PROJECT_NAME}-dev )
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/config.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/config.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/config.h"
+install( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/config.h"
                    DESTINATION "include/soma-io/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
@@ -138,7 +138,7 @@ add_library( soma-io SHARED ${_somaio_sources} )
 add_dependencies( soma-io ${headersTarget} )
 set_property( TARGET soma-io PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( soma-io cartobase "${CMAKE_DL_LIBS}" )
-BRAINVISA_INSTALL( TARGETS soma-io
+install( TARGETS soma-io
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -154,5 +154,5 @@ IF ( DOXYGEN_FOUND )
     _doxyheaders
     INPUT_PREFIX "${CMAKE_BINARY_DIR}/include/${component_name}"
     COMPONENT "${component_name}" )
-  add_dependencies( ${component_name}-doxygen cartobase-doxygen)
+  # add_dependencies( ${component_name}-doxygen cartobase-doxygen)
 ENDIF ( DOXYGEN_FOUND )

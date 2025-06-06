@@ -38,7 +38,7 @@ add_library( somanifti SHARED ${_sources} )
 add_dependencies( somanifti ${headersTarget} )
 set_property( TARGET somanifti PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( somanifti soma-io cartobase ${ZLIB_LIBRARIES} )
-BRAINVISA_INSTALL( TARGETS somanifti
+install( TARGETS somanifti
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -48,7 +48,7 @@ if( APPLE )
   add_library( bundle_somanifti MODULE plugin/dummy.cc )
   set_property( TARGET bundle_somanifti PROPERTY OUTPUT_NAME somanifti.${${PROJECT_NAME}_VERSION} )
   target_link_libraries( bundle_somanifti somanifti )
-  BRAINVISA_INSTALL( TARGETS bundle_somanifti
+  install( TARGETS bundle_somanifti
                     DESTINATION lib
                     COMPONENT ${PROJECT_NAME} )
 endif()

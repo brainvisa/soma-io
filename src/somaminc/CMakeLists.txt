@@ -19,7 +19,7 @@ if( MINC2_FOUND )
 endif()
 
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/config/somaminc_config.h.in" "${CMAKE_BINARY_DIR}/include/soma-io/config/somaminc_config.h" @ONLY )
-BRAINVISA_INSTALL( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somaminc_config.h"
+install( FILES "${CMAKE_BINARY_DIR}/include/soma-io/config/somaminc_config.h"
                    DESTINATION "include/soma-io/config"
                    COMPONENT ${PROJECT_NAME}-dev )
 
@@ -29,7 +29,7 @@ add_library( somaminc SHARED ${_sources} )
 add_dependencies( somaminc ${headersTarget} )
 set_property( TARGET somaminc PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( somaminc soma-io cartobase ${LIBMINC_LIBRARIES} )
-BRAINVISA_INSTALL( TARGETS somaminc
+install( TARGETS somaminc
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -40,7 +40,7 @@ if( APPLE )
   add_library( bundle_somaminc MODULE plugin/dummy.cc )
   set_property( TARGET bundle_somaminc PROPERTY OUTPUT_NAME somaminc.${${PROJECT_NAME}_VERSION} )
   target_link_libraries( bundle_somaminc somaminc )
-  BRAINVISA_INSTALL( TARGETS bundle_somaminc
+  install( TARGETS bundle_somaminc
                     DESTINATION lib
                     COMPONENT ${PROJECT_NAME} )
 endif()

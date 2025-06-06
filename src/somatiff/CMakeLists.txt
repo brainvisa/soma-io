@@ -24,7 +24,7 @@ set_property( TARGET somatiff PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 
 target_link_libraries( somatiff soma-io cartobase
   ${TIFF_LIBRARIES} ${ZLIB_LIBRARIES} )
-BRAINVISA_INSTALL( TARGETS somatiff
+  install( TARGETS somatiff
                    DESTINATION lib
                    COMPONENT ${PROJECT_NAME} )
 
@@ -34,7 +34,7 @@ if( APPLE )
   add_library( bundle_somatiff MODULE plugin/dummy.cc )
   set_property( TARGET bundle_somatiff PROPERTY OUTPUT_NAME somatiff.${${PROJECT_NAME}_VERSION} )
   target_link_libraries( bundle_somatiff somatiff )
-  BRAINVISA_INSTALL( TARGETS bundle_somatiff
+  install( TARGETS bundle_somatiff
                      DESTINATION lib
                      COMPONENT ${PROJECT_NAME} )
 endif()

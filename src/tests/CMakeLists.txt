@@ -48,7 +48,7 @@ TARGET_LINK_LIBRARIES(somaDSList_test           soma-io)
 TARGET_LINK_LIBRARIES(somaRGB_test              soma-io)
 TARGET_LINK_LIBRARIES(somaGetPluginFile_test    soma-io)
 
-BRAINVISA_INSTALL( TARGETS cartoRcptr_test cartoScopedptr_test
+install( TARGETS cartoRcptr_test cartoScopedptr_test
               cartoSharedptr_test cartoWeakptr_test cartoAlgorithm_test
               cartoConversion_test cartoDataTypeTraits_test
               cartoMultiThread_test cartoMutex_test cartoThreadedRcptr_test
