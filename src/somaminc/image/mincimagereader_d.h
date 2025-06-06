@@ -151,24 +151,21 @@ namespace soma
 
     // dest is supposed to be allocated
 
-#if 0
-// #if defined( AIMS_HAS_MINC2 ) && !defined( MINC_MNC2_SUPPORT )
-    /* if MINC_MNC2_SUPPORT then the general API also supports mnc2, so we
-        don't need this readMinc2(), which moreover hangs on some versions.
-    */
-    try
+    // in recent / some (?) versions of libminc, trying to read a Minc2
+    // volume using start_volume_input() (minc1 API) results in a segfault...
+    int minc_ver = 0;
+    if( dsi.header()->getProperty( "MINC_version", minc_ver ) )
     {
-      readMinc2( dest, dsi, pos, size, strides, options );
+      // std::cout << "read Minc version: " << minc_ver << std::endl;
+      if( minc_ver == 2 )
+      {
+        readMinc2( dest, dsi, pos, size, strides, options );
+        return;
+      }
     }
-    catch( ... )
-    {
-      // std::cout << "Minc2 read failed, using volume_io\n";
-      readMinc1( dest, dsi, pos, size, strides, options );
-    }
-#else
-    // only Minc1 available
+
+    // Minc1
     readMinc1( dest, dsi, pos, size, strides, options );
-#endif
 
     //Should we delete the header "hdr" ?? No.
 
@@ -771,6 +768,97 @@ namespace soma
       throw;
     }
 
+  }
+
+
+  template <typename T>
+  void MincImageReader<T>::readMinc2( T * dest, DataSourceInfo & dsi,
+                                      std::vector<int> & pos,
+                                      std::vector<int> & size,
+                                      std::vector<long> & strides,
+                                      carto::Object options )
+  {
+    std::cout << "readMinc2 " << dsi.url() << std::endl;
+    int result;
+    mihandle_t    minc_volume;
+    ncopts = 0;  // avoid print + exit in netcdf
+    int status2 = miopen_volume( dsi.url().c_str(), MI2_OPEN_READ,
+                                 &minc_volume );
+    if( status2 != MI_NOERROR )
+      throw carto::corrupt_stream_error( "could not read MINC2 file",
+                                         dsi.url() );
+
+    try
+    {
+      MincFormatChecker::mincMutex().lock();
+
+      carto::Object hdr = dsi.header();
+      std::string dtype;
+      std::vector<int> dims;
+      std::vector<int> dim_order;
+      std::vector<float> vs;
+
+      hdr->getProperty( "data_type", dtype );
+      hdr->getProperty( "volume_dimension", dims );
+      hdr->getProperty( "MINC_dimension_order", dim_order );
+      hdr->getProperty( "voxel_size", vs );
+
+      int ndim = int( dims.size() );
+      std::vector<midimhandle_t> dimensions( ndim );
+
+      miget_volume_dimensions( minc_volume, MI_DIMCLASS_ANY,
+                               MI_DIMATTR_ALL, MI_DIMORDER_FILE,
+                               ndim, &dimensions[0] );
+
+      std::vector<int> tsize( size.begin() + 3, size.end() );
+      while( tsize.size() < ndim - 3 )
+        tsize.push_back( 1 );
+      std::vector<int> tstrides( strides.begin() + 3, strides.end() );
+      while( tstrides.size() < ndim - 3 )
+        tstrides.push_back( strides[ strides.size() - 1 ] );
+      offset_t offset;
+      T *target;
+      double voxel;
+      std::vector<misize_t> voxel_location( ndim );
+      std::vector<int> inv_dim_order( ndim, 0 );
+      int i;
+
+      for( i=0; i<ndim; ++i )
+        inv_dim_order[dim_order[i]] = i;
+
+      NDIterator_base it( tsize, tstrides );
+      for( ; !it.ended(); ++it )
+        for( int z=0; z<size[2]; ++z )
+          for( int y=0; y<size[1]; ++y )
+          {
+            offset = it.offset() + z * strides[2] + y * strides[1];
+            target = dest + offset;
+            for( i=3; i<ndim; ++i )
+              voxel_location[inv_dim_order[i]] = it.position()[i - 3] + pos[i];
+            voxel_location[inv_dim_order[1]] = y + pos[1];
+            voxel_location[inv_dim_order[2]] = z + pos[2];
+
+            for( int x=0; x<size[0]; ++x )
+            {
+              voxel_location[inv_dim_order[0]] = x + pos[0];
+              miget_real_value( minc_volume, &voxel_location[0], ndim,
+                                &voxel );
+              *target = (T) voxel;
+              target += strides[0];
+            }
+          }
+
+      miclose_volume( minc_volume );
+      MincFormatChecker::mincMutex().unlock();
+    }
+    catch( ... )
+    {
+      miclose_volume( minc_volume );
+      MincFormatChecker::mincMutex().unlock();
+      throw;
+    }
+
+    //throw io_error( "Minc2 is not supported" );
   }
 
 
