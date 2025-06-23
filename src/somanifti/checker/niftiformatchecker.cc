@@ -147,7 +147,8 @@ namespace soma
     else if( ref 
         == "Coordinates aligned to another file or to anatomical truth" )
       return NIFTI_XFORM_ALIGNED_ANAT;
-    else if( ref == StandardReferentials::mniTemplateReferential() )
+    else if( ref == StandardReferentials::mniTemplateReferential()
+             || ref == StandardReferentials::mniTemplateReferentialID() )
       return NIFTI_XFORM_MNI_152;
     else if( ref == StandardReferentials::talairachReferential() )
       return NIFTI_XFORM_TALAIRACH;
