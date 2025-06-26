@@ -49,6 +49,8 @@
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/thread/mutex.h>
 #include <cartobase/stream/fdinhibitor.h>
+#include <cartobase/stream/directory.h>
+#include <cartobase/config/paths.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "MINCFORMATCHECKER" )
@@ -504,6 +506,32 @@ mgh_header_from_file(znzFile fp, struct mgh_header *hdr_ptr)
 }
 
 
+namespace
+{
+  /* minc miopen_volume(), when it does not recognize the input file, creates a
+     temp file /tmp/minc-<something> to try converting from minc1. If it fails,
+     it doesn't delete the tmp file.
+  */
+  void _clear_minc_tmp()
+  {
+    Directory d( Paths::tempDir() );
+    set<string> files = d.files();
+    set<string>::iterator i, e = files.end();
+    for( i=files.begin(); i!=e; ++i )
+    {
+      string fn = Paths::tempDir() + FileUtil::separator() + *i;
+      string bn = *i;
+      if( bn.length() >= 6 && bn.substr( 0, 5 ) == "minc-" )
+      {
+        struct stat statbuf;
+        if( statbuf.st_blocks == 0 )
+          cout << unlink( fn.c_str() ) << endl;
+      }
+    }
+  }
+}
+
+
 /*** BUILDING HEADER *********************************************************
  * This method builds a header from a .mnc DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
@@ -522,7 +550,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 //   if( !hds->isOpen() )
 //     io_error::launchErrnoExcept( fname );
 
-  // cout << "MincHeader::read(), file : " << _name << endl;
+  // cout << "MincFormatChecker::_buildHeader, file : " << hds->url() << endl;
 
   // Work around BUG in netCDF which incorrectly uses assert and
   // aborts on empty files
@@ -546,12 +574,15 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   // volume using start_volume_input() (minc1 API) results in a segfault...
   mihandle_t    minc_volume;
   ncopts = 0;  // avoid print + exit in netcdf
+
   int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
+
   if( status2 == MI_NOERROR )
   {
     // minc1 and minc2 volumes cannot be read using the same API (!)
     return _buildMinc2Header( hds, (void *) minc_volume );
   }
+  _clear_minc_tmp();
 
   // here we deal with Minc1
 
