@@ -524,8 +524,9 @@ namespace
       if( bn.length() >= 6 && bn.substr( 0, 5 ) == "minc-" )
       {
         struct stat statbuf;
+        stat( fn.c_str(), &statbuf );
         if( statbuf.st_blocks == 0 )
-          cout << unlink( fn.c_str() ) << endl;
+          unlink( fn.c_str() );
       }
     }
   }
