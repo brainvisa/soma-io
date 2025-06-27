@@ -512,23 +512,18 @@ namespace
      temp file /tmp/minc-<something> to try converting from minc1. If it fails,
      it doesn't delete the tmp file.
   */
-  void _clear_minc_tmp()
+  void _clear_minc_tmp( const string & dtname, const string & old_tmp )
   {
-    Directory d( Paths::tempDir() );
+    Directory d( dtname );
     set<string> files = d.files();
     set<string>::iterator i, e = files.end();
     for( i=files.begin(); i!=e; ++i )
     {
-      string fn = Paths::tempDir() + FileUtil::separator() + *i;
-      string bn = *i;
-      if( bn.length() >= 6 && bn.substr( 0, 5 ) == "minc-" )
-      {
-        struct stat statbuf;
-        stat( fn.c_str(), &statbuf );
-        if( statbuf.st_blocks == 0 )
-          unlink( fn.c_str() );
-      }
+      string fn = dtname + FileUtil::separator() + *i;
+      unlink( fn.c_str() );
     }
+    rmdir( dtname.c_str() );
+    setenv( "TMP", old_tmp.c_str(), 1 );
   }
 }
 
@@ -576,14 +571,30 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   mihandle_t    minc_volume;
   ncopts = 0;  // avoid print + exit in netcdf
 
+  // Minc2 may create a temp file and no delete it. As we may call this
+  // multiple times, we need to cleanup otherwise we will flood the filesystem.
+  char dtname[] = "aimsminc_XXXXXX";
+  if( !mkdtemp( dtname ) )
+    cout << "could not make temp dir " << dtname << endl;
+  string old_tmp = getenv( "TMP" );
+  setenv( "TMP", dtname, 1 );
+
   int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
 
-  if( status2 == MI_NOERROR )
+  try
   {
-    // minc1 and minc2 volumes cannot be read using the same API (!)
-    return _buildMinc2Header( hds, (void *) minc_volume );
+    if( status2 == MI_NOERROR )
+    {
+      // minc1 and minc2 volumes cannot be read using the same API (!)
+      return _buildMinc2Header( hds, (void *) minc_volume );
+    }
   }
-  _clear_minc_tmp();
+  catch( ... )
+  {
+    _clear_minc_tmp( dtname, old_tmp );
+    throw;
+  }
+  _clear_minc_tmp( dtname, old_tmp );
 
   // here we deal with Minc1
 
