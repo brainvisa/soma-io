@@ -522,8 +522,12 @@ namespace
       string fn = dtname + FileUtil::separator() + *i;
       unlink( fn.c_str() );
     }
+    // cout << "rm tmp dir: " << dtname << endl;
     rmdir( dtname.c_str() );
-    setenv( "TMP", old_tmp.c_str(), 1 );
+    if( old_tmp.empty() )
+      unsetenv( "TMPDIR" );
+    else
+      setenv( "TMPDIR", old_tmp.c_str(), 1 );
   }
 }
 
@@ -571,13 +575,17 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   mihandle_t    minc_volume;
   ncopts = 0;  // avoid print + exit in netcdf
 
+  mincMutex().lock();
   // Minc2 may create a temp file and no delete it. As we may call this
   // multiple times, we need to cleanup otherwise we will flood the filesystem.
-  char dtname[] = "aimsminc_XXXXXX";
-  if( !mkdtemp( dtname ) )
+  string dtname = Paths::tempDir() + FileUtil::separator() + "aimsminc_XXXXXX";
+  char *dtnamec = strdup( dtname.c_str() );
+  if( !mkdtemp( dtnamec ) )
     cout << "could not make temp dir " << dtname << endl;
-  string old_tmp = getenv( "TMP" );
-  setenv( "TMP", dtname, 1 );
+  dtname = dtnamec;
+  free( dtnamec );
+  string old_tmp = Paths::tempDir();
+  setenv( "TMPDIR", dtname.c_str(), 1 );
 
   int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
 
@@ -592,9 +600,11 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   catch( ... )
   {
     _clear_minc_tmp( dtname, old_tmp );
+    mincMutex().unlock();
     throw;
   }
   _clear_minc_tmp( dtname, old_tmp );
+  mincMutex().unlock();
 
   // here we deal with Minc1
 
