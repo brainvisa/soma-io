@@ -49,6 +49,7 @@
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "WRITER" )
+// #define localMsg( message ) std::cout << "WRITER: " << message << std::endl;
 // localMsg must be undef at end of file
 //----------------------------------------------------------------------------
 
@@ -129,6 +130,8 @@ namespace soma
     int              exct = -1;
     std::string      excm;
 
+    errno = 0;  // start from a clean situation
+
     if( !options.get() )
       options = carto::Object::value( carto::PropertySet() );
 
@@ -145,7 +148,7 @@ namespace soma
 
     std::string	format;
     options->getProperty( "format", format );
-    localMsg( "format: " + format );
+    localMsg( "format hint: " + format );
     bool exactformat = false;
     try
     {
@@ -171,15 +174,20 @@ namespace soma
             localMsg( "1. " + format + " OK" );
             return true;
           }
-          else if( exactformat )
-            throw carto::wrong_format_error( std::string( "Cannot write "
-              "object in format " ) + format, _datasourceinfo->url() );
+          else
+          {
+            io_error::checkFatalIOErrno( _datasourceinfo->url() );
+            if( exactformat )
+              throw carto::wrong_format_error( std::string( "Cannot write "
+                "object in format " ) + format, _datasourceinfo->url() );
+          }
         }
         catch( std::exception & e )
         {
           localMsg( "1. " + format + " failed" );
           if( exactformat )
             throw;
+          io_error::checkFatalIOErrno( _datasourceinfo->url() );
           carto::io_error::keepExceptionPriority( e, excp, exct, excm, 5 );
         }
         tried.insert( format );
@@ -213,15 +221,20 @@ namespace soma
                 localMsg( "2. " + ie->second + " OK" );
                 return true;
               }
-              else if( exactformat )
-                throw carto::wrong_format_error( std::string( "Cannot write "
-                  "object in format " ) + format, _datasourceinfo->url() );
+              else
+              {
+                io_error::checkFatalIOErrno( _datasourceinfo->url() );
+                if( exactformat )
+                  throw carto::wrong_format_error( std::string( "Cannot write "
+                    "object in format " ) + format, _datasourceinfo->url() );
+              }
             }
             catch( std::exception & e )
             {
               localMsg( " 2. " + ie->second + " failed" );
               if( exactformat )
                 throw;
+              io_error::checkFatalIOErrno( _datasourceinfo->url() );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -247,15 +260,20 @@ namespace soma
                 localMsg( "3. " + ie->second + " OK" );
                 return true;
               }
-              else if( exactformat )
-                throw carto::wrong_format_error( std::string( "Cannot write "
-                  "object in format " ) + format, _datasourceinfo->url() );
+              else
+              {
+                io_error::checkFatalIOErrno( _datasourceinfo->url() );
+                if( exactformat )
+                  throw carto::wrong_format_error( std::string( "Cannot write "
+                    "object in format " ) + format, _datasourceinfo->url() );
+              }
             }
             catch( std::exception & e )
             {
               localMsg( "3. " + ie->second + " failed" );
               if( exactformat )
                 throw;
+              io_error::checkFatalIOErrno( _datasourceinfo->url() );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
@@ -282,15 +300,20 @@ namespace soma
                 localMsg( "4. " + ie->second + " OK" );
                 return true;
               }
-              else if( exactformat )
-                throw carto::wrong_format_error( std::string( "Cannot write "
-                  "object in format " ) + format, _datasourceinfo->url() );
+              else
+              {
+                io_error::checkFatalIOErrno( _datasourceinfo->url() );
+                if( exactformat )
+                  throw carto::wrong_format_error( std::string( "Cannot write "
+                    "object in format " ) + format, _datasourceinfo->url() );
+              }
             }
             catch( std::exception & e )
             {
               localMsg( "4. " + ie->second + " failed" );
               if( exactformat )
                 throw;
+              io_error::checkFatalIOErrno( _datasourceinfo->url() );
               carto::io_error::keepExceptionPriority( e, excp, exct, excm );
             }
             tried.insert( ie->second );
