@@ -532,6 +532,13 @@ namespace
 }
 
 
+// use this to close leaked files in libminc which would cause segfault at exit
+extern "C"
+{
+  void H5_term_library();
+}
+
+
 /*** BUILDING HEADER *********************************************************
  * This method builds a header from a .mnc DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
@@ -576,7 +583,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   ncopts = 0;  // avoid print + exit in netcdf
 
   mincMutex().lock();
-  // Minc2 may create a temp file and no delete it. As we may call this
+  // Minc2 may create a temp file and not delete it. As we may call this
   // multiple times, we need to cleanup otherwise we will flood the filesystem.
   string dtname = Paths::tempDir() + FileUtil::separator() + "aimsminc_XXXXXX";
   char *dtnamec = strdup( dtname.c_str() );
@@ -604,6 +611,18 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
     throw;
   }
   _clear_minc_tmp( dtname, old_tmp );
+
+  /* Minc2 miopen_volume leaks some open HFD5 files when the file is not
+     recognized as a Minc2 volume. This causes segfaults at exit (in the exit
+     handler, in H5_term_library().
+     To fix it we call manually the private function H5_term_library() in order
+     to garbage-collect the open file.
+     We do this inside the mutex to prevent another thread to use the HDF5 API
+     in the same time.
+  */
+  H5_term_library();
+  H5open();
+
   mincMutex().unlock();
 
   // here we deal with Minc1
@@ -1257,6 +1276,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
   {
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "mnc" ).get();
+
     dsi.header() = _buildHeader( hds );
     std::string format = dsi.header()->getProperty( "format" )->getString();
 
