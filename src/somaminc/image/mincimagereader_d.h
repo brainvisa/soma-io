@@ -852,13 +852,13 @@ namespace soma
           }
 
       miclose_volume( minc_volume );
-      H5close();
+      // H5close();
       MincFormatChecker::mincMutex().unlock();
     }
     catch( ... )
     {
       miclose_volume( minc_volume );
-      H5close();
+      // H5close();
       MincFormatChecker::mincMutex().unlock();
       throw;
     }

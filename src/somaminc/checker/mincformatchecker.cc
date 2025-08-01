@@ -587,8 +587,6 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   string old_tmp = Paths::tempDir();
   setenv( "TMPDIR", dtname.c_str(), 1 );
 
-  int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
-
   /* Minc2 miopen_volume leaks some open HFD5 files when the file is not
      recognized as a Minc2 volume. This causes segfaults at exit (in the exit
      handler, in H5_term_library().
@@ -596,7 +594,12 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
      to garbage-collect the open file.
      We do this inside the mutex to prevent another thread to use the HDF5 API
      in the same time.
+     Anyway crashes are still experienced. So the only solution for now is to
+     prevent atexit cleanups.
   */
+  H5dont_atexit();
+
+  int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
 
   try
   {
