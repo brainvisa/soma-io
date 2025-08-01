@@ -785,8 +785,11 @@ namespace soma
     int status2 = miopen_volume( dsi.url().c_str(), MI2_OPEN_READ,
                                  &minc_volume );
     if( status2 != MI_NOERROR )
+    {
+      H5close();
       throw carto::corrupt_stream_error( "could not read MINC2 file",
                                          dsi.url() );
+    }
 
     try
     {
@@ -849,11 +852,13 @@ namespace soma
           }
 
       miclose_volume( minc_volume );
+      H5close();
       MincFormatChecker::mincMutex().unlock();
     }
     catch( ... )
     {
       miclose_volume( minc_volume );
+      H5close();
       MincFormatChecker::mincMutex().unlock();
       throw;
     }

@@ -532,13 +532,6 @@ namespace
 }
 
 
-// use this to close leaked files in libminc which would cause segfault at exit
-extern "C"
-{
-  void H5_term_library();
-}
-
-
 /*** BUILDING HEADER *********************************************************
  * This method builds a header from a .mnc DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
@@ -596,32 +589,36 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
 
+  /* Minc2 miopen_volume leaks some open HFD5 files when the file is not
+     recognized as a Minc2 volume. This causes segfaults at exit (in the exit
+     handler, in H5_term_library().
+     To fix it we call manually the function H5close() in order
+     to garbage-collect the open file.
+     We do this inside the mutex to prevent another thread to use the HDF5 API
+     in the same time.
+  */
+
   try
   {
     if( status2 == MI_NOERROR )
     {
       // minc1 and minc2 volumes cannot be read using the same API (!)
-      return _buildMinc2Header( hds, (void *) minc_volume );
+      Object res = _buildMinc2Header( hds, (void *) minc_volume );
+      H5close();
+      mincMutex().unlock();
+      return res;
     }
   }
   catch( ... )
   {
     _clear_minc_tmp( dtname, old_tmp );
+    H5close();
     mincMutex().unlock();
     throw;
   }
   _clear_minc_tmp( dtname, old_tmp );
 
-  /* Minc2 miopen_volume leaks some open HFD5 files when the file is not
-     recognized as a Minc2 volume. This causes segfaults at exit (in the exit
-     handler, in H5_term_library().
-     To fix it we call manually the private function H5_term_library() in order
-     to garbage-collect the open file.
-     We do this inside the mutex to prevent another thread to use the HDF5 API
-     in the same time.
-  */
-  H5_term_library();
-  H5open();
+  H5close();
 
   mincMutex().unlock();
 
