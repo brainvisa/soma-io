@@ -49,6 +49,8 @@
 #include <cartobase/stream/fileutil.h>             // to manipulate file names
 #include <cartobase/thread/mutex.h>
 #include <cartobase/stream/fdinhibitor.h>
+#include <cartobase/stream/directory.h>
+#include <cartobase/config/paths.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "MINCFORMATCHECKER" )
@@ -504,6 +506,32 @@ mgh_header_from_file(znzFile fp, struct mgh_header *hdr_ptr)
 }
 
 
+namespace
+{
+  /* minc miopen_volume(), when it does not recognize the input file, creates a
+     temp file /tmp/minc-<something> to try converting from minc1. If it fails,
+     it doesn't delete the tmp file.
+  */
+  void _clear_minc_tmp( const string & dtname, const string & old_tmp )
+  {
+    Directory d( dtname );
+    set<string> files = d.files();
+    set<string>::iterator i, e = files.end();
+    for( i=files.begin(); i!=e; ++i )
+    {
+      string fn = dtname + FileUtil::separator() + *i;
+      unlink( fn.c_str() );
+    }
+    // cout << "rm tmp dir: " << dtname << endl;
+    rmdir( dtname.c_str() );
+    if( old_tmp.empty() )
+      unsetenv( "TMPDIR" );
+    else
+      setenv( "TMPDIR", old_tmp.c_str(), 1 );
+  }
+}
+
+
 /*** BUILDING HEADER *********************************************************
  * This method builds a header from a .mnc DataSource.
  * The argument is given by check(...) and is supposed to be a .dim file.
@@ -522,7 +550,7 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 //   if( !hds->isOpen() )
 //     io_error::launchErrnoExcept( fname );
 
-  // cout << "MincHeader::read(), file : " << _name << endl;
+  // cout << "MincFormatChecker::_buildHeader, file : " << hds->url() << endl;
 
   // Work around BUG in netCDF which incorrectly uses assert and
   // aborts on empty files
@@ -546,12 +574,56 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   // volume using start_volume_input() (minc1 API) results in a segfault...
   mihandle_t    minc_volume;
   ncopts = 0;  // avoid print + exit in netcdf
+
+  mincMutex().lock();
+  // Minc2 may create a temp file and not delete it. As we may call this
+  // multiple times, we need to cleanup otherwise we will flood the filesystem.
+  string dtname = Paths::tempDir() + FileUtil::separator() + "aimsminc_XXXXXX";
+  char *dtnamec = strdup( dtname.c_str() );
+  if( !mkdtemp( dtnamec ) )
+    cout << "could not make temp dir " << dtname << endl;
+  dtname = dtnamec;
+  free( dtnamec );
+  string old_tmp = Paths::tempDir();
+  setenv( "TMPDIR", dtname.c_str(), 1 );
+
+  /* Minc2 miopen_volume leaks some open HFD5 files when the file is not
+     recognized as a Minc2 volume. This causes segfaults at exit (in the exit
+     handler, in H5_term_library().
+     To fix it we call manually the function H5close() in order
+     to garbage-collect the open file.
+     We do this inside the mutex to prevent another thread to use the HDF5 API
+     in the same time.
+     Anyway crashes are still experienced. So the only solution for now is to
+     prevent atexit cleanups.
+  */
+  H5dont_atexit();
+
   int status2 = miopen_volume( fname.c_str(), MI2_OPEN_READ, &minc_volume );
-  if( status2 == MI_NOERROR )
+
+  try
   {
-    // minc1 and minc2 volumes cannot be read using the same API (!)
-    return _buildMinc2Header( hds, (void *) minc_volume );
+    if( status2 == MI_NOERROR )
+    {
+      // minc1 and minc2 volumes cannot be read using the same API (!)
+      Object res = _buildMinc2Header( hds, (void *) minc_volume );
+      H5close();
+      mincMutex().unlock();
+      return res;
+    }
   }
+  catch( ... )
+  {
+    _clear_minc_tmp( dtname, old_tmp );
+    H5close();
+    mincMutex().unlock();
+    throw;
+  }
+  _clear_minc_tmp( dtname, old_tmp );
+
+  H5close();
+
+  mincMutex().unlock();
 
   // here we deal with Minc1
 
@@ -1204,6 +1276,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
   {
     localMsg( "Reading header..." );
     DataSource* hds = dsi.list().dataSource( "mnc" ).get();
+
     dsi.header() = _buildHeader( hds );
     std::string format = dsi.header()->getProperty( "format" )->getString();
 

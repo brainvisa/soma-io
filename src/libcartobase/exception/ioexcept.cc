@@ -523,6 +523,10 @@ void io_error::launchErrnoExcept( const string & filename )
       throw disk_full_error( strerror( errno ), filename );
     case EROFS:
       throw permission_error( strerror( errno ), filename );
+#ifdef EDQUOT
+    case EDQUOT:
+      throw quota_exceeded_error( strerror( errno ), filename );
+#endif
 #ifdef ECOMM
     case ECOMM:
       throw bad_medium_error( strerror( errno ), filename );
@@ -550,6 +554,16 @@ void io_error::launchErrnoExcept( const string & filename )
     default:
       throw io_error( strerror( errno ), filename );
     }
+}
+
+
+void io_error::checkFatalIOErrno( const string & filename )
+{
+  if( errno == ENOSPC || errno == EROFS || errno == EDQUOT
+      || errno == EACCES )
+  {
+    io_error::launchErrnoExcept( filename );
+  }
 }
 
 

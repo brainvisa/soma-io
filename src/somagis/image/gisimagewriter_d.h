@@ -308,7 +308,10 @@ namespace soma {
           // FIXME: stride[0] not taken into account for now
           const char * target = (char *) &*it;
           if( writeStridedBlock( target, len, strides[0] ) != (long) len )
-              throw carto::eof_error( url() );
+          {
+            io_error::checkFatalIOErrno( url() );
+            throw carto::eof_error( url() );
+          }
         }
       }
     }

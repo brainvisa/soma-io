@@ -52,10 +52,13 @@ namespace carto
 
     static void launchErrnoExcept( const std::string & filename = "" );
     static void keepExceptionPriority( std::exception & e, int & prio, 
-				       int & type, std::string & message, 
-				       int raiseprio = 0 );
+                                       int & type, std::string & message,
+                                       int raiseprio = 0 );
     static void launchExcept( int code, const std::string & msg, 
-			      const std::string & defmsg = "" );
+                              const std::string & defmsg = "" );
+    /// checks if errno is a disk full, access or quota error,
+    /// then throw an exception if so.
+    static void checkFatalIOErrno( const std::string & filename = "" );
 
   private:
     std::string			_filename;
