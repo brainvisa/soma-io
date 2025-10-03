@@ -8,7 +8,6 @@ soma-env:
     - aims-free
     - aims-gpl
     - brainvisa-share
-    - axon
 
   internal-dependencies:
     - soma-python
