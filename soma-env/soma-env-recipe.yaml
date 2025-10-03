@@ -41,6 +41,8 @@ requirements:
     - openjpeg
     - pywebp
     - objgraph
+    - pygltflib
+    - gltf-transform
 
 tests:
   - script: |
