@@ -28,6 +28,7 @@ requirements:
     - pyyaml
     - libminc
     - openjpeg
+    - soma-openslide
 
   run:
     - sigcpp-2.0
@@ -43,6 +44,7 @@ requirements:
     - objgraph
     - pygltflib
     - gltf-transform
+    - soma-openslide
 
 tests:
   - script: |
