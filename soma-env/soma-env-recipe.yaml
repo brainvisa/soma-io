@@ -29,6 +29,7 @@ requirements:
     - libminc
     - openjpeg
     - soma-openslide
+    - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
 
   run:
     - sigcpp-2.0
@@ -45,6 +46,7 @@ requirements:
     - pygltflib
     - gltf-transform
     - soma-openslide
+    - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
 
 tests:
   - script: |
