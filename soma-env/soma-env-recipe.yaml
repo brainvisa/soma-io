@@ -43,6 +43,7 @@ requirements:
     - objgraph
     - pygltflib
     - gltf-transform
+    - dracopy
 
 tests:
   - script: |
