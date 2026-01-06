@@ -45,6 +45,7 @@ requirements:
     - objgraph
     - pygltflib
     - gltf-transform
+    - dracopy
     - soma-openslide
     - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
 
