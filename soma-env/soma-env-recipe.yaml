@@ -10,7 +10,7 @@ soma-env:
     - brainvisa-share
 
   internal-dependencies:
-    - soma-python
+    - soma-base
 
   type: compiled
 
