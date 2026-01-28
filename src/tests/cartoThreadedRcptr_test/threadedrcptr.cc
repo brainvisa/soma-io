@@ -215,6 +215,8 @@ bool testthread( int tpcpu )
   int           ncpu = cpuCount();
   unsigned      j;
 
+  errno = 0;
+
   /* for( int i=0; i<ncpu*2; ++i )
     thcnt[i] = 0; */
   FooContext<rcptr> fooContext;
