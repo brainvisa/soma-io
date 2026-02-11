@@ -565,6 +565,13 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
   // separators
   fname = FileUtil::linuxFilename( fname );
 
+  // miopen_volume sometimes crashes when opening non-HDF5 files
+  // so better refuse all non-recognized extensions.
+  if( fname.substr( fname.length() - 4, 4 ) != ".mnc"
+      && fname.substr( fname.length() - 4, 4 ) != ".mgh"
+      && fname.substr( fname.length() - 4, 4 ) != ".mgz" )
+    throw wrong_format_error( fname );
+
   // suppress stderr output to avoid messages
   fdinhibitor fdi( 2 );
   fdi.close();
@@ -1258,7 +1265,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
 
   //--- test header format ---------------------------------------------------
   if( !doread )
-    if( !dsi.header()->hasProperty( "format" ) 
+    if( !dsi.header()->hasProperty( "format" )
         || ( dsi.header()->getProperty( "format" )->getString() != "MINC"
              && dsi.header()->getProperty( "format" )->getString()
                 != "FREESURFER-MINC" ) )
@@ -1294,7 +1301,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
       for(int32_t d = 0; d < dsize; ++d)
           if (dims[d] <= 0)
               dims[d] = 1;
-      
+
       if( dims.size() < 4 )
       {
         dims.resize( 4, 1 );
@@ -1306,15 +1313,15 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
     if (dsi.header()->getProperty("sizeX", size))
       if (size <= 0)
           dsi.header()->setProperty("sizeX", 1);
-    
+
     if (dsi.header()->getProperty("sizeY", size))
       if (size <= 0)
           dsi.header()->setProperty("sizeY", 1);
-    
+
     if (dsi.header()->getProperty("sizeZ", size))
       if (size <= 0)
           dsi.header()->setProperty("sizeZ", 1);
-    
+
     if (dsi.header()->getProperty("sizeT", size))
       if (size <= 0)
           dsi.header()->setProperty("sizeT", 1);
@@ -1327,7 +1334,7 @@ DataSourceInfo MincFormatChecker::check( DataSourceInfo dsi,
     dsi.capabilities().setMemoryMapping( false );
     try
     {
-      if( !(bool) dsi.header()->getProperty( "byte_swapping" )->getScalar() 
+      if( !(bool) dsi.header()->getProperty( "byte_swapping" )->getScalar()
           && !(bool) dsi.header()->getProperty( "ascii" )->getScalar() )
         dsi.capabilities().setMemoryMapping( true );
     }
