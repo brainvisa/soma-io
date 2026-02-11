@@ -603,6 +603,11 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
      in the same time.
      Anyway crashes are still experienced. So the only solution for now is to
      prevent atexit cleanups.
+
+     [NS-2026-02-11] H5close may have side effects: if the h5py module have 
+     been imported before calling aims.read, the H5 kernel is closed 
+     by H5close() and is not available anymore. miopen_volume should call
+     H5close(openedfile) when needed.
   */
   H5dont_atexit();
 
