@@ -567,9 +567,11 @@ Object MincFormatChecker::_buildHeader( DataSource* hds ) const
 
   // miopen_volume sometimes crashes when opening non-HDF5 files
   // so better refuse all non-recognized extensions.
-  if( fname.substr( fname.length() - 4, 4 ) != ".mnc"
+  if( fname.length() < 5 || (fname.substr( fname.length() - 4, 4 ) != ".mnc"
       && fname.substr( fname.length() - 4, 4 ) != ".mgh"
-      && fname.substr( fname.length() - 4, 4 ) != ".mgz" )
+      && fname.substr( fname.length() - 4, 4 ) != ".mgz"
+      && ( fname.length() < 8
+           || fname.substr( fname.length() - 7, 7 ) != ".mnc.gz" ) ) )
     throw wrong_format_error( fname );
 
   // suppress stderr output to avoid messages

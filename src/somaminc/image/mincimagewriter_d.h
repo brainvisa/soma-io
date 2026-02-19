@@ -84,6 +84,8 @@ typedef misize_t aims_misize_t;
 #include <memory>
 #include <stdexcept>
 #include <vector>
+#include <zlib.h>
+#include <sys/stat.h>
 //--- debug ------------------------------------------------------------------
 #include <cartobase/config/verbose.h>
 #define localMsg( message ) cartoCondMsg( 4, message, "NIFTIIMAGEWRITER" )
@@ -760,6 +762,24 @@ namespace soma
 
     if( !ok )
       io_error::launchErrnoExcept( dsi.url() );
+
+    if( fname.substr( fname.length() - 3, 3 ) == ".gz" )
+    {
+      // gzipped format
+      struct stat s;
+      int r = stat( fname.c_str(), &s );
+      if( r == 0 )
+      {
+        size_t len = s.st_size;
+        char *buf = new char[len + 1];
+        std::ifstream is( fname.c_str(), std::ios::in | std::ios::binary );
+        is.read( buf, len );
+        gzFile zbuf = gzopen( fname.c_str(), "wb" );
+        gzwrite( zbuf, buf, len );
+        gzclose( zbuf );
+        delete buf;
+      }
+    }
 
   }
 

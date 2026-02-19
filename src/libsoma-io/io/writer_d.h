@@ -121,7 +121,7 @@ namespace soma
   bool Writer<T>::write( const T & obj, carto::Object options,
                          int passbegin, int passend )
   {
-    localMsg( "<" + carto::DataTypeCode<T>::name() + ">" );
+    localMsg( "<" + carto::DataTypeCode<T>::name() + "> " + _datasourceinfo->url() );
 
     set_S            tried;
     FormatWriter<T>  *writer;
@@ -198,6 +198,13 @@ namespace soma
     }
 
     std::string	          ext = carto::FileUtil::extension( filename );
+    if( ext == "gz" )  // double extension
+    {
+      std::string ext2 = carto::FileUtil::extension(
+        filename.substr( 0, filename.length() - 3 ) );
+      if( ext2 != "" )
+        ext = ext2 + "." + ext;
+    }
     const multi_S	&       extensions = FormatDictionary<T>::writeExtensions();
     pair_cit_S            iext;
     multi_S::const_iterator ie, ee;
