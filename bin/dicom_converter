@@ -40,6 +40,7 @@ import hashlib
 import string
 import glob
 import platform
+import sys
 from tempfile import mkdtemp, mkstemp
 from subprocess import check_call
 import numpy as np
@@ -60,6 +61,11 @@ try:
 except ImportError as e:
     import dicom
     import dicom.UID as dicom_UID
+
+if int(dicom.__version_info__[0]) >= 3:
+    dicom_read = dicom.dcmread
+else:
+    dicom_read = dicom.read_file
 
 def get_mcverter():
     mcverter_exist_dic = {'mcverter': False, 'mcverter_x64': False}
@@ -87,18 +93,22 @@ def make_valid_filename(filename):
 
 def findSharedFile(filename):
 
-    for dir in sorted(glob.glob(os.path.join(*(
-            split_path(soma.__file__)[:-3] + ['share', 'soma-*'])))):
-        if os.path.exists(dir):
-            filepath = os.path.join(dir, filename)
-            if os.path.exists(filepath):
-                return filepath
+    path = split_path(soma.__file__)
 
+    while len(path) > 0:
+        for dir in sorted(glob.glob(os.path.join(*(
+                path + ['share', 'soma-*'])))):
+            if os.path.exists(dir):
+                filepath = os.path.join(dir, filename)
+                if os.path.exists(filepath):
+                    # print('Found .ini file:', filepath)
+                    return filepath
+        path.pop()
 
 def get_start_and_duration_times(serie):
     stdt = {}
     for f in serie:
-        ds = dicom.read_file(f)
+        ds = dicom_read(f)
         try:
             if ds.Modality != 'PT':
                 return None
@@ -154,7 +164,7 @@ def check_transfer_syntax_uid(dicomFile):
                 "\"Encrypted Content Transfer Syntax UID\" not found")
     else:
         is_endian = True
-        ds = dicom.read_file(dicomFile)
+        ds = dicom_read(dicomFile)
         is_big_endian = ds.is_big_endian
 
     if is_endian:
@@ -167,7 +177,7 @@ def check_transfer_syntax_uid(dicomFile):
 
 
 def check_jpeg(dicomFile):
-    ds = dicom.read_file(dicomFile)
+    ds = dicom_read(dicomFile)
     if not "JPEG" in ds.file_meta.TransferSyntaxUID.name:
         return
     check_call([find_in_path("dcmdjpeg"), dicomFile, dicomFile])
@@ -207,7 +217,7 @@ def convert_to_nifti(serie, args, mergeDynSeries=True, remove_corrupt_tags=True)
         except OSError:
             print("The DICOM converter needs DCMTK binaries to convert", f)
 
-        ds = dicom.read_file(tempfile)
+        ds = dicom_read(tempfile)
         if remove_corrupt_tags:
             removeCorruptTags(ds)
 
@@ -436,7 +446,7 @@ def convert_to_nifti_MR(serie, args, remove_corrupt_tags=True):
     uuid = None
     series_instance_uid = None
 
-    ds = dicom.read_file(serie[0])
+    ds = dicom_read(serie[0])
     if remove_corrupt_tags:
         removeCorruptTags(ds)
 
@@ -447,6 +457,7 @@ def convert_to_nifti_MR(serie, args, remove_corrupt_tags=True):
     converter = os.environ.get('DCM2NII', 'dcm2nii')
 
     if not converter.endswith('dcm2niix'):
+        print([converter, '-b', ini, '-o', tmpdir, os.path.dirname(serie[0])]);sys.stdout.flush();
         check_call([converter, '-b', ini,
             '-o', tmpdir, os.path.dirname(serie[0])])
     else:
@@ -588,7 +599,7 @@ def convert_to_nifti_NM(serie, args, remove_corrupt_tags=True):
     except OSError:
         print("The DICOM converter needs DCMTK binaries to convert", f)
 
-    ds = dicom.read_file(tempFile)
+    ds = dicom_read(tempFile)
     if remove_corrupt_tags:
         removeCorruptTags(ds)
     tags = ((0x0010, 0x0010), (0x0008, 0x0020),
@@ -724,7 +735,7 @@ Convert input DICOM files into NIfTI files
     # Browse aggregated DICOM series
     for serie in aggr._aggregate_sources.values():
         
-        ds = dicom.read_file(serie[0])
+        ds = dicom_read(serie[0])
 
         try:
             modality = ds.Modality
