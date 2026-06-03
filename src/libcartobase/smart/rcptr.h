@@ -95,6 +95,12 @@ class DefaultRefConstruction
   static void destroy( const_ref<T> * );
   template <class T>
   static void construct( const_ref<T> *, const T *, bool externalowner );
+protected:
+  /* if T has a release() method, there will be an ambiguity in
+      RefConstruction<T>::release, since RefConstruction inherits T and
+      DefaultRefConstruction. Then we will need to specialize
+      RefConstruction for these classes and overload release() there.
+  */
   template <class T>
   static const T *release( const_ref<T> * );
 };
