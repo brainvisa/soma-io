@@ -28,6 +28,7 @@ requirements:
     - pyyaml
     - libminc
     - openjpeg
+    - libxml2-devel
     - soma-openslide
     - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
 
@@ -46,6 +47,7 @@ requirements:
     - pygltflib
     - gltf-transform
     - dracopy
+    - libxml2
     - soma-openslide
     - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
 
