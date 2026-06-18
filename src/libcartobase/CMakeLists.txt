@@ -261,7 +261,7 @@ add_library( cartobase_1 SHARED ${_cartobase_1_sources} )
 set_property( TARGET cartobase_1 PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( cartobase_1 "cartobase_0" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
 if(UNIX)
-  target_link_libraries( cartobase_1 "pthread" )
+  target_link_libraries( cartobase_1 "pthread" "m" )
 endif(UNIX)
 BRAINVISA_INSTALL( TARGETS cartobase_1
                    DESTINATION lib
@@ -271,7 +271,7 @@ add_library( cartobase SHARED ${_cartobase_sources} )
 set_property( TARGET cartobase PROPERTY VERSION ${${PROJECT_NAME}_VERSION} )
 target_link_libraries( cartobase "cartobase_1" "cartobase_0" ${LIBXML2_LIBRARIES} ${Sigc++2_LIBRARIES} )
 if(UNIX)
-  target_link_libraries( cartobase "pthread" )
+  target_link_libraries( cartobase "pthread" "m" )
 endif(UNIX)
 BRAINVISA_INSTALL( TARGETS cartobase
                    DESTINATION lib
