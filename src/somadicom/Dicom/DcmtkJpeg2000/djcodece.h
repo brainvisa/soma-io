@@ -82,6 +82,12 @@ class  DJ2KEncoderBase : public DcmCodec
                                 DcmStack& objStack ) const;
 #endif
 
+// New pure virtual methods in dcmtk 3.7.0
+#if PACKAGE_VERSION_NUMBER >= 370
+    virtual Uint16 decodedBitsAllocated( Uint16 bitsAllocated,
+                                         Uint16 bitsStored ) const override;
+#endif
+
     virtual OFBool canChangeCoding( const E_TransferSyntax oldRepType,
                                     const E_TransferSyntax newRepType ) const;
 

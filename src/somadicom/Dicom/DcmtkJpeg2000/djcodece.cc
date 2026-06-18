@@ -67,6 +67,21 @@ OFCondition DJ2KEncoderBase::decode(
 
 }
 
+#if PACKAGE_VERSION_NUMBER >= 370
+Uint16 DJ2KEncoderBase::decodedBitsAllocated(
+  Uint16 bitsAllocated,
+  Uint16 bitsStored ) const
+{
+  if( bitsAllocated <= 8 )
+      return 8;
+  if( bitsAllocated <= 16 )
+      return 16;
+  if( bitsAllocated <= 32 )
+      return 32;
+
+  return 0;
+}
+#endif
 
 OFCondition DJ2KEncoderBase::decodeFrame(
                               const DcmRepresentationParameter* /* fromParam */,
