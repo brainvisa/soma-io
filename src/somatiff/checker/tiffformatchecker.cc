@@ -342,10 +342,21 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   vs.push_back( voxelSizeZ );
   vs.push_back( voxelSizeT );
 
-  hdr->setProperty( "sizeX", dims[0] );
-  hdr->setProperty( "sizeY", dims[1] );
-  hdr->setProperty( "sizeZ", dims[2] );
-  hdr->setProperty( "sizeT", dims[3] );
+  hdr->setProperty( "volume_dimension", dims );
+  if( dims.size() >= 1 )
+  {
+    hdr->setProperty( "sizeX", dims[0] );
+    if( dims.size() >= 2 )
+    {
+      hdr->setProperty( "sizeY", dims[1] );
+      if( dims.size() >= 3 )
+      {
+        hdr->setProperty( "sizeZ", dims[2] );
+        if( dims.size() >= 4 )
+          hdr->setProperty( "sizeT", dims[3] );
+      }
+    }
+  }
   hdr->setProperty( "format", string( "TIFF" ) );
   hdr->setProperty( "voxel_size", vs );
   hdr->setProperty( "object_type", string( "Volume" ) );
