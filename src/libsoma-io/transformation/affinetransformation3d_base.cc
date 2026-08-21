@@ -187,16 +187,27 @@ AffineTransformationBase::AffineTransformationBase( const carto::Object mat )
     Transformation(),
     _matrix( 0, 0 )
 {
+  if( !mat )
+  {
+    _matrix.resize( 4, 4 );
+    _matrix.ncols = 4;
+    for ( int i = 0; i < 4; i++ )
+      _matrix[ i + i* 4 ] = 1.0;
+    return;
+  }
   unsigned n = int( ceil( sqrt( mat->size() ) ) );
   _matrix.resize( n * n, 0.f );
   _matrix.ncols = n;
   unsigned l, c;
   Object it = mat->objectIterator();
-  for( unsigned i=0; it->isValid(); ++i, it->next() )
+  if( it )
   {
-    c = i % n;
-    l = i / n;
-    _matrix[ c * n + l ] = float( it->currentValue()->getScalar() );
+    for( unsigned i=0; it->isValid(); ++i, it->next() )
+    {
+      c = i % n;
+      l = i / n;
+      _matrix[ c * n + l ] = float( it->currentValue()->getScalar() );
+    }
   }
 }
 
