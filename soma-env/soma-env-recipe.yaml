@@ -29,7 +29,7 @@ requirements:
     - libminc
     - openjpeg
     - soma-openslide
-    - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
+    - $soma-env{{ pin_dev_compatible("qt6-main", min_pin="6.11") }}
 
   run:
     - sigcpp-2.0
@@ -47,7 +47,7 @@ requirements:
     - gltf-transform
     - dracopy
     - soma-openslide
-    - $soma-env{{ pin_dev_compatible("qt-main", exact=True) }}
+    - $soma-env{{ pin_dev_compatible("qt6-main", min_pin="6.11") }}
 
 tests:
   - script: |
