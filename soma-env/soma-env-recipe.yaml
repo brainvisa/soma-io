@@ -18,7 +18,7 @@ requirements:
   build:
     - sigcpp-2.0
     - libblitz
-    - boost-cpp
+    - boost
     - gfortran
     - graphviz
     - dcmtk
