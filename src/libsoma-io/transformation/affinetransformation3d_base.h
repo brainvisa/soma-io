@@ -123,11 +123,11 @@ namespace soma
                                bool notify_fail = true );
 
     virtual std::vector<double> transform(
-      const std::vector<double>& pos ) const;
+      const std::vector<double>& pos ) const override;
     virtual std::vector<float>
-      transform( const std::vector<float> & pos ) const
+      transform( const std::vector<float> & pos ) const override
     { return this->Transformation::transform( pos ); }
-    virtual std::vector<int> transform( const std::vector<int> & pos ) const
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const override
     { return this->Transformation::transform( pos ); }
 
     Table<float> & matrix() { return _matrix; }
@@ -195,9 +195,9 @@ namespace soma
     virtual AffineTransformation3dBase &operator = (
       const AffineTransformation3dBase& other );
     virtual AffineTransformation3dBase &operator = (
-      const std::vector<float> & other );
+      const std::vector<float> & other ) override;
     virtual AffineTransformation3dBase &operator = (
-      const carto::Object other );
+      const carto::Object other ) override;
 
     AffineTransformation3dBase & operator *= (
       const AffineTransformation3dBase & trans );
@@ -205,7 +205,7 @@ namespace soma
 
     virtual bool operator == ( const AffineTransformation3dBase & ) const;
 
-    virtual void extendOrder( unsigned n );
+    virtual void extendOrder( unsigned n ) override;
 
     Point3dd transform( double x, double y, double z ) const
     { return this->Transformation3d::transform( x, y, z ); }
@@ -222,12 +222,12 @@ namespace soma
     Point3di transform( int x, int y, int z ) const
     { return this->Transformation3d::transform( x, y, z ); }
     virtual std::vector<double>
-      transform( const std::vector<double> & pos ) const
+      transform( const std::vector<double> & pos ) const override
     { return this->AffineTransformationBase::transform( pos ); }
     virtual std::vector<float>
-      transform( const std::vector<float> & pos ) const
+      transform( const std::vector<float> & pos ) const override
     { return this->Transformation::transform( pos ); }
-    virtual std::vector<int> transform( const std::vector<int> & pos ) const
+    virtual std::vector<int> transform( const std::vector<int> & pos ) const override
     { return this->Transformation::transform( pos ); }
 
     Point3dd transformVector( const Point3dd & vec ) const;
@@ -237,11 +237,11 @@ namespace soma
     Point3df transformVector( float x, float y, float z ) const;
     Point3di transformVector( int x, int y, int z ) const;
     virtual std::vector<double>
-      transformVector( const std::vector<double> & pos ) const;
+      transformVector( const std::vector<double> & pos ) const override;
     virtual std::vector<float>
-      transformVector( const std::vector<float> & pos ) const;
+      transformVector( const std::vector<float> & pos ) const override;
     virtual std::vector<int>
-      transformVector( const std::vector<int> & pos ) const;
+      transformVector( const std::vector<int> & pos ) const override;
 
     Point3dd transformNormal( const Point3dd & dir ) const;
     Point3df transformNormal( const Point3df & dir ) const;
@@ -253,7 +253,7 @@ namespace soma
     Point3df transformUnitNormal( float x, float y, float z ) const;
 
     bool isIdentity() const CARTO_OVERRIDE;
-    virtual void setToIdentity();
+    virtual void setToIdentity() override;
 
     // AffineTransformation3d algebraic operation
     std::unique_ptr<AffineTransformation3dBase> inverse() const;

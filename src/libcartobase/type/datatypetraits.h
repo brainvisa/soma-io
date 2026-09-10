@@ -127,8 +127,8 @@ namespace carto {
   DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( long long, true, SINGLE_CHANNEL, intmax_t, true )
   DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( float, true, SINGLE_CHANNEL, double, true )
   DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( double, true, SINGLE_CHANNEL, double, true )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cfloat, false, SINGLE_CHANNEL, cdouble, true )
-  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cdouble, false, SINGLE_CHANNEL, cdouble, true )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cfloat, false, SINGLE_CHANNEL, cdouble, false )
+  DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( cdouble, false, SINGLE_CHANNEL, cdouble, false )
 
   /// DataTypeTraits carto::VoxelValue specialization
   DATA_TYPE_TRAITS_DECLARE_SPECIALIZATION( carto::VoxelRGB, false, MULTI_CHANNEL, carto::VoxelRGB, true )

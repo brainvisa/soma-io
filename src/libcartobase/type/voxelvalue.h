@@ -134,7 +134,7 @@ namespace carto {
 
   // KeyComparatorLess functor
   template <typename V>
-  struct KeyComparatorLess: std::binary_function<V, V, bool>
+  struct KeyComparatorLess
   {
     constexpr bool operator ()(const V & lhs, const V & rhs) const;
   };

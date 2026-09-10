@@ -777,7 +777,7 @@ namespace soma
         gzFile zbuf = gzopen( fname.c_str(), "wb" );
         gzwrite( zbuf, buf, len );
         gzclose( zbuf );
-        delete buf;
+        delete[] buf;
       }
     }
 
