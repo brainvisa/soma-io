@@ -33,8 +33,8 @@ requirements:
 
   run:
     - sigcpp-2.0
-    - libblitz
-    - boost-cpp
+    # - libblitz  # is it needed at runtime ??
+    # - boost  # is it needed at runtime ??
     - gfortran
     - dcmtk
     - numpy <2
