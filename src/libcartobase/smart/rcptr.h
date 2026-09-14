@@ -51,7 +51,7 @@
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 103300 && \
   ( !defined( linux ) || ( defined( __GNUC__ ) && __GNUC__ >= 4 ) )
-#include <boost/detail/atomic_count.hpp>
+#include <boost/smart_ptr/detail/atomic_count.hpp>
 #ifndef BOOST_AC_USE_PTHREADS
 #define CARTO_RCPTR_USE_BOOST
 #endif
