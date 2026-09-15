@@ -1,7 +1,9 @@
-cmake_minimum_required( VERSION 4.2 )
-find_package( brainvisa-cmake REQUIRED )
-BRAINVISA_PROJECT()
-enable_testing()
+if(NOT NO_BV_MAKER)
+  cmake_minimum_required( VERSION 4.2 )
+  find_package( brainvisa-cmake REQUIRED )
+  BRAINVISA_PROJECT()
+  enable_testing()
+endif()
 
 ## Lib dependencies
 find_package( Sigc++2 REQUIRED )
@@ -202,4 +204,6 @@ BRAINVISA_GENERATE_SPHINX_DOC( "sphinx"
   "share/doc/soma-io-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}" )
 
 
-BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
+if(NOT NO_BV_MAKER)
+  BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
+endif()
