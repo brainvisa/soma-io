@@ -1,4 +1,4 @@
-if(NOT NO_BV_MAKER)
+if( BRAINVISA_BVMAKER )
   cmake_minimum_required( VERSION 4.2 )
   find_package( brainvisa-cmake REQUIRED )
   BRAINVISA_PROJECT()
@@ -14,7 +14,7 @@ find_package( LibXml2 REQUIRED )
 BRAINVISA_DEPENDENCY( RUN DEPENDS libxml2 RUN )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libxml2 DEV )
 
-find_package( Boost REQUIRED )
+find_package( Boost CONFIG REQUIRED )
 BRAINVISA_DEPENDENCY( DEV DEPENDS libboost DEV )
 
 find_package( Doxygen )
@@ -24,7 +24,7 @@ find_package( OpenSlide )
 # Temporary condition to ensure compatibility with a branch
 # of brainvisa-cmake where BRAINVISA_VERSION_CONVERT has disappeard
 # and where dependencies are useless.
-if ( NOT NO_BV_MAKER )
+if ( BRAINVISA_BVMAKER )
   if( OPENSLIDE_FOUND )
     BRAINVISA_DEPENDENCY( RUN DEPENDS libopenslide RUN )
     BRAINVISA_VERSION_CONVERT( OPENSLIDE_HEX_VERSION ${OPENSLIDE_VERSION} HEX )
@@ -111,12 +111,14 @@ BRAINVISA_DEPENDENCY( DEV DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVI
 BRAINVISA_DEPENDENCY( RUN RECOMMENDS python RUN ">= 2.7" )
 BRAINVISA_DEPENDENCY( TST DEPENDS "${BRAINVISA_PACKAGE_NAME}" RUN "= ${${BRAINVISA_PACKAGE_NAME}_VERSION}" )
 
-# used for brainvisa-share/config.h
-BRAINVISA_FIND_PACKAGE( brainvisa-share QUIET )
-if( BRAINVISA-SHARE_FOUND )
-  include( "${BRAINVISA-SHARE_USE_FILE}" )
-else()
-  message( "WARNING: project brainvisa-share has not been found. Some programs that require access to shared directories may fail to run." )
+if( BRAINVISA_BVMAKER )
+  # used for brainvisa-share/config.h
+  BRAINVISA_FIND_PACKAGE( brainvisa-share QUIET )
+  if( BRAINVISA-SHARE_FOUND )
+    include( "${BRAINVISA-SHARE_USE_FILE}" )
+  else()
+    message( "WARNING: project brainvisa-share has not been found. Some programs that require access to shared directories may fail to run." )
+  endif()
 endif()
 
 BRAINVISA_COPY_PYTHON_DIRECTORY( "${CMAKE_CURRENT_SOURCE_DIR}/python"
@@ -204,6 +206,6 @@ BRAINVISA_GENERATE_SPHINX_DOC( "sphinx"
   "share/doc/soma-io-${BRAINVISA_PACKAGE_VERSION_MAJOR}.${BRAINVISA_PACKAGE_VERSION_MINOR}" )
 
 
-if(NOT NO_BV_MAKER)
+if( BRAINVISA_BVMAKER )
   BRAINVISA_CREATE_CMAKE_CONFIG_FILES()
 endif()
