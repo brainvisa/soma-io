@@ -36,12 +36,12 @@ requirements:
     # - libblitz  # is it needed at runtime ??
     # - boost  # is it needed at runtime ??
     - gfortran
-    - ${{ pin_compatible('dcmtk', lower_bound='x.x', upper_bound='x.x') }}
+    - ${{ pin_dev_compatible('dcmtk', lower_bound='x.x', upper_bound='x.x') }}
     - numpy <2
     - pyyaml
-    - ${{ pin_compatible('libminc', lower_bound='x.x', upper_bound='x.x') }}
-    - ${{ pin_compatible('libnetcdf', lower_bound='x.x', upper_bound='x.x') }}
-    - ${{ pin_compatible('hdf5', lower_bound='x.x', upper_bound='x.x') }}
+    - ${{ pin_dev_compatible('libminc', lower_bound='x.x', upper_bound='x.x') }}
+    - ${{ pin_dev_compatible('libnetcdf', lower_bound='x.x', upper_bound='x.x') }}
+    - ${{ pin_dev_compatible('hdf5', lower_bound='x.x', upper_bound='x.x') }}
     - openjpeg
     - pywebp
     - objgraph
