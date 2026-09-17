@@ -39,7 +39,9 @@ requirements:
     - dcmtk
     - numpy <2
     - pyyaml
-    - libminc
+    - ${{ pin_compatible('libminc', min_pin='x.x', max_pin='x') }}
+    - ${{ pin_compatible('libnetcdf', min_pin='x.x', max_pin='x') }}
+    - ${{ pin_compatible('hdf5', min_pin='x.x', max_pin='x') }}
     - openjpeg
     - pywebp
     - objgraph
