@@ -36,7 +36,7 @@ requirements:
     - libblitz
     - boost-cpp
     - gfortran
-    - dcmtk
+    - ${{ pin_compatible('dcmtk', min_pin='x.x', max_pin='x') }}
     - numpy <2
     - pyyaml
     - ${{ pin_compatible('libminc', min_pin='x.x', max_pin='x') }}
