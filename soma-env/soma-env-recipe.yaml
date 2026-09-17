@@ -26,7 +26,9 @@ requirements:
     - pkgconfig
     - numpy
     - pyyaml
-    - libminc
+    - $soma-env{{ pin_dev_compatible('libminc', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('libnetcdf', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('hdf5', lower_bound='x.x', upper_bound='x.x') }}
     - openjpeg
     - soma-openslide
     - $soma-env{{ pin_dev_compatible("qt6-main", min_pin="6.11") }}
@@ -36,12 +38,12 @@ requirements:
     # - libblitz  # is it needed at runtime ??
     # - boost  # is it needed at runtime ??
     - gfortran
-    - ${{ pin_dev_compatible('dcmtk', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('dcmtk', lower_bound='x.x', upper_bound='x.x') }}
     - numpy <2
     - pyyaml
-    - ${{ pin_dev_compatible('libminc', lower_bound='x.x', upper_bound='x.x') }}
-    - ${{ pin_dev_compatible('libnetcdf', lower_bound='x.x', upper_bound='x.x') }}
-    - ${{ pin_dev_compatible('hdf5', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('libminc', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('libnetcdf', lower_bound='x.x', upper_bound='x.x') }}
+    - $soma-env{{ pin_dev_compatible('hdf5', lower_bound='x.x', upper_bound='x.x') }}
     - openjpeg
     - pywebp
     - objgraph
