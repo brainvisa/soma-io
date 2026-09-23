@@ -56,6 +56,7 @@ set( _headers
    smart/scopedptr.h
    smart/sharedptr.h
    smart/smartdoc.h
+   smart/test_rcobject.h
    smart/weakobject.h
    smart/weakptr.h
    stream/attachable_cuifstream.h
@@ -191,7 +192,8 @@ set( _cartobase_0_sources
   smart/mutexrcptr.cc 
   smart/rcobject.cc 
   smart/sharedptr.cc 
-  smart/weakobject.cc 
+  smart/test_rcobject.cc
+  smart/weakobject.cc
   stream/attachable_cuifstream.cc 
   stream/counter.cc 
   stream/cuifstream.cc 

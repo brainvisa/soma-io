@@ -33,6 +33,57 @@ using namespace std;
 //============================================================================
 //   U T I L I T I E S
 //============================================================================
+// #include <map>
+// #include <string>
+// #include <sstream>
+// #include <algorithm>
+
+// Trim spaces at beginning and end of a string 
+static std::string trim(const std::string& s)
+{
+    const char* whitespace = " \t\r\n";
+    size_t start = s.find_first_not_of(whitespace);
+    if (start == std::string::npos)
+        return "";
+    size_t end = s.find_last_not_of(whitespace);
+    return s.substr(start, end - start + 1);
+}
+
+// Parses an ImageJ ImageDescription bloc and create a map<std:string, std:string>
+//   ImageJ=1.54p
+//   images=1
+//   channels=1
+//   unit=micron
+//   spacing=0.5
+static std::map<std::string, std::string> parseImageDescription(const std::string description)
+{
+    std::map<std::string, std::string> result;
+    if (description.empty())
+        return result;
+
+    std::istringstream stream(description);
+    std::string line;
+
+    while (std::getline(stream, line))
+    {
+        // Trim the read line
+        line = trim(line);
+        if (line.empty())
+            continue;
+
+        size_t eqPos = line.find('=');
+        if (eqPos == std::string::npos)
+            continue; // Ignore line without '='
+
+        std::string key   = trim(line.substr(0, eqPos));
+        std::string value = trim(line.substr(eqPos + 1));
+
+        if (!key.empty())
+            result[key] = value;
+    }
+
+    return result;
+}
 
 //============================================================================
 //   P R I V A T E   M E T H O D S
@@ -132,8 +183,10 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
 {
   //FileDataSource* fds = dynamic_cast<FileDataSource *>( hds );
   Object          hdr = Object::value( PropertySet() );  // header
-  string          filename = hds->url();
+  string          filename = hds->url(), imageDescription = "";
   ushort          typesize, mbps, spp, unit, sampleformat, photometric;
+  double          unitfactor = 10.0;
+  char*           desc = NULL;
   vector<int32_t> dims(4, 1);
   float           voxelSizeX = 1.0,
                   voxelSizeY = 1.0,
@@ -154,10 +207,15 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
 
   vector<string> pt;
   dims[2] = TIFFNumberOfDirectories(tif);
-  
+
   TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &mbps);
   TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
   TIFFGetFieldDefaulted(tif, TIFFTAG_RESOLUTIONUNIT, &unit);
+  // Softwares like ImageJ store unit information in the image Description tag
+  if(TIFFGetFieldDefaulted(tif, TIFFTAG_IMAGEDESCRIPTION, &desc)) {
+    imageDescription = std::string(desc);
+    localMsg("imageDescription: " + imageDescription);
+  } 
   TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &dims[0]);
   TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &dims[1]);
   TIFFGetField(tif, TIFFTAG_XRESOLUTION, &voxelSizeX);
@@ -166,27 +224,67 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
     sampleformat = SAMPLEFORMAT_UINT;
   if( TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric) == 0 )
     photometric = PHOTOMETRIC_MINISBLACK;
-            
   TIFFClose(tif);
-  std::string unitname(std::string(unit == RESUNIT_INCH ? "inch" : 
-                       (unit == RESUNIT_CENTIMETER ? "cm" : 
-                       "not specified")));
+
+  std::string unitname;
+
+  // 1) Uses the unit stored in TIFFTAG_RESOLUTIONUNIT
+  //    i.e. pixels per inch or pixels per cm
+  if (unit == RESUNIT_INCH) {
+    unitname = "inch";
+    unitfactor = 25.4;
+  } 
+  else if (unit == RESUNIT_CENTIMETER) {
+    unitname = "cm";
+    unitfactor = 10;
+  } 
+  else {
+    // Assume that default is in pixels per cm
+    unitname = "not specified";
+    unitfactor = 10;
+  }
+
+  // 2) Uses the unit stored in TIFFTAG_IMAGEDESCRIPTION.
+  //    it extends the possible resolution units used to :
+  //    pixels par nanometer, pixels per micrometer, 
+  //    pixels per milimeter
+  if (!imageDescription.empty()) {
+    std::map<std::string, std::string> alttags = parseImageDescription(imageDescription);
+
+    auto it = alttags.find("unit");
+    if (it != alttags.end()) {
+      if (it->second == "nm") {
+        unitname = it->second;
+        unitfactor = 1e-6;
+      }
+      else if ((it->second == "micron") || (it->second == "µm")) {
+        unitname = "µm";
+        unitfactor = 1e-3;
+      } 
+      else if (it->second == "mm") {
+        unitname = it->second;
+        unitfactor = 1;
+      } 
+      else if (it->second == "cm") {
+        unitname = it->second;
+        unitfactor = 10;
+      }
+      else if (it->second == "inch") {
+        unitname = it->second;
+        unitfactor = 25.4;
+      }
+    }
+  }
+
   localMsg("Number of pixels per "
            + unitname + " is ["
            + carto::toString(voxelSizeX) + ", "
            + carto::toString(voxelSizeY) + "]");
 
-  // Number of pixels per centimeters is converted to size of a pixel 
-  // in mm or inches
-  voxelSizeX = 10 / voxelSizeX;
-  voxelSizeY = 10 / voxelSizeY;
+  // Number of pixels per unitname is converted to size of a pixel in mm
+  voxelSizeX = unitfactor / voxelSizeX;
+  voxelSizeY = unitfactor / voxelSizeY;
 
-  // If size was stored using inches, we convert it to mm 
-  if (unit == RESUNIT_INCH) {
-    voxelSizeX *= 2.54;
-    voxelSizeY *= 2.54;
-  }
-  
   localMsg("Voxel size (in mm) is ["
            + carto::toString(voxelSizeX) + ", "
            + carto::toString(voxelSizeY) + "]");
@@ -309,10 +407,21 @@ Object TiffFormatChecker::_buildHeader( DataSource* hds, const MultiFileFormatIn
   vs.push_back( voxelSizeZ );
   vs.push_back( voxelSizeT );
 
-  hdr->setProperty( "sizeX", dims[0] );
-  hdr->setProperty( "sizeY", dims[1] );
-  hdr->setProperty( "sizeZ", dims[2] );
-  hdr->setProperty( "sizeT", dims[3] );
+  hdr->setProperty( "volume_dimension", dims );
+  if( dims.size() >= 1 )
+  {
+    hdr->setProperty( "sizeX", dims[0] );
+    if( dims.size() >= 2 )
+    {
+      hdr->setProperty( "sizeY", dims[1] );
+      if( dims.size() >= 3 )
+      {
+        hdr->setProperty( "sizeZ", dims[2] );
+        if( dims.size() >= 4 )
+          hdr->setProperty( "sizeT", dims[3] );
+      }
+    }
+  }
   hdr->setProperty( "format", string( "TIFF" ) );
   hdr->setProperty( "voxel_size", vs );
   hdr->setProperty( "object_type", string( "Volume" ) );
