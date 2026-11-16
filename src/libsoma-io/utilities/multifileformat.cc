@@ -106,13 +106,13 @@ MultiFileFormatInfo MultiFileFormat::info( const std::string & filename )
     localMsg("regex slice time ok for file name: " + name);
     unsigned  lens = rmatch[2].rm_eo - rmatch[2].rm_so;
     unsigned  lent = rmatch[3].rm_eo - rmatch[3].rm_so;
-    char    num1[10], num2[10];
-    sprintf( num1, "%d", lens );
-    sprintf( num2, "%d", lent );
+    ostringstream num1, num2;
+    num1 << lens;
+    num2 << lent;
     info.pattern = string( "^" ) + name.substr( 0, rmatch[1].rm_eo + 1 ) 
                    + "([0-9]+)_s([0-9]+)\\." + ext + "$";
     info.format = name.substr( 0, rmatch[1].rm_eo + 1 ) + "%0" 
-                  + num1 + "u_s%0" + num2 + "u." + ext;
+                  + num1.str() + "u_s%0" + num2.str() + "u." + ext;
 
     string sslice = name.substr( rmatch[3].rm_so, lens );
     stringstream s(sslice);

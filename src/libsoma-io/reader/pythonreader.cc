@@ -838,11 +838,9 @@ GenericObject* PythonReader::read( GenericObject* object,
     }
 
   // failed
-  char buffer[10];
-  sprintf( buffer, "%d", line() );
   throw runtime_error( string( "Can't read attribute " ) + semantic
                        + " of type " + type + " in " + name() 
-                       + ", line " + buffer );
+                       + ", line " + lineString() );
 }
 
 
