@@ -75,7 +75,7 @@ map< string, vector< Algorithm *> >  _registeredAlgorithms;
 //-----------------------------------------------------------------------------
 Algorithm::Algorithm( const string &name ) : _name( name )
 {
-  cerr << "register algorithm: " << name << endl;
+  // cout << "register algorithm: " << name << endl;
   _registeredAlgorithms[ _name ].push_back( this );
 }
 

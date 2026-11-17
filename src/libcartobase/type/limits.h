@@ -36,13 +36,11 @@
 
 #include <cartobase/config/cartobase_config.h>
 
-#if defined( __GNUC__ ) && (__GNUC__-0 < 3)
-// use a copy of gcc-3.2 <limits>
-#include <cartobase/type/limits_gcc3.h>
-#else
+// We used to have a copy of gcc3 limts.h here for even older compilers.
+// They are obviously not neeed any longer. This file is obsolete.
+
 // use standard C++ header
 #include <limits>
-#endif
 
 #endif
 
