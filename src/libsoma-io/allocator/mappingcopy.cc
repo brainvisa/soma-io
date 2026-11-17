@@ -81,9 +81,10 @@ char* MappingCopyAllocator::allocate( size_t n, size_t sz, DataSource* ) const
 
   if ( fileName.length() )
     {
-      // BUG: mkstemp writes to the string, and directly modifying the memory
-      // pointed to by fname.c_str() is forbidden by the C++ standard
-      int	fildest = mkstemp( const_cast<char *>( fileName.c_str() ) );
+      // mkstemp writes to the string, and directly modifying the memory
+      // pointed to by fileName.data() is OK in C++17
+      int	fildest = mkstemp( fileName.data() );
+
       if ( fildest != -1 )
         {
           // unlink file to ensure it will be deleted after usage

@@ -92,7 +92,6 @@ set( _headers
    type/datatypetraits.h
    type/datatypeinfo.h
    type/limits.h
-   type/limits_gcc3.h
    type/select.h
    type/string_conversion.h
    type/types.h

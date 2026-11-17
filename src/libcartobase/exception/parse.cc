@@ -81,9 +81,9 @@ string parse_error::init( const string& what_arg,
   s += "\" while waiting for \"";
   s += what_arg;
   s += "\" (line ";
-  char buffer[ 10 ];
-  sprintf(buffer, "%d", line_arg);
-  s += buffer;
+  ostringstream ss;
+  ss << line_arg;
+  s += ss.str();
   s += ")";
   return s;
 
