@@ -124,7 +124,7 @@ void carto::ThreadedLoop::run()
 
 #ifdef CARTO_DEBUG
 
-    std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+    std::cout << "  ThreadedLoop::run() "
               << "return false" << std::endl;
 
 #endif
@@ -151,7 +151,7 @@ void carto::ThreadedLoop::run()
 
 #ifdef CARTO_DEBUG
 
-      std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+      std::cout << "  ThreadedLoop::run() "
                 << "{ start=" << startIndex << ", count=" << count << " }"
 	        << std::endl;
 
@@ -163,7 +163,7 @@ void carto::ThreadedLoop::run()
 
 #ifdef CARTO_DEBUG
 
-      std::cerr << "  ThreadedLoop::getStartIndexAndCount() "
+      std::cout << "  ThreadedLoop::run() "
                 << "return true" << std::endl;
 
 #endif
@@ -196,8 +196,8 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
 #ifdef CARTO_DEBUG
 
-  std::cerr << "CPU count     : " << nCpu << std::endl;
-  std::cerr << "thread by CPU : " << _threadsByCpu << std::endl;
+  std::cout << "CPU count     : " << nCpu << std::endl;
+  std::cout << "thread by CPU : " << _threadsByCpu << std::endl;
 
 #endif
 
@@ -248,7 +248,7 @@ bool carto::ThreadedLoop::launch( bool resetGauge, bool resetCancel )
 
 #ifdef CARTO_DEBUG
 
-  std::cerr << "thread count  : " << countThread << std::endl;
+  std::cout << "thread count  : " << countThread << std::endl;
 
 #endif
 
