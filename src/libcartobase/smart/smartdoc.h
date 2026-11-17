@@ -215,7 +215,7 @@ int main()
   \class carto::scoped_ptr <cartobase/smart/scopedptr.h>
   \brief Holds a temporary object pointer in a scope.
 
-  Even less capable than std::auto_ptr. For allocating on the heap
+  We now use std::unique_ptr. For allocating on the heap
   something that must be destructed when exiting the current scope.
   Just like a variable allocated on the stack...
 */

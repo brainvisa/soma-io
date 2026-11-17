@@ -134,14 +134,6 @@ typedef unsigned int uint32_t;
 #    define rint(x) floor(x+0.5)
 #    define isnan(x) _isnan(x)
 #  endif
-#elif defined( __APPLE__ ) && (__GNUC__==3) && (__GNUC_MINOR__<=3)
-     // BUG On MacOS 10.2 / 10.3
-#    include <cmath>
-#    define  isnan( x )         ( ( sizeof ( x ) == sizeof(double) ) ?        \
-                              __isnand ( x ) :                                \
-                                ( sizeof ( x ) == sizeof( float) ) ?          \
-                              __isnanf ( x ) :                                \
-                              __isnan  ( x ) )
 #else
 // Standards-compliant compiler
 #  include <cmath>
@@ -169,11 +161,6 @@ typedef unsigned int uint32_t;
 #define __attribute__(a) /* nothing */
 #endif
 
-// GCC < 4.5 does not support the argument to the __deprecated__ attribute
-#if ((__GNUC__-0 < 4) || (__GNUC_MINOR__-0 < 5)) && !__has_extension(attribute_deprecated_with_message)
-#define __deprecated__(msg) __deprecated__
-#endif
-
 /** \def CARTO_OVERRIDE
     \brief The \c override keyword of C++11 (expands to nothing in C++98).
 
@@ -184,15 +171,7 @@ typedef unsigned int uint32_t;
     there is no corresponding virtual function in a base class.
 **/
 
-#if __cplusplus >= 201103L
 #define CARTO_OVERRIDE override
-#else
-#define CARTO_OVERRIDE
-#define static_assert(expr, msg)
-// in non-c++11 mode, replace unique_ptr with auto_ptr
-#include <memory>
-#define unique_ptr auto_ptr
-#endif
 
 #include <cartobase/config/config.h>
 
