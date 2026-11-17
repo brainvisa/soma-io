@@ -7,8 +7,6 @@
 #include <cartobase/exception/file.h>
 #include <cartobase/exception/parse.h>
 
-// DEBUG FIXME
-#include <iostream>
 
 using namespace carto;
 using namespace std;
