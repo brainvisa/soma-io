@@ -85,7 +85,6 @@ class scoped_ptr
     {
     }
 
-#if __cplusplus >= 201103L
     // Only unique_ptr with the default deleter can be converted, because
     // scoped_ptr does not support custom deleters (it calls the delete operator
     // upon destruction, just like std::default_delete).
@@ -93,12 +92,6 @@ class scoped_ptr
     scoped_ptr( std::unique_ptr<U>&& r ) : pointee( r.release() )
     {
     }
-#else
-    template< class U >
-    scoped_ptr( std::auto_ptr<U> r ) : pointee( r.release() )
-    {
-    }
-#endif
 
     ~scoped_ptr()
     {
